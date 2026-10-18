@@ -1,0 +1,48 @@
+id: CASE-005
+title: 批量任务线程池（keepAliveTime 为 0）
+task: 为批量任务增加独立线程池，要求高峰时能扩容、空闲时能回收线程。
+language: java
+domain: thread_pool
+files:
+  before: before.java
+  bad: bad.java
+  good: good.java
+expected:
+  features:
+    - THREAD_POOL.CREATE
+    - THREAD_POOL.CONFIG.CORE_SIZE
+    - THREAD_POOL.CONFIG.MAX_SIZE
+    - THREAD_POOL.CONFIG.KEEP_ALIVE
+    - THREAD_POOL.CONFIG.QUEUE
+    - THREAD_POOL.CONFIG.REJECTION
+    - THREAD_POOL.CONFIG.THREAD_FACTORY
+    - THREAD_POOL.SUBMIT
+    - THREAD_POOL.EXECUTE
+    - THREAD_POOL.EXCEPTION
+  rules:
+    - TP-CONFIG-001
+    - TP-CONFIG-002
+    - TP-CONFIG-003
+    - TP-CONFIG-004
+    - TP-CONFIG-005
+    - TP-CONFIG-006
+    - TP-CREATE-001
+    - TP-CREATE-003
+    - TP-CREATE-004
+    - TP-MONITOR-001
+    - TP-REJECT-001
+    - TP-REJECT-002
+    - TP-REJECT-003
+    - TP-REJECT-004
+    - TP-SHUTDOWN-001
+    - TP-SUBMIT-001
+    - TP-SUBMIT-005
+  optional_rules: []
+  violations:
+    - TP-CONFIG-003
+    - TP-MONITOR-001
+    - TP-REJECT-003
+    - TP-SHUTDOWN-001
+  compliant_violations: []
+notes:
+  - bad.java 中 keepAliveTime = 0 且 max > core，命中 TP-CONFIG-003。

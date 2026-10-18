@@ -1,0 +1,43 @@
+id: CASE-009
+title: 自定义拒绝策略（未记录未上报）
+task: 通知线程池需要自定义拒绝策略：拒绝的任务既要保留痕迹，也要能被监控统计。
+language: java
+domain: thread_pool
+files:
+  before: before.java
+  bad: bad.java
+  good: good.java
+expected:
+  features:
+    - THREAD_POOL.CREATE
+    - THREAD_POOL.CONFIG.CORE_SIZE
+    - THREAD_POOL.CONFIG.MAX_SIZE
+    - THREAD_POOL.CONFIG.KEEP_ALIVE
+    - THREAD_POOL.CONFIG.QUEUE
+    - THREAD_POOL.CONFIG.REJECTION
+    - THREAD_POOL.CONFIG.THREAD_FACTORY
+    - THREAD_POOL.REJECTION.CUSTOM_IMPL
+  rules:
+    - TP-CONFIG-001
+    - TP-CONFIG-002
+    - TP-CONFIG-003
+    - TP-CONFIG-004
+    - TP-CONFIG-005
+    - TP-CONFIG-006
+    - TP-CREATE-001
+    - TP-CREATE-003
+    - TP-CREATE-004
+    - TP-MONITOR-001
+    - TP-REJECT-001
+    - TP-REJECT-002
+    - TP-REJECT-004
+    - TP-REJECT-005
+    - TP-SHUTDOWN-001
+  optional_rules: []
+  violations:
+    - TP-MONITOR-001
+    - TP-REJECT-005
+    - TP-SHUTDOWN-001
+  compliant_violations: []
+notes:
+  - 无 submit/execute 调用，因此 SUBMIT 相关规则不适用。

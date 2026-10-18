@@ -1,0 +1,26 @@
+{
+  "name": "knowledge-rule-engine",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Phase 1 PoC: code-semantics-driven atomic-rule retrieval and validation (Java / ThreadPool domain)",
+  "engines": {
+    "node": ">=22.18.0"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "node --test",
+    "engine": "node src/cli/index.ts",
+    "sample": "node src/cli/index.ts retrieve --file samples/bad/OrderAsyncService.java",
+    "eval": "node src/cli/index.ts eval --emit-prompts"
+  },
+  "dependencies": {
+    "tree-sitter": "0.21.1",
+    "tree-sitter-java": "0.23.5",
+    "yaml": "^2.9.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "typescript": "^5.9.3"
+  }
+}

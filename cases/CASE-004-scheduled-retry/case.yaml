@@ -1,0 +1,40 @@
+id: CASE-004
+title: 订单重试调度器（定时线程池 + 无界延迟队列）
+task: 为失败的订单支付结果增加定时重试能力，用调度线程池实现。
+language: java
+domain: thread_pool
+files:
+  before: before.java
+  bad: bad.java
+  good: good.java
+expected:
+  features:
+    - THREAD_POOL.CREATE
+    - THREAD_POOL.CREATE.EXECUTORS_FACTORY
+    - THREAD_POOL.SCHEDULED
+    - THREAD_POOL.CONFIG.CORE_SIZE
+    - THREAD_POOL.CONFIG.MAX_SIZE
+    - THREAD_POOL.CONFIG.QUEUE
+    - THREAD_POOL.SUBMIT
+  rules:
+    - TP-CREATE-001
+    - TP-CREATE-003
+    - TP-CONFIG-001
+    - TP-CONFIG-002
+    - TP-CONFIG-004
+    - TP-CONFIG-005
+    - TP-MONITOR-001
+    - TP-REJECT-001
+    - TP-REJECT-003
+    - TP-SHUTDOWN-001
+    - TP-SUBMIT-001
+  optional_rules: []
+  violations:
+    - TP-CREATE-001
+    - TP-CREATE-003
+    - TP-MONITOR-001
+    - TP-REJECT-003
+    - TP-SHUTDOWN-001
+  compliant_violations: []
+notes:
+  - ScheduledThreadPoolExecutor 使用内部无界 DelayedWorkQueue，队列规则不适用（诊断为提示级特征，不产生违规）。

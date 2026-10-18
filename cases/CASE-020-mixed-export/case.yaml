@@ -1,0 +1,62 @@
+id: CASE-020
+title: 导出编排（CompletableFuture + ThreadLocal + 线程池综合）
+task: 导出任务需要用 CompletableFuture 编排，并保证线程池、线程上下文与关闭流程都受控。
+language: java
+domain: thread_pool
+files:
+  before: before.java
+  bad: bad.java
+expected:
+  features:
+    - THREAD_POOL.CREATE
+    - THREAD_POOL.CONFIG.CORE_SIZE
+    - THREAD_POOL.CONFIG.MAX_SIZE
+    - THREAD_POOL.CONFIG.KEEP_ALIVE
+    - THREAD_POOL.CONFIG.QUEUE
+    - THREAD_POOL.CONFIG.REJECTION
+    - THREAD_POOL.CONFIG.THREAD_FACTORY
+    - THREAD_POOL.THREAD_LOCAL
+    - THREAD_POOL.COMPLETABLE_FUTURE
+    - THREAD_POOL.FUTURE.GET
+    - THREAD_POOL.MONITOR
+    - THREAD_POOL.SHUTDOWN
+    - THREAD_POOL.SHUTDOWN_NOW
+    - THREAD_POOL.AWAIT_TERMINATION
+    - SPRING.PRE_DESTROY
+  rules:
+    - TP-CONFIG-001
+    - TP-CONFIG-002
+    - TP-CONFIG-003
+    - TP-CONFIG-004
+    - TP-CONFIG-005
+    - TP-CONFIG-006
+    - TP-CREATE-001
+    - TP-CREATE-003
+    - TP-CREATE-004
+    - TP-CREATE-005
+    - TP-MONITOR-001
+    - TP-REJECT-001
+    - TP-REJECT-002
+    - TP-REJECT-004
+    - TP-SHUTDOWN-001
+    - TP-SHUTDOWN-002
+    - TP-SHUTDOWN-003
+    - TP-SHUTDOWN-004
+    - TP-SUBMIT-002
+    - TP-SUBMIT-003
+    - TP-SUBMIT-004
+  optional_rules: []
+  violations:
+    - TP-CONFIG-004
+    - TP-CREATE-001
+    - TP-CREATE-003
+    - TP-MONITOR-001
+    - TP-REJECT-003
+    - TP-SHUTDOWN-001
+    - TP-SUBMIT-001
+    - TP-SUBMIT-003
+    - TP-SUBMIT-004
+  compliant_violations: []
+notes:
+  - before.java 中 ThreadLocal 通过 finally 调用的 restore() 辅助方法清理（做了 1 层跨方法推导，因此不报 TP-SUBMIT-004）。
+  - bad.java 使用公共线程池 + 忽略 submit 返回值 + ThreadLocal 不清理，命中 9 条违规。

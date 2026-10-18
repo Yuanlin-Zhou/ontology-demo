@@ -1,0 +1,205 @@
+# Atomic Rules: 线程池参数配置 (core/max/keepAlive/queue)
+# 来源知识：java-thread-pool-summary.md、java-thread-pool-best-practices.md
+
+- id: TP-CONFIG-001
+  name: 核心线程数必须显式配置且大于 0
+  domain: [java, concurrency, thread_pool]
+  language: java
+  severity: error
+  priority: high
+  applies_when:
+    features: [THREAD_POOL.CONFIG.CORE_SIZE]
+  description: corePoolSize 必须显式给出，且不能为 0 或不存在的占位值。
+  content: |
+    corePoolSize 必须根据高峰任务提交速率与任务耗时估算后显式写出（结合 CPU 核数、I/O 等待比例、
+    下游容量）。不要留成 0 / 负数 / 未配置状态；确需动态调参时，也要给出经过压测验证的初始值。
+  rationale: |
+    corePoolSize 为 0 时线程池只在有任务时创建线程，突发流量下延迟抖动明显，也掩盖了容量设计意图。
+    估算公式：N_threads ≈ N_cpu × U_cpu × (1 + W/C)，并以压测结果修正。
+  check:
+    validator: thread_pool.core_size_explicit
+    params:
+      min: 1
+  examples:
+    positive:
+      - note: 明确写出的初始值
+        code: |
+          ThreadPoolExecutor executor = new ThreadPoolExecutor(
+                  8, 16, 60L, TimeUnit.SECONDS, new ArrayBlockingQueue<>(200),
+                  namedFactory("order-query"), new ThreadPoolExecutor.AbortPolicy());
+    negative:
+      - note: 核心线程数为 0
+        code: |
+          ThreadPoolExecutor executor = new ThreadPoolExecutor(
+                  0, 16, 60L, TimeUnit.SECONDS, new ArrayBlockingQueue<>(200),
+                  namedFactory("order-query"), new ThreadPoolExecutor.AbortPolicy());
+  related_rules: [TP-CONFIG-002, TP-CONFIG-003]
+  references:
+    - java-thread-pool-best-practices.md §线程池参数怎么估算？
+  tags: [thread-pool, sizing]
+
+- id: TP-CONFIG-002
+  name: 最大线程数必须有界
+  domain: [java, concurrency, thread_pool]
+  language: java
+  severity: error
+  priority: critical
+  applies_when:
+    features: [THREAD_POOL.CONFIG.MAX_SIZE]
+  description: maximumPoolSize 不能是 Integer.MAX_VALUE 或无界增长。
+  content: |
+    maximumPoolSize 必须是明确的上界。不要使用 Integer.MAX_VALUE；线程数上界要同时考虑 CPU、内存、
+    栈大小以及数据库连接池 / 下游接口允许的并发。
+  rationale: |
+    最大线程数为 Integer.MAX_VALUE 时，提交速度长期高于处理速度会持续创建线程，
+    最终导致 OOM 或把下游打挂（newCachedThreadPool 的典型问题）。
+  check:
+    validator: thread_pool.max_size_bounded
+    params:
+      max: 100000
+  examples:
+    positive:
+      - note: 明确的线程数上界
+        code: |
+          new ThreadPoolExecutor(8, 16, 60L, TimeUnit.SECONDS, new ArrayBlockingQueue<>(200), factory, handler);
+    negative:
+      - note: 无界线程数
+        code: |
+          ExecutorService executor = Executors.newCachedThreadPool();
+  related_rules: [TP-CONFIG-001, TP-CONFIG-004, TP-CREATE-001]
+  references:
+    - java-thread-pool-summary.md §线程池创建的两种方式
+  tags: [thread-pool, sizing, oom]
+
+- id: TP-CONFIG-003
+  name: keepAliveTime 必须与核心/最大线程数匹配
+  domain: [java, concurrency, thread_pool]
+  language: java
+  severity: warning
+  priority: medium
+  applies_when:
+    features: [THREAD_POOL.CONFIG.KEEP_ALIVE, THREAD_POOL.CONFIG.MAX_SIZE]
+  description: 当 maximumPoolSize 大于 corePoolSize 时，keepAliveTime 必须大于 0 并显式指定时间单位。
+  content: |
+    maximumPoolSize > corePoolSize 时，keepAliveTime 用于回收空闲的“超出核心数”线程，
+    必须显式给出正数并带上 TimeUnit；如果业务希望核心线程也能回收，再考虑 allowCoreThreadTimeOut(true)。
+  rationale: |
+    keepAliveTime 为 0 会导致超出核心数的线程立即退出，线程数在高峰时反复创建销毁，
+    增加抖动与上下文切换开销。
+  check:
+    validator: thread_pool.keep_alive_positive
+  examples:
+    positive:
+      - note: 超出核心数的线程 60 秒后回收
+        code: |
+          new ThreadPoolExecutor(8, 16, 60L, TimeUnit.SECONDS, new ArrayBlockingQueue<>(200), factory, handler);
+    negative:
+      - note: max 大于 core 但空闲存活为 0
+        code: |
+          new ThreadPoolExecutor(8, 16, 0L, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<>(200), factory, handler);
+  related_rules: [TP-CONFIG-001, TP-CONFIG-002]
+  references:
+    - java-thread-pool-best-practices.md §线程池参数怎么估算？
+  tags: [thread-pool, sizing]
+
+- id: TP-CONFIG-004
+  name: 任务队列必须有界
+  domain: [java, concurrency, thread_pool]
+  language: java
+  severity: error
+  priority: critical
+  applies_when:
+    features: [THREAD_POOL.CONFIG.QUEUE]
+  description: 阻塞队列必须有明确容量，禁止使用无界队列作为任务缓冲。
+  content: |
+    使用有界阻塞队列（推荐 ArrayBlockingQueue(capacity)），并显式写出容量；不要使用
+    LinkedBlockingQueue()（默认 Integer.MAX_VALUE）、PriorityBlockingQueue、DelayedWorkQueue
+    等无界队列。队列只用来吸收短时突发流量，不是任务仓库存放地。
+  rationale: |
+    无界队列会一直增长：任务被接收却迟迟不执行，可能已超过业务超时时间，同时占用大量堆内存导致 OOM；
+    有界队列 + 明确的拒绝策略才能在过载时快速失败并触发告警。
+  check:
+    validator: thread_pool.queue_bounded
+  examples:
+    positive:
+      - note: 有界队列并显式容量
+        code: |
+          new ThreadPoolExecutor(8, 16, 60L, TimeUnit.SECONDS, new ArrayBlockingQueue<>(200), factory, handler);
+    negative:
+      - note: 无界 LinkedBlockingQueue
+        code: |
+          new ThreadPoolExecutor(8, 16, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(), factory, handler);
+      - note: 快捷工厂内部就是无界队列
+        code: |
+          ExecutorService executor = Executors.newFixedThreadPool(16);
+  related_rules: [TP-CONFIG-005, TP-REJECT-001]
+  references:
+    - java-thread-pool-best-practices.md §有界队列应该设置多大？
+    - java-thread-pool-summary.md §线程池创建的两种方式
+  tags: [thread-pool, queue, oom]
+
+- id: TP-CONFIG-005
+  name: 队列容量必须可控
+  domain: [java, concurrency, thread_pool]
+  language: java
+  severity: warning
+  priority: high
+  applies_when:
+    features: [THREAD_POOL.CONFIG.QUEUE]
+  description: 队列容量要显式写出并通过突发流量与内存估算，不能过大或使用魔法值。
+  content: |
+    队列容量按突发流量估算：Q ≈ (λ_in − λ_out) × Δt，并同时受任务时效与内存上限约束。
+    容量要显式写成字面量或配置项，避免超过约定的内存/等待上限。
+  rationale: |
+    队列过大时任务虽然被接收，却可能在真正执行前已经超过业务超时时间，还占用大量堆内存；
+    容量过小则轻微抖动就触发拒绝，需要结合拒绝策略一起评估。
+  check:
+    validator: thread_pool.queue_capacity_bounded
+    params:
+      maxCapacity: 10000
+  examples:
+    positive:
+      - note: 200 个任务的短时缓冲
+        code: |
+          new ArrayBlockingQueue<>(200)
+    negative:
+      - note: 容量巨大，等同无界
+        code: |
+          new ArrayBlockingQueue<>(1000000)
+  related_rules: [TP-CONFIG-004, TP-REJECT-001]
+  references:
+    - java-thread-pool-best-practices.md §有界队列应该设置多大？
+  tags: [thread-pool, queue, sizing]
+
+- id: TP-CONFIG-006
+  name: 禁止 DiscardOldestPolicy 与优先级队列组合
+  domain: [java, concurrency, thread_pool]
+  language: java
+  severity: error
+  priority: medium
+  applies_when:
+    features: [THREAD_POOL.CONFIG.QUEUE, THREAD_POOL.CONFIG.REJECTION]
+  description: DiscardOldestPolicy 与 PriorityBlockingQueue 组合会丢弃优先级最高的任务。
+  content: |
+    使用 PriorityBlockingQueue 时不要搭配 DiscardOldestPolicy：该策略调用 poll() 丢弃的是
+    “优先级最高”的任务而不是最旧的任务，会造成重要任务被静默丢掉。
+  rationale: |
+    DiscardOldestPolicy 依赖队列的 FIFO 语义，优先级队列下语义完全相反，属于极易被忽略的正确性问题。
+  check:
+    validator: thread_pool.no_discard_oldest_with_priority_queue
+  examples:
+    positive:
+      - note: 优先级队列搭配 AbortPolicy
+        code: |
+          new ThreadPoolExecutor(4, 8, 60L, TimeUnit.SECONDS, new PriorityBlockingQueue<>(200),
+                  namedFactory("urgent-task"), new ThreadPoolExecutor.AbortPolicy());
+    negative:
+      - note: 优先级队列 + DiscardOldestPolicy
+        code: |
+          new ThreadPoolExecutor(4, 8, 60L, TimeUnit.SECONDS, new PriorityBlockingQueue<>(200),
+                  namedFactory("urgent-task"), new ThreadPoolExecutor.DiscardOldestPolicy());
+  related_rules: [TP-CONFIG-004, TP-REJECT-002]
+  references:
+    - java-thread-pool-summary.md §4 种拒绝策略的实际应用场景
+  tags: [thread-pool, queue, rejection]
+

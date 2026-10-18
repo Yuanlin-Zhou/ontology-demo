@@ -1,0 +1,49 @@
+id: CASE-003
+title: 报表导出线程池（无界队列 / 队列容量过大）
+task: 报表导出任务耗时较长，需要独立线程池承接导出请求，过载时不能压垮内存。
+language: java
+domain: thread_pool
+files:
+  before: before.java
+  bad: bad.java
+  good: good.java
+expected:
+  features:
+    - THREAD_POOL.CREATE
+    - THREAD_POOL.CONFIG.CORE_SIZE
+    - THREAD_POOL.CONFIG.MAX_SIZE
+    - THREAD_POOL.CONFIG.KEEP_ALIVE
+    - THREAD_POOL.CONFIG.QUEUE
+    - THREAD_POOL.CONFIG.REJECTION
+    - THREAD_POOL.SUBMIT
+    - THREAD_POOL.EXECUTE
+    - THREAD_POOL.EXCEPTION
+  rules:
+    - TP-CONFIG-001
+    - TP-CONFIG-002
+    - TP-CONFIG-003
+    - TP-CONFIG-004
+    - TP-CONFIG-005
+    - TP-CONFIG-006
+    - TP-CREATE-001
+    - TP-CREATE-003
+    - TP-MONITOR-001
+    - TP-REJECT-001
+    - TP-REJECT-002
+    - TP-REJECT-003
+    - TP-REJECT-004
+    - TP-SHUTDOWN-001
+    - TP-SUBMIT-001
+    - TP-SUBMIT-005
+  optional_rules: []
+  violations:
+    - TP-CONFIG-005
+    - TP-CREATE-003
+    - TP-MONITOR-001
+    - TP-REJECT-003
+    - TP-SHUTDOWN-001
+    - TP-SUBMIT-001
+  compliant_violations: []
+notes:
+  - before.java 使用无容量的 LinkedBlockingQueue，命中 TP-CONFIG-004（未显式容量）。
+  - bad.java 把容量写成 500000，命中 TP-CONFIG-005（容量超过阈值 10000）。

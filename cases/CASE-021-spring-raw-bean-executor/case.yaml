@@ -1,0 +1,52 @@
+id: CASE-021
+title: Spring @Bean 裸线程池（缺少 @PreDestroy 与任务异常处理）
+task: 用 @Bean 暴露订单通知线程池，需要保证容器关闭时线程池被回收、任务异常可见。
+language: java
+domain: thread_pool
+files:
+  before: before.java
+  bad: bad.java
+  good: good.java
+expected:
+  features:
+    - THREAD_POOL.CREATE
+    - THREAD_POOL.CONFIG.CORE_SIZE
+    - THREAD_POOL.CONFIG.MAX_SIZE
+    - THREAD_POOL.CONFIG.KEEP_ALIVE
+    - THREAD_POOL.CONFIG.QUEUE
+    - THREAD_POOL.CONFIG.REJECTION
+    - THREAD_POOL.CONFIG.THREAD_FACTORY
+    - THREAD_POOL.SUBMIT
+    - THREAD_POOL.EXECUTE
+    - THREAD_POOL.EXCEPTION
+    - SPRING.EXECUTOR_BEAN
+  rules:
+    - TP-CONFIG-001
+    - TP-CONFIG-002
+    - TP-CONFIG-003
+    - TP-CONFIG-004
+    - TP-CONFIG-005
+    - TP-CONFIG-006
+    - TP-CREATE-001
+    - TP-CREATE-003
+    - TP-CREATE-004
+    - TP-CREATE-005
+    - TP-MONITOR-001
+    - TP-REJECT-001
+    - TP-REJECT-002
+    - TP-REJECT-003
+    - TP-REJECT-004
+    - TP-SHUTDOWN-001
+    - TP-SUBMIT-001
+    - TP-SUBMIT-005
+  optional_rules: []
+  violations:
+    - TP-CREATE-005
+    - TP-MONITOR-001
+    - TP-REJECT-003
+    - TP-SUBMIT-005
+  compliant_violations: []
+notes:
+  - 由 @Bean 返回的裸 ThreadPoolExecutor 缺少显式 @PreDestroy，命中 TP-CREATE-005（warning）。
+  - 由于线程池直接 return 给容器、没有变量名，TP-SHUTDOWN-001 不做判断（已知局限：仅对字段/静态字段级线程池检查）。
+  - 任务体内 throw 且没有 try/catch，命中 TP-SUBMIT-005。

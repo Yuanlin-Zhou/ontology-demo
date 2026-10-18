@@ -1,0 +1,42 @@
+id: CASE-008
+title: 库存同步（未显式配置拒绝策略）
+task: 库存同步任务需要独立线程池，过载时必须有确定的拒绝行为与调用侧补偿。
+language: java
+domain: thread_pool
+files:
+  before: before.java
+  bad: bad.java
+  good: good.java
+expected:
+  features:
+    - THREAD_POOL.CREATE
+    - THREAD_POOL.CONFIG.CORE_SIZE
+    - THREAD_POOL.CONFIG.MAX_SIZE
+    - THREAD_POOL.CONFIG.KEEP_ALIVE
+    - THREAD_POOL.CONFIG.QUEUE
+    - THREAD_POOL.SUBMIT
+    - THREAD_POOL.EXECUTE
+  rules:
+    - TP-CONFIG-001
+    - TP-CONFIG-002
+    - TP-CONFIG-003
+    - TP-CONFIG-004
+    - TP-CONFIG-005
+    - TP-CREATE-001
+    - TP-CREATE-003
+    - TP-MONITOR-001
+    - TP-REJECT-001
+    - TP-REJECT-003
+    - TP-SHUTDOWN-001
+    - TP-SUBMIT-001
+    - TP-SUBMIT-005
+  optional_rules: []
+  violations:
+    - TP-CREATE-003
+    - TP-MONITOR-001
+    - TP-REJECT-001
+    - TP-REJECT-003
+    - TP-SHUTDOWN-001
+  compliant_violations: []
+notes:
+  - 5 参数构造既没有线程工厂也没有拒绝策略，同时命中 TP-CREATE-003 与 TP-REJECT-001。

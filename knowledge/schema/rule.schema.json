@@ -1,0 +1,87 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Atomic Rule",
+  "description": "Phase 1 knowledge-rule-engine atomic rule format (01-phase1-rule-engine-poc.md §4).",
+  "type": "object",
+  "required": ["id", "name", "domain", "applies_when", "description", "content", "severity", "priority"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Z0-9]*(-[A-Z0-9]+)*-[0-9]{3}$",
+      "description": "Globally unique rule id, e.g. TP-QUEUE-001."
+    },
+    "name": { "type": "string", "minLength": 2 },
+    "domain": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string" },
+      "description": "Domain path, e.g. [java, concurrency, thread_pool]."
+    },
+    "language": { "type": "string", "default": "java" },
+    "severity": { "enum": ["error", "warning", "info"] },
+    "priority": { "enum": ["critical", "high", "medium", "low"] },
+    "applies_when": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "features": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "All of these semantic features must be present (AND)."
+        },
+        "any_features": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "At least one of these features must be present (OR)."
+        },
+        "none_features": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "None of these features may be present (NOT)."
+        }
+      }
+    },
+    "description": { "type": "string", "minLength": 4 },
+    "content": {
+      "type": "string",
+      "minLength": 4,
+      "description": "Rule text injected into the agent context."
+    },
+    "rationale": { "type": "string" },
+    "check": {
+      "type": "object",
+      "required": ["validator"],
+      "additionalProperties": false,
+      "properties": {
+        "validator": {
+          "type": "string",
+          "description": "Name of a deterministic checker in src/validator/validator-registry.ts."
+        },
+        "params": { "type": "object" }
+      }
+    },
+    "examples": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "positive": { "type": "array", "items": { "$ref": "#/definitions/example" } },
+        "negative": { "type": "array", "items": { "$ref": "#/definitions/example" } }
+      }
+    },
+    "related_rules": { "type": "array", "items": { "type": "string" } },
+    "references": { "type": "array", "items": { "type": "string" } },
+    "tags": { "type": "array", "items": { "type": "string" } }
+  },
+  "definitions": {
+    "example": {
+      "type": "object",
+      "required": ["code"],
+      "additionalProperties": false,
+      "properties": {
+        "code": { "type": "string" },
+        "note": { "type": "string" }
+      }
+    }
+  }
+}

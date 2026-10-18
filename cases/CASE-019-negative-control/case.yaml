@@ -1,0 +1,16 @@
+id: CASE-019
+title: 负样本（无并发语义的业务代码）
+task: 为订单金额计算补充价格相关逻辑，不需要线程池。
+language: java
+domain: thread_pool
+files:
+  before: before.java
+  bad: bad.java
+expected:
+  features: []
+  rules: []
+  optional_rules: []
+  violations: []
+  compliant_violations: []
+notes:
+  - 该用例用于度量误召：纯业务代码不应召回任何线程池规则，也不应产生任何违规。

@@ -1,0 +1,51 @@
+id: CASE-013
+title: 积分入账（shutdown 后未等待终止）
+task: 积分类异步任务在应用关闭时必须把队列中的任务处理完再退出。
+language: java
+domain: thread_pool
+files:
+  before: before.java
+  bad: bad.java
+  good: good.java
+expected:
+  features:
+    - THREAD_POOL.CREATE
+    - THREAD_POOL.CONFIG.CORE_SIZE
+    - THREAD_POOL.CONFIG.MAX_SIZE
+    - THREAD_POOL.CONFIG.KEEP_ALIVE
+    - THREAD_POOL.CONFIG.QUEUE
+    - THREAD_POOL.CONFIG.REJECTION
+    - THREAD_POOL.CONFIG.THREAD_FACTORY
+    - THREAD_POOL.SUBMIT
+    - THREAD_POOL.EXECUTE
+    - THREAD_POOL.EXCEPTION
+    - THREAD_POOL.SHUTDOWN
+    - SPRING.PRE_DESTROY
+  rules:
+    - TP-CONFIG-001
+    - TP-CONFIG-002
+    - TP-CONFIG-003
+    - TP-CONFIG-004
+    - TP-CONFIG-005
+    - TP-CONFIG-006
+    - TP-CREATE-001
+    - TP-CREATE-003
+    - TP-CREATE-004
+    - TP-CREATE-005
+    - TP-MONITOR-001
+    - TP-REJECT-001
+    - TP-REJECT-002
+    - TP-REJECT-003
+    - TP-REJECT-004
+    - TP-SHUTDOWN-001
+    - TP-SHUTDOWN-002
+    - TP-SHUTDOWN-003
+    - TP-SUBMIT-001
+    - TP-SUBMIT-005
+  optional_rules: []
+  violations:
+    - TP-MONITOR-001
+    - TP-SHUTDOWN-002
+  compliant_violations: []
+notes:
+  - 已存在 @PreDestroy，因此 TP-CREATE-005 不报违规；缺的是 awaitTermination（TP-SHUTDOWN-002）。

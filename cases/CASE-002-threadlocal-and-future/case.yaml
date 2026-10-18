@@ -1,0 +1,49 @@
+id: CASE-002
+title: 数据同步（Future.get 无超时 + ThreadLocal 未清理）
+task: 为 OrderSyncService 增加订单数据同步能力，既要保证任务异常可见，也要避免线程上下文串数据。
+language: java
+domain: thread_pool
+files:
+  before: before.java
+  bad: bad.java
+  good: good.java
+expected:
+  features:
+    - THREAD_POOL.CREATE
+    - THREAD_POOL.CREATE.EXECUTORS_FACTORY
+    - THREAD_POOL.CONFIG.CORE_SIZE
+    - THREAD_POOL.CONFIG.MAX_SIZE
+    - THREAD_POOL.CONFIG.QUEUE
+    - THREAD_POOL.SUBMIT
+    - THREAD_POOL.FUTURE.GET
+    - THREAD_POOL.THREAD_LOCAL
+  rules:
+    - TP-CREATE-001
+    - TP-CREATE-003
+    - TP-CONFIG-001
+    - TP-CONFIG-002
+    - TP-CONFIG-004
+    - TP-CONFIG-005
+    - TP-MONITOR-001
+    - TP-REJECT-001
+    - TP-REJECT-003
+    - TP-SHUTDOWN-001
+    - TP-SHUTDOWN-003
+    - TP-SUBMIT-001
+    - TP-SUBMIT-002
+    - TP-SUBMIT-004
+  optional_rules: []
+  violations:
+    - TP-CREATE-001
+    - TP-CREATE-003
+    - TP-CONFIG-004
+    - TP-MONITOR-001
+    - TP-REJECT-003
+    - TP-SHUTDOWN-001
+    - TP-SUBMIT-001
+    - TP-SUBMIT-002
+    - TP-SUBMIT-004
+  compliant_violations:
+    - TP-REJECT-004
+notes:
+  - good.java 的 submit 结果通过链式 get(3, SECONDS) 消费，因此 TP-SUBMIT-001 不适用。

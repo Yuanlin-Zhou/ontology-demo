@@ -1,0 +1,23 @@
+id: CASE-012
+title: 远程报价异步化（使用公共线程池）
+task: 给报价服务增加异步能力，下游是阻塞调用，必须隔离到业务线程池并带超时。
+language: java
+domain: thread_pool
+files:
+  before: before.java
+  bad: bad.java
+  good: good.java
+expected:
+  features:
+    - THREAD_POOL.COMPLETABLE_FUTURE
+  rules:
+    - TP-SUBMIT-003
+  optional_rules: []
+  violations:
+    - TP-SUBMIT-002
+    - TP-SUBMIT-003
+  compliant_violations:
+    - TP-REJECT-004
+notes:
+  - before.java 只有 supplyAsync，未指定 Executor，命中 TP-SUBMIT-003。
+  - bad.java 额外使用 join() 无超时等待，命中 TP-SUBMIT-002。

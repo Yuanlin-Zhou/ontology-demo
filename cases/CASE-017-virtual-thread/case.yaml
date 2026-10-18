@@ -1,0 +1,33 @@
+id: CASE-017
+title: 虚拟线程执行阻塞任务（缺少限流与监控）
+task: 用虚拟线程改造阻塞式下游通知，同时不能让下游连接被打满。
+language: java
+domain: thread_pool
+files:
+  before: before.java
+  bad: bad.java
+  good: good.java
+expected:
+  features:
+    - THREAD_POOL.CREATE
+    - VIRTUAL_THREAD
+    - THREAD_POOL.SUBMIT
+    - THREAD_POOL.EXECUTE
+  rules:
+    - TP-CREATE-001
+    - TP-CREATE-003
+    - TP-MONITOR-001
+    - TP-REJECT-001
+    - TP-REJECT-003
+    - TP-SHUTDOWN-001
+    - TP-SUBMIT-001
+    - TP-SUBMIT-005
+  optional_rules: []
+  violations:
+    - TP-MONITOR-001
+    - TP-REJECT-003
+    - TP-SHUTDOWN-001
+  compliant_violations: []
+notes:
+  - 虚拟线程执行器不带队列与拒绝策略，队列/拒绝配置类规则不适用；TP-CREATE-001 只针对 Executors 快捷工厂。
+  - good.java 用 Thread.startVirtualThread + Semaphore 限流，因此不命中任何线程池规则。

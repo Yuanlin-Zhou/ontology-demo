@@ -1,0 +1,213 @@
+# Atomic Rules: 线程池创建 / 生命周期 (java / concurrency / thread_pool)
+# 来源知识：java-thread-pool-summary.md、java-thread-pool-best-practices.md
+
+- id: TP-CREATE-001
+  name: 显式创建线程池
+  domain: [java, concurrency, thread_pool]
+  language: java
+  severity: error
+  priority: critical
+  applies_when:
+    any_features:
+      - THREAD_POOL.CREATE
+      - THREAD_POOL.CREATE.EXECUTORS_FACTORY
+  description: 业务线程池必须通过 ThreadPoolExecutor 构造函数显式创建，禁止使用 Executors 快捷工厂。
+  content: |
+    创建业务线程池时不要使用 Executors 的快捷方法（newFixedThreadPool / newSingleThreadExecutor /
+    newCachedThreadPool / newScheduledThreadPool / newSingleThreadScheduledExecutor），应直接使用
+    new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory, handler)，
+    把线程数、队列容量和拒绝策略显式写出来。
+  rationale: |
+    FixedThreadPool 与 SingleThreadExecutor 使用无界 LinkedBlockingQueue，任务持续进入时可能堆积导致 OOM；
+    CachedThreadPool 使用 SynchronousQueue 且最大线程数为 Integer.MAX_VALUE，可能创建大量线程；
+    ScheduledThreadPool 使用无界 DelayedWorkQueue。显式构造可以让参数可读、可审、可监控。
+  check:
+    validator: thread_pool.no_executors_factory
+  examples:
+    positive:
+      - note: 显式构造并写清全部关键参数
+        code: |
+          ThreadPoolExecutor executor = new ThreadPoolExecutor(
+                  8, 16, 60L, TimeUnit.SECONDS,
+                  new ArrayBlockingQueue<>(200),
+                  namedFactory("order-notify"),
+                  new ThreadPoolExecutor.CallerRunsPolicy());
+    negative:
+      - note: 无界队列 + 隐藏参数
+        code: |
+          ExecutorService executor = Executors.newFixedThreadPool(16);
+      - note: 无界线程数
+        code: |
+          ExecutorService executor = Executors.newCachedThreadPool();
+  related_rules: [TP-CREATE-002, TP-CONFIG-004, TP-CONFIG-002, TP-REJECT-001]
+  references:
+    - java-thread-pool-summary.md §线程池创建的两种方式
+    - java-thread-pool-best-practices.md §正确声明线程池
+  tags: [thread-pool, creation, alibaba-manual]
+
+- id: TP-CREATE-002
+  name: 不要重复创建线程池
+  domain: [java, concurrency, thread_pool]
+  language: java
+  severity: error
+  priority: high
+  applies_when:
+    features: [THREAD_POOL.CREATE.PER_REQUEST]
+  description: 线程池应在应用级创建并复用，禁止在方法调用或请求处理过程中临时创建。
+  content: |
+    线程池用于复用线程，不要在每次方法调用或每个请求中 new 一个线程池。应用级线程池应作为字段 /
+    容器 Bean 创建一次；请求级任务提交到共享线程池，或使用独立的、受控的执行资源。
+  rationale: |
+    频繁创建线程池会增加线程启动与销毁开销，并且容易遗漏关闭逻辑，导致线程与内存泄漏。
+  check:
+    validator: thread_pool.no_inline_pool_creation
+  examples:
+    positive:
+      - note: 字段级创建，方法内只提交任务
+        code: |
+          private final ThreadPoolExecutor notifier = buildNotifier();
+
+          public void notify(Order order) {
+              notifier.execute(() -> send(order));
+          }
+    negative:
+      - note: 每次调用都新建线程池，且没有关闭
+        code: |
+          public void notify(Order order) {
+              ExecutorService executor = Executors.newFixedThreadPool(4);
+              executor.submit(() -> send(order));
+          }
+  related_rules: [TP-CREATE-001, TP-SHUTDOWN-001]
+  references:
+    - java-thread-pool-best-practices.md §不要重复创建线程池
+
+- id: TP-CREATE-003
+  name: 线程池必须配置线程工厂
+  domain: [java, concurrency, thread_pool]
+  language: java
+  severity: warning
+  priority: high
+  applies_when:
+    any_features:
+      - THREAD_POOL.CREATE
+      - THREAD_POOL.SCHEDULED
+  description: 线程池应显式传入 ThreadFactory，为工作线程设置有业务含义的名称。
+  content: |
+    创建线程池时要显式传入 ThreadFactory，让线程名带上业务前缀（如 order-query-3）。
+    可以使用 new ThreadPoolTaskExecutor() 的 setThreadNamePrefix，或自定义 ThreadFactory。
+  rationale: |
+    线程名会出现在线程转储、日志和监控数据中，pool-1-thread-3 很难定位归属业务，
+    order-query-3 能直接缩小排查范围。
+  check:
+    validator: thread_pool.thread_factory_present
+  examples:
+    positive:
+      - note: 传入命名线程工厂
+        code: |
+          ThreadPoolExecutor executor = new ThreadPoolExecutor(
+                  8, 16, 60L, TimeUnit.SECONDS,
+                  new ArrayBlockingQueue<>(200),
+                  namedFactory("order-notify"),
+                  new ThreadPoolExecutor.CallerRunsPolicy());
+    negative:
+      - note: 未指定线程工厂
+        code: |
+          ThreadPoolExecutor executor = new ThreadPoolExecutor(
+                  8, 16, 60L, TimeUnit.SECONDS,
+                  new ArrayBlockingQueue<>(200),
+                  new ThreadPoolExecutor.CallerRunsPolicy());
+  related_rules: [TP-CREATE-004, TP-CREATE-001]
+  references:
+    - java-thread-pool-best-practices.md §正确声明线程池
+  tags: [thread-pool, thread-factory, observability]
+
+- id: TP-CREATE-004
+  name: 自定义线程工厂必须设置线程名
+  domain: [java, concurrency, thread_pool]
+  language: java
+  severity: warning
+  priority: medium
+  applies_when:
+    any_features:
+      - THREAD_POOL.THREAD_FACTORY.CUSTOM_IMPL
+      - THREAD_POOL.CONFIG.THREAD_FACTORY
+  description: 自定义 ThreadFactory 必须调用 Thread#setName 并设置非守护/守护策略。
+  content: |
+    实现 ThreadFactory 时必须在 newThread 中调用 thread.setName(prefix + "-" + sequence.incrementAndGet())，
+    明确线程命名规则；同时确认 setDaemon 策略符合业务预期。
+  rationale: |
+    自定义线程工厂最常见的遗漏是没有设置线程名，等于放弃了排查线程问题最直接的线索。
+  check:
+    validator: thread_pool.thread_factory_named
+  examples:
+    positive:
+      - note: 命名并递增序号
+        code: |
+          public Thread newThread(Runnable task) {
+              Thread thread = new Thread(task);
+              thread.setName(prefix + "-" + sequence.incrementAndGet());
+              thread.setDaemon(false);
+              return thread;
+          }
+    negative:
+      - note: 只创建线程，没有命名
+        code: |
+          public Thread newThread(Runnable task) {
+              return new Thread(task);
+          }
+  related_rules: [TP-CREATE-003]
+  references:
+    - java-thread-pool-best-practices.md §正确声明线程池
+  tags: [thread-pool, thread-factory]
+
+- id: TP-CREATE-005
+  name: 交给容器管理线程池生命周期
+  domain: [java, concurrency, thread_pool, spring]
+  language: java
+  severity: warning
+  priority: medium
+  applies_when:
+    any_features:
+      - SPRING.EXECUTOR_BEAN
+      - SPRING.PRE_DESTROY
+  description: Spring 应用中的线程池应通过 @Bean 暴露，并用 @PreDestroy 管理关闭。
+  content: |
+    Spring 项目把线程池声明为 @Bean（或通过 ThreadPoolTaskExecutor），并在关闭时用 @PreDestroy
+    方法调用 shutdown / awaitTermination；不要在多处 new 出未托管实例。
+  rationale: |
+    容器托管可以保证单例复用与生命周期回调，避免遗漏关闭导致线程泄漏和任务丢失。
+    @Bean 返回的 ExecutorService 虽然可以被 Spring 推断 shutdown() 作为销毁方法，
+    但仍建议显式声明 @PreDestroy：既便于审阅，也便于在关闭前处理队列中的任务。
+  check:
+    validator: thread_pool.pool_lifecycle_managed
+  examples:
+    positive:
+      - note: Bean + PreDestroy
+        code: |
+          @Bean("orderNotifier")
+          public ThreadPoolTaskExecutor orderNotifier() {
+              ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+              executor.setCorePoolSize(8);
+              executor.setMaxPoolSize(16);
+              executor.setQueueCapacity(200);
+              executor.setThreadNamePrefix("order-notify-");
+              executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+              return executor;
+          }
+
+          @PreDestroy
+          public void stop() {
+              executor.shutdown();
+          }
+    negative:
+      - note: 本地 new 且没有生命周期回调
+        code: |
+          public void init() {
+              this.executor = new ThreadPoolExecutor(8, 16, 60L, TimeUnit.SECONDS,
+                      new ArrayBlockingQueue<>(200), namedFactory("order-"), new ThreadPoolExecutor.CallerRunsPolicy());
+          }
+  related_rules: [TP-SHUTDOWN-001, TP-SHUTDOWN-002]
+  references:
+    - java-thread-pool-best-practices.md §不要重复创建线程池
+  tags: [thread-pool, spring, lifecycle]
+

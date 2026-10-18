@@ -1,0 +1,204 @@
+# Atomic Rules: 关闭与可观测性 (shutdown / monitor)
+# 来源知识：java-thread-pool-best-practices.md
+
+- id: TP-SHUTDOWN-001
+  name: 应用级线程池必须有确定的关闭逻辑
+  domain: [java, concurrency, thread_pool]
+  language: java
+  severity: error
+  priority: critical
+  applies_when:
+    any_features:
+      - THREAD_POOL.CREATE
+      - THREAD_POOL.SCHEDULED
+  description: 应用级线程池必须在应用关闭时被显式关闭，不能只创建不回收。
+  content: |
+    应用级线程池（字段 / @Bean 形式）必须有确定的关闭逻辑：在应用关闭钩子、@PreDestroy 或
+    close() 中调用 shutdown()；队列中任务不能丢的业务，还要在关闭前把任务落盘或等待处理完成。
+  rationale: |
+    不关闭线程池会留下非守护工作线程，导致应用无法正常退出，还可能让内存中的待处理任务直接丢失。
+  check:
+    validator: thread_pool.shutdown_present
+  examples:
+    positive:
+      - note: 关闭钩子中统一关闭
+        code: |
+          @PreDestroy
+          public void stop() {
+              notifier.shutdown();
+              try {
+                  if (!notifier.awaitTermination(30, TimeUnit.SECONDS)) {
+                      notifier.shutdownNow();
+                  }
+              } catch (InterruptedException ex) {
+                  notifier.shutdownNow();
+                  Thread.currentThread().interrupt();
+              }
+          }
+    negative:
+      - note: 字段级线程池没有任何关闭调用
+        code: |
+          private final ThreadPoolExecutor notifier = new ThreadPoolExecutor(
+                  8, 16, 60L, TimeUnit.SECONDS, new ArrayBlockingQueue<>(200),
+                  namedFactory("order-notify"), new ThreadPoolExecutor.CallerRunsPolicy());
+  related_rules: [TP-SHUTDOWN-002, TP-CREATE-002, TP-CREATE-005]
+  references:
+    - java-thread-pool-best-practices.md §正确关闭线程池
+  tags: [thread-pool, shutdown, lifecycle]
+
+- id: TP-SHUTDOWN-002
+  name: 优雅关闭需等待终止
+  domain: [java, concurrency, thread_pool]
+  language: java
+  severity: error
+  priority: high
+  applies_when:
+    features: [THREAD_POOL.SHUTDOWN]
+  description: shutdown() 之后必须 awaitTermination 并设置超时，超时后回退 shutdownNow()。
+  content: |
+    优雅关闭的标准模式：调用 shutdown()（不再接收新任务，继续处理已提交任务），
+    然后 awaitTermination(timeout, unit) 等待，超时后调用 shutdownNow() 并再次等待；
+    只能有一个地方负责关闭，避免重复 shutdown。
+  rationale: |
+    shutdown() / shutdownNow() 都不会等待线程池真正终止；缺少 awaitTermination 时应用可能在
+    任务执行一半时退出，造成数据不完整或资源未释放。
+  check:
+    validator: thread_pool.graceful_shutdown
+  examples:
+    positive:
+      - note: shutdown + awaitTermination + 兜底 shutdownNow
+        code: |
+          notifier.shutdown();
+          try {
+              if (!notifier.awaitTermination(30, TimeUnit.SECONDS)) {
+                  notifier.shutdownNow();
+              }
+          } catch (InterruptedException ex) {
+              notifier.shutdownNow();
+              Thread.currentThread().interrupt();
+          }
+    negative:
+      - note: 只调用 shutdown，不等待
+        code: |
+          notifier.shutdown();
+  related_rules: [TP-SHUTDOWN-001, TP-SHUTDOWN-003, TP-SHUTDOWN-004]
+  references:
+    - java-thread-pool-best-practices.md §正确关闭线程池
+  tags: [thread-pool, shutdown, graceful]
+
+- id: TP-SHUTDOWN-003
+  name: 捕获 InterruptedException 后必须恢复中断状态
+  domain: [java, concurrency, thread_pool]
+  language: java
+  severity: error
+  priority: medium
+  applies_when:
+    any_features:
+      - THREAD_POOL.AWAIT_TERMINATION
+      - THREAD_POOL.SHUTDOWN
+      - THREAD_POOL.FUTURE.GET
+  description: catch (InterruptedException) 中必须调用 Thread.currentThread().interrupt() 或继续向上抛出。
+  content: |
+    捕获 InterruptedException 后要恢复中断状态（Thread.currentThread().interrupt()）或继续向上抛出，
+    不要吞掉异常；同时清理逻辑（关线程池、取消 Future）应在恢复中断前完成。
+  rationale: |
+    吞掉 InterruptedException 会让线程池的取消语义（shutdownNow 依赖中断）失效，
+    上游无法感知取消，任务可能继续执行到结束。
+  check:
+    validator: thread_pool.interrupt_restored
+  examples:
+    positive:
+      - note: 恢复中断标志
+        code: |
+          try {
+              notifier.awaitTermination(30, TimeUnit.SECONDS);
+          } catch (InterruptedException ex) {
+              notifier.shutdownNow();
+              Thread.currentThread().interrupt();
+          }
+    negative:
+      - note: 吞掉中断
+        code: |
+          try {
+              notifier.awaitTermination(30, TimeUnit.SECONDS);
+          } catch (InterruptedException ignored) {
+              log.warn("interrupted");
+          }
+  related_rules: [TP-SHUTDOWN-002]
+  references:
+    - java-thread-pool-best-practices.md §正确关闭线程池
+
+- id: TP-SHUTDOWN-004
+  name: shutdownNow 返回的未执行任务必须被处理
+  domain: [java, concurrency, thread_pool]
+  language: java
+  severity: warning
+  priority: medium
+  applies_when:
+    features: [THREAD_POOL.SHUTDOWN_NOW]
+  description: shutdownNow() 返回的待执行任务列表必须被记录或转交补偿通道。
+  content: |
+    shutdownNow() 会中断正在执行的任务并返回尚未开始执行的任务列表，必须处理这个返回值：
+    记录日志、持久化以便重启后补偿，或转入其他执行通道；不能直接忽略。
+  rationale: |
+    忽略返回值等于静默丢弃队列中的任务；对不能丢的业务任务，需要落盘或补偿执行。
+  check:
+    validator: thread_pool.shutdown_now_pending_tasks
+  examples:
+    positive:
+      - note: 记录并转交补偿
+        code: |
+          List<Runnable> pending = notifier.shutdownNow();
+          if (!pending.isEmpty()) {
+              log.warn("{} tasks were not executed, moving to fallback queue", pending.size());
+              pending.forEach(fallbackQueue::offer);
+          }
+    negative:
+      - note: 忽略返回值
+        code: |
+          notifier.shutdownNow();
+  related_rules: [TP-SHUTDOWN-002, TP-SUBMIT-001]
+  references:
+    - java-thread-pool-best-practices.md §正确关闭线程池
+  tags: [thread-pool, shutdown, data-loss]
+
+- id: TP-MONITOR-001
+  name: 线程池必须可观测
+  domain: [java, concurrency, thread_pool]
+  language: java
+  severity: warning
+  priority: medium
+  applies_when:
+    any_features:
+      - THREAD_POOL.CREATE
+      - THREAD_POOL.SCHEDULED
+  description: 应用级线程池必须暴露队列长度、活跃线程数、完成/拒绝次数等指标。
+  content: |
+    线程池需要可观测：暴露或上报 getQueue().size()、getActiveCount()、getCompletedTaskCount()、
+    getTaskCount() 以及拒绝次数，并针对队列堆积与拒绝配置监控告警；线程名要能区分业务。
+  rationale: |
+    队列堆积通常是任务提交速率、执行耗时或下游容量变化的结果，只有先看到队列长度、活跃线程、
+    完成速率和拒绝次数，才能判断该限流、扩实例还是治理依赖。
+  check:
+    validator: thread_pool.pool_observable
+  examples:
+    positive:
+      - note: 暴露关键指标
+        code: |
+          public PoolStats stats() {
+              return new PoolStats(
+                      notifier.getActiveCount(),
+                      notifier.getQueue().size(),
+                      notifier.getCompletedTaskCount());
+          }
+    negative:
+      - note: 线程池创建后没有任何指标暴露
+        code: |
+          private final ThreadPoolExecutor notifier = new ThreadPoolExecutor(
+                  8, 16, 60L, TimeUnit.SECONDS, new ArrayBlockingQueue<>(200),
+                  namedFactory("order-notify"), new ThreadPoolExecutor.CallerRunsPolicy());
+  related_rules: [TP-REJECT-005, TP-CREATE-003]
+  references:
+    - java-thread-pool-best-practices.md §线程池监控
+  tags: [thread-pool, observability, monitoring]
+

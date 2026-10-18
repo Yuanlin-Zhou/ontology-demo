@@ -1,0 +1,50 @@
+id: CASE-015
+title: 审计落库（shutdownNow 返回值被忽略）
+task: 审计任务不能丢，应用关闭时线程池里未执行的任务必须转交补偿通道。
+language: java
+domain: thread_pool
+files:
+  before: before.java
+  bad: bad.java
+  good: good.java
+expected:
+  features:
+    - THREAD_POOL.CREATE
+    - THREAD_POOL.CONFIG.CORE_SIZE
+    - THREAD_POOL.CONFIG.MAX_SIZE
+    - THREAD_POOL.CONFIG.KEEP_ALIVE
+    - THREAD_POOL.CONFIG.QUEUE
+    - THREAD_POOL.CONFIG.REJECTION
+    - THREAD_POOL.CONFIG.THREAD_FACTORY
+    - THREAD_POOL.SHUTDOWN
+    - THREAD_POOL.SHUTDOWN_NOW
+    - THREAD_POOL.AWAIT_TERMINATION
+    - THREAD_POOL.MONITOR
+    - SPRING.PRE_DESTROY
+  rules:
+    - TP-CONFIG-001
+    - TP-CONFIG-002
+    - TP-CONFIG-003
+    - TP-CONFIG-004
+    - TP-CONFIG-005
+    - TP-CONFIG-006
+    - TP-CREATE-001
+    - TP-CREATE-003
+    - TP-CREATE-004
+    - TP-CREATE-005
+    - TP-MONITOR-001
+    - TP-REJECT-001
+    - TP-REJECT-002
+    - TP-REJECT-004
+    - TP-SHUTDOWN-001
+    - TP-SHUTDOWN-002
+    - TP-SHUTDOWN-003
+    - TP-SHUTDOWN-004
+  optional_rules: []
+  violations:
+    - TP-REJECT-004
+    - TP-SHUTDOWN-004
+  compliant_violations:
+    - TP-REJECT-004
+notes:
+  - 使用 CallerRunsPolicy，因此 good.java 会留下一条 info 级提示（需要人工确认调用链）。

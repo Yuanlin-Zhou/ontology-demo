@@ -1,0 +1,178 @@
+# Atomic Rules: 拒绝策略与过载处理 (rejection)
+# 来源知识：java-thread-pool-summary.md、java-thread-pool-best-practices.md
+
+- id: TP-REJECT-001
+  name: 必须显式配置拒绝策略
+  domain: [java, concurrency, thread_pool]
+  language: java
+  severity: error
+  priority: critical
+  applies_when:
+    any_features:
+      - THREAD_POOL.CREATE
+      - THREAD_POOL.SCHEDULED
+  description: 线程池必须显式指定 RejectedExecutionHandler，不能依赖默认 AbortPolicy 的隐式行为。
+  content: |
+    创建线程池时必须显式写出拒绝策略（第 7 个参数或 setRejectedExecutionHandler），
+    并按业务语义选择：核心业务用 AbortPolicy 并在调用侧补偿；允许反压的场景用 CallerRunsPolicy；
+    不要用默认值蒙混过关。
+  rationale: |
+    未显式配置时使用 AbortPolicy，队列满会直接抛 RejectedExecutionException，
+    调用侧若不处理就变成线上异常；显式配置让过载行为可读、可审、可监控。
+  check:
+    validator: thread_pool.rejection_explicit
+  examples:
+    positive:
+      - note: 显式声明拒绝策略
+        code: |
+          new ThreadPoolExecutor(8, 16, 60L, TimeUnit.SECONDS, new ArrayBlockingQueue<>(200),
+                  namedFactory("order-notify"), new ThreadPoolExecutor.CallerRunsPolicy());
+    negative:
+      - note: 只有 5 个参数，使用默认拒绝策略
+        code: |
+          new ThreadPoolExecutor(8, 16, 60L, TimeUnit.SECONDS, new ArrayBlockingQueue<>(200));
+  related_rules: [TP-REJECT-002, TP-REJECT-003, TP-REJECT-004, TP-CONFIG-004]
+  references:
+    - java-thread-pool-summary.md §4 种拒绝策略的实际应用场景
+  tags: [thread-pool, rejection, overload]
+
+- id: TP-REJECT-002
+  name: 禁止静默丢弃任务
+  domain: [java, concurrency, thread_pool]
+  language: java
+  severity: error
+  priority: high
+  applies_when:
+    features: [THREAD_POOL.CONFIG.REJECTION]
+  description: DiscardPolicy 是空实现，业务任务不应被静默丢弃。
+  content: |
+    不要对业务任务使用 DiscardPolicy（空实现，任务被丢弃且无任何痕迹）。仅日志异步写入、
+    指标上报等允许丢失的非关键路径可以考虑，并且必须补充监控计数。
+  rationale: |
+    DiscardPolicy 完全静默，任务丢失时既不抛异常也不打日志，线上排查时很难发现任务少了。
+  check:
+    validator: thread_pool.no_silent_discard
+  examples:
+    positive:
+      - note: 需要保留痕迹的拒绝行为
+        code: |
+          new ThreadPoolExecutor(8, 16, 60L, TimeUnit.SECONDS, new ArrayBlockingQueue<>(200),
+                  namedFactory("order-notify"), new ThreadPoolExecutor.AbortPolicy());
+    negative:
+      - note: 静默丢弃
+        code: |
+          new ThreadPoolExecutor(8, 16, 60L, TimeUnit.SECONDS, new ArrayBlockingQueue<>(200),
+                  namedFactory("order-notify"), new ThreadPoolExecutor.DiscardPolicy());
+  related_rules: [TP-REJECT-001, TP-REJECT-005, TP-CONFIG-006]
+  references:
+    - java-thread-pool-summary.md §4 种拒绝策略的实际应用场景
+  tags: [thread-pool, rejection, data-loss]
+
+- id: TP-REJECT-003
+  name: 必须处理 RejectedExecutionException
+  domain: [java, concurrency, thread_pool]
+  language: java
+  severity: error
+  priority: high
+  applies_when:
+    features: [THREAD_POOL.SUBMIT]
+  description: 使用 AbortPolicy（或未显式配置）时，提交任务处必须捕获 RejectedExecutionException 并处理。
+  content: |
+    当线程池使用 AbortPolicy（默认）时，submit/execute 必须放在 try/catch 中捕获
+    RejectedExecutionException，并做补偿：重试、持久化后补偿、降级或快速失败返回业务错误码。
+  rationale: |
+    队列满时直接抛异常；未捕获会让请求失败且没有补偿记录，《阿里巴巴 Java 开发手册》也要求显式处理。
+  check:
+    validator: thread_pool.reject_exception_caught
+  examples:
+    positive:
+      - note: 捕获后降级/补偿
+        code: |
+          try {
+              executor.execute(() -> send(order));
+          } catch (RejectedExecutionException ex) {
+              log.error("thread pool saturated, order={}", order.id(), ex);
+              fallbackQueue.offer(order);
+          }
+    negative:
+      - note: 直接提交，未处理拒绝异常
+        code: |
+          executor.execute(() -> send(order));
+  related_rules: [TP-REJECT-001, TP-REJECT-004]
+  references:
+    - java-thread-pool-summary.md §4 种拒绝策略的实际应用场景
+
+- id: TP-REJECT-004
+  name: CallerRunsPolicy 需要评估调用线程
+  domain: [java, concurrency, thread_pool]
+  language: java
+  severity: info
+  priority: medium
+  applies_when:
+    features: [THREAD_POOL.CONFIG.REJECTION]
+  description: 使用 CallerRunsPolicy 前必须确认调用线程可以承受同步执行任务的耗时。
+  content: |
+    CallerRunsPolicy 会在调用者线程中执行任务（天然反压），使用前必须确认调用线程能承受这段耗时：
+    Web 请求处理线程上使用会显著增加响应时间，延迟敏感路径要改用 AbortPolicy + 降级，
+    或把任务转入独立的补偿通道。
+  rationale: |
+    CallerRunsPolicy 会阻塞提交方。美团的生产实践较常使用该策略，但它把过载代价转移给了调用线程，
+    需要按调用链评估而不能默认安全。
+  check:
+    validator: thread_pool.caller_runs_reviewed
+    params:
+      requireAcknowledgement: true
+  examples:
+    positive:
+      - note: 在后台批处理链路上使用，提交方可以承受耗时
+        code: |
+          // 批处理调度线程提交，允许同步执行形成反压
+          orderBatchExecutor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+    negative:
+      - note: Web 请求线程直接提交，任务耗时不可控
+        code: |
+          // OrderController#create 调用链路中
+          new ThreadPoolExecutor(8, 16, 60L, TimeUnit.SECONDS, new ArrayBlockingQueue<>(200),
+                  namedFactory("order-notify"), new ThreadPoolExecutor.CallerRunsPolicy());
+  related_rules: [TP-REJECT-003, TP-REJECT-001]
+  references:
+    - java-thread-pool-summary.md §4 种拒绝策略的实际应用场景
+  tags: [thread-pool, rejection, back-pressure]
+
+- id: TP-REJECT-005
+  name: 自定义拒绝策略必须记录并上报
+  domain: [java, concurrency, thread_pool]
+  language: java
+  severity: warning
+  priority: medium
+  applies_when:
+    features: [THREAD_POOL.REJECTION.CUSTOM_IMPL]
+  description: 自定义 RejectedExecutionHandler 必须记录日志并上报监控指标。
+  content: |
+    自定义拒绝策略（如 AbortPolicyWithReport）在抛出异常或丢弃任务之外，必须记录被拒绝任务的
+    关键信息并递增监控计数（日志 + 指标），需要补偿的场景写入数据库/消息队列后续消费。
+  rationale: |
+    拒绝次数是线程池容量是否合适的核心信号；自定义策略如果不记录，拒绝就变成不可观测的事件，
+    容量治理只能靠猜。
+  check:
+    validator: thread_pool.custom_rejection_reported
+  examples:
+    positive:
+      - note: 记录并计数
+        code: |
+          public void rejectedExecution(Runnable task, ThreadPoolExecutor executor) {
+              REJECTED_COUNT.increment();
+              log.error("task rejected, poolSize={}, queueSize={}", executor.getPoolSize(), executor.getQueue().size());
+              throw new RejectedExecutionException("order-notify saturated");
+          }
+    negative:
+      - note: 静默丢弃
+        code: |
+          public void rejectedExecution(Runnable task, ThreadPoolExecutor executor) {
+              // do nothing
+          }
+  related_rules: [TP-REJECT-002, TP-MONITOR-001]
+  references:
+    - java-thread-pool-summary.md §4 种拒绝策略的实际应用场景
+  tags: [thread-pool, rejection, observability]
+

@@ -1,0 +1,54 @@
+id: CASE-014
+title: 风控评估（吞掉 InterruptedException）
+task: 风控评估线程池在应用关闭时必须能正确响应中断。
+language: java
+domain: thread_pool
+files:
+  before: before.java
+  bad: bad.java
+  good: good.java
+expected:
+  features:
+    - THREAD_POOL.CREATE
+    - THREAD_POOL.CONFIG.CORE_SIZE
+    - THREAD_POOL.CONFIG.MAX_SIZE
+    - THREAD_POOL.CONFIG.KEEP_ALIVE
+    - THREAD_POOL.CONFIG.QUEUE
+    - THREAD_POOL.CONFIG.REJECTION
+    - THREAD_POOL.CONFIG.THREAD_FACTORY
+    - THREAD_POOL.SUBMIT
+    - THREAD_POOL.EXECUTE
+    - THREAD_POOL.EXCEPTION
+    - THREAD_POOL.SHUTDOWN
+    - THREAD_POOL.SHUTDOWN_NOW
+    - THREAD_POOL.AWAIT_TERMINATION
+    - THREAD_POOL.MONITOR
+    - SPRING.PRE_DESTROY
+  rules:
+    - TP-CONFIG-001
+    - TP-CONFIG-002
+    - TP-CONFIG-003
+    - TP-CONFIG-004
+    - TP-CONFIG-005
+    - TP-CONFIG-006
+    - TP-CREATE-001
+    - TP-CREATE-003
+    - TP-CREATE-004
+    - TP-CREATE-005
+    - TP-MONITOR-001
+    - TP-REJECT-001
+    - TP-REJECT-002
+    - TP-REJECT-003
+    - TP-REJECT-004
+    - TP-SHUTDOWN-001
+    - TP-SHUTDOWN-002
+    - TP-SHUTDOWN-003
+    - TP-SHUTDOWN-004
+    - TP-SUBMIT-001
+    - TP-SUBMIT-005
+  optional_rules: []
+  violations:
+    - TP-SHUTDOWN-003
+  compliant_violations: []
+notes:
+  - shutdownNow 的返回值已被处理（变量接收 + 日志），因此 TP-SHUTDOWN-004 不报违规。

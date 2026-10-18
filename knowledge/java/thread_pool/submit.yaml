@@ -1,0 +1,190 @@
+# Atomic Rules: 任务提交与异常处理 (submit / execute / async / ThreadLocal)
+# 来源知识：java-thread-pool-summary.md、java-thread-pool-best-practices.md
+
+- id: TP-SUBMIT-001
+  name: submit 返回的 Future 必须被处理
+  domain: [java, concurrency, thread_pool]
+  language: java
+  severity: warning
+  priority: high
+  applies_when:
+    features: [THREAD_POOL.SUBMIT]
+  description: 调用 submit 后必须消费返回的 Future（get / join / 回调），否则任务异常会被静默吞掉。
+  content: |
+    使用 submit 提交任务时，必须处理返回的 Future：要么 get()/join() 并处理异常，要么链接
+    thenAccept / whenComplete 回调。如果需要“让异常暴露”，可以使用 execute() 并自行捕获，
+    或为线程池设置 UncaughtExceptionHandler。
+  rationale: |
+    submit 会把任务异常封装在 Future 中，不调用 get() 就不会抛出，异常只会在 Future 中被悄悄保存，
+    线上表现为“任务没执行但也没有报错”。
+  check:
+    validator: thread_pool.future_result_handled
+  examples:
+    positive:
+      - note: 处理 Future 结果与异常
+        code: |
+          Future<Long> future = executor.submit(() -> sync(order));
+          try {
+              Long result = future.get(3, TimeUnit.SECONDS);
+          } catch (ExecutionException ex) {
+              log.warn("sync failed", ex.getCause());
+          }
+    negative:
+      - note: 忽略返回值
+        code: |
+          executor.submit(() -> sync(order));
+  related_rules: [TP-SUBMIT-002, TP-SUBMIT-005]
+  references:
+    - java-thread-pool-summary.md §Executor 框架介绍
+  tags: [thread-pool, submit, exception]
+
+- id: TP-SUBMIT-002
+  name: Future.get 必须带超时
+  domain: [java, concurrency, thread_pool]
+  language: java
+  severity: warning
+  priority: high
+  applies_when:
+    features: [THREAD_POOL.FUTURE.GET]
+  description: 阻塞等待任务结果时必须使用带超时的 get(timeout, unit)。
+  content: |
+    调用 Future.get() 必须带超时参数，并处理 TimeoutException：future.get(3, TimeUnit.SECONDS)。
+    CompletableFuture 可用 orTimeout / completeOnTimeout 代替无限等待。
+  rationale: |
+    无超时参数的 get() 会无限阻塞调用线程；当任务卡在慢 SQL 或下游超时上时，调用线程也会被拖住，
+    在 Web 场景会快速耗尽请求处理线程。
+  check:
+    validator: thread_pool.future_get_with_timeout
+  examples:
+    positive:
+      - note: 带超时的等待
+        code: |
+          try {
+              return future.get(3, TimeUnit.SECONDS);
+          } catch (TimeoutException ex) {
+              future.cancel(true);
+              throw new IllegalStateException("sync timeout", ex);
+          }
+    negative:
+      - note: 无限等待
+        code: |
+          return future.get();
+  related_rules: [TP-SUBMIT-001]
+  references:
+    - java-thread-pool-best-practices.md §生产问题：任务超时
+  tags: [thread-pool, future, timeout]
+
+- id: TP-SUBMIT-003
+  name: CompletableFuture 异步方法必须指定 Executor
+  domain: [java, concurrency, thread_pool]
+  language: java
+  severity: error
+  priority: high
+  applies_when:
+    features: [THREAD_POOL.COMPLETABLE_FUTURE]
+  description: CompletableFuture 的 *Async 方法必须传入业务线程池，禁止使用公共 ForkJoinPool。
+  content: |
+    CompletableFuture.supplyAsync / runAsync / thenApplyAsync 等 *Async 方法必须显式传入业务线程池
+    （supplyAsync(supplier, executor)），不要依赖公共线程池。
+  rationale: |
+    CompletableFuture 只负责任务编排，不会把阻塞式调用变成非阻塞。使用公共线程池时，
+    一旦有阻塞任务就会影响应用内其他异步任务，也无法按业务做隔离、监控与限流。
+  check:
+    validator: thread_pool.completable_future_executor
+  examples:
+    positive:
+      - note: 显式指定业务线程池
+        code: |
+          CompletableFuture.supplyAsync(() -> quote(order), riskExecutor)
+                  .orTimeout(2, TimeUnit.SECONDS);
+    negative:
+      - note: 使用公共线程池
+        code: |
+          CompletableFuture.supplyAsync(() -> quote(order));
+  related_rules: [TP-SUBMIT-002, TP-CREATE-002]
+  references:
+    - java-thread-pool-best-practices.md §不要让长任务占满共享线程池
+
+- id: TP-SUBMIT-004
+  name: ThreadLocal 必须在 finally 中清理
+  domain: [java, concurrency, thread_pool]
+  language: java
+  severity: error
+  priority: critical
+  applies_when:
+    features: [THREAD_POOL.THREAD_LOCAL]
+  description: 任务内写入的 ThreadLocal / MDC 必须在线程归还前清理。
+  content: |
+    线程池复用线程，任务中 set 过的 ThreadLocal / MDC（登录信息、租户、traceId）必须在 finally 中
+    remove 或恢复原值；跨线程传递场景使用统一的任务包装器或 TransmittableThreadLocal。
+  rationale: |
+    前一个任务写入的 ThreadLocal 未清理时，后续任务在同一线程上会读到旧值，造成串数据、
+    租户越权等问题，同时大对象会被工作线程长期引用而无法回收。
+  check:
+    validator: thread_pool.thread_local_cleanup
+  examples:
+    positive:
+      - note: finally 中恢复/清理上下文
+        code: |
+          executor.execute(() -> {
+              String previous = TenantContext.tenantId();
+              TenantContext.setTenantId(order.tenantId());
+              try {
+                  send(order);
+              } finally {
+                  TenantContext.restore(previous);
+              }
+          });
+    negative:
+      - note: 只 set 不清理
+        code: |
+          executor.execute(() -> {
+              TenantContext.setTenantId(order.tenantId());
+              send(order);
+          });
+  related_rules: [TP-SUBMIT-001]
+  references:
+    - java-thread-pool-best-practices.md §清理线程上下文
+  tags: [thread-pool, thread-local, isolation]
+
+- id: TP-SUBMIT-005
+  name: 任务内异常必须被处理
+  domain: [java, concurrency, thread_pool]
+  language: java
+  severity: warning
+  priority: high
+  applies_when:
+    any_features:
+      - THREAD_POOL.EXECUTE
+      - THREAD_POOL.EXCEPTION
+  description: 使用 execute 提交的任务必须自行捕获异常，或为线程池设置未捕获异常处理器。
+  content: |
+    使用 execute() 提交任务时，任务体内必须 try/catch 并记录日志（同时做补偿），或者为线程池设置
+    setUncaughtExceptionHandler 统一上报；不要依赖默认的“打印堆栈到标准错误”。
+  rationale: |
+    execute() 的异常会直接抛出在工作线程上，默认只打印到标准错误，业务日志里看不到，
+    监控也无法统计；缺少处理会导致任务静默失败。
+  check:
+    validator: thread_pool.task_exception_handled
+  examples:
+    positive:
+      - note: 任务内捕获并记录
+        code: |
+          executor.execute(() -> {
+              try {
+                  send(order);
+              } catch (RuntimeException ex) {
+                  log.warn("notify failed, order={}", order.id(), ex);
+              }
+          });
+    negative:
+      - note: 任务内抛异常且无处理
+        code: |
+          executor.execute(() -> {
+              send(order);
+          });
+  related_rules: [TP-SUBMIT-001, TP-REJECT-003]
+  references:
+    - java-thread-pool-best-practices.md §任务执行异常
+  tags: [thread-pool, exception, observability]
+
