@@ -1,0 +1,16 @@
+{
+  "source_sha256": "afcdb28d29b3350ff468531c982247ee469b86625ab23031a551ee2e98cca663",
+  "reviewer": "Codex Agent source review, not human; 2026-10-27; complete frozen checklist with explicit uncertainty",
+  "criteria": [
+    {
+      "criterion": "强制关闭时未执行任务被记录或补偿",
+      "passed": true,
+      "evidence": "stop stores shutdownNow returned tasks in fallbackQueue, directly (baseline), via transferToFallback (rag), or handlePending (rules)."
+    },
+    {
+      "criterion": "正常关闭与中断路径都不静默丢弃待执行任务",
+      "passed": true,
+      "evidence": "Both timeout and InterruptedException branches transfer the returned pending tasks to fallbackQueue; the interruption branch also restores the flag. Normal successful shutdown drains accepted tasks."
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { join } from 'node:path';
+import { checkJava } from '../eval/java.ts';
+import { acceptanceTest, sha256 } from '../eval/acceptance.ts';
+const frozen='eval/experiments/2026-10-27-63calls/evidence';
+const out='.eval-cache/complete-task-review';mkdirSync(out,{recursive:true});
+const config=JSON.parse(readFileSync(join(frozen,'experiment.json'),'utf8')).config;
+const rows=[];
+for(const strategy of ['baseline','rag','rules']) {
+ const file=join(frozen,'results',strategy,'CASE-005.java');
+ const result=checkJava(file,{...config.java,...acceptanceTest('CASE-005')});
+ rows.push({case_id:'CASE-005',strategy,source_sha256:sha256(readFileSync(file,'utf8')),...result});
+ console.log(strategy,result.compile.status,result.tests.status);
+}
+writeFileSync(join(out,'growth-recheck.json'),JSON.stringify(rows,null,2)+'\n');
+if(rows.some(r=>r.compile.status!=='ok'||r.tests.status!=='ok'))process.exitCode=1;

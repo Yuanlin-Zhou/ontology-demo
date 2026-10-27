@@ -1,0 +1,71 @@
+import { readFileSync, writeFileSync, mkdirSync, readdirSync } from 'node:fs';
+import { join } from 'node:path';
+import { sha256, TASK_CRITERIA, readTaskReview, type TaskReview } from '../eval/acceptance.ts';
+import { RuleEngine } from '../src/api/engine.ts';
+import { type EvalReport, renderReportMarkdown } from '../eval/runner.ts';
+const frozen='eval/experiments/2026-10-27-63calls/evidence';
+const out='.eval-cache/complete-task-review';mkdirSync(out,{recursive:true});
+const original=JSON.parse(readFileSync(join(frozen,'report.json'),'utf8')) as EvalReport;
+const notes:Record<string,Array<{passed:boolean|null;evidence:string}>>={
+ 'CASE-001':[
+  {passed:null,evidence:'notifyCreated submits sendRemote asynchronously, but sendRemote is empty (rules has an empty try block). No external effect/callback exists to establish actual delivery. Scheduling is verified; business delivery is not.'},
+  {passed:true,evidence:'baseline/rag catch Throwable inside the worker and around submission; rules catches business RuntimeException inside sendRemote and rejected submission in notifyCreated. Business failure isolation is structurally present; actual network integration is unavailable.'}],
+ 'CASE-002':[
+  {passed:null,evidence:'syncCreated dispatches a task, but syncRemote has no statements and query returns null in all three sources. baseline/rag log RuntimeException; rules relies on execute uncaught handling. No observable actual order synchronization or injected downstream failure establishes this combined criterion.'},
+  {passed:true,evidence:'syncCreated cleans TENANT in worker finally: baseline/rules remove it; rag restores previous value or removes when absent. Frozen single-worker reuse assertion passes.'}],
+ 'CASE-003':[
+  {passed:null,evidence:'export executes doExport on exporter, but doExport is an empty body in all three sources. An accepted pool task is not proof of generating an export artifact.'},
+  {passed:true,evidence:'baseline uses LinkedBlockingQueue with explicit capacity 256; rag/rules use ArrayBlockingQueue(200). AbortPolicy/rejection handler and catch RejectedExecutionException log the overload path.'}],
+ 'CASE-007':[
+  {passed:true,evidence:'write submits append on writer; rag/rules append calls log.info(message), an actual logging sink operation. baseline append is empty and is separately marked unverifiable.'},
+  {passed:true,evidence:'All three configured rejection handlers increment AtomicLong rejectedCount and emit WARN. stats returns the same counter; frozen overload counter assertion passes.'}],
+ 'CASE-008':[
+  {passed:null,evidence:'sync schedules remoteSync(sku), but remoteSync is empty for every strategy. No inventory state update or observable downstream contract exists.'},
+  {passed:true,evidence:'sync catches RejectedExecutionException on the caller and adds the exact sku to retryQueue; frozen rejection/compensation assertion verifies membership.'}],
+ 'CASE-009':[
+  {passed:true,evidence:'RecordingRejectionHandler/CountingRejectionHandler increments rejectedCount and logs WARN with queue and active worker details.'},
+  {passed:true,evidence:'stats() reads the same AtomicLong rejectedCount changed by the custom handler, not a fresh unrelated counter; frozen overload assertion passes.'}],
+ 'CASE-010':[
+  {passed:null,evidence:'process schedules handle(fileId). baseline/rag handle is empty; rules only logs the file identifier, with no file access, transformation, artifact or injected handler. Actual file processing remains unverifiable.'},
+  {passed:true,evidence:'The configured factory names real worker threads with a file-process prefix and incrementing sequence; frozen thread-name/worker execution assertion passes.'}],
+ 'CASE-011':[
+  {passed:null,evidence:'onEvent submits push(eventId), but push is empty in all sources. Pool task counts cannot establish that consecutive events are delivered to a receiver.'},
+  {passed:true,evidence:'A final ThreadPoolExecutor field is initialized once in the constructor and reused by every onEvent call, rather than created per request.'}],
+ 'CASE-014':[
+  {passed:true,evidence:'stop calls shutdown and bounded awaitTermination; InterruptedException catch forces shutdownNow rather than continuing a silent wait.'},
+  {passed:true,evidence:'The InterruptedException catch explicitly calls Thread.currentThread().interrupt() after forced shutdown in all three sources.'}],
+ 'CASE-015':[
+  {passed:true,evidence:'stop stores shutdownNow returned tasks in fallbackQueue, directly (baseline), via transferToFallback (rag), or handlePending (rules).'},
+  {passed:true,evidence:'Both timeout and InterruptedException branches transfer the returned pending tasks to fallbackQueue; the interruption branch also restores the flag. Normal successful shutdown drains accepted tasks.'}],
+ 'CASE-016':[
+  {passed:true,evidence:'@Configuration exposes @Bean(orderNotifier) ThreadPoolTaskExecutor; Spring owns initialization/destruction. Frozen real AnnotationConfigApplicationContext lifecycle assertion passes. baseline calls initialize manually as well, which deserves cleanup but does not invalidate this scoped assertion.'},
+  {passed:true,evidence:'stats reads the actual bean/executor poolSize, activeCount, queue size and completedTaskCount. A MeterBinder/registry path is additional; readable stats is the frozen criterion. Rules registerMetrics is not wired, so do not infer registered Micrometer metrics from that unused helper.'}],
+ 'CASE-018':[
+  {passed:true,evidence:'settle uses settleExecutor.execute, while scheduleRetry uses a distinct ScheduledThreadPoolExecutor.schedule. The criterion checks separation of execution paths; doSettle remains a business placeholder.'},
+  {passed:true,evidence:'stats reads both executor instances. stop shuts down and awaits each, with shutdownNow on timeout and both forced down on interruption. Frozen two-pool lifecycle assertion passes.'}],
+};
+const reviewed=structuredClone(original);
+const coverage:unknown[]=[];const engine=RuleEngine.load();const staticRecheck:unknown[]=[];
+for(const row of reviewed.agent){
+ const file=join(frozen,'results',row.strategy,`${row.case_id}.java`);const source=readFileSync(file,'utf8');
+ if(sha256(source)!==row.source_sha256)throw new Error('Frozen source changed');
+ let review:TaskReview;
+ if(notes[row.case_id]){
+  const entries=structuredClone(notes[row.case_id]!);
+  if(row.case_id==='CASE-007'&&row.strategy==='baseline')entries[0]={passed:null,evidence:'write dispatches append(message) but append at lines 79-81 is an empty placeholder, so actual log writing cannot be demonstrated. Reject warnings are a different operation.'};
+  review={source_sha256:sha256(source),reviewer:'Codex Agent source review, not human; 2026-10-27; complete frozen checklist with explicit uncertainty',criteria:TASK_CRITERIA[row.case_id]!.map((criterion,i)=>({criterion,...entries[i]!,...(entries[i]!.passed===null?{verdict:'unverifiable' as const}:{})}))};
+ }else review=JSON.parse(readFileSync(join(frozen,'reviews',row.strategy,`${row.case_id}.json`),'utf8')) as TaskReview;
+ const dir=join(out,'reviews',row.strategy);mkdirSync(dir,{recursive:true});const path=join(dir,`${row.case_id}.json`);writeFileSync(path,JSON.stringify(review,null,2)+'\n');
+ const check=readTaskReview(path,source,row.case_id);
+ if(check.detail.startsWith('Invalid')||check.detail.startsWith('Cannot'))throw new Error(`Incomplete review: ${row.strategy}/${row.case_id}`);
+ const gateFailed=row.output!=='present'||['failed','timeout'].includes(row.compile)||['failed','timeout'].includes(row.test_check.status);
+ row.task_check=gateFailed?{status:'failed',detail:'Frozen compilation or behavioral check failed.'}:check.status!=='ok'?check:row.compile!=='ok'||row.test_check.status!=='ok'?{status:'not_run',detail:'Required frozen automatic gate unavailable.'}:check;
+ coverage.push({strategy:row.strategy,case_id:row.case_id,source_sha256:row.source_sha256,review_completed:true,unverifiable:review.criteria.filter(c=>c.passed===null).length,review_status:check.status,task_status:row.task_check.status});
+ const current=engine.validate({code:source});
+ staticRecheck.push({strategy:row.strategy,case_id:row.case_id,source_sha256:row.source_sha256,frozen_errors:row.errors,current_errors:current.violations.filter(v=>v.severity==='error').length,frozen_violations:row.violation_rules,current_violations:current.violations});
+}
+reviewed.notes.push('All 63 source checklists now reviewed by Codex Agent, not a human reviewer. Explicit unverifiable criteria retain not_run and are never promoted to success. Frozen compilation, behavioral and static compliance results are reused unchanged. Separately saved post-fix static recheck is not a new model experiment.');
+writeFileSync(join(out,'reviewed-report.json'),JSON.stringify(reviewed,null,2)+'\n');writeFileSync(join(out,'reviewed-report.md'),renderReportMarkdown(reviewed));
+writeFileSync(join(out,'coverage.json'),JSON.stringify(coverage,null,2)+'\n');writeFileSync(join(out,'post-fix-static.json'),JSON.stringify(staticRecheck,null,2)+'\n');
+console.log('Completed checklist reviews:',coverage.length);
+for(const s of ['baseline','rag','rules']){const rows=reviewed.agent.filter(r=>r.strategy===s);console.log(s,JSON.stringify({confirmed:rows.filter(r=>r.task_check.status==='ok').length,failed:rows.filter(r=>r.task_check.status==='failed').length,unverifiable:rows.filter(r=>r.task_check.status==='not_run').length}));}

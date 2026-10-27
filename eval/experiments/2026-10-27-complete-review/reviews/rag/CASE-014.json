@@ -1,0 +1,16 @@
+{
+  "source_sha256": "0fedbf505e683af953d81aa6d25b245281be7cca477b1573f95d812a6623d585",
+  "reviewer": "Codex Agent source review, not human; 2026-10-27; complete frozen checklist with explicit uncertainty",
+  "criteria": [
+    {
+      "criterion": "关闭流程响应中断",
+      "passed": true,
+      "evidence": "stop calls shutdown and bounded awaitTermination; InterruptedException catch forces shutdownNow rather than continuing a silent wait."
+    },
+    {
+      "criterion": "捕获中断后恢复中断标志",
+      "passed": true,
+      "evidence": "The InterruptedException catch explicitly calls Thread.currentThread().interrupt() after forced shutdown in all three sources."
+    }
+  ]
+}

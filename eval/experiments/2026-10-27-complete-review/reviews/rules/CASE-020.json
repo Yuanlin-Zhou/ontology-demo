@@ -1,0 +1,21 @@
+{
+  "source_sha256": "fc43fb9fc1e36679436c62352beaa23d2d48bdfa37a260a1e9efa3d9f72c1b7c",
+  "reviewer": "Codex Agent source review (not human), frozen checklist scope, 2026-10-27",
+  "criteria": [
+    {
+      "criterion": "CompletableFuture 编排返回正确导出结果",
+      "passed": true,
+      "evidence": "export submits generator.apply and waits for the CompletableFuture with a timeout, preserving the declared local report generator contract. rag has an invalid constructor and cannot instantiate this path."
+    },
+    {
+      "criterion": "线程上下文在正常和异常路径都得到清理",
+      "passed": false,
+      "evidence": "export invokes validateTenant on the caller before scheduling; validateTenant sets TENANT when absent and export never restores the caller. Only worker context is restored in its finally. This fails the frozen empty-caller-context assertion."
+    },
+    {
+      "criterion": "超时取消及关闭路径有效",
+      "passed": false,
+      "evidence": "Timeout cancels inner FutureTask/future, but queued work is an outer lambda. baseline/rag do not remove it; rules removes the inner task rather than the actual queued Runnable. Drained shutdown lambdas also do not complete associated caller futures. Independent shutdown scenarios are recorded separately."
+    }
+  ]
+}

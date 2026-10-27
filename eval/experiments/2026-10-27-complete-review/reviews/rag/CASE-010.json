@@ -1,0 +1,17 @@
+{
+  "source_sha256": "67efd6cdf9d2c4ed579e444b39d5adf01726fc6544c2bb7a34ca9a1106515dc3",
+  "reviewer": "Codex Agent source review, not human; 2026-10-27; complete frozen checklist with explicit uncertainty",
+  "criteria": [
+    {
+      "criterion": "文件处理实际执行",
+      "passed": null,
+      "evidence": "process schedules handle(fileId). baseline/rag handle is empty; rules only logs the file identifier, with no file access, transformation, artifact or injected handler. Actual file processing remains unverifiable.",
+      "verdict": "unverifiable"
+    },
+    {
+      "criterion": "实际工作线程名可识别文件处理业务",
+      "passed": true,
+      "evidence": "The configured factory names real worker threads with a file-process prefix and incrementing sequence; frozen thread-name/worker execution assertion passes."
+    }
+  ]
+}

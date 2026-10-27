@@ -1,0 +1,17 @@
+{
+  "source_sha256": "3895c70e948e826e0931de16fdf8ce3baf741aee980a1ef46931266c56e15a8e",
+  "reviewer": "Codex Agent source review, not human; 2026-10-27; complete frozen checklist with explicit uncertainty",
+  "criteria": [
+    {
+      "criterion": "订单同步任务实际执行且异常可见",
+      "passed": null,
+      "evidence": "syncCreated dispatches a task, but syncRemote has no statements and query returns null in all three sources. baseline/rag log RuntimeException; rules relies on execute uncaught handling. No observable actual order synchronization or injected downstream failure establishes this combined criterion.",
+      "verdict": "unverifiable"
+    },
+    {
+      "criterion": "复用工作线程时租户上下文不串数据",
+      "passed": true,
+      "evidence": "syncCreated cleans TENANT in worker finally: baseline/rules remove it; rag restores previous value or removes when absent. Frozen single-worker reuse assertion passes."
+    }
+  ]
+}

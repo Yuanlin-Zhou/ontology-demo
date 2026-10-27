@@ -1,0 +1,16 @@
+{
+  "source_sha256": "9447b4e427d834ad1925c4dd628afe326b76901b6eadb588d9687f8c48d10315",
+  "reviewer": "Codex Agent source review, not human; 2026-10-27; complete frozen checklist with explicit uncertainty",
+  "criteria": [
+    {
+      "criterion": "结算执行与重试调度使用独立线程池",
+      "passed": true,
+      "evidence": "settle uses settleExecutor.execute, while scheduleRetry uses a distinct ScheduledThreadPoolExecutor.schedule. The criterion checks separation of execution paths; doSettle remains a business placeholder."
+    },
+    {
+      "criterion": "两个线程池都有监控和关闭流程",
+      "passed": true,
+      "evidence": "stats reads both executor instances. stop shuts down and awaits each, with shutdownNow on timeout and both forced down on interruption. Frozen two-pool lifecycle assertion passes."
+    }
+  ]
+}

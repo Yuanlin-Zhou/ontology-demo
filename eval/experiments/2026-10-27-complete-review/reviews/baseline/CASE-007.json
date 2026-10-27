@@ -1,0 +1,17 @@
+{
+  "source_sha256": "f82c7d86191ee85c08004ba420cf08475956be6891929c5507d2fb7882eebe5b",
+  "reviewer": "Codex Agent source review, not human; 2026-10-27; complete frozen checklist with explicit uncertainty",
+  "criteria": [
+    {
+      "criterion": "日志异步写入",
+      "passed": null,
+      "evidence": "write dispatches append(message) but append at lines 79-81 is an empty placeholder, so actual log writing cannot be demonstrated. Reject warnings are a different operation.",
+      "verdict": "unverifiable"
+    },
+    {
+      "criterion": "过载丢弃有计数并有可观测告警",
+      "passed": true,
+      "evidence": "All three configured rejection handlers increment AtomicLong rejectedCount and emit WARN. stats returns the same counter; frozen overload counter assertion passes."
+    }
+  ]
+}

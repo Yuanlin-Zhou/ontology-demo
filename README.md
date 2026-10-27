@@ -316,3 +316,5 @@ npm run eval:boundaries
 完整 Java 验收环境可使用 `npm run setup:eval`、`npm run check:eval`、`npm run test:eval`。它们统一选择 JDK 并校验固定依赖，避免因遗漏 classpath 跳过第三方库行为测试；日常 `npm test` 用法保留。
 
 最新 21 用例三策略实验已实际完成 63 次调用；冻结参数、原始结果、源码及独立诊断见 [2026-10-27 合并后实验](eval/experiments/2026-10-27-63calls/README.md)。
+
+63 份源码清单审查已全部完成，并保留业务证据不足状态；中断恢复定向修复和真实扩容/回收复验见 [完整审查与修复记录](eval/experiments/2026-10-27-complete-review/README.md)。

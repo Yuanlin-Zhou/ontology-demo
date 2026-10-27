@@ -1,0 +1,16 @@
+{
+  "source_sha256": "b3d631c8b65464a043941e1d4272928235801e41b14c4f32b8e960d8d90f12f7",
+  "reviewer": "Codex Agent source review, not human; 2026-10-27; complete frozen checklist with explicit uncertainty",
+  "criteria": [
+    {
+      "criterion": "真实 Spring 容器可创建和销毁线程池 Bean",
+      "passed": true,
+      "evidence": "@Configuration exposes @Bean(orderNotifier) ThreadPoolTaskExecutor; Spring owns initialization/destruction. Frozen real AnnotationConfigApplicationContext lifecycle assertion passes. baseline calls initialize manually as well, which deserves cleanup but does not invalidate this scoped assertion."
+    },
+    {
+      "criterion": "线程池有可读取的监控出口",
+      "passed": true,
+      "evidence": "stats reads the actual bean/executor poolSize, activeCount, queue size and completedTaskCount. A MeterBinder/registry path is additional; readable stats is the frozen criterion. Rules registerMetrics is not wired, so do not infer registered Micrometer metrics from that unused helper."
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "source_sha256": "672b7dd763a56a14251d18c387d2b2411d001d6fc1cea598847bf422ac136b42",
+  "reviewer": "Codex Agent source review, not human; 2026-10-27; complete frozen checklist with explicit uncertainty",
+  "criteria": [
+    {
+      "criterion": "连续事件都能被推送",
+      "passed": null,
+      "evidence": "onEvent submits push(eventId), but push is empty in all sources. Pool task counts cannot establish that consecutive events are delivered to a receiver.",
+      "verdict": "unverifiable"
+    },
+    {
+      "criterion": "多次调用复用同一个业务线程池",
+      "passed": true,
+      "evidence": "A final ThreadPoolExecutor field is initialized once in the constructor and reused by every onEvent call, rather than created per request."
+    }
+  ]
+}

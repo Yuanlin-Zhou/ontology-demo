@@ -1,0 +1,2342 @@
+[
+  {
+    "strategy": "baseline",
+    "case_id": "CASE-001",
+    "source_sha256": "0a7b8f88141b6c044f517b0943a8f846320a6fd5ab69ae4a9df0e53872e825da",
+    "frozen_errors": 3,
+    "current_errors": 3,
+    "frozen_violations": [
+      "TP-CONFIG-004",
+      "TP-CREATE-001",
+      "TP-MONITOR-001",
+      "TP-SHUTDOWN-001"
+    ],
+    "current_violations": [
+      {
+        "rule_id": "TP-CONFIG-004",
+        "rule_name": "任务队列必须有界",
+        "message": "notifier (executors_factory) 使用了无界队列 LinkedBlockingQueue：不指定容量时最大长度为 Integer.MAX_VALUE，视为无界。",
+        "severity": "error",
+        "line": 22,
+        "column": 25,
+        "snippet": "this.notifier = Executors.newFixedThreadPool(16, new ThreadFactory() {",
+        "suggestion": "改用 new ArrayBlockingQueue<>(capacity) 并显式给出容量（可参照 Q ≈ (λ_in − λ_out) × Δt 估算），同时配置拒绝策略。"
+      },
+      {
+        "rule_id": "TP-CREATE-001",
+        "rule_name": "显式创建线程池",
+        "message": "Executors.newFixedThreadPool(...) 隐藏了队列与拒绝策略：内部使用无界 LinkedBlockingQueue（容量 Integer.MAX_VALUE），任务会持续堆积直至 OOM。",
+        "severity": "error",
+        "line": 22,
+        "column": 25,
+        "snippet": "this.notifier = Executors.newFixedThreadPool(16, new ThreadFactory() {",
+        "suggestion": "改为 new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, unit, new ArrayBlockingQueue<>(capacity), threadFactory, rejectionHandler)，把线程数、队列容量、命名工厂和拒绝策略显式写出。"
+      },
+      {
+        "rule_id": "TP-MONITOR-001",
+        "rule_name": "线程池必须可观测",
+        "message": "线程池 notifier 没有关联到可观察的运行指标。",
+        "severity": "warning",
+        "line": 22,
+        "column": 25,
+        "snippet": "this.notifier = Executors.newFixedThreadPool(16, new ThreadFactory() {",
+        "suggestion": "为这个线程池暴露 getQueue().size()、getActiveCount()、getCompletedTaskCount() 等运行指标，并单独统计拒绝次数。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-001",
+        "rule_name": "应用级线程池必须有确定的关闭逻辑",
+        "message": "应用级线程池 notifier 在本文件内没有任何关闭调用（shutdown/close）。",
+        "severity": "error",
+        "line": 22,
+        "column": 25,
+        "snippet": "this.notifier = Executors.newFixedThreadPool(16, new ThreadFactory() {",
+        "suggestion": "在 @PreDestroy、应用关闭钩子或 close() 中调用 shutdown() + awaitTermination()，确保工作线程被回收、队列任务的处置明确。"
+      }
+    ]
+  },
+  {
+    "strategy": "baseline",
+    "case_id": "CASE-002",
+    "source_sha256": "92b21afb611c696966356df6e48f0bb6d094ad62da94ea723ca05f9d3affc816",
+    "frozen_errors": 5,
+    "current_errors": 5,
+    "frozen_violations": [
+      "TP-CONFIG-004",
+      "TP-CREATE-001",
+      "TP-CREATE-003",
+      "TP-MONITOR-001",
+      "TP-SHUTDOWN-001",
+      "TP-REJECT-003",
+      "TP-SUBMIT-001",
+      "TP-REJECT-003",
+      "TP-SUBMIT-002"
+    ],
+    "current_violations": [
+      {
+        "rule_id": "TP-CONFIG-004",
+        "rule_name": "任务队列必须有界",
+        "message": "syncExecutor (executors_factory) 使用了无界队列 LinkedBlockingQueue：不指定容量时最大长度为 Integer.MAX_VALUE，视为无界。",
+        "severity": "error",
+        "line": 19,
+        "column": 50,
+        "snippet": "private final ExecutorService syncExecutor = Executors.newFixedThreadPool(8);",
+        "suggestion": "改用 new ArrayBlockingQueue<>(capacity) 并显式给出容量（可参照 Q ≈ (λ_in − λ_out) × Δt 估算），同时配置拒绝策略。"
+      },
+      {
+        "rule_id": "TP-CREATE-001",
+        "rule_name": "显式创建线程池",
+        "message": "Executors.newFixedThreadPool(...) 隐藏了队列与拒绝策略：内部使用无界 LinkedBlockingQueue（容量 Integer.MAX_VALUE），任务会持续堆积直至 OOM。",
+        "severity": "error",
+        "line": 19,
+        "column": 50,
+        "snippet": "private final ExecutorService syncExecutor = Executors.newFixedThreadPool(8);",
+        "suggestion": "改为 new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, unit, new ArrayBlockingQueue<>(capacity), threadFactory, rejectionHandler)，把线程数、队列容量、命名工厂和拒绝策略显式写出。"
+      },
+      {
+        "rule_id": "TP-CREATE-003",
+        "rule_name": "线程池必须配置线程工厂",
+        "message": "syncExecutor (executors_factory) 没有指定 ThreadFactory，工作线程会使用 pool-N-thread-M 这类默认名称。",
+        "severity": "warning",
+        "line": 19,
+        "column": 50,
+        "snippet": "private final ExecutorService syncExecutor = Executors.newFixedThreadPool(8);",
+        "suggestion": "传入命名线程工厂（如 namedFactory(\"order-notify\")），或使用 ThreadPoolTaskExecutor#setThreadNamePrefix。"
+      },
+      {
+        "rule_id": "TP-MONITOR-001",
+        "rule_name": "线程池必须可观测",
+        "message": "线程池 syncExecutor 没有关联到可观察的运行指标。",
+        "severity": "warning",
+        "line": 19,
+        "column": 50,
+        "snippet": "private final ExecutorService syncExecutor = Executors.newFixedThreadPool(8);",
+        "suggestion": "为这个线程池暴露 getQueue().size()、getActiveCount()、getCompletedTaskCount() 等运行指标，并单独统计拒绝次数。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-001",
+        "rule_name": "应用级线程池必须有确定的关闭逻辑",
+        "message": "应用级线程池 syncExecutor 在本文件内没有任何关闭调用（shutdown/close）。",
+        "severity": "error",
+        "line": 19,
+        "column": 50,
+        "snippet": "private final ExecutorService syncExecutor = Executors.newFixedThreadPool(8);",
+        "suggestion": "在 @PreDestroy、应用关闭钩子或 close() 中调用 shutdown() + awaitTermination()，确保工作线程被回收、队列任务的处置明确。"
+      },
+      {
+        "rule_id": "TP-REJECT-003",
+        "rule_name": "必须处理 RejectedExecutionException",
+        "message": "syncExecutor.submit(...) 在 AbortPolicy（或默认策略）下可能抛出 RejectedExecutionException，但调用处没有捕获处理。",
+        "severity": "error",
+        "line": 22,
+        "column": 9,
+        "snippet": "syncExecutor.submit(() -> {",
+        "suggestion": "用 try/catch 包住提交调用并做补偿：重试、持久化后补偿、降级返回业务错误码，并记录拒绝日志与监控计数。"
+      },
+      {
+        "rule_id": "TP-SUBMIT-001",
+        "rule_name": "submit 返回的 Future 必须被处理",
+        "message": "syncExecutor.submit(...) 返回的 Future 未见消费或委托，任务异常可能一直保存在 Future 中而不被感知。",
+        "severity": "warning",
+        "line": 22,
+        "column": 9,
+        "snippet": "syncExecutor.submit(() -> {",
+        "suggestion": "普通 Future 使用 get(3, TimeUnit.SECONDS) 并处理 ExecutionException、TimeoutException 和中断；只有 CompletableFuture 支持 whenComplete 等回调。"
+      },
+      {
+        "rule_id": "TP-REJECT-003",
+        "rule_name": "必须处理 RejectedExecutionException",
+        "message": "syncExecutor.submit(...) 在 AbortPolicy（或默认策略）下可能抛出 RejectedExecutionException，但调用处没有捕获处理。",
+        "severity": "error",
+        "line": 37,
+        "column": 32,
+        "snippet": "Future<Order> future = syncExecutor.submit(() -> query(id));",
+        "suggestion": "用 try/catch 包住提交调用并做补偿：重试、持久化后补偿、降级返回业务错误码，并记录拒绝日志与监控计数。"
+      },
+      {
+        "rule_id": "TP-SUBMIT-002",
+        "rule_name": "Future.get 必须带超时",
+        "message": "future.get() 没有超时参数，任务卡住时会一直阻塞调用线程。",
+        "severity": "warning",
+        "line": 39,
+        "column": 20,
+        "snippet": "return future.get();",
+        "suggestion": "使用 get(timeout, unit)（例如 get(3, TimeUnit.SECONDS)）并处理 TimeoutException；CompletableFuture 可用 orTimeout/completeOnTimeout。"
+      }
+    ]
+  },
+  {
+    "strategy": "baseline",
+    "case_id": "CASE-003",
+    "source_sha256": "0d9344191720f51b4f5bd4ac2adb3e308929cc4c3332cc3e4f77e2e7d682497b",
+    "frozen_errors": 1,
+    "current_errors": 1,
+    "frozen_violations": [
+      "TP-CREATE-003",
+      "TP-MONITOR-001",
+      "TP-SHUTDOWN-001"
+    ],
+    "current_violations": [
+      {
+        "rule_id": "TP-CREATE-003",
+        "rule_name": "线程池必须配置线程工厂",
+        "message": "exporter (thread_pool_executor) 没有指定 ThreadFactory，工作线程会使用 pool-N-thread-M 这类默认名称。",
+        "severity": "warning",
+        "line": 20,
+        "column": 49,
+        "snippet": "private final ThreadPoolExecutor exporter = new ThreadPoolExecutor(",
+        "suggestion": "传入命名线程工厂（如 namedFactory(\"order-notify\")），或使用 ThreadPoolTaskExecutor#setThreadNamePrefix。"
+      },
+      {
+        "rule_id": "TP-MONITOR-001",
+        "rule_name": "线程池必须可观测",
+        "message": "线程池 exporter 没有关联到可观察的运行指标。",
+        "severity": "warning",
+        "line": 20,
+        "column": 49,
+        "snippet": "private final ThreadPoolExecutor exporter = new ThreadPoolExecutor(",
+        "suggestion": "为这个线程池暴露 getQueue().size()、getActiveCount()、getCompletedTaskCount() 等运行指标，并单独统计拒绝次数。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-001",
+        "rule_name": "应用级线程池必须有确定的关闭逻辑",
+        "message": "应用级线程池 exporter 在本文件内没有任何关闭调用（shutdown/close）。",
+        "severity": "error",
+        "line": 20,
+        "column": 49,
+        "snippet": "private final ThreadPoolExecutor exporter = new ThreadPoolExecutor(",
+        "suggestion": "在 @PreDestroy、应用关闭钩子或 close() 中调用 shutdown() + awaitTermination()，确保工作线程被回收、队列任务的处置明确。"
+      }
+    ]
+  },
+  {
+    "strategy": "baseline",
+    "case_id": "CASE-004",
+    "source_sha256": "e7ca013d0d1b1cb884e3906baa280b126bbe011dd167139e3e95fd53f8969ac8",
+    "frozen_errors": 4,
+    "current_errors": 4,
+    "frozen_violations": [
+      "TP-CREATE-003",
+      "TP-MONITOR-001",
+      "TP-REJECT-001",
+      "TP-SHUTDOWN-001",
+      "TP-CREATE-003",
+      "TP-MONITOR-001",
+      "TP-REJECT-001",
+      "TP-SHUTDOWN-001",
+      "TP-SHUTDOWN-004",
+      "TP-SHUTDOWN-004"
+    ],
+    "current_violations": [
+      {
+        "rule_id": "TP-CREATE-003",
+        "rule_name": "线程池必须配置线程工厂",
+        "message": "scheduler (scheduled_thread_pool_executor) 没有指定 ThreadFactory，工作线程会使用 pool-N-thread-M 这类默认名称。",
+        "severity": "warning",
+        "line": 49,
+        "column": 26,
+        "snippet": "this.scheduler = new ScheduledThreadPoolExecutor(4);",
+        "suggestion": "传入命名线程工厂（如 namedFactory(\"order-notify\")），或使用 ThreadPoolTaskExecutor#setThreadNamePrefix。"
+      },
+      {
+        "rule_id": "TP-MONITOR-001",
+        "rule_name": "线程池必须可观测",
+        "message": "线程池 scheduler 没有关联到可观察的运行指标。",
+        "severity": "warning",
+        "line": 49,
+        "column": 26,
+        "snippet": "this.scheduler = new ScheduledThreadPoolExecutor(4);",
+        "suggestion": "为这个线程池暴露 getQueue().size()、getActiveCount()、getCompletedTaskCount() 等运行指标，并单独统计拒绝次数。"
+      },
+      {
+        "rule_id": "TP-REJECT-001",
+        "rule_name": "必须显式配置拒绝策略",
+        "message": "scheduler (scheduled_thread_pool_executor) 没有显式配置拒绝策略，队列满时会使用默认 AbortPolicy 直接抛 RejectedExecutionException。",
+        "severity": "error",
+        "line": 49,
+        "column": 26,
+        "snippet": "this.scheduler = new ScheduledThreadPoolExecutor(4);",
+        "suggestion": "显式传入第 7 个参数或调用 setRejectedExecutionHandler：核心业务用 AbortPolicy 并做调用侧补偿，允许反压的场景用 CallerRunsPolicy。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-001",
+        "rule_name": "应用级线程池必须有确定的关闭逻辑",
+        "message": "应用级线程池 scheduler 在本文件内没有任何关闭调用（shutdown/close）。",
+        "severity": "error",
+        "line": 49,
+        "column": 26,
+        "snippet": "this.scheduler = new ScheduledThreadPoolExecutor(4);",
+        "suggestion": "在 @PreDestroy、应用关闭钩子或 close() 中调用 shutdown() + awaitTermination()，确保工作线程被回收、队列任务的处置明确。"
+      },
+      {
+        "rule_id": "TP-CREATE-003",
+        "rule_name": "线程池必须配置线程工厂",
+        "message": "scheduler (scheduled_thread_pool_executor) 没有指定 ThreadFactory，工作线程会使用 pool-N-thread-M 这类默认名称。",
+        "severity": "warning",
+        "line": 73,
+        "column": 26,
+        "snippet": "this.scheduler = new ScheduledThreadPoolExecutor(4);",
+        "suggestion": "传入命名线程工厂（如 namedFactory(\"order-notify\")），或使用 ThreadPoolTaskExecutor#setThreadNamePrefix。"
+      },
+      {
+        "rule_id": "TP-MONITOR-001",
+        "rule_name": "线程池必须可观测",
+        "message": "线程池 scheduler 没有关联到可观察的运行指标。",
+        "severity": "warning",
+        "line": 73,
+        "column": 26,
+        "snippet": "this.scheduler = new ScheduledThreadPoolExecutor(4);",
+        "suggestion": "为这个线程池暴露 getQueue().size()、getActiveCount()、getCompletedTaskCount() 等运行指标，并单独统计拒绝次数。"
+      },
+      {
+        "rule_id": "TP-REJECT-001",
+        "rule_name": "必须显式配置拒绝策略",
+        "message": "scheduler (scheduled_thread_pool_executor) 没有显式配置拒绝策略，队列满时会使用默认 AbortPolicy 直接抛 RejectedExecutionException。",
+        "severity": "error",
+        "line": 73,
+        "column": 26,
+        "snippet": "this.scheduler = new ScheduledThreadPoolExecutor(4);",
+        "suggestion": "显式传入第 7 个参数或调用 setRejectedExecutionHandler：核心业务用 AbortPolicy 并做调用侧补偿，允许反压的场景用 CallerRunsPolicy。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-001",
+        "rule_name": "应用级线程池必须有确定的关闭逻辑",
+        "message": "应用级线程池 scheduler 在本文件内没有任何关闭调用（shutdown/close）。",
+        "severity": "error",
+        "line": 73,
+        "column": 26,
+        "snippet": "this.scheduler = new ScheduledThreadPoolExecutor(4);",
+        "suggestion": "在 @PreDestroy、应用关闭钩子或 close() 中调用 shutdown() + awaitTermination()，确保工作线程被回收、队列任务的处置明确。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "scheduler.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 129,
+        "column": 17,
+        "snippet": "scheduler.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "scheduler.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 136,
+        "column": 13,
+        "snippet": "scheduler.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      }
+    ]
+  },
+  {
+    "strategy": "baseline",
+    "case_id": "CASE-005",
+    "source_sha256": "1f245d7d9e773ea2e9f65e1319669433abbafdab94bcc91e19f8ef548d31bf64",
+    "frozen_errors": 1,
+    "current_errors": 1,
+    "frozen_violations": [
+      "TP-MONITOR-001",
+      "TP-SHUTDOWN-001"
+    ],
+    "current_violations": [
+      {
+        "rule_id": "TP-MONITOR-001",
+        "rule_name": "线程池必须可观测",
+        "message": "线程池 batchExecutor 没有关联到可观察的运行指标。",
+        "severity": "warning",
+        "line": 21,
+        "column": 54,
+        "snippet": "private final ThreadPoolExecutor batchExecutor = new ThreadPoolExecutor(",
+        "suggestion": "为这个线程池暴露 getQueue().size()、getActiveCount()、getCompletedTaskCount() 等运行指标，并单独统计拒绝次数。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-001",
+        "rule_name": "应用级线程池必须有确定的关闭逻辑",
+        "message": "应用级线程池 batchExecutor 在本文件内没有任何关闭调用（shutdown/close）。",
+        "severity": "error",
+        "line": 21,
+        "column": 54,
+        "snippet": "private final ThreadPoolExecutor batchExecutor = new ThreadPoolExecutor(",
+        "suggestion": "在 @PreDestroy、应用关闭钩子或 close() 中调用 shutdown() + awaitTermination()，确保工作线程被回收、队列任务的处置明确。"
+      }
+    ]
+  },
+  {
+    "strategy": "baseline",
+    "case_id": "CASE-006",
+    "source_sha256": "4ba0bc7bc0f0a001cd300aa460bfbb0348b4e3c4d6acd8d28e77d387ff9aa93b",
+    "frozen_errors": 2,
+    "current_errors": 2,
+    "frozen_violations": [
+      "TP-CONFIG-004",
+      "TP-MONITOR-001",
+      "TP-SHUTDOWN-001"
+    ],
+    "current_violations": [
+      {
+        "rule_id": "TP-CONFIG-004",
+        "rule_name": "任务队列必须有界",
+        "message": "dispatcher (thread_pool_executor) 使用了无界队列 PriorityBlockingQueue：无界优先级队列，任务会持续堆积。",
+        "severity": "error",
+        "line": 48,
+        "column": 27,
+        "snippet": "this.dispatcher = new ThreadPoolExecutor(",
+        "suggestion": "改用 new ArrayBlockingQueue<>(capacity) 并显式给出容量（可参照 Q ≈ (λ_in − λ_out) × Δt 估算），同时配置拒绝策略。"
+      },
+      {
+        "rule_id": "TP-MONITOR-001",
+        "rule_name": "线程池必须可观测",
+        "message": "线程池 dispatcher 没有关联到可观察的运行指标。",
+        "severity": "warning",
+        "line": 48,
+        "column": 27,
+        "snippet": "this.dispatcher = new ThreadPoolExecutor(",
+        "suggestion": "为这个线程池暴露 getQueue().size()、getActiveCount()、getCompletedTaskCount() 等运行指标，并单独统计拒绝次数。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-001",
+        "rule_name": "应用级线程池必须有确定的关闭逻辑",
+        "message": "应用级线程池 dispatcher 在本文件内没有任何关闭调用（shutdown/close）。",
+        "severity": "error",
+        "line": 48,
+        "column": 27,
+        "snippet": "this.dispatcher = new ThreadPoolExecutor(",
+        "suggestion": "在 @PreDestroy、应用关闭钩子或 close() 中调用 shutdown() + awaitTermination()，确保工作线程被回收、队列任务的处置明确。"
+      }
+    ]
+  },
+  {
+    "strategy": "baseline",
+    "case_id": "CASE-007",
+    "source_sha256": "f82c7d86191ee85c08004ba420cf08475956be6891929c5507d2fb7882eebe5b",
+    "frozen_errors": 1,
+    "current_errors": 1,
+    "frozen_violations": [
+      "TP-SHUTDOWN-001"
+    ],
+    "current_violations": [
+      {
+        "rule_id": "TP-SHUTDOWN-001",
+        "rule_name": "应用级线程池必须有确定的关闭逻辑",
+        "message": "应用级线程池 writer 在本文件内没有任何关闭调用（shutdown/close）。",
+        "severity": "error",
+        "line": 29,
+        "column": 23,
+        "snippet": "this.writer = new ThreadPoolExecutor(",
+        "suggestion": "在 @PreDestroy、应用关闭钩子或 close() 中调用 shutdown() + awaitTermination()，确保工作线程被回收、队列任务的处置明确。"
+      }
+    ]
+  },
+  {
+    "strategy": "baseline",
+    "case_id": "CASE-008",
+    "source_sha256": "5fee0f6402ca2cb3dcad39559f73753c527f27fccb180e1655f91a7745daea53",
+    "frozen_errors": 1,
+    "current_errors": 1,
+    "frozen_violations": [
+      "TP-MONITOR-001",
+      "TP-SHUTDOWN-001",
+      "TP-CREATE-004"
+    ],
+    "current_violations": [
+      {
+        "rule_id": "TP-MONITOR-001",
+        "rule_name": "线程池必须可观测",
+        "message": "线程池 syncExecutor 没有关联到可观察的运行指标。",
+        "severity": "warning",
+        "line": 30,
+        "column": 29,
+        "snippet": "this.syncExecutor = new ThreadPoolExecutor(",
+        "suggestion": "为这个线程池暴露 getQueue().size()、getActiveCount()、getCompletedTaskCount() 等运行指标，并单独统计拒绝次数。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-001",
+        "rule_name": "应用级线程池必须有确定的关闭逻辑",
+        "message": "应用级线程池 syncExecutor 在本文件内没有任何关闭调用（shutdown/close）。",
+        "severity": "error",
+        "line": 30,
+        "column": 29,
+        "snippet": "this.syncExecutor = new ThreadPoolExecutor(",
+        "suggestion": "在 @PreDestroy、应用关闭钩子或 close() 中调用 shutdown() + awaitTermination()，确保工作线程被回收、队列任务的处置明确。"
+      },
+      {
+        "rule_id": "TP-CREATE-004",
+        "rule_name": "自定义线程工厂必须设置线程名",
+        "message": "ThreadFactory 实现 NamedThreadFactory 的 newThread 中没有调用 Thread#setName。",
+        "severity": "warning",
+        "line": 50,
+        "column": 5,
+        "snippet": "private static final class NamedThreadFactory implements ThreadFactory {",
+        "suggestion": "在 newThread 中设置线程名，例如 thread.setName(prefix + \"-\" + sequence.incrementAndGet())。"
+      }
+    ]
+  },
+  {
+    "strategy": "baseline",
+    "case_id": "CASE-009",
+    "source_sha256": "81397bdbd5e27983310248a3e0cd9c836132b5fe0562b2bb84cb45c631a2942d",
+    "frozen_errors": 1,
+    "current_errors": 1,
+    "frozen_violations": [
+      "TP-MONITOR-001",
+      "TP-SHUTDOWN-001"
+    ],
+    "current_violations": [
+      {
+        "rule_id": "TP-MONITOR-001",
+        "rule_name": "线程池必须可观测",
+        "message": "线程池 notifier 没有关联到可观察的运行指标。",
+        "severity": "warning",
+        "line": 19,
+        "column": 49,
+        "snippet": "private final ThreadPoolExecutor notifier = new ThreadPoolExecutor(",
+        "suggestion": "为这个线程池暴露 getQueue().size()、getActiveCount()、getCompletedTaskCount() 等运行指标，并单独统计拒绝次数。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-001",
+        "rule_name": "应用级线程池必须有确定的关闭逻辑",
+        "message": "应用级线程池 notifier 在本文件内没有任何关闭调用（shutdown/close）。",
+        "severity": "error",
+        "line": 19,
+        "column": 49,
+        "snippet": "private final ThreadPoolExecutor notifier = new ThreadPoolExecutor(",
+        "suggestion": "在 @PreDestroy、应用关闭钩子或 close() 中调用 shutdown() + awaitTermination()，确保工作线程被回收、队列任务的处置明确。"
+      }
+    ]
+  },
+  {
+    "strategy": "baseline",
+    "case_id": "CASE-010",
+    "source_sha256": "abdeaec6846dd38395f2242a977b8df8daad1d006ab330162646e172063d24cc",
+    "frozen_errors": 2,
+    "current_errors": 2,
+    "frozen_violations": [
+      "TP-MONITOR-001",
+      "TP-SHUTDOWN-001",
+      "TP-REJECT-003",
+      "TP-CREATE-004"
+    ],
+    "current_violations": [
+      {
+        "rule_id": "TP-MONITOR-001",
+        "rule_name": "线程池必须可观测",
+        "message": "线程池 processor 没有关联到可观察的运行指标。",
+        "severity": "warning",
+        "line": 14,
+        "column": 50,
+        "snippet": "private final ThreadPoolExecutor processor = new ThreadPoolExecutor(",
+        "suggestion": "为这个线程池暴露 getQueue().size()、getActiveCount()、getCompletedTaskCount() 等运行指标，并单独统计拒绝次数。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-001",
+        "rule_name": "应用级线程池必须有确定的关闭逻辑",
+        "message": "应用级线程池 processor 在本文件内没有任何关闭调用（shutdown/close）。",
+        "severity": "error",
+        "line": 14,
+        "column": 50,
+        "snippet": "private final ThreadPoolExecutor processor = new ThreadPoolExecutor(",
+        "suggestion": "在 @PreDestroy、应用关闭钩子或 close() 中调用 shutdown() + awaitTermination()，确保工作线程被回收、队列任务的处置明确。"
+      },
+      {
+        "rule_id": "TP-REJECT-003",
+        "rule_name": "必须处理 RejectedExecutionException",
+        "message": "processor.execute(...) 在 AbortPolicy（或默认策略）下可能抛出 RejectedExecutionException，但调用处没有捕获处理。",
+        "severity": "error",
+        "line": 21,
+        "column": 9,
+        "snippet": "processor.execute(() -> handle(fileId));",
+        "suggestion": "用 try/catch 包住提交调用并做补偿：重试、持久化后补偿、降级返回业务错误码，并记录拒绝日志与监控计数。"
+      },
+      {
+        "rule_id": "TP-CREATE-004",
+        "rule_name": "自定义线程工厂必须设置线程名",
+        "message": "ThreadFactory 实现 NamedThreadFactory 的 newThread 中没有调用 Thread#setName。",
+        "severity": "warning",
+        "line": 28,
+        "column": 5,
+        "snippet": "static class NamedThreadFactory implements ThreadFactory {",
+        "suggestion": "在 newThread 中设置线程名，例如 thread.setName(prefix + \"-\" + sequence.incrementAndGet())。"
+      }
+    ]
+  },
+  {
+    "strategy": "baseline",
+    "case_id": "CASE-011",
+    "source_sha256": "bf70f6d8d6baea50e8313629e5d9ed196f1860c2863acb6270746c30bf5a18c3",
+    "frozen_errors": 1,
+    "current_errors": 1,
+    "frozen_violations": [
+      "TP-MONITOR-001",
+      "TP-SHUTDOWN-001"
+    ],
+    "current_violations": [
+      {
+        "rule_id": "TP-MONITOR-001",
+        "rule_name": "线程池必须可观测",
+        "message": "线程池 executor 没有关联到可观察的运行指标。",
+        "severity": "warning",
+        "line": 21,
+        "column": 25,
+        "snippet": "this.executor = new ThreadPoolExecutor(",
+        "suggestion": "为这个线程池暴露 getQueue().size()、getActiveCount()、getCompletedTaskCount() 等运行指标，并单独统计拒绝次数。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-001",
+        "rule_name": "应用级线程池必须有确定的关闭逻辑",
+        "message": "应用级线程池 executor 在本文件内没有任何关闭调用（shutdown/close）。",
+        "severity": "error",
+        "line": 21,
+        "column": 25,
+        "snippet": "this.executor = new ThreadPoolExecutor(",
+        "suggestion": "在 @PreDestroy、应用关闭钩子或 close() 中调用 shutdown() + awaitTermination()，确保工作线程被回收、队列任务的处置明确。"
+      }
+    ]
+  },
+  {
+    "strategy": "baseline",
+    "case_id": "CASE-012",
+    "source_sha256": "b83a45747e76f03292ba7dff8d70eeecedd184bafdab881221214be3e9908c9a",
+    "frozen_errors": 3,
+    "current_errors": 3,
+    "frozen_violations": [
+      "TP-CONFIG-004",
+      "TP-CREATE-001",
+      "TP-CREATE-003",
+      "TP-MONITOR-001",
+      "TP-SHUTDOWN-001"
+    ],
+    "current_violations": [
+      {
+        "rule_id": "TP-CONFIG-004",
+        "rule_name": "任务队列必须有界",
+        "message": "businessExecutor (executors_factory) 使用了无界队列 LinkedBlockingQueue：不指定容量时最大长度为 Integer.MAX_VALUE，视为无界。",
+        "severity": "error",
+        "line": 14,
+        "column": 54,
+        "snippet": "private final ExecutorService businessExecutor = Executors.newFixedThreadPool(",
+        "suggestion": "改用 new ArrayBlockingQueue<>(capacity) 并显式给出容量（可参照 Q ≈ (λ_in − λ_out) × Δt 估算），同时配置拒绝策略。"
+      },
+      {
+        "rule_id": "TP-CREATE-001",
+        "rule_name": "显式创建线程池",
+        "message": "Executors.newFixedThreadPool(...) 隐藏了队列与拒绝策略：内部使用无界 LinkedBlockingQueue（容量 Integer.MAX_VALUE），任务会持续堆积直至 OOM。",
+        "severity": "error",
+        "line": 14,
+        "column": 54,
+        "snippet": "private final ExecutorService businessExecutor = Executors.newFixedThreadPool(",
+        "suggestion": "改为 new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, unit, new ArrayBlockingQueue<>(capacity), threadFactory, rejectionHandler)，把线程数、队列容量、命名工厂和拒绝策略显式写出。"
+      },
+      {
+        "rule_id": "TP-CREATE-003",
+        "rule_name": "线程池必须配置线程工厂",
+        "message": "businessExecutor (executors_factory) 没有指定 ThreadFactory，工作线程会使用 pool-N-thread-M 这类默认名称。",
+        "severity": "warning",
+        "line": 14,
+        "column": 54,
+        "snippet": "private final ExecutorService businessExecutor = Executors.newFixedThreadPool(",
+        "suggestion": "传入命名线程工厂（如 namedFactory(\"order-notify\")），或使用 ThreadPoolTaskExecutor#setThreadNamePrefix。"
+      },
+      {
+        "rule_id": "TP-MONITOR-001",
+        "rule_name": "线程池必须可观测",
+        "message": "线程池 businessExecutor 没有关联到可观察的运行指标。",
+        "severity": "warning",
+        "line": 14,
+        "column": 54,
+        "snippet": "private final ExecutorService businessExecutor = Executors.newFixedThreadPool(",
+        "suggestion": "为这个线程池暴露 getQueue().size()、getActiveCount()、getCompletedTaskCount() 等运行指标，并单独统计拒绝次数。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-001",
+        "rule_name": "应用级线程池必须有确定的关闭逻辑",
+        "message": "应用级线程池 businessExecutor 在本文件内没有任何关闭调用（shutdown/close）。",
+        "severity": "error",
+        "line": 14,
+        "column": 54,
+        "snippet": "private final ExecutorService businessExecutor = Executors.newFixedThreadPool(",
+        "suggestion": "在 @PreDestroy、应用关闭钩子或 close() 中调用 shutdown() + awaitTermination()，确保工作线程被回收、队列任务的处置明确。"
+      }
+    ]
+  },
+  {
+    "strategy": "baseline",
+    "case_id": "CASE-013",
+    "source_sha256": "50715f6da1e66444474da153e882d4d335e01120953c06c751ed1012bfecad3f",
+    "frozen_errors": 0,
+    "current_errors": 0,
+    "frozen_violations": [
+      "TP-MONITOR-001",
+      "TP-SHUTDOWN-004",
+      "TP-SHUTDOWN-004"
+    ],
+    "current_violations": [
+      {
+        "rule_id": "TP-MONITOR-001",
+        "rule_name": "线程池必须可观测",
+        "message": "线程池 accrueExecutor 没有关联到可观察的运行指标。",
+        "severity": "warning",
+        "line": 18,
+        "column": 55,
+        "snippet": "private final ThreadPoolExecutor accrueExecutor = new ThreadPoolExecutor(",
+        "suggestion": "为这个线程池暴露 getQueue().size()、getActiveCount()、getCompletedTaskCount() 等运行指标，并单独统计拒绝次数。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "accrueExecutor.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 38,
+        "column": 17,
+        "snippet": "accrueExecutor.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "accrueExecutor.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 44,
+        "column": 13,
+        "snippet": "accrueExecutor.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      }
+    ]
+  },
+  {
+    "strategy": "baseline",
+    "case_id": "CASE-014",
+    "source_sha256": "9242c8eb792f85046f62f468a76e8de6a86fb02288c9745968ad0a05af633ea1",
+    "frozen_errors": 0,
+    "current_errors": 0,
+    "frozen_violations": [
+      "TP-SHUTDOWN-004"
+    ],
+    "current_violations": [
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "riskExecutor.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 48,
+        "column": 13,
+        "snippet": "riskExecutor.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      }
+    ]
+  },
+  {
+    "strategy": "baseline",
+    "case_id": "CASE-015",
+    "source_sha256": "c847a8845a652545cc607fed0ecc845337529ac865e9e9f449cadeda83026b99",
+    "frozen_errors": 0,
+    "current_errors": 0,
+    "frozen_violations": [
+      "TP-REJECT-004"
+    ],
+    "current_violations": [
+      {
+        "rule_id": "TP-REJECT-004",
+        "rule_name": "CallerRunsPolicy 需要评估调用线程",
+        "message": "auditExecutor (thread_pool_executor) 使用 CallerRunsPolicy：过载时任务会在调用者线程中执行，需要确认调用线程（可能是 Web 请求线程）能承受这段耗时。",
+        "severity": "info",
+        "line": 20,
+        "column": 54,
+        "snippet": "private final ThreadPoolExecutor auditExecutor = new ThreadPoolExecutor(",
+        "suggestion": "确认调用链可以接受同步执行（后台批处理/反压场景），否则改用 AbortPolicy + 降级，或把溢出任务转入独立的补偿通道。"
+      }
+    ]
+  },
+  {
+    "strategy": "baseline",
+    "case_id": "CASE-016",
+    "source_sha256": "b4f5d47dad58510ea5f0fbffd4848fba2c90ed9160964114d3a2118b6fe14a1c",
+    "frozen_errors": 0,
+    "current_errors": 0,
+    "frozen_violations": [],
+    "current_violations": []
+  },
+  {
+    "strategy": "baseline",
+    "case_id": "CASE-017",
+    "source_sha256": "73be2474e74d2efb5b4a444578306e8c987e368c377f97b598f35931447e9174",
+    "frozen_errors": 1,
+    "current_errors": 0,
+    "frozen_violations": [
+      "TP-MONITOR-001",
+      "TP-SHUTDOWN-003"
+    ],
+    "current_violations": [
+      {
+        "rule_id": "TP-MONITOR-001",
+        "rule_name": "线程池必须可观测",
+        "message": "线程池 virtualExecutor 没有关联到可观察的运行指标。",
+        "severity": "warning",
+        "line": 23,
+        "column": 53,
+        "snippet": "private final ExecutorService virtualExecutor = Executors.newVirtualThreadPerTaskExecutor();",
+        "suggestion": "虚拟线程 ExecutorService 没有 ThreadPoolExecutor 的运行指标 API；在业务准入与回调 finally 中独立统计已接收未结束、成功、失败和拒绝次数，用真实下游回调验收这些统计。"
+      }
+    ]
+  },
+  {
+    "strategy": "baseline",
+    "case_id": "CASE-018",
+    "source_sha256": "9447b4e427d834ad1925c4dd628afe326b76901b6eadb588d9687f8c48d10315",
+    "frozen_errors": 1,
+    "current_errors": 1,
+    "frozen_violations": [
+      "TP-REJECT-001"
+    ],
+    "current_violations": [
+      {
+        "rule_id": "TP-REJECT-001",
+        "rule_name": "必须显式配置拒绝策略",
+        "message": "retryScheduler (scheduled_thread_pool_executor) 没有显式配置拒绝策略，队列满时会使用默认 AbortPolicy 直接抛 RejectedExecutionException。",
+        "severity": "error",
+        "line": 28,
+        "column": 64,
+        "snippet": "private final ScheduledThreadPoolExecutor retryScheduler = new ScheduledThreadPoolExecutor(",
+        "suggestion": "显式传入第 7 个参数或调用 setRejectedExecutionHandler：核心业务用 AbortPolicy 并做调用侧补偿，允许反压的场景用 CallerRunsPolicy。"
+      }
+    ]
+  },
+  {
+    "strategy": "baseline",
+    "case_id": "CASE-019",
+    "source_sha256": "328613d15dca61da44eabf2e72eec714e2c57f69f5f7a708f6660f3820ddb01f",
+    "frozen_errors": 0,
+    "current_errors": 0,
+    "frozen_violations": [],
+    "current_violations": []
+  },
+  {
+    "strategy": "baseline",
+    "case_id": "CASE-020",
+    "source_sha256": "401a20b9ffa9888f4efefaf910e6c3f59955caeec2f92d63dab13d93551864c2",
+    "frozen_errors": 1,
+    "current_errors": 1,
+    "frozen_violations": [
+      "TP-SUBMIT-004"
+    ],
+    "current_violations": [
+      {
+        "rule_id": "TP-SUBMIT-004",
+        "rule_name": "ThreadLocal 必须在 finally 中清理",
+        "message": "TENANT 的本次写入没有对应的 finally 清理路径，复用线程可能残留上下文。 私有方法 validateTenant 的调用 L70 未位于对应 try/finally 的 try 内。",
+        "severity": "error",
+        "line": 189,
+        "column": 13,
+        "snippet": "TENANT.set(tenantOf(reportId));",
+        "suggestion": "将 validateTenant(...) 的调用移入对应 try/finally 的 try 体内，并在 finally 内清理或恢复 TENANT；只在调用之后加 finally，不能保护 helper 本身抛异常的路径。"
+      }
+    ]
+  },
+  {
+    "strategy": "baseline",
+    "case_id": "CASE-021",
+    "source_sha256": "523d7f01fdf37273ddb03bd1dfacfb7e139a96b14741c78fb480068540bd52d3",
+    "frozen_errors": 1,
+    "current_errors": 1,
+    "frozen_violations": [
+      "TP-MONITOR-001",
+      "TP-SHUTDOWN-004",
+      "TP-SHUTDOWN-004",
+      "TP-REJECT-003",
+      "TP-SUBMIT-005"
+    ],
+    "current_violations": [
+      {
+        "rule_id": "TP-MONITOR-001",
+        "rule_name": "线程池必须可观测",
+        "message": "线程池 executor 没有关联到可观察的运行指标。",
+        "severity": "warning",
+        "line": 24,
+        "column": 39,
+        "snippet": "ThreadPoolExecutor executor = new ThreadPoolExecutor(",
+        "suggestion": "为这个线程池暴露 getQueue().size()、getActiveCount()、getCompletedTaskCount() 等运行指标，并单独统计拒绝次数。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "executor.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 42,
+        "column": 17,
+        "snippet": "executor.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "executor.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 48,
+        "column": 13,
+        "snippet": "executor.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      },
+      {
+        "rule_id": "TP-REJECT-003",
+        "rule_name": "必须处理 RejectedExecutionException",
+        "message": "notifier.execute(...) 在 AbortPolicy（或默认策略）下可能抛出 RejectedExecutionException，但调用处没有捕获处理。",
+        "severity": "error",
+        "line": 54,
+        "column": 9,
+        "snippet": "notifier.execute(() -> {",
+        "suggestion": "用 try/catch 包住提交调用并做补偿：重试、持久化后补偿、降级返回业务错误码，并记录拒绝日志与监控计数。"
+      },
+      {
+        "rule_id": "TP-SUBMIT-005",
+        "rule_name": "任务内异常必须被处理",
+        "message": "notifier.execute(...) 提交的任务会抛异常，且没有 try/catch 或未捕获异常处理器。",
+        "severity": "warning",
+        "line": 54,
+        "column": 9,
+        "snippet": "notifier.execute(() -> {",
+        "suggestion": "在任务体内 try/catch 并记录日志（必要时做补偿），或通过 ThreadFactory 对新建的 Thread 调用 thread.setUncaughtExceptionHandler(handler)；ThreadPoolExecutor 没有该方法。"
+      }
+    ]
+  },
+  {
+    "strategy": "rag",
+    "case_id": "CASE-001",
+    "source_sha256": "77c840c4f39970152e5ea6705877caefdc8396dcc4c70cf402b8a9b74df1a6cb",
+    "frozen_errors": 1,
+    "current_errors": 1,
+    "frozen_violations": [
+      "TP-MONITOR-001",
+      "TP-SHUTDOWN-001"
+    ],
+    "current_violations": [
+      {
+        "rule_id": "TP-MONITOR-001",
+        "rule_name": "线程池必须可观测",
+        "message": "线程池 notifier 没有关联到可观察的运行指标。",
+        "severity": "warning",
+        "line": 31,
+        "column": 25,
+        "snippet": "this.notifier = new ThreadPoolExecutor(",
+        "suggestion": "为这个线程池暴露 getQueue().size()、getActiveCount()、getCompletedTaskCount() 等运行指标，并单独统计拒绝次数。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-001",
+        "rule_name": "应用级线程池必须有确定的关闭逻辑",
+        "message": "应用级线程池 notifier 在本文件内没有任何关闭调用（shutdown/close）。",
+        "severity": "error",
+        "line": 31,
+        "column": 25,
+        "snippet": "this.notifier = new ThreadPoolExecutor(",
+        "suggestion": "在 @PreDestroy、应用关闭钩子或 close() 中调用 shutdown() + awaitTermination()，确保工作线程被回收、队列任务的处置明确。"
+      }
+    ]
+  },
+  {
+    "strategy": "rag",
+    "case_id": "CASE-002",
+    "source_sha256": "3895c70e948e826e0931de16fdf8ce3baf741aee980a1ef46931266c56e15a8e",
+    "frozen_errors": 5,
+    "current_errors": 5,
+    "frozen_violations": [
+      "TP-CONFIG-004",
+      "TP-CREATE-001",
+      "TP-MONITOR-001",
+      "TP-SHUTDOWN-001",
+      "TP-REJECT-003",
+      "TP-SUBMIT-001",
+      "TP-REJECT-003",
+      "TP-SUBMIT-002"
+    ],
+    "current_violations": [
+      {
+        "rule_id": "TP-CONFIG-004",
+        "rule_name": "任务队列必须有界",
+        "message": "syncExecutor (executors_factory) 使用了无界队列 LinkedBlockingQueue：不指定容量时最大长度为 Integer.MAX_VALUE，视为无界。",
+        "severity": "error",
+        "line": 21,
+        "column": 50,
+        "snippet": "private final ExecutorService syncExecutor = Executors.newFixedThreadPool(8, new ThreadFactory() {",
+        "suggestion": "改用 new ArrayBlockingQueue<>(capacity) 并显式给出容量（可参照 Q ≈ (λ_in − λ_out) × Δt 估算），同时配置拒绝策略。"
+      },
+      {
+        "rule_id": "TP-CREATE-001",
+        "rule_name": "显式创建线程池",
+        "message": "Executors.newFixedThreadPool(...) 隐藏了队列与拒绝策略：内部使用无界 LinkedBlockingQueue（容量 Integer.MAX_VALUE），任务会持续堆积直至 OOM。",
+        "severity": "error",
+        "line": 21,
+        "column": 50,
+        "snippet": "private final ExecutorService syncExecutor = Executors.newFixedThreadPool(8, new ThreadFactory() {",
+        "suggestion": "改为 new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, unit, new ArrayBlockingQueue<>(capacity), threadFactory, rejectionHandler)，把线程数、队列容量、命名工厂和拒绝策略显式写出。"
+      },
+      {
+        "rule_id": "TP-MONITOR-001",
+        "rule_name": "线程池必须可观测",
+        "message": "线程池 syncExecutor 没有关联到可观察的运行指标。",
+        "severity": "warning",
+        "line": 21,
+        "column": 50,
+        "snippet": "private final ExecutorService syncExecutor = Executors.newFixedThreadPool(8, new ThreadFactory() {",
+        "suggestion": "为这个线程池暴露 getQueue().size()、getActiveCount()、getCompletedTaskCount() 等运行指标，并单独统计拒绝次数。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-001",
+        "rule_name": "应用级线程池必须有确定的关闭逻辑",
+        "message": "应用级线程池 syncExecutor 在本文件内没有任何关闭调用（shutdown/close）。",
+        "severity": "error",
+        "line": 21,
+        "column": 50,
+        "snippet": "private final ExecutorService syncExecutor = Executors.newFixedThreadPool(8, new ThreadFactory() {",
+        "suggestion": "在 @PreDestroy、应用关闭钩子或 close() 中调用 shutdown() + awaitTermination()，确保工作线程被回收、队列任务的处置明确。"
+      },
+      {
+        "rule_id": "TP-REJECT-003",
+        "rule_name": "必须处理 RejectedExecutionException",
+        "message": "syncExecutor.submit(...) 在 AbortPolicy（或默认策略）下可能抛出 RejectedExecutionException，但调用处没有捕获处理。",
+        "severity": "error",
+        "line": 34,
+        "column": 9,
+        "snippet": "syncExecutor.submit(() -> {",
+        "suggestion": "用 try/catch 包住提交调用并做补偿：重试、持久化后补偿、降级返回业务错误码，并记录拒绝日志与监控计数。"
+      },
+      {
+        "rule_id": "TP-SUBMIT-001",
+        "rule_name": "submit 返回的 Future 必须被处理",
+        "message": "syncExecutor.submit(...) 返回的 Future 未见消费或委托，任务异常可能一直保存在 Future 中而不被感知。",
+        "severity": "warning",
+        "line": 34,
+        "column": 9,
+        "snippet": "syncExecutor.submit(() -> {",
+        "suggestion": "普通 Future 使用 get(3, TimeUnit.SECONDS) 并处理 ExecutionException、TimeoutException 和中断；只有 CompletableFuture 支持 whenComplete 等回调。"
+      },
+      {
+        "rule_id": "TP-REJECT-003",
+        "rule_name": "必须处理 RejectedExecutionException",
+        "message": "syncExecutor.submit(...) 在 AbortPolicy（或默认策略）下可能抛出 RejectedExecutionException，但调用处没有捕获处理。",
+        "severity": "error",
+        "line": 54,
+        "column": 32,
+        "snippet": "Future<Order> future = syncExecutor.submit(() -> query(id));",
+        "suggestion": "用 try/catch 包住提交调用并做补偿：重试、持久化后补偿、降级返回业务错误码，并记录拒绝日志与监控计数。"
+      },
+      {
+        "rule_id": "TP-SUBMIT-002",
+        "rule_name": "Future.get 必须带超时",
+        "message": "future.get() 没有超时参数，任务卡住时会一直阻塞调用线程。",
+        "severity": "warning",
+        "line": 56,
+        "column": 20,
+        "snippet": "return future.get();",
+        "suggestion": "使用 get(timeout, unit)（例如 get(3, TimeUnit.SECONDS)）并处理 TimeoutException；CompletableFuture 可用 orTimeout/completeOnTimeout。"
+      }
+    ]
+  },
+  {
+    "strategy": "rag",
+    "case_id": "CASE-003",
+    "source_sha256": "47e3e3e729b61455b07bc8891df851096670e5cad277bc68cae5d43d6582a507",
+    "frozen_errors": 1,
+    "current_errors": 1,
+    "frozen_violations": [
+      "TP-MONITOR-001",
+      "TP-SHUTDOWN-001"
+    ],
+    "current_violations": [
+      {
+        "rule_id": "TP-MONITOR-001",
+        "rule_name": "线程池必须可观测",
+        "message": "线程池 exporter 没有关联到可观察的运行指标。",
+        "severity": "warning",
+        "line": 34,
+        "column": 25,
+        "snippet": "this.exporter = new ThreadPoolExecutor(",
+        "suggestion": "为这个线程池暴露 getQueue().size()、getActiveCount()、getCompletedTaskCount() 等运行指标，并单独统计拒绝次数。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-001",
+        "rule_name": "应用级线程池必须有确定的关闭逻辑",
+        "message": "应用级线程池 exporter 在本文件内没有任何关闭调用（shutdown/close）。",
+        "severity": "error",
+        "line": 34,
+        "column": 25,
+        "snippet": "this.exporter = new ThreadPoolExecutor(",
+        "suggestion": "在 @PreDestroy、应用关闭钩子或 close() 中调用 shutdown() + awaitTermination()，确保工作线程被回收、队列任务的处置明确。"
+      }
+    ]
+  },
+  {
+    "strategy": "rag",
+    "case_id": "CASE-004",
+    "source_sha256": "56747cdb7a0f432a085f295af2227aaae291879519e24440d9c25782de39fe2d",
+    "frozen_errors": 1,
+    "current_errors": 1,
+    "frozen_violations": [
+      "TP-CREATE-003",
+      "TP-MONITOR-001",
+      "TP-REJECT-001",
+      "TP-SHUTDOWN-004",
+      "TP-SHUTDOWN-004"
+    ],
+    "current_violations": [
+      {
+        "rule_id": "TP-CREATE-003",
+        "rule_name": "线程池必须配置线程工厂",
+        "message": "scheduler (scheduled_thread_pool_executor) 没有指定 ThreadFactory，工作线程会使用 pool-N-thread-M 这类默认名称。",
+        "severity": "warning",
+        "line": 84,
+        "column": 48,
+        "snippet": "ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(POOL_SIZE);",
+        "suggestion": "传入命名线程工厂（如 namedFactory(\"order-notify\")），或使用 ThreadPoolTaskExecutor#setThreadNamePrefix。"
+      },
+      {
+        "rule_id": "TP-MONITOR-001",
+        "rule_name": "线程池必须可观测",
+        "message": "线程池 scheduler 没有关联到可观察的运行指标。",
+        "severity": "warning",
+        "line": 84,
+        "column": 48,
+        "snippet": "ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(POOL_SIZE);",
+        "suggestion": "为这个线程池暴露 getQueue().size()、getActiveCount()、getCompletedTaskCount() 等运行指标，并单独统计拒绝次数。"
+      },
+      {
+        "rule_id": "TP-REJECT-001",
+        "rule_name": "必须显式配置拒绝策略",
+        "message": "scheduler (scheduled_thread_pool_executor) 没有显式配置拒绝策略，队列满时会使用默认 AbortPolicy 直接抛 RejectedExecutionException。",
+        "severity": "error",
+        "line": 84,
+        "column": 48,
+        "snippet": "ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(POOL_SIZE);",
+        "suggestion": "显式传入第 7 个参数或调用 setRejectedExecutionHandler：核心业务用 AbortPolicy 并做调用侧补偿，允许反压的场景用 CallerRunsPolicy。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "scheduler.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 162,
+        "column": 17,
+        "snippet": "scheduler.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "scheduler.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 168,
+        "column": 13,
+        "snippet": "scheduler.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      }
+    ]
+  },
+  {
+    "strategy": "rag",
+    "case_id": "CASE-005",
+    "source_sha256": "6d4d39f7d64c5f545a0c47dea6a95c05525c50121342a09ac4493b4eda7fdde7",
+    "frozen_errors": 1,
+    "current_errors": 1,
+    "frozen_violations": [
+      "TP-MONITOR-001",
+      "TP-SHUTDOWN-001"
+    ],
+    "current_violations": [
+      {
+        "rule_id": "TP-MONITOR-001",
+        "rule_name": "线程池必须可观测",
+        "message": "线程池 batchExecutor 没有关联到可观察的运行指标。",
+        "severity": "warning",
+        "line": 20,
+        "column": 54,
+        "snippet": "private final ThreadPoolExecutor batchExecutor = new ThreadPoolExecutor(",
+        "suggestion": "为这个线程池暴露 getQueue().size()、getActiveCount()、getCompletedTaskCount() 等运行指标，并单独统计拒绝次数。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-001",
+        "rule_name": "应用级线程池必须有确定的关闭逻辑",
+        "message": "应用级线程池 batchExecutor 在本文件内没有任何关闭调用（shutdown/close）。",
+        "severity": "error",
+        "line": 20,
+        "column": 54,
+        "snippet": "private final ThreadPoolExecutor batchExecutor = new ThreadPoolExecutor(",
+        "suggestion": "在 @PreDestroy、应用关闭钩子或 close() 中调用 shutdown() + awaitTermination()，确保工作线程被回收、队列任务的处置明确。"
+      }
+    ]
+  },
+  {
+    "strategy": "rag",
+    "case_id": "CASE-006",
+    "source_sha256": "ad643c40ae56aae995de88a6fb7af6b4eba50a5f7ab051e2b566d035b3b0c8b3",
+    "frozen_errors": 3,
+    "current_errors": 3,
+    "frozen_violations": [
+      "TP-CONFIG-004",
+      "TP-MONITOR-001",
+      "TP-SHUTDOWN-001",
+      "TP-REJECT-003"
+    ],
+    "current_violations": [
+      {
+        "rule_id": "TP-CONFIG-004",
+        "rule_name": "任务队列必须有界",
+        "message": "dispatcher (thread_pool_executor) 使用了无界队列 PriorityBlockingQueue：无界优先级队列，任务会持续堆积。",
+        "severity": "error",
+        "line": 41,
+        "column": 27,
+        "snippet": "this.dispatcher = new ThreadPoolExecutor(",
+        "suggestion": "改用 new ArrayBlockingQueue<>(capacity) 并显式给出容量（可参照 Q ≈ (λ_in − λ_out) × Δt 估算），同时配置拒绝策略。"
+      },
+      {
+        "rule_id": "TP-MONITOR-001",
+        "rule_name": "线程池必须可观测",
+        "message": "线程池 dispatcher 没有关联到可观察的运行指标。",
+        "severity": "warning",
+        "line": 41,
+        "column": 27,
+        "snippet": "this.dispatcher = new ThreadPoolExecutor(",
+        "suggestion": "为这个线程池暴露 getQueue().size()、getActiveCount()、getCompletedTaskCount() 等运行指标，并单独统计拒绝次数。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-001",
+        "rule_name": "应用级线程池必须有确定的关闭逻辑",
+        "message": "应用级线程池 dispatcher 在本文件内没有任何关闭调用（shutdown/close）。",
+        "severity": "error",
+        "line": 41,
+        "column": 27,
+        "snippet": "this.dispatcher = new ThreadPoolExecutor(",
+        "suggestion": "在 @PreDestroy、应用关闭钩子或 close() 中调用 shutdown() + awaitTermination()，确保工作线程被回收、队列任务的处置明确。"
+      },
+      {
+        "rule_id": "TP-REJECT-003",
+        "rule_name": "必须处理 RejectedExecutionException",
+        "message": "executor.execute(...) 在 AbortPolicy（或默认策略）下可能抛出 RejectedExecutionException，但调用处没有捕获处理。",
+        "severity": "error",
+        "line": 161,
+        "column": 17,
+        "snippet": "executor.execute(incoming);",
+        "suggestion": "用 try/catch 包住提交调用并做补偿：重试、持久化后补偿、降级返回业务错误码，并记录拒绝日志与监控计数。"
+      }
+    ]
+  },
+  {
+    "strategy": "rag",
+    "case_id": "CASE-007",
+    "source_sha256": "c9a782db4c1264df2db348e7fea2d9877c0f247e2476fef1a76296826439da72",
+    "frozen_errors": 1,
+    "current_errors": 1,
+    "frozen_violations": [
+      "TP-SHUTDOWN-001"
+    ],
+    "current_violations": [
+      {
+        "rule_id": "TP-SHUTDOWN-001",
+        "rule_name": "应用级线程池必须有确定的关闭逻辑",
+        "message": "应用级线程池 writer 在本文件内没有任何关闭调用（shutdown/close）。",
+        "severity": "error",
+        "line": 21,
+        "column": 47,
+        "snippet": "private final ThreadPoolExecutor writer = new ThreadPoolExecutor(",
+        "suggestion": "在 @PreDestroy、应用关闭钩子或 close() 中调用 shutdown() + awaitTermination()，确保工作线程被回收、队列任务的处置明确。"
+      }
+    ]
+  },
+  {
+    "strategy": "rag",
+    "case_id": "CASE-008",
+    "source_sha256": "f30817641cd1d2c5b3f1da245cf17078b4ed2688b3cce646eb4bd2149aa8baed",
+    "frozen_errors": 1,
+    "current_errors": 1,
+    "frozen_violations": [
+      "TP-MONITOR-001",
+      "TP-SHUTDOWN-001"
+    ],
+    "current_violations": [
+      {
+        "rule_id": "TP-MONITOR-001",
+        "rule_name": "线程池必须可观测",
+        "message": "线程池 syncExecutor 没有关联到可观察的运行指标。",
+        "severity": "warning",
+        "line": 36,
+        "column": 29,
+        "snippet": "this.syncExecutor = new ThreadPoolExecutor(",
+        "suggestion": "为这个线程池暴露 getQueue().size()、getActiveCount()、getCompletedTaskCount() 等运行指标，并单独统计拒绝次数。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-001",
+        "rule_name": "应用级线程池必须有确定的关闭逻辑",
+        "message": "应用级线程池 syncExecutor 在本文件内没有任何关闭调用（shutdown/close）。",
+        "severity": "error",
+        "line": 36,
+        "column": 29,
+        "snippet": "this.syncExecutor = new ThreadPoolExecutor(",
+        "suggestion": "在 @PreDestroy、应用关闭钩子或 close() 中调用 shutdown() + awaitTermination()，确保工作线程被回收、队列任务的处置明确。"
+      }
+    ]
+  },
+  {
+    "strategy": "rag",
+    "case_id": "CASE-009",
+    "source_sha256": "09792de3d5bdfc809d53f38ef8f27cd64381740be8321ec3bd5203fcf580ddd1",
+    "frozen_errors": 1,
+    "current_errors": 1,
+    "frozen_violations": [
+      "TP-MONITOR-001",
+      "TP-SHUTDOWN-001"
+    ],
+    "current_violations": [
+      {
+        "rule_id": "TP-MONITOR-001",
+        "rule_name": "线程池必须可观测",
+        "message": "线程池 notifier 没有关联到可观察的运行指标。",
+        "severity": "warning",
+        "line": 19,
+        "column": 49,
+        "snippet": "private final ThreadPoolExecutor notifier = new ThreadPoolExecutor(",
+        "suggestion": "为这个线程池暴露 getQueue().size()、getActiveCount()、getCompletedTaskCount() 等运行指标，并单独统计拒绝次数。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-001",
+        "rule_name": "应用级线程池必须有确定的关闭逻辑",
+        "message": "应用级线程池 notifier 在本文件内没有任何关闭调用（shutdown/close）。",
+        "severity": "error",
+        "line": 19,
+        "column": 49,
+        "snippet": "private final ThreadPoolExecutor notifier = new ThreadPoolExecutor(",
+        "suggestion": "在 @PreDestroy、应用关闭钩子或 close() 中调用 shutdown() + awaitTermination()，确保工作线程被回收、队列任务的处置明确。"
+      }
+    ]
+  },
+  {
+    "strategy": "rag",
+    "case_id": "CASE-010",
+    "source_sha256": "67efd6cdf9d2c4ed579e444b39d5adf01726fc6544c2bb7a34ca9a1106515dc3",
+    "frozen_errors": 2,
+    "current_errors": 2,
+    "frozen_violations": [
+      "TP-MONITOR-001",
+      "TP-SHUTDOWN-001",
+      "TP-REJECT-003"
+    ],
+    "current_violations": [
+      {
+        "rule_id": "TP-MONITOR-001",
+        "rule_name": "线程池必须可观测",
+        "message": "线程池 processor 没有关联到可观察的运行指标。",
+        "severity": "warning",
+        "line": 12,
+        "column": 50,
+        "snippet": "private final ThreadPoolExecutor processor = new ThreadPoolExecutor(",
+        "suggestion": "为这个线程池暴露 getQueue().size()、getActiveCount()、getCompletedTaskCount() 等运行指标，并单独统计拒绝次数。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-001",
+        "rule_name": "应用级线程池必须有确定的关闭逻辑",
+        "message": "应用级线程池 processor 在本文件内没有任何关闭调用（shutdown/close）。",
+        "severity": "error",
+        "line": 12,
+        "column": 50,
+        "snippet": "private final ThreadPoolExecutor processor = new ThreadPoolExecutor(",
+        "suggestion": "在 @PreDestroy、应用关闭钩子或 close() 中调用 shutdown() + awaitTermination()，确保工作线程被回收、队列任务的处置明确。"
+      },
+      {
+        "rule_id": "TP-REJECT-003",
+        "rule_name": "必须处理 RejectedExecutionException",
+        "message": "processor.execute(...) 在 AbortPolicy（或默认策略）下可能抛出 RejectedExecutionException，但调用处没有捕获处理。",
+        "severity": "error",
+        "line": 19,
+        "column": 9,
+        "snippet": "processor.execute(() -> handle(fileId));",
+        "suggestion": "用 try/catch 包住提交调用并做补偿：重试、持久化后补偿、降级返回业务错误码，并记录拒绝日志与监控计数。"
+      }
+    ]
+  },
+  {
+    "strategy": "rag",
+    "case_id": "CASE-011",
+    "source_sha256": "e2dcae1904fd05ada4b88d04afd0aae398a43fe725bad7af64a64dba519b5b2a",
+    "frozen_errors": 1,
+    "current_errors": 1,
+    "frozen_violations": [
+      "TP-MONITOR-001",
+      "TP-SHUTDOWN-001"
+    ],
+    "current_violations": [
+      {
+        "rule_id": "TP-MONITOR-001",
+        "rule_name": "线程池必须可观测",
+        "message": "线程池 executor 没有关联到可观察的运行指标。",
+        "severity": "warning",
+        "line": 22,
+        "column": 25,
+        "snippet": "this.executor = new ThreadPoolExecutor(",
+        "suggestion": "为这个线程池暴露 getQueue().size()、getActiveCount()、getCompletedTaskCount() 等运行指标，并单独统计拒绝次数。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-001",
+        "rule_name": "应用级线程池必须有确定的关闭逻辑",
+        "message": "应用级线程池 executor 在本文件内没有任何关闭调用（shutdown/close）。",
+        "severity": "error",
+        "line": 22,
+        "column": 25,
+        "snippet": "this.executor = new ThreadPoolExecutor(",
+        "suggestion": "在 @PreDestroy、应用关闭钩子或 close() 中调用 shutdown() + awaitTermination()，确保工作线程被回收、队列任务的处置明确。"
+      }
+    ]
+  },
+  {
+    "strategy": "rag",
+    "case_id": "CASE-012",
+    "source_sha256": "4d24652e50b8c1345a423a320985cc30944d09c22f18244d0783273cac78eda2",
+    "frozen_errors": 3,
+    "current_errors": 3,
+    "frozen_violations": [
+      "TP-CONFIG-004",
+      "TP-CREATE-001",
+      "TP-MONITOR-001",
+      "TP-SHUTDOWN-001"
+    ],
+    "current_violations": [
+      {
+        "rule_id": "TP-CONFIG-004",
+        "rule_name": "任务队列必须有界",
+        "message": "quoteExecutor (executors_factory) 使用了无界队列 LinkedBlockingQueue：不指定容量时最大长度为 Integer.MAX_VALUE，视为无界。",
+        "severity": "error",
+        "line": 19,
+        "column": 30,
+        "snippet": "this.quoteExecutor = Executors.newFixedThreadPool(8, new ThreadFactory() {",
+        "suggestion": "改用 new ArrayBlockingQueue<>(capacity) 并显式给出容量（可参照 Q ≈ (λ_in − λ_out) × Δt 估算），同时配置拒绝策略。"
+      },
+      {
+        "rule_id": "TP-CREATE-001",
+        "rule_name": "显式创建线程池",
+        "message": "Executors.newFixedThreadPool(...) 隐藏了队列与拒绝策略：内部使用无界 LinkedBlockingQueue（容量 Integer.MAX_VALUE），任务会持续堆积直至 OOM。",
+        "severity": "error",
+        "line": 19,
+        "column": 30,
+        "snippet": "this.quoteExecutor = Executors.newFixedThreadPool(8, new ThreadFactory() {",
+        "suggestion": "改为 new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, unit, new ArrayBlockingQueue<>(capacity), threadFactory, rejectionHandler)，把线程数、队列容量、命名工厂和拒绝策略显式写出。"
+      },
+      {
+        "rule_id": "TP-MONITOR-001",
+        "rule_name": "线程池必须可观测",
+        "message": "线程池 quoteExecutor 没有关联到可观察的运行指标。",
+        "severity": "warning",
+        "line": 19,
+        "column": 30,
+        "snippet": "this.quoteExecutor = Executors.newFixedThreadPool(8, new ThreadFactory() {",
+        "suggestion": "为这个线程池暴露 getQueue().size()、getActiveCount()、getCompletedTaskCount() 等运行指标，并单独统计拒绝次数。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-001",
+        "rule_name": "应用级线程池必须有确定的关闭逻辑",
+        "message": "应用级线程池 quoteExecutor 在本文件内没有任何关闭调用（shutdown/close）。",
+        "severity": "error",
+        "line": 19,
+        "column": 30,
+        "snippet": "this.quoteExecutor = Executors.newFixedThreadPool(8, new ThreadFactory() {",
+        "suggestion": "在 @PreDestroy、应用关闭钩子或 close() 中调用 shutdown() + awaitTermination()，确保工作线程被回收、队列任务的处置明确。"
+      }
+    ]
+  },
+  {
+    "strategy": "rag",
+    "case_id": "CASE-013",
+    "source_sha256": "937130ce40b8d7bee13c90f8337375fbf667d3e84a2d3e097ea0c58c15367b71",
+    "frozen_errors": 0,
+    "current_errors": 0,
+    "frozen_violations": [
+      "TP-MONITOR-001",
+      "TP-SHUTDOWN-004",
+      "TP-SHUTDOWN-004"
+    ],
+    "current_violations": [
+      {
+        "rule_id": "TP-MONITOR-001",
+        "rule_name": "线程池必须可观测",
+        "message": "线程池 accrueExecutor 没有关联到可观察的运行指标。",
+        "severity": "warning",
+        "line": 18,
+        "column": 55,
+        "snippet": "private final ThreadPoolExecutor accrueExecutor = new ThreadPoolExecutor(",
+        "suggestion": "为这个线程池暴露 getQueue().size()、getActiveCount()、getCompletedTaskCount() 等运行指标，并单独统计拒绝次数。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "accrueExecutor.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 37,
+        "column": 17,
+        "snippet": "accrueExecutor.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "accrueExecutor.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 43,
+        "column": 13,
+        "snippet": "accrueExecutor.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      }
+    ]
+  },
+  {
+    "strategy": "rag",
+    "case_id": "CASE-014",
+    "source_sha256": "0fedbf505e683af953d81aa6d25b245281be7cca477b1573f95d812a6623d585",
+    "frozen_errors": 0,
+    "current_errors": 0,
+    "frozen_violations": [
+      "TP-SHUTDOWN-004"
+    ],
+    "current_violations": [
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "riskExecutor.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 51,
+        "column": 13,
+        "snippet": "riskExecutor.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      }
+    ]
+  },
+  {
+    "strategy": "rag",
+    "case_id": "CASE-015",
+    "source_sha256": "afcdb28d29b3350ff468531c982247ee469b86625ab23031a551ee2e98cca663",
+    "frozen_errors": 0,
+    "current_errors": 0,
+    "frozen_violations": [
+      "TP-REJECT-004"
+    ],
+    "current_violations": [
+      {
+        "rule_id": "TP-REJECT-004",
+        "rule_name": "CallerRunsPolicy 需要评估调用线程",
+        "message": "auditExecutor (thread_pool_executor) 使用 CallerRunsPolicy：过载时任务会在调用者线程中执行，需要确认调用线程（可能是 Web 请求线程）能承受这段耗时。",
+        "severity": "info",
+        "line": 22,
+        "column": 54,
+        "snippet": "private final ThreadPoolExecutor auditExecutor = new ThreadPoolExecutor(",
+        "suggestion": "确认调用链可以接受同步执行（后台批处理/反压场景），否则改用 AbortPolicy + 降级，或把溢出任务转入独立的补偿通道。"
+      }
+    ]
+  },
+  {
+    "strategy": "rag",
+    "case_id": "CASE-016",
+    "source_sha256": "f0b4df290e19ccf1ccbcfd452b4837bf8b0817aadbc308580dde68eec261f202",
+    "frozen_errors": 0,
+    "current_errors": 0,
+    "frozen_violations": [],
+    "current_violations": []
+  },
+  {
+    "strategy": "rag",
+    "case_id": "CASE-017",
+    "source_sha256": "fa60eaf0486cc3af349b3a58083f6b687fb440dd4a91af319c3d402d31d28afb",
+    "frozen_errors": 1,
+    "current_errors": 1,
+    "frozen_violations": [
+      "TP-MONITOR-001",
+      "TP-SHUTDOWN-003"
+    ],
+    "current_violations": [
+      {
+        "rule_id": "TP-MONITOR-001",
+        "rule_name": "线程池必须可观测",
+        "message": "线程池 virtualExecutor 没有关联到可观察的运行指标。",
+        "severity": "warning",
+        "line": 23,
+        "column": 53,
+        "snippet": "private final ExecutorService virtualExecutor = Executors.newVirtualThreadPerTaskExecutor();",
+        "suggestion": "虚拟线程 ExecutorService 没有 ThreadPoolExecutor 的运行指标 API；在业务准入与回调 finally 中独立统计已接收未结束、成功、失败和拒绝次数，用真实下游回调验收这些统计。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-003",
+        "rule_name": "捕获 InterruptedException 后必须恢复中断状态",
+        "message": "未确认 catch (InterruptedException) 的所有已分析路径恢复当前线程中断状态或重抛原异常，取消语义可能丢失。",
+        "severity": "error",
+        "line": 113,
+        "column": 19,
+        "snippet": "} catch (InterruptedException e) {",
+        "suggestion": "在当前执行路径或对应 finally 中调用 Thread.currentThread().interrupt()，或继续抛出原 InterruptedException；不要只在延迟 lambda、其他线程或部分条件分支中恢复。复杂循环、嵌套 try 和跨方法恢复需另行审查。"
+      }
+    ]
+  },
+  {
+    "strategy": "rag",
+    "case_id": "CASE-018",
+    "source_sha256": "29a032308613849fa4a17d769e5f8576a7d6c3d72080434b996fa419e44c5c72",
+    "frozen_errors": 0,
+    "current_errors": 0,
+    "frozen_violations": [],
+    "current_violations": []
+  },
+  {
+    "strategy": "rag",
+    "case_id": "CASE-019",
+    "source_sha256": "328613d15dca61da44eabf2e72eec714e2c57f69f5f7a708f6660f3820ddb01f",
+    "frozen_errors": 0,
+    "current_errors": 0,
+    "frozen_violations": [],
+    "current_violations": []
+  },
+  {
+    "strategy": "rag",
+    "case_id": "CASE-020",
+    "source_sha256": "05171c758f9e2a2190619f062290f1c45fc27763b967433c57037a5e852790df",
+    "frozen_errors": 1,
+    "current_errors": 1,
+    "frozen_violations": [
+      "TP-SUBMIT-004"
+    ],
+    "current_violations": [
+      {
+        "rule_id": "TP-SUBMIT-004",
+        "rule_name": "ThreadLocal 必须在 finally 中清理",
+        "message": "TENANT 的本次写入没有对应的 finally 清理路径，复用线程可能残留上下文。 私有方法 validateTenant 的调用 L63 未位于对应 try/finally 的 try 内。",
+        "severity": "error",
+        "line": 179,
+        "column": 13,
+        "snippet": "TENANT.set(tenantOf(reportId));",
+        "suggestion": "将 validateTenant(...) 的调用移入对应 try/finally 的 try 体内，并在 finally 内清理或恢复 TENANT；只在调用之后加 finally，不能保护 helper 本身抛异常的路径。"
+      }
+    ]
+  },
+  {
+    "strategy": "rag",
+    "case_id": "CASE-021",
+    "source_sha256": "8b58a9bc7b496db971003848a14ed3f33e05c14704e930580d3874ec9cf271ad",
+    "frozen_errors": 1,
+    "current_errors": 1,
+    "frozen_violations": [
+      "TP-MONITOR-001",
+      "TP-SHUTDOWN-004",
+      "TP-SHUTDOWN-004",
+      "TP-REJECT-003",
+      "TP-SUBMIT-005"
+    ],
+    "current_violations": [
+      {
+        "rule_id": "TP-MONITOR-001",
+        "rule_name": "线程池必须可观测",
+        "message": "线程池 executor 没有关联到可观察的运行指标。",
+        "severity": "warning",
+        "line": 24,
+        "column": 39,
+        "snippet": "ThreadPoolExecutor executor = new ThreadPoolExecutor(",
+        "suggestion": "为这个线程池暴露 getQueue().size()、getActiveCount()、getCompletedTaskCount() 等运行指标，并单独统计拒绝次数。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "executor.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 42,
+        "column": 17,
+        "snippet": "executor.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "executor.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 48,
+        "column": 13,
+        "snippet": "executor.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      },
+      {
+        "rule_id": "TP-REJECT-003",
+        "rule_name": "必须处理 RejectedExecutionException",
+        "message": "notifier.execute(...) 在 AbortPolicy（或默认策略）下可能抛出 RejectedExecutionException，但调用处没有捕获处理。",
+        "severity": "error",
+        "line": 54,
+        "column": 9,
+        "snippet": "notifier.execute(() -> {",
+        "suggestion": "用 try/catch 包住提交调用并做补偿：重试、持久化后补偿、降级返回业务错误码，并记录拒绝日志与监控计数。"
+      },
+      {
+        "rule_id": "TP-SUBMIT-005",
+        "rule_name": "任务内异常必须被处理",
+        "message": "notifier.execute(...) 提交的任务会抛异常，且没有 try/catch 或未捕获异常处理器。",
+        "severity": "warning",
+        "line": 54,
+        "column": 9,
+        "snippet": "notifier.execute(() -> {",
+        "suggestion": "在任务体内 try/catch 并记录日志（必要时做补偿），或通过 ThreadFactory 对新建的 Thread 调用 thread.setUncaughtExceptionHandler(handler)；ThreadPoolExecutor 没有该方法。"
+      }
+    ]
+  },
+  {
+    "strategy": "rules",
+    "case_id": "CASE-001",
+    "source_sha256": "381d0c62e79575778dd8823f0af39ace924240026bdcf5cd2885e835199f28e0",
+    "frozen_errors": 0,
+    "current_errors": 0,
+    "frozen_violations": [
+      "TP-SHUTDOWN-004",
+      "TP-SHUTDOWN-004",
+      "TP-CREATE-004"
+    ],
+    "current_violations": [
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "notifier.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 91,
+        "column": 17,
+        "snippet": "notifier.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "notifier.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 94,
+        "column": 13,
+        "snippet": "notifier.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      },
+      {
+        "rule_id": "TP-CREATE-004",
+        "rule_name": "自定义线程工厂必须设置线程名",
+        "message": "ThreadFactory 实现 NotifierThreadFactory 的 newThread 中没有调用 Thread#setName。",
+        "severity": "warning",
+        "line": 99,
+        "column": 5,
+        "snippet": "private static final class NotifierThreadFactory implements ThreadFactory {",
+        "suggestion": "在 newThread 中设置线程名，例如 thread.setName(prefix + \"-\" + sequence.incrementAndGet())。"
+      }
+    ]
+  },
+  {
+    "strategy": "rules",
+    "case_id": "CASE-002",
+    "source_sha256": "529ae6dadc9699c22ce00e1c8bff3c158b7ce1f549b00dfb64da897ef9c3d4b1",
+    "frozen_errors": 0,
+    "current_errors": 0,
+    "frozen_violations": [
+      "TP-MONITOR-001",
+      "TP-SUBMIT-001",
+      "TP-SUBMIT-002",
+      "TP-SHUTDOWN-004",
+      "TP-SHUTDOWN-004"
+    ],
+    "current_violations": [
+      {
+        "rule_id": "TP-MONITOR-001",
+        "rule_name": "线程池必须可观测",
+        "message": "线程池 syncExecutor 没有关联到可观察的运行指标。",
+        "severity": "warning",
+        "line": 43,
+        "column": 29,
+        "snippet": "this.syncExecutor = new ThreadPoolExecutor(",
+        "suggestion": "为这个线程池暴露 getQueue().size()、getActiveCount()、getCompletedTaskCount() 等运行指标，并单独统计拒绝次数。"
+      },
+      {
+        "rule_id": "TP-SUBMIT-001",
+        "rule_name": "submit 返回的 Future 必须被处理",
+        "message": "syncExecutor.submit(...) 返回的 Future 未见消费或委托，任务异常可能一直保存在 Future 中而不被感知。",
+        "severity": "warning",
+        "line": 73,
+        "column": 22,
+        "snippet": "future = syncExecutor.submit(() -> query(id));",
+        "suggestion": "普通 Future 使用 get(3, TimeUnit.SECONDS) 并处理 ExecutionException、TimeoutException 和中断；只有 CompletableFuture 支持 whenComplete 等回调。"
+      },
+      {
+        "rule_id": "TP-SUBMIT-002",
+        "rule_name": "Future.get 必须带超时",
+        "message": "future.get() 没有超时参数，任务卡住时会一直阻塞调用线程。",
+        "severity": "warning",
+        "line": 78,
+        "column": 16,
+        "snippet": "return future.get();",
+        "suggestion": "使用 get(timeout, unit)（例如 get(3, TimeUnit.SECONDS)）并处理 TimeoutException；CompletableFuture 可用 orTimeout/completeOnTimeout。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "syncExecutor.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 85,
+        "column": 17,
+        "snippet": "syncExecutor.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "syncExecutor.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 88,
+        "column": 13,
+        "snippet": "syncExecutor.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      }
+    ]
+  },
+  {
+    "strategy": "rules",
+    "case_id": "CASE-003",
+    "source_sha256": "23cdc24880b3ab2a16eff32e74744ca8d7cdb50dd5cd02c6395cd7fd08181603",
+    "frozen_errors": 0,
+    "current_errors": 0,
+    "frozen_violations": [
+      "TP-SHUTDOWN-004",
+      "TP-SHUTDOWN-004"
+    ],
+    "current_violations": [
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "exporter.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 92,
+        "column": 17,
+        "snippet": "exporter.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "exporter.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 95,
+        "column": 13,
+        "snippet": "exporter.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      }
+    ]
+  },
+  {
+    "strategy": "rules",
+    "case_id": "CASE-004",
+    "source_sha256": "a7928a3ebad019f14068a4176e04b4454244a812db4289e2a237434f761083de",
+    "frozen_errors": 0,
+    "current_errors": 0,
+    "frozen_violations": [
+      "TP-SHUTDOWN-004",
+      "TP-SHUTDOWN-004"
+    ],
+    "current_violations": [
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "scheduler.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 152,
+        "column": 17,
+        "snippet": "scheduler.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "scheduler.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 159,
+        "column": 13,
+        "snippet": "scheduler.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      }
+    ]
+  },
+  {
+    "strategy": "rules",
+    "case_id": "CASE-005",
+    "source_sha256": "9d914f31745b838de3b297ad33f230a54a6b8b6040386f36de1999299e36f8d0",
+    "frozen_errors": 0,
+    "current_errors": 0,
+    "frozen_violations": [
+      "TP-SHUTDOWN-004",
+      "TP-SHUTDOWN-004"
+    ],
+    "current_violations": [
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "batchExecutor.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 63,
+        "column": 17,
+        "snippet": "batchExecutor.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "batchExecutor.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 66,
+        "column": 13,
+        "snippet": "batchExecutor.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      }
+    ]
+  },
+  {
+    "strategy": "rules",
+    "case_id": "CASE-006",
+    "source_sha256": "fd890789a3d6df8879ba11b385e49c6bf95486c258bcd912145b37264d4419db",
+    "frozen_errors": 1,
+    "current_errors": 1,
+    "frozen_violations": [
+      "TP-SHUTDOWN-002"
+    ],
+    "current_violations": [
+      {
+        "rule_id": "TP-SHUTDOWN-002",
+        "rule_name": "优雅关闭需等待终止",
+        "message": "dispatcher.shutdown() 之后没有 awaitTermination(timeout, unit)，无法确认任务是否执行完毕。",
+        "severity": "error",
+        "line": 106,
+        "column": 9,
+        "snippet": "dispatcher.shutdown();",
+        "suggestion": "关闭标准流程：shutdown() → awaitTermination(30, TimeUnit.SECONDS) → 超时后 shutdownNow() 兜底，并在 catch (InterruptedException) 中恢复中断状态。"
+      }
+    ]
+  },
+  {
+    "strategy": "rules",
+    "case_id": "CASE-007",
+    "source_sha256": "1f0dd9d43fe5935e01443f28e9bdfb1871d667d6111ef59a10614e5ab4a5be47",
+    "frozen_errors": 0,
+    "current_errors": 0,
+    "frozen_violations": [
+      "TP-SHUTDOWN-004",
+      "TP-SHUTDOWN-004"
+    ],
+    "current_violations": [
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "writer.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 83,
+        "column": 17,
+        "snippet": "writer.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "writer.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 87,
+        "column": 13,
+        "snippet": "writer.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      }
+    ]
+  },
+  {
+    "strategy": "rules",
+    "case_id": "CASE-008",
+    "source_sha256": "dc3f00d3ef4d8749912ab1828421881085c44e1e00000e9b091e104af39abae1",
+    "frozen_errors": 0,
+    "current_errors": 0,
+    "frozen_violations": [
+      "TP-SHUTDOWN-004",
+      "TP-SHUTDOWN-004"
+    ],
+    "current_violations": [
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "syncExecutor.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 90,
+        "column": 17,
+        "snippet": "syncExecutor.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "syncExecutor.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 93,
+        "column": 13,
+        "snippet": "syncExecutor.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      }
+    ]
+  },
+  {
+    "strategy": "rules",
+    "case_id": "CASE-009",
+    "source_sha256": "21ea8ab580273538ddebecf6d636ce638411e97498eebe7ad87ea8e788ca1f42",
+    "frozen_errors": 0,
+    "current_errors": 0,
+    "frozen_violations": [
+      "TP-MONITOR-001",
+      "TP-SHUTDOWN-004",
+      "TP-SHUTDOWN-004"
+    ],
+    "current_violations": [
+      {
+        "rule_id": "TP-MONITOR-001",
+        "rule_name": "线程池必须可观测",
+        "message": "线程池 notifier 没有关联到可观察的运行指标。",
+        "severity": "warning",
+        "line": 19,
+        "column": 49,
+        "snippet": "private final ThreadPoolExecutor notifier = new ThreadPoolExecutor(",
+        "suggestion": "为这个线程池暴露 getQueue().size()、getActiveCount()、getCompletedTaskCount() 等运行指标，并单独统计拒绝次数。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "notifier.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 52,
+        "column": 17,
+        "snippet": "notifier.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "notifier.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 55,
+        "column": 13,
+        "snippet": "notifier.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      }
+    ]
+  },
+  {
+    "strategy": "rules",
+    "case_id": "CASE-010",
+    "source_sha256": "9a27ebaef0ef1dc291831f4a8121f67f2af34a699966e0f8788e708e76587761",
+    "frozen_errors": 1,
+    "current_errors": 1,
+    "frozen_violations": [
+      "TP-SHUTDOWN-001"
+    ],
+    "current_violations": [
+      {
+        "rule_id": "TP-SHUTDOWN-001",
+        "rule_name": "应用级线程池必须有确定的关闭逻辑",
+        "message": "应用级线程池 processor 在本文件内没有任何关闭调用（shutdown/close）。",
+        "severity": "error",
+        "line": 21,
+        "column": 26,
+        "snippet": "this.processor = new ThreadPoolExecutor(",
+        "suggestion": "在 @PreDestroy、应用关闭钩子或 close() 中调用 shutdown() + awaitTermination()，确保工作线程被回收、队列任务的处置明确。"
+      }
+    ]
+  },
+  {
+    "strategy": "rules",
+    "case_id": "CASE-011",
+    "source_sha256": "672b7dd763a56a14251d18c387d2b2411d001d6fc1cea598847bf422ac136b42",
+    "frozen_errors": 0,
+    "current_errors": 0,
+    "frozen_violations": [
+      "TP-MONITOR-001",
+      "TP-SHUTDOWN-004",
+      "TP-SHUTDOWN-004"
+    ],
+    "current_violations": [
+      {
+        "rule_id": "TP-MONITOR-001",
+        "rule_name": "线程池必须可观测",
+        "message": "线程池 executor 没有关联到可观察的运行指标。",
+        "severity": "warning",
+        "line": 22,
+        "column": 25,
+        "snippet": "this.executor = new ThreadPoolExecutor(",
+        "suggestion": "为这个线程池暴露 getQueue().size()、getActiveCount()、getCompletedTaskCount() 等运行指标，并单独统计拒绝次数。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "executor.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 42,
+        "column": 17,
+        "snippet": "executor.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "executor.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 46,
+        "column": 13,
+        "snippet": "executor.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      }
+    ]
+  },
+  {
+    "strategy": "rules",
+    "case_id": "CASE-012",
+    "source_sha256": "0566d29387a63d1c5ea40a2ece47ca100fd4ea01a7ca3afd8378926f190c1fc5",
+    "frozen_errors": 3,
+    "current_errors": 3,
+    "frozen_violations": [
+      "TP-CONFIG-004",
+      "TP-CREATE-001",
+      "TP-MONITOR-001",
+      "TP-SHUTDOWN-001"
+    ],
+    "current_violations": [
+      {
+        "rule_id": "TP-CONFIG-004",
+        "rule_name": "任务队列必须有界",
+        "message": "businessExecutor (executors_factory) 使用了无界队列 LinkedBlockingQueue：不指定容量时最大长度为 Integer.MAX_VALUE，视为无界。",
+        "severity": "error",
+        "line": 17,
+        "column": 33,
+        "snippet": "this.businessExecutor = Executors.newFixedThreadPool(",
+        "suggestion": "改用 new ArrayBlockingQueue<>(capacity) 并显式给出容量（可参照 Q ≈ (λ_in − λ_out) × Δt 估算），同时配置拒绝策略。"
+      },
+      {
+        "rule_id": "TP-CREATE-001",
+        "rule_name": "显式创建线程池",
+        "message": "Executors.newFixedThreadPool(...) 隐藏了队列与拒绝策略：内部使用无界 LinkedBlockingQueue（容量 Integer.MAX_VALUE），任务会持续堆积直至 OOM。",
+        "severity": "error",
+        "line": 17,
+        "column": 33,
+        "snippet": "this.businessExecutor = Executors.newFixedThreadPool(",
+        "suggestion": "改为 new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, unit, new ArrayBlockingQueue<>(capacity), threadFactory, rejectionHandler)，把线程数、队列容量、命名工厂和拒绝策略显式写出。"
+      },
+      {
+        "rule_id": "TP-MONITOR-001",
+        "rule_name": "线程池必须可观测",
+        "message": "线程池 businessExecutor 没有关联到可观察的运行指标。",
+        "severity": "warning",
+        "line": 17,
+        "column": 33,
+        "snippet": "this.businessExecutor = Executors.newFixedThreadPool(",
+        "suggestion": "为这个线程池暴露 getQueue().size()、getActiveCount()、getCompletedTaskCount() 等运行指标，并单独统计拒绝次数。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-001",
+        "rule_name": "应用级线程池必须有确定的关闭逻辑",
+        "message": "应用级线程池 businessExecutor 在本文件内没有任何关闭调用（shutdown/close）。",
+        "severity": "error",
+        "line": 17,
+        "column": 33,
+        "snippet": "this.businessExecutor = Executors.newFixedThreadPool(",
+        "suggestion": "在 @PreDestroy、应用关闭钩子或 close() 中调用 shutdown() + awaitTermination()，确保工作线程被回收、队列任务的处置明确。"
+      }
+    ]
+  },
+  {
+    "strategy": "rules",
+    "case_id": "CASE-013",
+    "source_sha256": "1b4cdce0c7d154ccfb2a972d0a1d596866fd4c4e214244bca9701f1d5e001d7f",
+    "frozen_errors": 0,
+    "current_errors": 0,
+    "frozen_violations": [
+      "TP-SHUTDOWN-004",
+      "TP-SHUTDOWN-004"
+    ],
+    "current_violations": [
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "accrueExecutor.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 52,
+        "column": 17,
+        "snippet": "accrueExecutor.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "accrueExecutor.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 58,
+        "column": 13,
+        "snippet": "accrueExecutor.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      }
+    ]
+  },
+  {
+    "strategy": "rules",
+    "case_id": "CASE-014",
+    "source_sha256": "4e8ebde5f723c626016126431930b6d7d516333f95239c87f13c9a1b03ba024d",
+    "frozen_errors": 0,
+    "current_errors": 0,
+    "frozen_violations": [],
+    "current_violations": []
+  },
+  {
+    "strategy": "rules",
+    "case_id": "CASE-015",
+    "source_sha256": "c99f020830e5d8fb1c32eba242ac288db5b852a160b456771031496f07ca8541",
+    "frozen_errors": 0,
+    "current_errors": 0,
+    "frozen_violations": [
+      "TP-REJECT-004"
+    ],
+    "current_violations": [
+      {
+        "rule_id": "TP-REJECT-004",
+        "rule_name": "CallerRunsPolicy 需要评估调用线程",
+        "message": "auditExecutor (thread_pool_executor) 使用 CallerRunsPolicy：过载时任务会在调用者线程中执行，需要确认调用线程（可能是 Web 请求线程）能承受这段耗时。",
+        "severity": "info",
+        "line": 22,
+        "column": 54,
+        "snippet": "private final ThreadPoolExecutor auditExecutor = new ThreadPoolExecutor(",
+        "suggestion": "确认调用链可以接受同步执行（后台批处理/反压场景），否则改用 AbortPolicy + 降级，或把溢出任务转入独立的补偿通道。"
+      }
+    ]
+  },
+  {
+    "strategy": "rules",
+    "case_id": "CASE-016",
+    "source_sha256": "b3d631c8b65464a043941e1d4272928235801e41b14c4f32b8e960d8d90f12f7",
+    "frozen_errors": 0,
+    "current_errors": 0,
+    "frozen_violations": [
+      "TP-CREATE-004"
+    ],
+    "current_violations": [
+      {
+        "rule_id": "TP-CREATE-004",
+        "rule_name": "自定义线程工厂必须设置线程名",
+        "message": "ThreadFactory 实现 NamedThreadFactory 的 newThread 中没有调用 Thread#setName。",
+        "severity": "warning",
+        "line": 172,
+        "column": 5,
+        "snippet": "private static final class NamedThreadFactory implements ThreadFactory {",
+        "suggestion": "在 newThread 中设置线程名，例如 thread.setName(prefix + \"-\" + sequence.incrementAndGet())。"
+      }
+    ]
+  },
+  {
+    "strategy": "rules",
+    "case_id": "CASE-017",
+    "source_sha256": "7a86363d22ccb10b0e49b08059ef6b4dd498cee0b1dc7a313c420868bfce75dd",
+    "frozen_errors": 2,
+    "current_errors": 1,
+    "frozen_violations": [
+      "TP-MONITOR-001",
+      "TP-SHUTDOWN-002",
+      "TP-SHUTDOWN-003"
+    ],
+    "current_violations": [
+      {
+        "rule_id": "TP-MONITOR-001",
+        "rule_name": "线程池必须可观测",
+        "message": "线程池 virtualExecutor 没有关联到可观察的运行指标。",
+        "severity": "warning",
+        "line": 26,
+        "column": 53,
+        "snippet": "private final ExecutorService virtualExecutor = Executors.newVirtualThreadPerTaskExecutor();",
+        "suggestion": "虚拟线程 ExecutorService 没有 ThreadPoolExecutor 的运行指标 API；在业务准入与回调 finally 中独立统计已接收未结束、成功、失败和拒绝次数，用真实下游回调验收这些统计。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-002",
+        "rule_name": "优雅关闭需等待终止",
+        "message": "virtualExecutor.shutdown() 之后没有 awaitTermination(timeout, unit)，无法确认任务是否执行完毕。",
+        "severity": "error",
+        "line": 120,
+        "column": 9,
+        "snippet": "virtualExecutor.shutdown();",
+        "suggestion": "关闭标准流程：shutdown() → awaitTermination(30, TimeUnit.SECONDS) → 超时后 shutdownNow() 兜底，并在 catch (InterruptedException) 中恢复中断状态。"
+      }
+    ]
+  },
+  {
+    "strategy": "rules",
+    "case_id": "CASE-018",
+    "source_sha256": "bc57bf8fba6175e7bf553254fd13af2446d641affc13165cd724d2244ae5d29c",
+    "frozen_errors": 0,
+    "current_errors": 0,
+    "frozen_violations": [],
+    "current_violations": []
+  },
+  {
+    "strategy": "rules",
+    "case_id": "CASE-019",
+    "source_sha256": "328613d15dca61da44eabf2e72eec714e2c57f69f5f7a708f6660f3820ddb01f",
+    "frozen_errors": 0,
+    "current_errors": 0,
+    "frozen_violations": [],
+    "current_violations": []
+  },
+  {
+    "strategy": "rules",
+    "case_id": "CASE-020",
+    "source_sha256": "fc43fb9fc1e36679436c62352beaa23d2d48bdfa37a260a1e9efa3d9f72c1b7c",
+    "frozen_errors": 1,
+    "current_errors": 1,
+    "frozen_violations": [
+      "TP-SUBMIT-004"
+    ],
+    "current_violations": [
+      {
+        "rule_id": "TP-SUBMIT-004",
+        "rule_name": "ThreadLocal 必须在 finally 中清理",
+        "message": "TENANT 的本次写入没有对应的 finally 清理路径，复用线程可能残留上下文。 私有方法 validateTenant 的调用 L74 未位于对应 try/finally 的 try 内。",
+        "severity": "error",
+        "line": 193,
+        "column": 13,
+        "snippet": "TENANT.set(tenantOf(reportId));",
+        "suggestion": "将 validateTenant(...) 的调用移入对应 try/finally 的 try 体内，并在 finally 内清理或恢复 TENANT；只在调用之后加 finally，不能保护 helper 本身抛异常的路径。"
+      }
+    ]
+  },
+  {
+    "strategy": "rules",
+    "case_id": "CASE-021",
+    "source_sha256": "d9627eaed252dde371d1d10ff86a7598f742bff5d6d2f5f5b45b00616b1398cc",
+    "frozen_errors": 0,
+    "current_errors": 0,
+    "frozen_violations": [
+      "TP-MONITOR-001",
+      "TP-SHUTDOWN-004",
+      "TP-SHUTDOWN-004"
+    ],
+    "current_violations": [
+      {
+        "rule_id": "TP-MONITOR-001",
+        "rule_name": "线程池必须可观测",
+        "message": "线程池 executor 没有关联到可观察的运行指标。",
+        "severity": "warning",
+        "line": 28,
+        "column": 39,
+        "snippet": "ThreadPoolExecutor executor = new ThreadPoolExecutor(",
+        "suggestion": "为这个线程池暴露 getQueue().size()、getActiveCount()、getCompletedTaskCount() 等运行指标，并单独统计拒绝次数。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "executor.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 52,
+        "column": 17,
+        "snippet": "executor.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "executor.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 58,
+        "column": 13,
+        "snippet": "executor.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      }
+    ]
+  }
+]

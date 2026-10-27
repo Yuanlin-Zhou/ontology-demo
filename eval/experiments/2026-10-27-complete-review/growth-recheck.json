@@ -1,0 +1,41 @@
+[
+  {
+    "case_id": "CASE-005",
+    "strategy": "baseline",
+    "source_sha256": "1f245d7d9e773ea2e9f65e1319669433abbafdab94bcc91e19f8ef548d31bf64",
+    "compile": {
+      "status": "ok",
+      "detail": ""
+    },
+    "tests": {
+      "status": "ok",
+      "detail": ""
+    }
+  },
+  {
+    "case_id": "CASE-005",
+    "strategy": "rag",
+    "source_sha256": "6d4d39f7d64c5f545a0c47dea6a95c05525c50121342a09ac4493b4eda7fdde7",
+    "compile": {
+      "status": "ok",
+      "detail": ""
+    },
+    "tests": {
+      "status": "ok",
+      "detail": ""
+    }
+  },
+  {
+    "case_id": "CASE-005",
+    "strategy": "rules",
+    "source_sha256": "9d914f31745b838de3b297ad33f230a54a6b8b6040386f36de1999299e36f8d0",
+    "compile": {
+      "status": "ok",
+      "detail": ""
+    },
+    "tests": {
+      "status": "ok",
+      "detail": ""
+    }
+  }
+]

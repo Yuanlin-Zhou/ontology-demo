@@ -1,0 +1,16 @@
+{
+  "source_sha256": "fa60eaf0486cc3af349b3a58083f6b687fb440dd4a91af319c3d402d31d28afb",
+  "reviewer": "Codex Agent source review (not human), frozen checklist scope, 2026-10-27",
+  "criteria": [
+    {
+      "criterion": "阻塞通知在虚拟线程执行",
+      "passed": true,
+      "evidence": "The service owns newVirtualThreadPerTaskExecutor and schedules runTask -> downstream.accept. The configured Consumer is invoked on virtual threads in the frozen runtime test."
+    },
+    {
+      "criterion": "并发访问下游有实际限流上限",
+      "passed": true,
+      "evidence": "The explicit maxConcurrent constructor initializes Semaphore; notify uses tryAcquire before submitting, and finally releases it. The default baseline constructor effectively permits Integer.MAX_VALUE concurrency, so this positive review is scoped to the configured limit contract."
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "source_sha256": "23cdc24880b3ab2a16eff32e74744ca8d7cdb50dd5cd02c6395cd7fd08181603",
+  "reviewer": "Codex Agent source review, not human; 2026-10-27; complete frozen checklist with explicit uncertainty",
+  "criteria": [
+    {
+      "criterion": "导出请求能够被执行",
+      "passed": null,
+      "evidence": "export executes doExport on exporter, but doExport is an empty body in all three sources. An accepted pool task is not proof of generating an export artifact.",
+      "verdict": "unverifiable"
+    },
+    {
+      "criterion": "过载时队列内存有界且拒绝行为明确",
+      "passed": true,
+      "evidence": "baseline uses LinkedBlockingQueue with explicit capacity 256; rag/rules use ArrayBlockingQueue(200). AbortPolicy/rejection handler and catch RejectedExecutionException log the overload path."
+    }
+  ]
+}

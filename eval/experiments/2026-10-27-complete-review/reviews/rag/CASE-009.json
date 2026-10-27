@@ -1,0 +1,16 @@
+{
+  "source_sha256": "09792de3d5bdfc809d53f38ef8f27cd64381740be8321ec3bd5203fcf580ddd1",
+  "reviewer": "Codex Agent source review, not human; 2026-10-27; complete frozen checklist with explicit uncertainty",
+  "criteria": [
+    {
+      "criterion": "自定义拒绝路径留有日志或持久记录",
+      "passed": true,
+      "evidence": "RecordingRejectionHandler/CountingRejectionHandler increments rejectedCount and logs WARN with queue and active worker details."
+    },
+    {
+      "criterion": "拒绝次数可被监控统计",
+      "passed": true,
+      "evidence": "stats() reads the same AtomicLong rejectedCount changed by the custom handler, not a fresh unrelated counter; frozen overload assertion passes."
+    }
+  ]
+}

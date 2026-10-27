@@ -1,0 +1,44 @@
+{
+  "engine_revision": "e651204a07b917e3df9103f7232cb5a223495929",
+  "frozen_generation_revision": "830ccc90aa1aed1e1933fe2f7fc2245e34b45023",
+  "model_calls": 0,
+  "source_reviews": 63,
+  "reviewer_type": "Codex Agent, not human",
+  "validation": {
+    "tests": 142,
+    "passed": 142,
+    "failed": 0,
+    "skipped": 0
+  },
+  "checker_sha256": "ca4416eab69e61b6c016bf460f771e6fbc0de021c321e0dfbf78548741fc0a06",
+  "runtime_acceptance_sha256": "49454866730a46a469780c90d8e0a04e0f5506c6d8a93becbd8bc6619fe15e6a",
+  "summary": [
+    {
+      "strategy": "baseline",
+      "reviewed": 21,
+      "confirmed": 11,
+      "failed": 3,
+      "evidence_insufficient": 7,
+      "frozen_error_diagnostics": 29,
+      "current_error_diagnostics": 28
+    },
+    {
+      "strategy": "rag",
+      "reviewed": 21,
+      "confirmed": 12,
+      "failed": 3,
+      "evidence_insufficient": 6,
+      "frozen_error_diagnostics": 24,
+      "current_error_diagnostics": 24
+    },
+    {
+      "strategy": "rules",
+      "reviewed": 21,
+      "confirmed": 13,
+      "failed": 2,
+      "evidence_insufficient": 6,
+      "frozen_error_diagnostics": 8,
+      "current_error_diagnostics": 7
+    }
+  ]
+}

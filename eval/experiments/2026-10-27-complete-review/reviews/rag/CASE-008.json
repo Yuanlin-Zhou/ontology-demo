@@ -1,0 +1,17 @@
+{
+  "source_sha256": "f30817641cd1d2c5b3f1da245cf17078b4ed2688b3cce646eb4bd2149aa8baed",
+  "reviewer": "Codex Agent source review, not human; 2026-10-27; complete frozen checklist with explicit uncertainty",
+  "criteria": [
+    {
+      "criterion": "库存同步实际执行",
+      "passed": null,
+      "evidence": "sync schedules remoteSync(sku), but remoteSync is empty for every strategy. No inventory state update or observable downstream contract exists.",
+      "verdict": "unverifiable"
+    },
+    {
+      "criterion": "拒绝时调用侧执行可验证的补偿",
+      "passed": true,
+      "evidence": "sync catches RejectedExecutionException on the caller and adds the exact sku to retryQueue; frozen rejection/compensation assertion verifies membership."
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "source_sha256": "937130ce40b8d7bee13c90f8337375fbf667d3e84a2d3e097ea0c58c15367b71",
+  "reviewer": "Codex Agent source review (not human), frozen checklist scope, 2026-10-27",
+  "criteria": [
+    {
+      "criterion": "关闭时已接受的队列任务被处理",
+      "passed": true,
+      "evidence": "stop calls shutdown before awaiting; normal accepted queued tasks can finish without immediate shutdownNow. This is the declared bounded graceful shutdown policy, not a guarantee for noncooperative tasks past its timeout."
+    },
+    {
+      "criterion": "关闭方法等待任务完成后返回",
+      "passed": true,
+      "evidence": "stop invokes awaitTermination and handles timeout with shutdownNow; normal runtime acceptance verifies the wait."
+    }
+  ]
+}

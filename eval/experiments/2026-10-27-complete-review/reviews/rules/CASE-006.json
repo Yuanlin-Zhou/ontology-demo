@@ -1,0 +1,16 @@
+{
+  "source_sha256": "fd890789a3d6df8879ba11b385e49c6bf95486c258bcd912145b37264d4419db",
+  "reviewer": "Codex Agent source review (not human), frozen checklist scope, 2026-10-27",
+  "criteria": [
+    {
+      "criterion": "高优先级任务先于低优先级任务执行",
+      "passed": true,
+      "evidence": "PrioritizedTask/UrgentTask compareTo or Task queue comparator sorts larger priority before smaller priority among waiting work. Running work is not preempted."
+    },
+    {
+      "criterion": "过载淘汰最旧任务且不误删最高优先级任务",
+      "passed": false,
+      "evidence": "baseline/rag use an unbounded PriorityBlockingQueue(200), so finite capacity is not enforced. rules uses a descending TreeSet: its eviction traversal breaks on higher-priority items and otherwise overwrites the victim through newer sequence numbers. Frozen acceptance fails for all three outputs."
+    }
+  ]
+}

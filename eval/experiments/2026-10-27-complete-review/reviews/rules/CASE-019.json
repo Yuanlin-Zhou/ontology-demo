@@ -1,0 +1,16 @@
+{
+  "source_sha256": "328613d15dca61da44eabf2e72eec714e2c57f69f5f7a708f6660f3820ddb01f",
+  "reviewer": "Codex Agent source review (not human), frozen checklist scope, 2026-10-27",
+  "criteria": [
+    {
+      "criterion": "金额求和与 VIP 折扣保持正确",
+      "passed": true,
+      "evidence": "total iterates items, adds BigDecimal price multiplied by quantity, then applies 0.95 only for vip; source and runtime arithmetic test agree."
+    },
+    {
+      "criterion": "纯金额业务不引入线程池",
+      "passed": true,
+      "evidence": "The complete source contains only BigDecimal/List and the OrderItem record; no executor/thread-pool creation or async execution is introduced."
+    }
+  ]
+}

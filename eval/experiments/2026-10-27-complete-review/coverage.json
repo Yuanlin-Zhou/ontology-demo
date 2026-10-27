@@ -1,0 +1,569 @@
+[
+  {
+    "strategy": "baseline",
+    "case_id": "CASE-001",
+    "source_sha256": "0a7b8f88141b6c044f517b0943a8f846320a6fd5ab69ae4a9df0e53872e825da",
+    "review_completed": true,
+    "unverifiable": 1,
+    "review_status": "not_run",
+    "task_status": "not_run"
+  },
+  {
+    "strategy": "baseline",
+    "case_id": "CASE-002",
+    "source_sha256": "92b21afb611c696966356df6e48f0bb6d094ad62da94ea723ca05f9d3affc816",
+    "review_completed": true,
+    "unverifiable": 1,
+    "review_status": "not_run",
+    "task_status": "not_run"
+  },
+  {
+    "strategy": "baseline",
+    "case_id": "CASE-003",
+    "source_sha256": "0d9344191720f51b4f5bd4ac2adb3e308929cc4c3332cc3e4f77e2e7d682497b",
+    "review_completed": true,
+    "unverifiable": 1,
+    "review_status": "not_run",
+    "task_status": "not_run"
+  },
+  {
+    "strategy": "baseline",
+    "case_id": "CASE-004",
+    "source_sha256": "e7ca013d0d1b1cb884e3906baa280b126bbe011dd167139e3e95fd53f8969ac8",
+    "review_completed": true,
+    "unverifiable": 0,
+    "review_status": "ok",
+    "task_status": "ok"
+  },
+  {
+    "strategy": "baseline",
+    "case_id": "CASE-005",
+    "source_sha256": "1f245d7d9e773ea2e9f65e1319669433abbafdab94bcc91e19f8ef548d31bf64",
+    "review_completed": true,
+    "unverifiable": 0,
+    "review_status": "ok",
+    "task_status": "ok"
+  },
+  {
+    "strategy": "baseline",
+    "case_id": "CASE-006",
+    "source_sha256": "4ba0bc7bc0f0a001cd300aa460bfbb0348b4e3c4d6acd8d28e77d387ff9aa93b",
+    "review_completed": true,
+    "unverifiable": 0,
+    "review_status": "failed",
+    "task_status": "failed"
+  },
+  {
+    "strategy": "baseline",
+    "case_id": "CASE-007",
+    "source_sha256": "f82c7d86191ee85c08004ba420cf08475956be6891929c5507d2fb7882eebe5b",
+    "review_completed": true,
+    "unverifiable": 1,
+    "review_status": "not_run",
+    "task_status": "not_run"
+  },
+  {
+    "strategy": "baseline",
+    "case_id": "CASE-008",
+    "source_sha256": "5fee0f6402ca2cb3dcad39559f73753c527f27fccb180e1655f91a7745daea53",
+    "review_completed": true,
+    "unverifiable": 1,
+    "review_status": "not_run",
+    "task_status": "not_run"
+  },
+  {
+    "strategy": "baseline",
+    "case_id": "CASE-009",
+    "source_sha256": "81397bdbd5e27983310248a3e0cd9c836132b5fe0562b2bb84cb45c631a2942d",
+    "review_completed": true,
+    "unverifiable": 0,
+    "review_status": "ok",
+    "task_status": "ok"
+  },
+  {
+    "strategy": "baseline",
+    "case_id": "CASE-010",
+    "source_sha256": "abdeaec6846dd38395f2242a977b8df8daad1d006ab330162646e172063d24cc",
+    "review_completed": true,
+    "unverifiable": 1,
+    "review_status": "not_run",
+    "task_status": "not_run"
+  },
+  {
+    "strategy": "baseline",
+    "case_id": "CASE-011",
+    "source_sha256": "bf70f6d8d6baea50e8313629e5d9ed196f1860c2863acb6270746c30bf5a18c3",
+    "review_completed": true,
+    "unverifiable": 1,
+    "review_status": "not_run",
+    "task_status": "not_run"
+  },
+  {
+    "strategy": "baseline",
+    "case_id": "CASE-012",
+    "source_sha256": "b83a45747e76f03292ba7dff8d70eeecedd184bafdab881221214be3e9908c9a",
+    "review_completed": true,
+    "unverifiable": 0,
+    "review_status": "ok",
+    "task_status": "ok"
+  },
+  {
+    "strategy": "baseline",
+    "case_id": "CASE-013",
+    "source_sha256": "50715f6da1e66444474da153e882d4d335e01120953c06c751ed1012bfecad3f",
+    "review_completed": true,
+    "unverifiable": 0,
+    "review_status": "ok",
+    "task_status": "ok"
+  },
+  {
+    "strategy": "baseline",
+    "case_id": "CASE-014",
+    "source_sha256": "9242c8eb792f85046f62f468a76e8de6a86fb02288c9745968ad0a05af633ea1",
+    "review_completed": true,
+    "unverifiable": 0,
+    "review_status": "ok",
+    "task_status": "ok"
+  },
+  {
+    "strategy": "baseline",
+    "case_id": "CASE-015",
+    "source_sha256": "c847a8845a652545cc607fed0ecc845337529ac865e9e9f449cadeda83026b99",
+    "review_completed": true,
+    "unverifiable": 0,
+    "review_status": "ok",
+    "task_status": "ok"
+  },
+  {
+    "strategy": "baseline",
+    "case_id": "CASE-016",
+    "source_sha256": "b4f5d47dad58510ea5f0fbffd4848fba2c90ed9160964114d3a2118b6fe14a1c",
+    "review_completed": true,
+    "unverifiable": 0,
+    "review_status": "ok",
+    "task_status": "ok"
+  },
+  {
+    "strategy": "baseline",
+    "case_id": "CASE-017",
+    "source_sha256": "73be2474e74d2efb5b4a444578306e8c987e368c377f97b598f35931447e9174",
+    "review_completed": true,
+    "unverifiable": 0,
+    "review_status": "ok",
+    "task_status": "failed"
+  },
+  {
+    "strategy": "baseline",
+    "case_id": "CASE-018",
+    "source_sha256": "9447b4e427d834ad1925c4dd628afe326b76901b6eadb588d9687f8c48d10315",
+    "review_completed": true,
+    "unverifiable": 0,
+    "review_status": "ok",
+    "task_status": "ok"
+  },
+  {
+    "strategy": "baseline",
+    "case_id": "CASE-019",
+    "source_sha256": "328613d15dca61da44eabf2e72eec714e2c57f69f5f7a708f6660f3820ddb01f",
+    "review_completed": true,
+    "unverifiable": 0,
+    "review_status": "ok",
+    "task_status": "ok"
+  },
+  {
+    "strategy": "baseline",
+    "case_id": "CASE-020",
+    "source_sha256": "401a20b9ffa9888f4efefaf910e6c3f59955caeec2f92d63dab13d93551864c2",
+    "review_completed": true,
+    "unverifiable": 0,
+    "review_status": "failed",
+    "task_status": "failed"
+  },
+  {
+    "strategy": "baseline",
+    "case_id": "CASE-021",
+    "source_sha256": "523d7f01fdf37273ddb03bd1dfacfb7e139a96b14741c78fb480068540bd52d3",
+    "review_completed": true,
+    "unverifiable": 0,
+    "review_status": "ok",
+    "task_status": "ok"
+  },
+  {
+    "strategy": "rag",
+    "case_id": "CASE-001",
+    "source_sha256": "77c840c4f39970152e5ea6705877caefdc8396dcc4c70cf402b8a9b74df1a6cb",
+    "review_completed": true,
+    "unverifiable": 1,
+    "review_status": "not_run",
+    "task_status": "not_run"
+  },
+  {
+    "strategy": "rag",
+    "case_id": "CASE-002",
+    "source_sha256": "3895c70e948e826e0931de16fdf8ce3baf741aee980a1ef46931266c56e15a8e",
+    "review_completed": true,
+    "unverifiable": 1,
+    "review_status": "not_run",
+    "task_status": "not_run"
+  },
+  {
+    "strategy": "rag",
+    "case_id": "CASE-003",
+    "source_sha256": "47e3e3e729b61455b07bc8891df851096670e5cad277bc68cae5d43d6582a507",
+    "review_completed": true,
+    "unverifiable": 1,
+    "review_status": "not_run",
+    "task_status": "not_run"
+  },
+  {
+    "strategy": "rag",
+    "case_id": "CASE-004",
+    "source_sha256": "56747cdb7a0f432a085f295af2227aaae291879519e24440d9c25782de39fe2d",
+    "review_completed": true,
+    "unverifiable": 0,
+    "review_status": "ok",
+    "task_status": "ok"
+  },
+  {
+    "strategy": "rag",
+    "case_id": "CASE-005",
+    "source_sha256": "6d4d39f7d64c5f545a0c47dea6a95c05525c50121342a09ac4493b4eda7fdde7",
+    "review_completed": true,
+    "unverifiable": 0,
+    "review_status": "ok",
+    "task_status": "ok"
+  },
+  {
+    "strategy": "rag",
+    "case_id": "CASE-006",
+    "source_sha256": "ad643c40ae56aae995de88a6fb7af6b4eba50a5f7ab051e2b566d035b3b0c8b3",
+    "review_completed": true,
+    "unverifiable": 0,
+    "review_status": "failed",
+    "task_status": "failed"
+  },
+  {
+    "strategy": "rag",
+    "case_id": "CASE-007",
+    "source_sha256": "c9a782db4c1264df2db348e7fea2d9877c0f247e2476fef1a76296826439da72",
+    "review_completed": true,
+    "unverifiable": 0,
+    "review_status": "ok",
+    "task_status": "ok"
+  },
+  {
+    "strategy": "rag",
+    "case_id": "CASE-008",
+    "source_sha256": "f30817641cd1d2c5b3f1da245cf17078b4ed2688b3cce646eb4bd2149aa8baed",
+    "review_completed": true,
+    "unverifiable": 1,
+    "review_status": "not_run",
+    "task_status": "not_run"
+  },
+  {
+    "strategy": "rag",
+    "case_id": "CASE-009",
+    "source_sha256": "09792de3d5bdfc809d53f38ef8f27cd64381740be8321ec3bd5203fcf580ddd1",
+    "review_completed": true,
+    "unverifiable": 0,
+    "review_status": "ok",
+    "task_status": "ok"
+  },
+  {
+    "strategy": "rag",
+    "case_id": "CASE-010",
+    "source_sha256": "67efd6cdf9d2c4ed579e444b39d5adf01726fc6544c2bb7a34ca9a1106515dc3",
+    "review_completed": true,
+    "unverifiable": 1,
+    "review_status": "not_run",
+    "task_status": "not_run"
+  },
+  {
+    "strategy": "rag",
+    "case_id": "CASE-011",
+    "source_sha256": "e2dcae1904fd05ada4b88d04afd0aae398a43fe725bad7af64a64dba519b5b2a",
+    "review_completed": true,
+    "unverifiable": 1,
+    "review_status": "not_run",
+    "task_status": "not_run"
+  },
+  {
+    "strategy": "rag",
+    "case_id": "CASE-012",
+    "source_sha256": "4d24652e50b8c1345a423a320985cc30944d09c22f18244d0783273cac78eda2",
+    "review_completed": true,
+    "unverifiable": 0,
+    "review_status": "ok",
+    "task_status": "ok"
+  },
+  {
+    "strategy": "rag",
+    "case_id": "CASE-013",
+    "source_sha256": "937130ce40b8d7bee13c90f8337375fbf667d3e84a2d3e097ea0c58c15367b71",
+    "review_completed": true,
+    "unverifiable": 0,
+    "review_status": "ok",
+    "task_status": "ok"
+  },
+  {
+    "strategy": "rag",
+    "case_id": "CASE-014",
+    "source_sha256": "0fedbf505e683af953d81aa6d25b245281be7cca477b1573f95d812a6623d585",
+    "review_completed": true,
+    "unverifiable": 0,
+    "review_status": "ok",
+    "task_status": "ok"
+  },
+  {
+    "strategy": "rag",
+    "case_id": "CASE-015",
+    "source_sha256": "afcdb28d29b3350ff468531c982247ee469b86625ab23031a551ee2e98cca663",
+    "review_completed": true,
+    "unverifiable": 0,
+    "review_status": "ok",
+    "task_status": "ok"
+  },
+  {
+    "strategy": "rag",
+    "case_id": "CASE-016",
+    "source_sha256": "f0b4df290e19ccf1ccbcfd452b4837bf8b0817aadbc308580dde68eec261f202",
+    "review_completed": true,
+    "unverifiable": 0,
+    "review_status": "ok",
+    "task_status": "ok"
+  },
+  {
+    "strategy": "rag",
+    "case_id": "CASE-017",
+    "source_sha256": "fa60eaf0486cc3af349b3a58083f6b687fb440dd4a91af319c3d402d31d28afb",
+    "review_completed": true,
+    "unverifiable": 0,
+    "review_status": "ok",
+    "task_status": "failed"
+  },
+  {
+    "strategy": "rag",
+    "case_id": "CASE-018",
+    "source_sha256": "29a032308613849fa4a17d769e5f8576a7d6c3d72080434b996fa419e44c5c72",
+    "review_completed": true,
+    "unverifiable": 0,
+    "review_status": "ok",
+    "task_status": "ok"
+  },
+  {
+    "strategy": "rag",
+    "case_id": "CASE-019",
+    "source_sha256": "328613d15dca61da44eabf2e72eec714e2c57f69f5f7a708f6660f3820ddb01f",
+    "review_completed": true,
+    "unverifiable": 0,
+    "review_status": "ok",
+    "task_status": "ok"
+  },
+  {
+    "strategy": "rag",
+    "case_id": "CASE-020",
+    "source_sha256": "05171c758f9e2a2190619f062290f1c45fc27763b967433c57037a5e852790df",
+    "review_completed": true,
+    "unverifiable": 0,
+    "review_status": "failed",
+    "task_status": "failed"
+  },
+  {
+    "strategy": "rag",
+    "case_id": "CASE-021",
+    "source_sha256": "8b58a9bc7b496db971003848a14ed3f33e05c14704e930580d3874ec9cf271ad",
+    "review_completed": true,
+    "unverifiable": 0,
+    "review_status": "ok",
+    "task_status": "ok"
+  },
+  {
+    "strategy": "rules",
+    "case_id": "CASE-001",
+    "source_sha256": "381d0c62e79575778dd8823f0af39ace924240026bdcf5cd2885e835199f28e0",
+    "review_completed": true,
+    "unverifiable": 1,
+    "review_status": "not_run",
+    "task_status": "not_run"
+  },
+  {
+    "strategy": "rules",
+    "case_id": "CASE-002",
+    "source_sha256": "529ae6dadc9699c22ce00e1c8bff3c158b7ce1f549b00dfb64da897ef9c3d4b1",
+    "review_completed": true,
+    "unverifiable": 1,
+    "review_status": "not_run",
+    "task_status": "not_run"
+  },
+  {
+    "strategy": "rules",
+    "case_id": "CASE-003",
+    "source_sha256": "23cdc24880b3ab2a16eff32e74744ca8d7cdb50dd5cd02c6395cd7fd08181603",
+    "review_completed": true,
+    "unverifiable": 1,
+    "review_status": "not_run",
+    "task_status": "not_run"
+  },
+  {
+    "strategy": "rules",
+    "case_id": "CASE-004",
+    "source_sha256": "a7928a3ebad019f14068a4176e04b4454244a812db4289e2a237434f761083de",
+    "review_completed": true,
+    "unverifiable": 0,
+    "review_status": "ok",
+    "task_status": "ok"
+  },
+  {
+    "strategy": "rules",
+    "case_id": "CASE-005",
+    "source_sha256": "9d914f31745b838de3b297ad33f230a54a6b8b6040386f36de1999299e36f8d0",
+    "review_completed": true,
+    "unverifiable": 0,
+    "review_status": "ok",
+    "task_status": "ok"
+  },
+  {
+    "strategy": "rules",
+    "case_id": "CASE-006",
+    "source_sha256": "fd890789a3d6df8879ba11b385e49c6bf95486c258bcd912145b37264d4419db",
+    "review_completed": true,
+    "unverifiable": 0,
+    "review_status": "failed",
+    "task_status": "failed"
+  },
+  {
+    "strategy": "rules",
+    "case_id": "CASE-007",
+    "source_sha256": "1f0dd9d43fe5935e01443f28e9bdfb1871d667d6111ef59a10614e5ab4a5be47",
+    "review_completed": true,
+    "unverifiable": 0,
+    "review_status": "ok",
+    "task_status": "ok"
+  },
+  {
+    "strategy": "rules",
+    "case_id": "CASE-008",
+    "source_sha256": "dc3f00d3ef4d8749912ab1828421881085c44e1e00000e9b091e104af39abae1",
+    "review_completed": true,
+    "unverifiable": 1,
+    "review_status": "not_run",
+    "task_status": "not_run"
+  },
+  {
+    "strategy": "rules",
+    "case_id": "CASE-009",
+    "source_sha256": "21ea8ab580273538ddebecf6d636ce638411e97498eebe7ad87ea8e788ca1f42",
+    "review_completed": true,
+    "unverifiable": 0,
+    "review_status": "ok",
+    "task_status": "ok"
+  },
+  {
+    "strategy": "rules",
+    "case_id": "CASE-010",
+    "source_sha256": "9a27ebaef0ef1dc291831f4a8121f67f2af34a699966e0f8788e708e76587761",
+    "review_completed": true,
+    "unverifiable": 1,
+    "review_status": "not_run",
+    "task_status": "not_run"
+  },
+  {
+    "strategy": "rules",
+    "case_id": "CASE-011",
+    "source_sha256": "672b7dd763a56a14251d18c387d2b2411d001d6fc1cea598847bf422ac136b42",
+    "review_completed": true,
+    "unverifiable": 1,
+    "review_status": "not_run",
+    "task_status": "not_run"
+  },
+  {
+    "strategy": "rules",
+    "case_id": "CASE-012",
+    "source_sha256": "0566d29387a63d1c5ea40a2ece47ca100fd4ea01a7ca3afd8378926f190c1fc5",
+    "review_completed": true,
+    "unverifiable": 0,
+    "review_status": "ok",
+    "task_status": "ok"
+  },
+  {
+    "strategy": "rules",
+    "case_id": "CASE-013",
+    "source_sha256": "1b4cdce0c7d154ccfb2a972d0a1d596866fd4c4e214244bca9701f1d5e001d7f",
+    "review_completed": true,
+    "unverifiable": 0,
+    "review_status": "ok",
+    "task_status": "ok"
+  },
+  {
+    "strategy": "rules",
+    "case_id": "CASE-014",
+    "source_sha256": "4e8ebde5f723c626016126431930b6d7d516333f95239c87f13c9a1b03ba024d",
+    "review_completed": true,
+    "unverifiable": 0,
+    "review_status": "ok",
+    "task_status": "ok"
+  },
+  {
+    "strategy": "rules",
+    "case_id": "CASE-015",
+    "source_sha256": "c99f020830e5d8fb1c32eba242ac288db5b852a160b456771031496f07ca8541",
+    "review_completed": true,
+    "unverifiable": 0,
+    "review_status": "ok",
+    "task_status": "ok"
+  },
+  {
+    "strategy": "rules",
+    "case_id": "CASE-016",
+    "source_sha256": "b3d631c8b65464a043941e1d4272928235801e41b14c4f32b8e960d8d90f12f7",
+    "review_completed": true,
+    "unverifiable": 0,
+    "review_status": "ok",
+    "task_status": "ok"
+  },
+  {
+    "strategy": "rules",
+    "case_id": "CASE-017",
+    "source_sha256": "7a86363d22ccb10b0e49b08059ef6b4dd498cee0b1dc7a313c420868bfce75dd",
+    "review_completed": true,
+    "unverifiable": 0,
+    "review_status": "ok",
+    "task_status": "ok"
+  },
+  {
+    "strategy": "rules",
+    "case_id": "CASE-018",
+    "source_sha256": "bc57bf8fba6175e7bf553254fd13af2446d641affc13165cd724d2244ae5d29c",
+    "review_completed": true,
+    "unverifiable": 0,
+    "review_status": "ok",
+    "task_status": "ok"
+  },
+  {
+    "strategy": "rules",
+    "case_id": "CASE-019",
+    "source_sha256": "328613d15dca61da44eabf2e72eec714e2c57f69f5f7a708f6660f3820ddb01f",
+    "review_completed": true,
+    "unverifiable": 0,
+    "review_status": "ok",
+    "task_status": "ok"
+  },
+  {
+    "strategy": "rules",
+    "case_id": "CASE-020",
+    "source_sha256": "fc43fb9fc1e36679436c62352beaa23d2d48bdfa37a260a1e9efa3d9f72c1b7c",
+    "review_completed": true,
+    "unverifiable": 0,
+    "review_status": "failed",
+    "task_status": "failed"
+  },
+  {
+    "strategy": "rules",
+    "case_id": "CASE-021",
+    "source_sha256": "d9627eaed252dde371d1d10ff86a7598f742bff5d6d2f5f5b45b00616b1398cc",
+    "review_completed": true,
+    "unverifiable": 0,
+    "review_status": "ok",
+    "task_status": "ok"
+  }
+]

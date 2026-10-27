@@ -1,0 +1,17 @@
+{
+  "source_sha256": "381d0c62e79575778dd8823f0af39ace924240026bdcf5cd2885e835199f28e0",
+  "reviewer": "Codex Agent source review, not human; 2026-10-27; complete frozen checklist with explicit uncertainty",
+  "criteria": [
+    {
+      "criterion": "订单通知确实在异步执行路径发生",
+      "passed": null,
+      "evidence": "notifyCreated submits sendRemote asynchronously, but sendRemote is empty (rules has an empty try block). No external effect/callback exists to establish actual delivery. Scheduling is verified; business delivery is not.",
+      "verdict": "unverifiable"
+    },
+    {
+      "criterion": "下游通知失败不影响下单主流程",
+      "passed": true,
+      "evidence": "baseline/rag catch Throwable inside the worker and around submission; rules catches business RuntimeException inside sendRemote and rejected submission in notifyCreated. Business failure isolation is structurally present; actual network integration is unavailable."
+    }
+  ]
+}
