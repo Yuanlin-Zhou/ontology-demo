@@ -51,3 +51,14 @@ npm run eval:boundaries
 ## 与远端 work 合并后的说明
 
 远端已有完整 experiment / repair-experiment 和 eval/java.ts 编译工具。本功能保留为独立的标准库功能基准，Java 辅助模块命名为 eval/benchmark-java.ts，避免覆盖已有接口。2026-10-27 的结果是在提交 5edb375 对应引擎上产生的历史结果；合并后引擎及规则有变化，开始新实验必须使用新的 outputDir，不复用历史结论。现有完整实验协议请同时参阅 eval/PROTOCOL.md。
+
+## 完整第三方验收环境
+
+```bash
+npm run setup:java
+npm run setup:eval   # 校验并准备固定版本的 Spring / Micrometer / Jakarta 等依赖
+npm run check:eval   # 只检查 JDK 和全部依赖的 SHA-256，不发起网络请求
+npm run test:eval    # 配置 EVAL_JAVAC、EVAL_JAVA、EVAL_CLASSPATH 后运行完整测试
+```
+
+`test:eval` 的依赖缺失或摘要不匹配时会直接失败，提示重新 setup，不悄悄退回缺依赖模式。`npm test` 保留轻量开发用途；正式验收应使用 `test:eval`，并检查测试汇总中的跳过数。

@@ -15,7 +15,10 @@
     "eval": "node src/cli/index.ts eval --emit-prompts",
     "setup:java": "bash scripts/setup-java.sh",
     "eval:agent": "node --use-env-proxy eval/agent-cli.ts",
-    "eval:boundaries": "node eval/boundaries.ts"
+    "eval:boundaries": "node eval/boundaries.ts",
+    "setup:eval": "bash scripts/eval-env.sh setup",
+    "check:eval": "bash scripts/eval-env.sh check",
+    "test:eval": "bash scripts/eval-env.sh test"
   },
   "dependencies": {
     "tree-sitter": "0.21.1",

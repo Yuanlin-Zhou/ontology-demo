@@ -312,3 +312,5 @@ npm run setup:java
 npm run eval:agent -- eval/agent.config.example.json
 npm run eval:boundaries
 ```
+
+完整 Java 验收环境可使用 `npm run setup:eval`、`npm run check:eval`、`npm run test:eval`。它们统一选择 JDK 并校验固定依赖，避免因遗漏 classpath 跳过第三方库行为测试；日常 `npm test` 用法保留。
