@@ -48,7 +48,7 @@ export function acceptanceScenarios(caseId:string): string[] {
 export interface TaskReview {
   source_sha256: string;
   reviewer: string;
-  criteria: Array<{ criterion: string; passed: boolean; evidence: string }>;
+  criteria: Array<{ criterion: string; passed: boolean | null; verdict?: 'unverifiable'; evidence: string }>;
 }
 export function readTaskReview(file: string, source: string, caseId: string): { status: 'ok' | 'failed' | 'not_run'; detail: string } {
   if (!existsSync(file)) return { status: 'not_run', detail: 'Task review is missing.' };
@@ -56,10 +56,12 @@ export function readTaskReview(file: string, source: string, caseId: string): { 
     const review = JSON.parse(readFileSync(file, 'utf8')) as TaskReview;
     const expected = TASK_CRITERIA[caseId];
     if (!expected || review.source_sha256 !== sha256(source) || !review.reviewer?.trim() || !Array.isArray(review.criteria) ||
-      review.criteria.length !== expected.length || expected.some(criterion => review.criteria.filter(c => c.criterion === criterion && typeof c.passed === 'boolean' && c.evidence?.trim()).length !== 1)) {
+      review.criteria.length !== expected.length || expected.some(criterion => review.criteria.filter(c => c.criterion === criterion && (typeof c.passed === 'boolean' || c.passed === null && c.verdict === 'unverifiable') && c.evidence?.trim()).length !== 1)) {
       return { status: 'not_run', detail: 'Invalid, incomplete or stale task review.' };
     }
-    const failed = review.criteria.filter(c => !c.passed);
+    const failed = review.criteria.filter(c => c.passed === false);
+    const unresolved = review.criteria.filter(c => c.passed === null);
+    if (failed.length === 0 && unresolved.length > 0) return { status: 'not_run', detail: `Reviewed by ${review.reviewer}; evidence insufficient for task completion:\n` + unresolved.map(c => `${c.criterion}: ${c.evidence}`).join('\n').slice(0, 8000) };
     return { status: failed.length ? 'failed' : 'ok', detail: `Reviewed by ${review.reviewer}` +
       (failed.length ? '\n' + failed.map(c => `${c.criterion}: ${c.evidence}`).join('\n').slice(0, 8000) : '') };
   } catch { return { status: 'not_run', detail: 'Cannot parse task review.' }; }

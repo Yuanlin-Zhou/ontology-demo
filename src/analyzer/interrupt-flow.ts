@@ -135,5 +135,39 @@ export function interruptRestored(caught:JavaSyntaxNode,symbols:JavaSymbols):boo
   const body=childForField(caught,'body');if(!body)return false;
   let paths=statements(children(body),[{flags:new Map(),restored:false,rethrows:false,exit:'normal',unknown:false}]);
   paths=withFinally(paths,caught.parent?.namedChildren.find(n=>n.type==='finally_clause'));
-  return paths.length>0&&paths.every(p=>!p.unknown&&(p.restored||p.rethrows));
+  const proven=(items:Path[])=>items.length>0&&items.every(p=>!p.unknown&&(p.restored||p.rethrows));
+  if(proven(paths))return true;
+
+  // A retry catch may defer restoration until the finally surrounding its loop.
+  // Only carry local boolean flags that cannot become false in any later iteration.
+  // Do not infer successful termination, or credit an interrupt call inside the loop.
+  const innerTry=caught.parent;
+  const loopBody=innerTry?.parent;
+  const loop=loopBody?.parent;
+  const outerBody=loop?.parent;
+  const outerTry=outerBody?.parent;
+  if(loopBody?.type!=='block'||!loop||!['while_statement','for_statement','do_statement'].includes(loop.type)||
+      childForField(loop,'body')?.id!==loopBody.id||outerBody?.type!=='block'||outerTry?.type!=='try_statement'||
+      childForField(outerTry,'body')?.id!==outerBody.id||outerTry.namedChildren.some(n=>n.type==='catch_clause'))return false;
+  const final=outerTry.namedChildren.find(n=>n.type==='finally_clause');
+  if(!final)return false;
+  const loopNodes=symbols.nodes.filter(n=>n.startIndex>=loop.startIndex&&n.endIndex<=loop.endIndex);
+  const summarized=paths.map(path=>{
+    const p=fork(path);
+    if(p.exit!=='normal')return p;
+    for(const [id,value] of p.flags){
+      const monotone=value===true&&loopNodes.every(n=>{
+        if(n.type!=='assignment_expression')return true;
+        if(symbols.lookup(childForField(n,'left'))?.id!==id)return true;
+        return n.children.some(c=>c.text==='=')&&childForField(n,'right')?.text==='true';
+      });
+      if(!monotone)p.flags.set(id,undefined);
+    }
+    // A future blocking call/catch can clear the JVM flag. The enclosing finally
+    // must reestablish it using the invariant local flag instead.
+    p.restored=false;p.rethrows=false;
+    return p;
+  });
+  const afterLoop=children(outerBody).filter(n=>n.startIndex>=loop.endIndex);
+  return proven(withFinally(statements(afterLoop,summarized),final));
 }

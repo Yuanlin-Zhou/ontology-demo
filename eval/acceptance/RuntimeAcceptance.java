@@ -105,6 +105,32 @@ class RuntimeAcceptance {
                     require(pool.getMaximumPoolSize() > pool.getCorePoolSize(), "Cannot expand at peak load");
                     require(pool.getKeepAliveTime(TimeUnit.MILLISECONDS) > 0, "Non-core threads have no useful keep-alive");
                     require(pool.getKeepAliveTime(TimeUnit.SECONDS) < Long.MAX_VALUE / 1000, "No bounded idle expiry");
+                    int core = pool.getCorePoolSize();
+                    long capacity = (long) pool.getQueue().size() + pool.getQueue().remainingCapacity();
+                    require(core > 0 && core <= 64 && capacity > 0 && capacity <= 10000,
+                            "Growth probe requires bounded, testable core and queue capacity");
+                    CountDownLatch gate = new CountDownLatch(1), expanded = new CountDownLatch(core + 1);
+                    long originalKeepAlive = pool.getKeepAliveTime(TimeUnit.NANOSECONDS);
+                    try {
+                        // Hold every worker so a full queue really forces a non-core worker.
+                        for (int i = 0; i < core + (int) capacity + 1; i++) pool.execute(() -> {
+                            expanded.countDown();
+                            try { gate.await(); } catch (InterruptedException error) { Thread.currentThread().interrupt(); }
+                        });
+                        require(expanded.await(2, TimeUnit.SECONDS), "Pool did not actually expand under load");
+                        require(pool.getPoolSize() > core, "No non-core worker was created");
+                        // Scale only the observation interval; preserve and restore the source configuration.
+                        pool.setKeepAliveTime(100, TimeUnit.MILLISECONDS);
+                        gate.countDown();
+                        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(3);
+                        while ((!pool.getQueue().isEmpty() || pool.getActiveCount() > 0 || pool.getPoolSize() > core)
+                                && System.nanoTime() < deadline) Thread.sleep(10);
+                        require(pool.getQueue().isEmpty() && pool.getActiveCount() == 0, "Load did not drain");
+                        require(pool.getPoolSize() <= core, "Non-core workers did not retire after idle expiry");
+                    } finally {
+                        gate.countDown();
+                        pool.setKeepAliveTime(originalKeepAlive, TimeUnit.NANOSECONDS);
+                    }
                 }
                 case "CASE-004" -> {
                     requireAdapter(executor instanceof ScheduledThreadPoolExecutor, "Expected retry scheduler");

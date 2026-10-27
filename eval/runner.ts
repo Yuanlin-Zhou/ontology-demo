@@ -304,6 +304,7 @@ export function runEvaluation(options: EvalOptions): EvalReport {
   }
   notes.push('Java 编译使用真实 javac（默认 --release 21），缺失工具、超时、编译失败分别记录；不自动补桩或改写产出。');
   notes.push('合规率按非 info 的已检查规则去重；无适用规则或语法无效时为 n/a。100% 离线召回衡量未裁剪规则集，不能代表预算裁剪后的覆盖率。');
+  notes.push('Task not_run 包含尚未审查，以及已绑定源码完成审查但业务证据不足的情况；通过 task_check.detail 区分，均不算任务成功。');
   notes.push('Compile/Test/Task Rate 分母为每种策略全部计划用例；缺失、不可用、未执行单独记录并报告覆盖率，不能视为通过。21 个用例均有功能/运行行为断言，但尚未覆盖全部业务和异常分支。完整任务验收均需依据清单审查，不从合规率推断。');
 
   return {
