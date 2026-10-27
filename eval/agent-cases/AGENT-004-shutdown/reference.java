@@ -1,0 +1,7 @@
+import java.util.concurrent.*;
+public class PoolShutdown {
+ public static boolean stop(ExecutorService pool, long timeoutMillis) {
+  pool.shutdown(); try { if (pool.awaitTermination(timeoutMillis, TimeUnit.MILLISECONDS)) return true; pool.shutdownNow(); return false; }
+  catch (InterruptedException e) { pool.shutdownNow(); Thread.currentThread().interrupt(); return false; }
+ }
+}

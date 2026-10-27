@@ -1,0 +1,44 @@
+[
+  {
+    "strategy": "baseline",
+    "attempted": 12,
+    "generated": 12,
+    "compliance": 0.8333333333333334,
+    "compliance_scored": 12,
+    "violations": 24,
+    "compile_rate": 1,
+    "task_completion_rate": 1,
+    "usage_coverage": 12,
+    "prompt_tokens": 2514,
+    "completion_tokens": 1970,
+    "total_tokens": 4484
+  },
+  {
+    "strategy": "rag",
+    "attempted": 12,
+    "generated": 12,
+    "compliance": 0.8749999999999999,
+    "compliance_scored": 12,
+    "violations": 12,
+    "compile_rate": 1,
+    "task_completion_rate": 1,
+    "usage_coverage": 12,
+    "prompt_tokens": 14271,
+    "completion_tokens": 2528,
+    "total_tokens": 16799
+  },
+  {
+    "strategy": "rules",
+    "attempted": 12,
+    "generated": 12,
+    "compliance": 0.8611111111111112,
+    "compliance_scored": 12,
+    "violations": 13,
+    "compile_rate": 1,
+    "task_completion_rate": 1,
+    "usage_coverage": 12,
+    "prompt_tokens": 9234,
+    "completion_tokens": 4003,
+    "total_tokens": 13237
+  }
+]

@@ -1,0 +1,8 @@
+{
+  "id": "AGENT-004",
+  "title": "线程池关闭与中断处理",
+  "task": "实现 PoolShutdown，保留 public static boolean stop(ExecutorService pool, long timeoutMillis)。先 shutdown 并最多等待 timeoutMillis；若正常终止返回 true，超时则 shutdownNow 并返回 false；被中断则 shutdownNow、恢复中断标记并返回 false。不添加 package，仅用 JDK。",
+  "notes": [
+    "独立编写的生产场景模拟任务；不是开源项目原始代码。"
+  ]
+}

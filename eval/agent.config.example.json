@@ -1,0 +1,9 @@
+{
+  "casesDir": "eval/agent-cases",
+  "outputDir": ".eval-cache/agent-final",
+  "model": "deepseek-chat",
+  "temperature": 0,
+  "maxTokens": 4096,
+  "tokenBudget": 1200,
+  "repetitions": 3
+}

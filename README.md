@@ -225,7 +225,7 @@ node src/cli/index.ts eval --agent-results
 ```
 
 `--agent-results` 会计算每个产出文件的 **Rule Compliance Rate**（`1 - violations / checked_rules`）与违规数；
-`Compile Rate` 需要本机 JDK（`javac`），未安装时统一标记 `unavailable`（当前环境无 JDK）。
+`Compile Rate` 需要本机 JDK（`javac`），未安装时统一标记 `unavailable`；新增实验流程可通过 `npm run setup:java` 配置 JDK 21。
 
 ### 用例期望值是怎么来的
 
@@ -291,4 +291,17 @@ node src/cli/index.ts eval --agent-results
 | retrieve API | `RuleEngine.retrieve` + CLI `retrieve` |
 | validate API | `RuleEngine.validate` + CLI `validate`（退出码可用于 CI） |
 | Evaluation Cases | `cases/CASE-001..021`（before / bad / good 三份代码 + 期望表） |
-| Baseline / RAG / Rule Retrieval 对比 | `eval/runner.ts` + `eval/report.md`（离线指标已产出，Agent 在环指标待回填） |
+| Baseline / RAG / Rule Retrieval 对比 | `eval/runner.ts` + `eval/report.md`（离线指标已产出；新增 Agent 实验见第 12 节） |
+
+## 12. 可重复运行的 Agent 对比实验
+
+新增三组同模型实验、真实 JDK 21 编译、固定 Java 行为断言、provider token 用量统计和独立边界评测。完整协议和配置说明见 [Agent 实验说明](eval/AGENT-EXPERIMENT.md)。
+
+```bash
+npm run setup:java
+# 运行前由环境配置 EVAL_API_BASE、EVAL_API_KEY
+npm run eval:agent -- eval/agent.config.example.json
+npm run eval:boundaries
+```
+
+原有 21 个静态案例继续保留；新增 4 个可执行的生产场景模拟任务、10 个人工标注边界案例，以及 Apache Commons Lang 的真实代码兼容性样本。独立评测保留跨文件场景的误报与漏报，不将旧数据集上的 100% 视为泛化结果。

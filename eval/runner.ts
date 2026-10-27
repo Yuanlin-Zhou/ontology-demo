@@ -13,6 +13,8 @@
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { verifyJava } from './java.ts';
+import { ruleCompliance } from './agent.ts';
 import type { RetrievalStrategy, RetrievedChunk } from '../src/domain/types.ts';
 import { RuleEngine } from '../src/api/engine.ts';
 import { loadCases, readCaseFile, writeJson } from './cases.ts';
@@ -71,7 +73,9 @@ export interface AgentCaseResult {
   file: string;
   violations: number;
   errors: number;
-  compliance: number;
+  compliance: number | null;
+  behavior: 'passed' | 'failed' | 'unavailable';
+  diagnostics: string;
   compile: 'ok' | 'failed' | 'unavailable';
   violation_rules: string[];
 }
@@ -200,14 +204,15 @@ export function runEvaluation(options: EvalOptions): EvalReport {
         const file = join(options.outputDir, 'results', strategy, `${testCase.id}.java`);
         if (!existsSync(file)) continue;
         const result = engine.validate({ code: readFileSync(file, 'utf8'), filePath: file });
+        const java = verifyJava(readFileSync(file, 'utf8'));
         agent.push({
           case_id: testCase.id,
           strategy,
           file,
           violations: result.stats.violations,
           errors: result.violations.filter((item) => item.severity === 'error').length,
-          compliance: round(result.stats.checked_rules === 0 ? 1 : 1 - result.stats.violations / result.stats.checked_rules),
-          compile: 'unavailable',
+          compliance: ruleCompliance(result.checked_rules, result.violations.map(v => v.rule_id), result.stats.parse_errors),
+          ...java,
           violation_rules: result.violations.map((violation) => violation.rule_id),
         });
       }
@@ -218,7 +223,7 @@ export function runEvaluation(options: EvalOptions): EvalReport {
   } else {
     notes.push('未启用 Agent 在环评测（--agent-results）：Rule Compliance / Compile Rate 需要 Agent 产出。');
   }
-  notes.push('Compile Rate 需要 JDK（javac）：未检测到 javac 时统一标记为 unavailable，可在接入 JDK 后补充编译校验。');
+  notes.push('Agent 结果使用真实 javac 编译；缺少 JDK 时为 unavailable，缺少第三方依赖时为 failed。原有静态用例无行为契约；功能与真实 token 对比请运行 npm run eval:agent。');
 
   return {
     generated_at: new Date().toISOString(),
@@ -375,10 +380,10 @@ export function renderReportMarkdown(report: EvalReport): string {
           return [
             entry.strategy,
             String(subset.length),
-            subset.length === 0 ? 'n/a' : percent(mean(subset.map((item) => item.compliance))),
+            subset.some(item => item.compliance !== null) ? percent(mean(subset.map((item) => item.compliance).filter((v): v is number => v !== null))) : 'n/a',
             String(sum(subset.map((item) => item.errors))),
             String(sum(subset.map((item) => item.violations))),
-            subset.length === 0 ? 'n/a' : (subset[0]?.compile ?? 'n/a'),
+            subset.length === 0 ? 'n/a' : `${subset.filter(item => item.compile === 'ok').length}/${subset.length} ok; ${subset.filter(item => item.compile === 'unavailable').length} unavailable`,
           ];
         }),
       ),

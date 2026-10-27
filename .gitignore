@@ -4,3 +4,5 @@ dist/
 eval/results/
 eval/prompts/
 .eval-cache/
+.tools/
+work/

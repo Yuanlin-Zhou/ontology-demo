@@ -1,0 +1,5 @@
+{
+  "source": "PoolShutdown.java",
+  "harness": "Harness.java",
+  "main": "Harness"
+}

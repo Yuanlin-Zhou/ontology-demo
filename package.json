@@ -12,7 +12,10 @@
     "test": "node --test",
     "engine": "node src/cli/index.ts",
     "sample": "node src/cli/index.ts retrieve --file samples/bad/OrderAsyncService.java",
-    "eval": "node src/cli/index.ts eval --emit-prompts"
+    "eval": "node src/cli/index.ts eval --emit-prompts",
+    "setup:java": "bash scripts/setup-java.sh",
+    "eval:agent": "node --use-env-proxy eval/agent-cli.ts",
+    "eval:boundaries": "node eval/boundaries.ts"
   },
   "dependencies": {
     "tree-sitter": "0.21.1",

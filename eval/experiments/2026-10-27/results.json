@@ -1,0 +1,1818 @@
+[
+  {
+    "case_id": "AGENT-001",
+    "repetition": 1,
+    "strategy": "baseline",
+    "requested_model": "deepseek-chat",
+    "returned_model": "deepseek-flash",
+    "resumed": false,
+    "generation": "ok",
+    "error": null,
+    "elapsed_ms": 3325,
+    "usage": {
+      "prompt_tokens": 221,
+      "completion_tokens": 242,
+      "total_tokens": 463,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      },
+      "prompt_cache_hit_tokens": 0,
+      "prompt_cache_miss_tokens": 221
+    },
+    "estimated_prompt_tokens": 270,
+    "knowledge_tokens_estimated": 0,
+    "violations": [
+      {
+        "rule_id": "TP-CONFIG-004",
+        "rule_name": "任务队列必须有界",
+        "message": "pool (executors_factory) 使用了无界队列 LinkedBlockingQueue：不指定容量时最大长度为 Integer.MAX_VALUE，视为无界。",
+        "severity": "error",
+        "line": 9,
+        "column": 42,
+        "snippet": "private final ExecutorService pool = Executors.newFixedThreadPool(2);",
+        "suggestion": "改用 new ArrayBlockingQueue<>(capacity) 并显式给出容量（可参照 Q ≈ (λ_in − λ_out) × Δt 估算），同时配置拒绝策略。"
+      },
+      {
+        "rule_id": "TP-CREATE-001",
+        "rule_name": "显式创建线程池",
+        "message": "Executors.newFixedThreadPool(...) 隐藏了队列与拒绝策略：内部使用无界 LinkedBlockingQueue（容量 Integer.MAX_VALUE），任务会持续堆积直至 OOM。",
+        "severity": "error",
+        "line": 9,
+        "column": 42,
+        "snippet": "private final ExecutorService pool = Executors.newFixedThreadPool(2);",
+        "suggestion": "改为 new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, unit, new ArrayBlockingQueue<>(capacity), threadFactory, rejectionHandler)，把线程数、队列容量、命名工厂和拒绝策略显式写出。"
+      },
+      {
+        "rule_id": "TP-CREATE-003",
+        "rule_name": "线程池必须配置线程工厂",
+        "message": "pool (executors_factory) 没有指定 ThreadFactory，工作线程会使用 pool-N-thread-M 这类默认名称。",
+        "severity": "warning",
+        "line": 9,
+        "column": 42,
+        "snippet": "private final ExecutorService pool = Executors.newFixedThreadPool(2);",
+        "suggestion": "传入命名线程工厂（如 namedFactory(\"order-notify\")），或使用 ThreadPoolTaskExecutor#setThreadNamePrefix。"
+      },
+      {
+        "rule_id": "TP-MONITOR-001",
+        "rule_name": "线程池必须可观测",
+        "message": "线程池 pool 没有暴露任何监控指标（队列长度/活跃线程/完成数/拒绝次数）。",
+        "severity": "warning",
+        "line": 9,
+        "column": 42,
+        "snippet": "private final ExecutorService pool = Executors.newFixedThreadPool(2);",
+        "suggestion": "暴露 getQueue().size()、getActiveCount()、getCompletedTaskCount()、getTaskCount() 等指标并配置告警，拒绝次数要单独计数。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 36,
+        "column": 17,
+        "snippet": "pool.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 39,
+        "column": 13,
+        "snippet": "pool.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      }
+    ],
+    "parse_errors": 0,
+    "checked_rules": [
+      "TP-CONFIG-001",
+      "TP-CONFIG-002",
+      "TP-CONFIG-004",
+      "TP-CONFIG-005",
+      "TP-CREATE-001",
+      "TP-CREATE-003",
+      "TP-MONITOR-001",
+      "TP-REJECT-001",
+      "TP-REJECT-003",
+      "TP-SHUTDOWN-001",
+      "TP-SHUTDOWN-002",
+      "TP-SHUTDOWN-003",
+      "TP-SHUTDOWN-004",
+      "TP-SUBMIT-001",
+      "TP-SUBMIT-005"
+    ],
+    "compliance": 0.6666666666666666,
+    "compile": "ok",
+    "behavior": "passed",
+    "diagnostics": "PASS\n\n",
+    "task_completed": true
+  },
+  {
+    "case_id": "AGENT-001",
+    "repetition": 1,
+    "strategy": "rag",
+    "requested_model": "deepseek-chat",
+    "returned_model": "deepseek-flash",
+    "resumed": false,
+    "generation": "ok",
+    "error": null,
+    "elapsed_ms": 3312,
+    "usage": {
+      "prompt_tokens": 1291,
+      "completion_tokens": 435,
+      "total_tokens": 1726,
+      "prompt_tokens_details": {
+        "cached_tokens": 128
+      },
+      "prompt_cache_hit_tokens": 128,
+      "prompt_cache_miss_tokens": 1163
+    },
+    "estimated_prompt_tokens": 1655,
+    "knowledge_tokens_estimated": 1197,
+    "violations": [
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 60,
+        "column": 17,
+        "snippet": "pool.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 64,
+        "column": 13,
+        "snippet": "pool.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      }
+    ],
+    "parse_errors": 0,
+    "checked_rules": [
+      "TP-REJECT-003",
+      "TP-SHUTDOWN-002",
+      "TP-SHUTDOWN-003",
+      "TP-SHUTDOWN-004",
+      "TP-SUBMIT-001",
+      "TP-SUBMIT-005"
+    ],
+    "compliance": 0.8333333333333334,
+    "compile": "ok",
+    "behavior": "passed",
+    "diagnostics": "PASS\n\n",
+    "task_completed": true
+  },
+  {
+    "case_id": "AGENT-001",
+    "repetition": 1,
+    "strategy": "rules",
+    "requested_model": "deepseek-chat",
+    "returned_model": "deepseek-flash",
+    "resumed": false,
+    "generation": "ok",
+    "error": null,
+    "elapsed_ms": 4746,
+    "usage": {
+      "prompt_tokens": 1681,
+      "completion_tokens": 790,
+      "total_tokens": 2471,
+      "prompt_tokens_details": {
+        "cached_tokens": 1536
+      },
+      "prompt_cache_hit_tokens": 1536,
+      "prompt_cache_miss_tokens": 145
+    },
+    "estimated_prompt_tokens": 2087,
+    "knowledge_tokens_estimated": 1181,
+    "violations": [
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 83,
+        "column": 17,
+        "snippet": "pool.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      }
+    ],
+    "parse_errors": 0,
+    "checked_rules": [
+      "TP-REJECT-003",
+      "TP-SHUTDOWN-002",
+      "TP-SHUTDOWN-003",
+      "TP-SHUTDOWN-004",
+      "TP-SUBMIT-001",
+      "TP-SUBMIT-005"
+    ],
+    "compliance": 0.8333333333333334,
+    "compile": "ok",
+    "behavior": "passed",
+    "diagnostics": "PASS\n\nNotification send failed: java.lang.IllegalStateException: remote failure\n",
+    "task_completed": true
+  },
+  {
+    "case_id": "AGENT-002",
+    "repetition": 1,
+    "strategy": "rag",
+    "requested_model": "deepseek-chat",
+    "returned_model": "deepseek-flash",
+    "resumed": false,
+    "generation": "ok",
+    "error": null,
+    "elapsed_ms": 2413,
+    "usage": {
+      "prompt_tokens": 1188,
+      "completion_tokens": 191,
+      "total_tokens": 1379,
+      "prompt_tokens_details": {
+        "cached_tokens": 128
+      },
+      "prompt_cache_hit_tokens": 128,
+      "prompt_cache_miss_tokens": 1060
+    },
+    "estimated_prompt_tokens": 1587,
+    "knowledge_tokens_estimated": 1184,
+    "violations": [],
+    "parse_errors": 0,
+    "checked_rules": [
+      "TP-REJECT-003",
+      "TP-SHUTDOWN-003",
+      "TP-SUBMIT-001",
+      "TP-SUBMIT-002"
+    ],
+    "compliance": 1,
+    "compile": "ok",
+    "behavior": "passed",
+    "diagnostics": "PASS\n\n",
+    "task_completed": true
+  },
+  {
+    "case_id": "AGENT-002",
+    "repetition": 1,
+    "strategy": "rules",
+    "requested_model": "deepseek-chat",
+    "returned_model": "deepseek-flash",
+    "resumed": false,
+    "generation": "ok",
+    "error": null,
+    "elapsed_ms": 3185,
+    "usage": {
+      "prompt_tokens": 695,
+      "completion_tokens": 318,
+      "total_tokens": 1013,
+      "prompt_tokens_details": {
+        "cached_tokens": 512
+      },
+      "prompt_cache_hit_tokens": 512,
+      "prompt_cache_miss_tokens": 183
+    },
+    "estimated_prompt_tokens": 844,
+    "knowledge_tokens_estimated": 385,
+    "violations": [],
+    "parse_errors": 0,
+    "checked_rules": [
+      "TP-REJECT-003",
+      "TP-SHUTDOWN-003",
+      "TP-SUBMIT-001",
+      "TP-SUBMIT-002",
+      "TP-SUBMIT-005"
+    ],
+    "compliance": 1,
+    "compile": "ok",
+    "behavior": "passed",
+    "diagnostics": "PASS\n\n",
+    "task_completed": true
+  },
+  {
+    "case_id": "AGENT-002",
+    "repetition": 1,
+    "strategy": "baseline",
+    "requested_model": "deepseek-chat",
+    "returned_model": "deepseek-flash",
+    "resumed": false,
+    "generation": "ok",
+    "error": null,
+    "elapsed_ms": 2610,
+    "usage": {
+      "prompt_tokens": 224,
+      "completion_tokens": 191,
+      "total_tokens": 415,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      },
+      "prompt_cache_hit_tokens": 0,
+      "prompt_cache_miss_tokens": 224
+    },
+    "estimated_prompt_tokens": 250,
+    "knowledge_tokens_estimated": 0,
+    "violations": [],
+    "parse_errors": 0,
+    "checked_rules": [
+      "TP-REJECT-003",
+      "TP-SHUTDOWN-003",
+      "TP-SUBMIT-001",
+      "TP-SUBMIT-002"
+    ],
+    "compliance": 1,
+    "compile": "ok",
+    "behavior": "passed",
+    "diagnostics": "PASS\n\n",
+    "task_completed": true
+  },
+  {
+    "case_id": "AGENT-003",
+    "repetition": 1,
+    "strategy": "rules",
+    "requested_model": "deepseek-chat",
+    "returned_model": "deepseek-flash",
+    "resumed": false,
+    "generation": "ok",
+    "error": null,
+    "elapsed_ms": 2270,
+    "usage": {
+      "prompt_tokens": 318,
+      "completion_tokens": 120,
+      "total_tokens": 438,
+      "prompt_tokens_details": {
+        "cached_tokens": 128
+      },
+      "prompt_cache_hit_tokens": 128,
+      "prompt_cache_miss_tokens": 190
+    },
+    "estimated_prompt_tokens": 399,
+    "knowledge_tokens_estimated": 80,
+    "violations": [],
+    "parse_errors": 0,
+    "checked_rules": [
+      "TP-SUBMIT-004"
+    ],
+    "compliance": 1,
+    "compile": "ok",
+    "behavior": "passed",
+    "diagnostics": "PASS\n\n",
+    "task_completed": true
+  },
+  {
+    "case_id": "AGENT-003",
+    "repetition": 1,
+    "strategy": "baseline",
+    "requested_model": "deepseek-chat",
+    "returned_model": "deepseek-flash",
+    "resumed": false,
+    "generation": "ok",
+    "error": null,
+    "elapsed_ms": 2294,
+    "usage": {
+      "prompt_tokens": 212,
+      "completion_tokens": 120,
+      "total_tokens": 332,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      },
+      "prompt_cache_hit_tokens": 0,
+      "prompt_cache_miss_tokens": 212
+    },
+    "estimated_prompt_tokens": 261,
+    "knowledge_tokens_estimated": 0,
+    "violations": [],
+    "parse_errors": 0,
+    "checked_rules": [
+      "TP-SUBMIT-004"
+    ],
+    "compliance": 1,
+    "compile": "ok",
+    "behavior": "passed",
+    "diagnostics": "PASS\n\n",
+    "task_completed": true
+  },
+  {
+    "case_id": "AGENT-003",
+    "repetition": 1,
+    "strategy": "rag",
+    "requested_model": "deepseek-chat",
+    "returned_model": "deepseek-flash",
+    "resumed": false,
+    "generation": "ok",
+    "error": null,
+    "elapsed_ms": 2394,
+    "usage": {
+      "prompt_tokens": 1132,
+      "completion_tokens": 120,
+      "total_tokens": 1252,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      },
+      "prompt_cache_hit_tokens": 0,
+      "prompt_cache_miss_tokens": 1132
+    },
+    "estimated_prompt_tokens": 1671,
+    "knowledge_tokens_estimated": 1197,
+    "violations": [],
+    "parse_errors": 0,
+    "checked_rules": [
+      "TP-SUBMIT-004"
+    ],
+    "compliance": 1,
+    "compile": "ok",
+    "behavior": "passed",
+    "diagnostics": "PASS\n\n",
+    "task_completed": true
+  },
+  {
+    "case_id": "AGENT-004",
+    "repetition": 1,
+    "strategy": "baseline",
+    "requested_model": "deepseek-chat",
+    "returned_model": "deepseek-flash",
+    "resumed": false,
+    "generation": "ok",
+    "error": null,
+    "elapsed_ms": 2275,
+    "usage": {
+      "prompt_tokens": 181,
+      "completion_tokens": 117,
+      "total_tokens": 298,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      },
+      "prompt_cache_hit_tokens": 0,
+      "prompt_cache_miss_tokens": 181
+    },
+    "estimated_prompt_tokens": 200,
+    "knowledge_tokens_estimated": 0,
+    "violations": [
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 11,
+        "column": 13,
+        "snippet": "pool.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 14,
+        "column": 13,
+        "snippet": "pool.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      }
+    ],
+    "parse_errors": 0,
+    "checked_rules": [
+      "TP-SHUTDOWN-002",
+      "TP-SHUTDOWN-003",
+      "TP-SHUTDOWN-004"
+    ],
+    "compliance": 0.6666666666666666,
+    "compile": "ok",
+    "behavior": "passed",
+    "diagnostics": "PASS\n\n",
+    "task_completed": true
+  },
+  {
+    "case_id": "AGENT-004",
+    "repetition": 1,
+    "strategy": "rag",
+    "requested_model": "deepseek-chat",
+    "returned_model": "deepseek-flash",
+    "resumed": false,
+    "generation": "ok",
+    "error": null,
+    "elapsed_ms": 2107,
+    "usage": {
+      "prompt_tokens": 1146,
+      "completion_tokens": 117,
+      "total_tokens": 1263,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      },
+      "prompt_cache_hit_tokens": 0,
+      "prompt_cache_miss_tokens": 1146
+    },
+    "estimated_prompt_tokens": 1564,
+    "knowledge_tokens_estimated": 1193,
+    "violations": [
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 12,
+        "column": 13,
+        "snippet": "pool.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 15,
+        "column": 13,
+        "snippet": "pool.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      }
+    ],
+    "parse_errors": 0,
+    "checked_rules": [
+      "TP-SHUTDOWN-002",
+      "TP-SHUTDOWN-003",
+      "TP-SHUTDOWN-004"
+    ],
+    "compliance": 0.6666666666666666,
+    "compile": "ok",
+    "behavior": "passed",
+    "diagnostics": "PASS\n\n",
+    "task_completed": true
+  },
+  {
+    "case_id": "AGENT-004",
+    "repetition": 1,
+    "strategy": "rules",
+    "requested_model": "deepseek-chat",
+    "returned_model": "deepseek-flash",
+    "resumed": false,
+    "generation": "ok",
+    "error": null,
+    "elapsed_ms": 2448,
+    "usage": {
+      "prompt_tokens": 384,
+      "completion_tokens": 117,
+      "total_tokens": 501,
+      "prompt_tokens_details": {
+        "cached_tokens": 128
+      },
+      "prompt_cache_hit_tokens": 128,
+      "prompt_cache_miss_tokens": 256
+    },
+    "estimated_prompt_tokens": 477,
+    "knowledge_tokens_estimated": 174,
+    "violations": [
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 11,
+        "column": 13,
+        "snippet": "pool.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 14,
+        "column": 13,
+        "snippet": "pool.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      }
+    ],
+    "parse_errors": 0,
+    "checked_rules": [
+      "TP-SHUTDOWN-002",
+      "TP-SHUTDOWN-003",
+      "TP-SHUTDOWN-004"
+    ],
+    "compliance": 0.6666666666666666,
+    "compile": "ok",
+    "behavior": "passed",
+    "diagnostics": "PASS\n\n",
+    "task_completed": true
+  },
+  {
+    "case_id": "AGENT-001",
+    "repetition": 2,
+    "strategy": "rag",
+    "requested_model": "deepseek-chat",
+    "returned_model": "deepseek-flash",
+    "resumed": false,
+    "generation": "ok",
+    "error": null,
+    "elapsed_ms": 2852,
+    "usage": {
+      "prompt_tokens": 1291,
+      "completion_tokens": 319,
+      "total_tokens": 1610,
+      "prompt_tokens_details": {
+        "cached_tokens": 1152
+      },
+      "prompt_cache_hit_tokens": 1152,
+      "prompt_cache_miss_tokens": 139
+    },
+    "estimated_prompt_tokens": 1655,
+    "knowledge_tokens_estimated": 1197,
+    "violations": [
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 48,
+        "column": 17,
+        "snippet": "pool.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 51,
+        "column": 13,
+        "snippet": "pool.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      }
+    ],
+    "parse_errors": 0,
+    "checked_rules": [
+      "TP-REJECT-003",
+      "TP-SHUTDOWN-002",
+      "TP-SHUTDOWN-003",
+      "TP-SHUTDOWN-004",
+      "TP-SUBMIT-001",
+      "TP-SUBMIT-005"
+    ],
+    "compliance": 0.8333333333333334,
+    "compile": "ok",
+    "behavior": "passed",
+    "diagnostics": "PASS\n\n",
+    "task_completed": true
+  },
+  {
+    "case_id": "AGENT-001",
+    "repetition": 2,
+    "strategy": "rules",
+    "requested_model": "deepseek-chat",
+    "returned_model": "deepseek-flash",
+    "resumed": false,
+    "generation": "ok",
+    "error": null,
+    "elapsed_ms": 4966,
+    "usage": {
+      "prompt_tokens": 1681,
+      "completion_tokens": 815,
+      "total_tokens": 2496,
+      "prompt_tokens_details": {
+        "cached_tokens": 1536
+      },
+      "prompt_cache_hit_tokens": 1536,
+      "prompt_cache_miss_tokens": 145
+    },
+    "estimated_prompt_tokens": 2087,
+    "knowledge_tokens_estimated": 1181,
+    "violations": [
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 80,
+        "column": 17,
+        "snippet": "pool.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-003",
+        "rule_name": "捕获 InterruptedException 后必须恢复中断状态",
+        "message": "catch (InterruptedException) 中没有恢复中断状态，取消语义（shutdownNow / Future.cancel）会失效。",
+        "severity": "error",
+        "line": 83,
+        "column": 19,
+        "snippet": "} catch (InterruptedException e) {",
+        "suggestion": "在清理动作之后调用 Thread.currentThread().interrupt()，或把 InterruptedException 继续向上抛出。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-003",
+        "rule_name": "捕获 InterruptedException 后必须恢复中断状态",
+        "message": "catch (InterruptedException) 中没有恢复中断状态，取消语义（shutdownNow / Future.cancel）会失效。",
+        "severity": "error",
+        "line": 87,
+        "column": 11,
+        "snippet": "} catch (InterruptedException e) {",
+        "suggestion": "在清理动作之后调用 Thread.currentThread().interrupt()，或把 InterruptedException 继续向上抛出。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 89,
+        "column": 13,
+        "snippet": "pool.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      }
+    ],
+    "parse_errors": 0,
+    "checked_rules": [
+      "TP-REJECT-003",
+      "TP-SHUTDOWN-002",
+      "TP-SHUTDOWN-003",
+      "TP-SHUTDOWN-004",
+      "TP-SUBMIT-001",
+      "TP-SUBMIT-005"
+    ],
+    "compliance": 0.6666666666666666,
+    "compile": "ok",
+    "behavior": "passed",
+    "diagnostics": "PASS\n\nnotification send failed: java.lang.IllegalStateException: remote failure\n",
+    "task_completed": true
+  },
+  {
+    "case_id": "AGENT-001",
+    "repetition": 2,
+    "strategy": "baseline",
+    "requested_model": "deepseek-chat",
+    "returned_model": "deepseek-flash",
+    "resumed": false,
+    "generation": "ok",
+    "error": null,
+    "elapsed_ms": 2694,
+    "usage": {
+      "prompt_tokens": 221,
+      "completion_tokens": 242,
+      "total_tokens": 463,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      },
+      "prompt_cache_hit_tokens": 0,
+      "prompt_cache_miss_tokens": 221
+    },
+    "estimated_prompt_tokens": 270,
+    "knowledge_tokens_estimated": 0,
+    "violations": [
+      {
+        "rule_id": "TP-CONFIG-004",
+        "rule_name": "任务队列必须有界",
+        "message": "pool (executors_factory) 使用了无界队列 LinkedBlockingQueue：不指定容量时最大长度为 Integer.MAX_VALUE，视为无界。",
+        "severity": "error",
+        "line": 9,
+        "column": 42,
+        "snippet": "private final ExecutorService pool = Executors.newFixedThreadPool(2);",
+        "suggestion": "改用 new ArrayBlockingQueue<>(capacity) 并显式给出容量（可参照 Q ≈ (λ_in − λ_out) × Δt 估算），同时配置拒绝策略。"
+      },
+      {
+        "rule_id": "TP-CREATE-001",
+        "rule_name": "显式创建线程池",
+        "message": "Executors.newFixedThreadPool(...) 隐藏了队列与拒绝策略：内部使用无界 LinkedBlockingQueue（容量 Integer.MAX_VALUE），任务会持续堆积直至 OOM。",
+        "severity": "error",
+        "line": 9,
+        "column": 42,
+        "snippet": "private final ExecutorService pool = Executors.newFixedThreadPool(2);",
+        "suggestion": "改为 new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, unit, new ArrayBlockingQueue<>(capacity), threadFactory, rejectionHandler)，把线程数、队列容量、命名工厂和拒绝策略显式写出。"
+      },
+      {
+        "rule_id": "TP-CREATE-003",
+        "rule_name": "线程池必须配置线程工厂",
+        "message": "pool (executors_factory) 没有指定 ThreadFactory，工作线程会使用 pool-N-thread-M 这类默认名称。",
+        "severity": "warning",
+        "line": 9,
+        "column": 42,
+        "snippet": "private final ExecutorService pool = Executors.newFixedThreadPool(2);",
+        "suggestion": "传入命名线程工厂（如 namedFactory(\"order-notify\")），或使用 ThreadPoolTaskExecutor#setThreadNamePrefix。"
+      },
+      {
+        "rule_id": "TP-MONITOR-001",
+        "rule_name": "线程池必须可观测",
+        "message": "线程池 pool 没有暴露任何监控指标（队列长度/活跃线程/完成数/拒绝次数）。",
+        "severity": "warning",
+        "line": 9,
+        "column": 42,
+        "snippet": "private final ExecutorService pool = Executors.newFixedThreadPool(2);",
+        "suggestion": "暴露 getQueue().size()、getActiveCount()、getCompletedTaskCount()、getTaskCount() 等指标并配置告警，拒绝次数要单独计数。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 36,
+        "column": 17,
+        "snippet": "pool.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 39,
+        "column": 13,
+        "snippet": "pool.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      }
+    ],
+    "parse_errors": 0,
+    "checked_rules": [
+      "TP-CONFIG-001",
+      "TP-CONFIG-002",
+      "TP-CONFIG-004",
+      "TP-CONFIG-005",
+      "TP-CREATE-001",
+      "TP-CREATE-003",
+      "TP-MONITOR-001",
+      "TP-REJECT-001",
+      "TP-REJECT-003",
+      "TP-SHUTDOWN-001",
+      "TP-SHUTDOWN-002",
+      "TP-SHUTDOWN-003",
+      "TP-SHUTDOWN-004",
+      "TP-SUBMIT-001",
+      "TP-SUBMIT-005"
+    ],
+    "compliance": 0.6666666666666666,
+    "compile": "ok",
+    "behavior": "passed",
+    "diagnostics": "PASS\n\n",
+    "task_completed": true
+  },
+  {
+    "case_id": "AGENT-002",
+    "repetition": 2,
+    "strategy": "rules",
+    "requested_model": "deepseek-chat",
+    "returned_model": "deepseek-flash",
+    "resumed": false,
+    "generation": "ok",
+    "error": null,
+    "elapsed_ms": 3255,
+    "usage": {
+      "prompt_tokens": 695,
+      "completion_tokens": 315,
+      "total_tokens": 1010,
+      "prompt_tokens_details": {
+        "cached_tokens": 512
+      },
+      "prompt_cache_hit_tokens": 512,
+      "prompt_cache_miss_tokens": 183
+    },
+    "estimated_prompt_tokens": 844,
+    "knowledge_tokens_estimated": 385,
+    "violations": [],
+    "parse_errors": 0,
+    "checked_rules": [
+      "TP-REJECT-003",
+      "TP-SHUTDOWN-003",
+      "TP-SUBMIT-001",
+      "TP-SUBMIT-002",
+      "TP-SUBMIT-005"
+    ],
+    "compliance": 1,
+    "compile": "ok",
+    "behavior": "passed",
+    "diagnostics": "PASS\n\n",
+    "task_completed": true
+  },
+  {
+    "case_id": "AGENT-002",
+    "repetition": 2,
+    "strategy": "baseline",
+    "requested_model": "deepseek-chat",
+    "returned_model": "deepseek-flash",
+    "resumed": false,
+    "generation": "ok",
+    "error": null,
+    "elapsed_ms": 2877,
+    "usage": {
+      "prompt_tokens": 224,
+      "completion_tokens": 151,
+      "total_tokens": 375,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      },
+      "prompt_cache_hit_tokens": 0,
+      "prompt_cache_miss_tokens": 224
+    },
+    "estimated_prompt_tokens": 250,
+    "knowledge_tokens_estimated": 0,
+    "violations": [],
+    "parse_errors": 0,
+    "checked_rules": [
+      "TP-REJECT-003",
+      "TP-SHUTDOWN-003",
+      "TP-SUBMIT-001",
+      "TP-SUBMIT-002"
+    ],
+    "compliance": 1,
+    "compile": "ok",
+    "behavior": "passed",
+    "diagnostics": "PASS\n\n",
+    "task_completed": true
+  },
+  {
+    "case_id": "AGENT-002",
+    "repetition": 2,
+    "strategy": "rag",
+    "requested_model": "deepseek-chat",
+    "returned_model": "deepseek-flash",
+    "resumed": false,
+    "generation": "ok",
+    "error": null,
+    "elapsed_ms": 2716,
+    "usage": {
+      "prompt_tokens": 1188,
+      "completion_tokens": 197,
+      "total_tokens": 1385,
+      "prompt_tokens_details": {
+        "cached_tokens": 1024
+      },
+      "prompt_cache_hit_tokens": 1024,
+      "prompt_cache_miss_tokens": 164
+    },
+    "estimated_prompt_tokens": 1587,
+    "knowledge_tokens_estimated": 1184,
+    "violations": [],
+    "parse_errors": 0,
+    "checked_rules": [
+      "TP-REJECT-003",
+      "TP-SHUTDOWN-003",
+      "TP-SUBMIT-001",
+      "TP-SUBMIT-002"
+    ],
+    "compliance": 1,
+    "compile": "ok",
+    "behavior": "passed",
+    "diagnostics": "PASS\n\n",
+    "task_completed": true
+  },
+  {
+    "case_id": "AGENT-003",
+    "repetition": 2,
+    "strategy": "baseline",
+    "requested_model": "deepseek-chat",
+    "returned_model": "deepseek-flash",
+    "resumed": false,
+    "generation": "ok",
+    "error": null,
+    "elapsed_ms": 1919,
+    "usage": {
+      "prompt_tokens": 212,
+      "completion_tokens": 120,
+      "total_tokens": 332,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      },
+      "prompt_cache_hit_tokens": 0,
+      "prompt_cache_miss_tokens": 212
+    },
+    "estimated_prompt_tokens": 261,
+    "knowledge_tokens_estimated": 0,
+    "violations": [],
+    "parse_errors": 0,
+    "checked_rules": [
+      "TP-SUBMIT-004"
+    ],
+    "compliance": 1,
+    "compile": "ok",
+    "behavior": "passed",
+    "diagnostics": "PASS\n\n",
+    "task_completed": true
+  },
+  {
+    "case_id": "AGENT-003",
+    "repetition": 2,
+    "strategy": "rag",
+    "requested_model": "deepseek-chat",
+    "returned_model": "deepseek-flash",
+    "resumed": false,
+    "generation": "ok",
+    "error": null,
+    "elapsed_ms": 1879,
+    "usage": {
+      "prompt_tokens": 1132,
+      "completion_tokens": 120,
+      "total_tokens": 1252,
+      "prompt_tokens_details": {
+        "cached_tokens": 896
+      },
+      "prompt_cache_hit_tokens": 896,
+      "prompt_cache_miss_tokens": 236
+    },
+    "estimated_prompt_tokens": 1671,
+    "knowledge_tokens_estimated": 1197,
+    "violations": [],
+    "parse_errors": 0,
+    "checked_rules": [
+      "TP-SUBMIT-004"
+    ],
+    "compliance": 1,
+    "compile": "ok",
+    "behavior": "passed",
+    "diagnostics": "PASS\n\n",
+    "task_completed": true
+  },
+  {
+    "case_id": "AGENT-003",
+    "repetition": 2,
+    "strategy": "rules",
+    "requested_model": "deepseek-chat",
+    "returned_model": "deepseek-flash",
+    "resumed": false,
+    "generation": "ok",
+    "error": null,
+    "elapsed_ms": 2080,
+    "usage": {
+      "prompt_tokens": 318,
+      "completion_tokens": 120,
+      "total_tokens": 438,
+      "prompt_tokens_details": {
+        "cached_tokens": 128
+      },
+      "prompt_cache_hit_tokens": 128,
+      "prompt_cache_miss_tokens": 190
+    },
+    "estimated_prompt_tokens": 399,
+    "knowledge_tokens_estimated": 80,
+    "violations": [],
+    "parse_errors": 0,
+    "checked_rules": [
+      "TP-SUBMIT-004"
+    ],
+    "compliance": 1,
+    "compile": "ok",
+    "behavior": "passed",
+    "diagnostics": "PASS\n\n",
+    "task_completed": true
+  },
+  {
+    "case_id": "AGENT-004",
+    "repetition": 2,
+    "strategy": "rag",
+    "requested_model": "deepseek-chat",
+    "returned_model": "deepseek-flash",
+    "resumed": false,
+    "generation": "ok",
+    "error": null,
+    "elapsed_ms": 2133,
+    "usage": {
+      "prompt_tokens": 1146,
+      "completion_tokens": 131,
+      "total_tokens": 1277,
+      "prompt_tokens_details": {
+        "cached_tokens": 896
+      },
+      "prompt_cache_hit_tokens": 896,
+      "prompt_cache_miss_tokens": 250
+    },
+    "estimated_prompt_tokens": 1564,
+    "knowledge_tokens_estimated": 1193,
+    "violations": [
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 15,
+        "column": 13,
+        "snippet": "pool.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 18,
+        "column": 13,
+        "snippet": "pool.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      }
+    ],
+    "parse_errors": 0,
+    "checked_rules": [
+      "TP-SHUTDOWN-002",
+      "TP-SHUTDOWN-003",
+      "TP-SHUTDOWN-004"
+    ],
+    "compliance": 0.6666666666666666,
+    "compile": "ok",
+    "behavior": "passed",
+    "diagnostics": "PASS\n\n",
+    "task_completed": true
+  },
+  {
+    "case_id": "AGENT-004",
+    "repetition": 2,
+    "strategy": "rules",
+    "requested_model": "deepseek-chat",
+    "returned_model": "deepseek-flash",
+    "resumed": false,
+    "generation": "ok",
+    "error": null,
+    "elapsed_ms": 2153,
+    "usage": {
+      "prompt_tokens": 384,
+      "completion_tokens": 117,
+      "total_tokens": 501,
+      "prompt_tokens_details": {
+        "cached_tokens": 128
+      },
+      "prompt_cache_hit_tokens": 128,
+      "prompt_cache_miss_tokens": 256
+    },
+    "estimated_prompt_tokens": 477,
+    "knowledge_tokens_estimated": 174,
+    "violations": [
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 11,
+        "column": 13,
+        "snippet": "pool.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 14,
+        "column": 13,
+        "snippet": "pool.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      }
+    ],
+    "parse_errors": 0,
+    "checked_rules": [
+      "TP-SHUTDOWN-002",
+      "TP-SHUTDOWN-003",
+      "TP-SHUTDOWN-004"
+    ],
+    "compliance": 0.6666666666666666,
+    "compile": "ok",
+    "behavior": "passed",
+    "diagnostics": "PASS\n\n",
+    "task_completed": true
+  },
+  {
+    "case_id": "AGENT-004",
+    "repetition": 2,
+    "strategy": "baseline",
+    "requested_model": "deepseek-chat",
+    "returned_model": "deepseek-flash",
+    "resumed": false,
+    "generation": "ok",
+    "error": null,
+    "elapsed_ms": 2226,
+    "usage": {
+      "prompt_tokens": 181,
+      "completion_tokens": 117,
+      "total_tokens": 298,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      },
+      "prompt_cache_hit_tokens": 0,
+      "prompt_cache_miss_tokens": 181
+    },
+    "estimated_prompt_tokens": 200,
+    "knowledge_tokens_estimated": 0,
+    "violations": [
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 11,
+        "column": 13,
+        "snippet": "pool.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 14,
+        "column": 13,
+        "snippet": "pool.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      }
+    ],
+    "parse_errors": 0,
+    "checked_rules": [
+      "TP-SHUTDOWN-002",
+      "TP-SHUTDOWN-003",
+      "TP-SHUTDOWN-004"
+    ],
+    "compliance": 0.6666666666666666,
+    "compile": "ok",
+    "behavior": "passed",
+    "diagnostics": "PASS\n\n",
+    "task_completed": true
+  },
+  {
+    "case_id": "AGENT-001",
+    "repetition": 3,
+    "strategy": "rules",
+    "requested_model": "deepseek-chat",
+    "returned_model": "deepseek-flash",
+    "resumed": false,
+    "generation": "ok",
+    "error": null,
+    "elapsed_ms": 4426,
+    "usage": {
+      "prompt_tokens": 1681,
+      "completion_tokens": 739,
+      "total_tokens": 2420,
+      "prompt_tokens_details": {
+        "cached_tokens": 1536
+      },
+      "prompt_cache_hit_tokens": 1536,
+      "prompt_cache_miss_tokens": 145
+    },
+    "estimated_prompt_tokens": 2087,
+    "knowledge_tokens_estimated": 1181,
+    "violations": [
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 78,
+        "column": 17,
+        "snippet": "pool.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 82,
+        "column": 13,
+        "snippet": "pool.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      }
+    ],
+    "parse_errors": 0,
+    "checked_rules": [
+      "TP-REJECT-003",
+      "TP-SHUTDOWN-002",
+      "TP-SHUTDOWN-003",
+      "TP-SHUTDOWN-004",
+      "TP-SUBMIT-001",
+      "TP-SUBMIT-005"
+    ],
+    "compliance": 0.8333333333333334,
+    "compile": "ok",
+    "behavior": "passed",
+    "diagnostics": "PASS\n\n[NotificationService] notification failed: java.lang.IllegalStateException: remote failure\n",
+    "task_completed": true
+  },
+  {
+    "case_id": "AGENT-001",
+    "repetition": 3,
+    "strategy": "baseline",
+    "requested_model": "deepseek-chat",
+    "returned_model": "deepseek-flash",
+    "resumed": false,
+    "generation": "ok",
+    "error": null,
+    "elapsed_ms": 2655,
+    "usage": {
+      "prompt_tokens": 221,
+      "completion_tokens": 242,
+      "total_tokens": 463,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      },
+      "prompt_cache_hit_tokens": 0,
+      "prompt_cache_miss_tokens": 221
+    },
+    "estimated_prompt_tokens": 270,
+    "knowledge_tokens_estimated": 0,
+    "violations": [
+      {
+        "rule_id": "TP-CONFIG-004",
+        "rule_name": "任务队列必须有界",
+        "message": "pool (executors_factory) 使用了无界队列 LinkedBlockingQueue：不指定容量时最大长度为 Integer.MAX_VALUE，视为无界。",
+        "severity": "error",
+        "line": 9,
+        "column": 42,
+        "snippet": "private final ExecutorService pool = Executors.newFixedThreadPool(2);",
+        "suggestion": "改用 new ArrayBlockingQueue<>(capacity) 并显式给出容量（可参照 Q ≈ (λ_in − λ_out) × Δt 估算），同时配置拒绝策略。"
+      },
+      {
+        "rule_id": "TP-CREATE-001",
+        "rule_name": "显式创建线程池",
+        "message": "Executors.newFixedThreadPool(...) 隐藏了队列与拒绝策略：内部使用无界 LinkedBlockingQueue（容量 Integer.MAX_VALUE），任务会持续堆积直至 OOM。",
+        "severity": "error",
+        "line": 9,
+        "column": 42,
+        "snippet": "private final ExecutorService pool = Executors.newFixedThreadPool(2);",
+        "suggestion": "改为 new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, unit, new ArrayBlockingQueue<>(capacity), threadFactory, rejectionHandler)，把线程数、队列容量、命名工厂和拒绝策略显式写出。"
+      },
+      {
+        "rule_id": "TP-CREATE-003",
+        "rule_name": "线程池必须配置线程工厂",
+        "message": "pool (executors_factory) 没有指定 ThreadFactory，工作线程会使用 pool-N-thread-M 这类默认名称。",
+        "severity": "warning",
+        "line": 9,
+        "column": 42,
+        "snippet": "private final ExecutorService pool = Executors.newFixedThreadPool(2);",
+        "suggestion": "传入命名线程工厂（如 namedFactory(\"order-notify\")），或使用 ThreadPoolTaskExecutor#setThreadNamePrefix。"
+      },
+      {
+        "rule_id": "TP-MONITOR-001",
+        "rule_name": "线程池必须可观测",
+        "message": "线程池 pool 没有暴露任何监控指标（队列长度/活跃线程/完成数/拒绝次数）。",
+        "severity": "warning",
+        "line": 9,
+        "column": 42,
+        "snippet": "private final ExecutorService pool = Executors.newFixedThreadPool(2);",
+        "suggestion": "暴露 getQueue().size()、getActiveCount()、getCompletedTaskCount()、getTaskCount() 等指标并配置告警，拒绝次数要单独计数。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 36,
+        "column": 17,
+        "snippet": "pool.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 39,
+        "column": 13,
+        "snippet": "pool.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      }
+    ],
+    "parse_errors": 0,
+    "checked_rules": [
+      "TP-CONFIG-001",
+      "TP-CONFIG-002",
+      "TP-CONFIG-004",
+      "TP-CONFIG-005",
+      "TP-CREATE-001",
+      "TP-CREATE-003",
+      "TP-MONITOR-001",
+      "TP-REJECT-001",
+      "TP-REJECT-003",
+      "TP-SHUTDOWN-001",
+      "TP-SHUTDOWN-002",
+      "TP-SHUTDOWN-003",
+      "TP-SHUTDOWN-004",
+      "TP-SUBMIT-001",
+      "TP-SUBMIT-005"
+    ],
+    "compliance": 0.6666666666666666,
+    "compile": "ok",
+    "behavior": "passed",
+    "diagnostics": "PASS\n\n",
+    "task_completed": true
+  },
+  {
+    "case_id": "AGENT-001",
+    "repetition": 3,
+    "strategy": "rag",
+    "requested_model": "deepseek-chat",
+    "returned_model": "deepseek-flash",
+    "resumed": false,
+    "generation": "ok",
+    "error": null,
+    "elapsed_ms": 3319,
+    "usage": {
+      "prompt_tokens": 1291,
+      "completion_tokens": 450,
+      "total_tokens": 1741,
+      "prompt_tokens_details": {
+        "cached_tokens": 1152
+      },
+      "prompt_cache_hit_tokens": 1152,
+      "prompt_cache_miss_tokens": 139
+    },
+    "estimated_prompt_tokens": 1655,
+    "knowledge_tokens_estimated": 1197,
+    "violations": [
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 60,
+        "column": 17,
+        "snippet": "pool.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 64,
+        "column": 13,
+        "snippet": "pool.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      }
+    ],
+    "parse_errors": 0,
+    "checked_rules": [
+      "TP-REJECT-003",
+      "TP-SHUTDOWN-002",
+      "TP-SHUTDOWN-003",
+      "TP-SHUTDOWN-004",
+      "TP-SUBMIT-001",
+      "TP-SUBMIT-005"
+    ],
+    "compliance": 0.8333333333333334,
+    "compile": "ok",
+    "behavior": "passed",
+    "diagnostics": "PASS\n\n",
+    "task_completed": true
+  },
+  {
+    "case_id": "AGENT-002",
+    "repetition": 3,
+    "strategy": "baseline",
+    "requested_model": "deepseek-chat",
+    "returned_model": "deepseek-flash",
+    "resumed": false,
+    "generation": "ok",
+    "error": null,
+    "elapsed_ms": 2434,
+    "usage": {
+      "prompt_tokens": 224,
+      "completion_tokens": 191,
+      "total_tokens": 415,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      },
+      "prompt_cache_hit_tokens": 0,
+      "prompt_cache_miss_tokens": 224
+    },
+    "estimated_prompt_tokens": 250,
+    "knowledge_tokens_estimated": 0,
+    "violations": [],
+    "parse_errors": 0,
+    "checked_rules": [
+      "TP-REJECT-003",
+      "TP-SHUTDOWN-003",
+      "TP-SUBMIT-001",
+      "TP-SUBMIT-002"
+    ],
+    "compliance": 1,
+    "compile": "ok",
+    "behavior": "passed",
+    "diagnostics": "PASS\n\n",
+    "task_completed": true
+  },
+  {
+    "case_id": "AGENT-002",
+    "repetition": 3,
+    "strategy": "rag",
+    "requested_model": "deepseek-chat",
+    "returned_model": "deepseek-flash",
+    "resumed": false,
+    "generation": "ok",
+    "error": null,
+    "elapsed_ms": 2473,
+    "usage": {
+      "prompt_tokens": 1188,
+      "completion_tokens": 197,
+      "total_tokens": 1385,
+      "prompt_tokens_details": {
+        "cached_tokens": 1024
+      },
+      "prompt_cache_hit_tokens": 1024,
+      "prompt_cache_miss_tokens": 164
+    },
+    "estimated_prompt_tokens": 1587,
+    "knowledge_tokens_estimated": 1184,
+    "violations": [],
+    "parse_errors": 0,
+    "checked_rules": [
+      "TP-REJECT-003",
+      "TP-SHUTDOWN-003",
+      "TP-SUBMIT-001",
+      "TP-SUBMIT-002"
+    ],
+    "compliance": 1,
+    "compile": "ok",
+    "behavior": "passed",
+    "diagnostics": "PASS\n\n",
+    "task_completed": true
+  },
+  {
+    "case_id": "AGENT-002",
+    "repetition": 3,
+    "strategy": "rules",
+    "requested_model": "deepseek-chat",
+    "returned_model": "deepseek-flash",
+    "resumed": false,
+    "generation": "ok",
+    "error": null,
+    "elapsed_ms": 2794,
+    "usage": {
+      "prompt_tokens": 695,
+      "completion_tokens": 315,
+      "total_tokens": 1010,
+      "prompt_tokens_details": {
+        "cached_tokens": 512
+      },
+      "prompt_cache_hit_tokens": 512,
+      "prompt_cache_miss_tokens": 183
+    },
+    "estimated_prompt_tokens": 844,
+    "knowledge_tokens_estimated": 385,
+    "violations": [],
+    "parse_errors": 0,
+    "checked_rules": [
+      "TP-REJECT-003",
+      "TP-SHUTDOWN-003",
+      "TP-SUBMIT-001",
+      "TP-SUBMIT-002",
+      "TP-SUBMIT-005"
+    ],
+    "compliance": 1,
+    "compile": "ok",
+    "behavior": "passed",
+    "diagnostics": "PASS\n\n",
+    "task_completed": true
+  },
+  {
+    "case_id": "AGENT-003",
+    "repetition": 3,
+    "strategy": "rag",
+    "requested_model": "deepseek-chat",
+    "returned_model": "deepseek-flash",
+    "resumed": false,
+    "generation": "ok",
+    "error": null,
+    "elapsed_ms": 2083,
+    "usage": {
+      "prompt_tokens": 1132,
+      "completion_tokens": 120,
+      "total_tokens": 1252,
+      "prompt_tokens_details": {
+        "cached_tokens": 896
+      },
+      "prompt_cache_hit_tokens": 896,
+      "prompt_cache_miss_tokens": 236
+    },
+    "estimated_prompt_tokens": 1671,
+    "knowledge_tokens_estimated": 1197,
+    "violations": [],
+    "parse_errors": 0,
+    "checked_rules": [
+      "TP-SUBMIT-004"
+    ],
+    "compliance": 1,
+    "compile": "ok",
+    "behavior": "passed",
+    "diagnostics": "PASS\n\n",
+    "task_completed": true
+  },
+  {
+    "case_id": "AGENT-003",
+    "repetition": 3,
+    "strategy": "rules",
+    "requested_model": "deepseek-chat",
+    "returned_model": "deepseek-flash",
+    "resumed": false,
+    "generation": "ok",
+    "error": null,
+    "elapsed_ms": 1849,
+    "usage": {
+      "prompt_tokens": 318,
+      "completion_tokens": 120,
+      "total_tokens": 438,
+      "prompt_tokens_details": {
+        "cached_tokens": 128
+      },
+      "prompt_cache_hit_tokens": 128,
+      "prompt_cache_miss_tokens": 190
+    },
+    "estimated_prompt_tokens": 399,
+    "knowledge_tokens_estimated": 80,
+    "violations": [],
+    "parse_errors": 0,
+    "checked_rules": [
+      "TP-SUBMIT-004"
+    ],
+    "compliance": 1,
+    "compile": "ok",
+    "behavior": "passed",
+    "diagnostics": "PASS\n\n",
+    "task_completed": true
+  },
+  {
+    "case_id": "AGENT-003",
+    "repetition": 3,
+    "strategy": "baseline",
+    "requested_model": "deepseek-chat",
+    "returned_model": "deepseek-flash",
+    "resumed": false,
+    "generation": "ok",
+    "error": null,
+    "elapsed_ms": 2117,
+    "usage": {
+      "prompt_tokens": 212,
+      "completion_tokens": 120,
+      "total_tokens": 332,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      },
+      "prompt_cache_hit_tokens": 0,
+      "prompt_cache_miss_tokens": 212
+    },
+    "estimated_prompt_tokens": 261,
+    "knowledge_tokens_estimated": 0,
+    "violations": [],
+    "parse_errors": 0,
+    "checked_rules": [
+      "TP-SUBMIT-004"
+    ],
+    "compliance": 1,
+    "compile": "ok",
+    "behavior": "passed",
+    "diagnostics": "PASS\n\n",
+    "task_completed": true
+  },
+  {
+    "case_id": "AGENT-004",
+    "repetition": 3,
+    "strategy": "rules",
+    "requested_model": "deepseek-chat",
+    "returned_model": "deepseek-flash",
+    "resumed": false,
+    "generation": "ok",
+    "error": null,
+    "elapsed_ms": 1954,
+    "usage": {
+      "prompt_tokens": 384,
+      "completion_tokens": 117,
+      "total_tokens": 501,
+      "prompt_tokens_details": {
+        "cached_tokens": 128
+      },
+      "prompt_cache_hit_tokens": 128,
+      "prompt_cache_miss_tokens": 256
+    },
+    "estimated_prompt_tokens": 477,
+    "knowledge_tokens_estimated": 174,
+    "violations": [
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 11,
+        "column": 13,
+        "snippet": "pool.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 14,
+        "column": 13,
+        "snippet": "pool.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      }
+    ],
+    "parse_errors": 0,
+    "checked_rules": [
+      "TP-SHUTDOWN-002",
+      "TP-SHUTDOWN-003",
+      "TP-SHUTDOWN-004"
+    ],
+    "compliance": 0.6666666666666666,
+    "compile": "ok",
+    "behavior": "passed",
+    "diagnostics": "PASS\n\n",
+    "task_completed": true
+  },
+  {
+    "case_id": "AGENT-004",
+    "repetition": 3,
+    "strategy": "baseline",
+    "requested_model": "deepseek-chat",
+    "returned_model": "deepseek-flash",
+    "resumed": false,
+    "generation": "ok",
+    "error": null,
+    "elapsed_ms": 2022,
+    "usage": {
+      "prompt_tokens": 181,
+      "completion_tokens": 117,
+      "total_tokens": 298,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      },
+      "prompt_cache_hit_tokens": 0,
+      "prompt_cache_miss_tokens": 181
+    },
+    "estimated_prompt_tokens": 200,
+    "knowledge_tokens_estimated": 0,
+    "violations": [
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 11,
+        "column": 13,
+        "snippet": "pool.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 14,
+        "column": 13,
+        "snippet": "pool.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      }
+    ],
+    "parse_errors": 0,
+    "checked_rules": [
+      "TP-SHUTDOWN-002",
+      "TP-SHUTDOWN-003",
+      "TP-SHUTDOWN-004"
+    ],
+    "compliance": 0.6666666666666666,
+    "compile": "ok",
+    "behavior": "passed",
+    "diagnostics": "PASS\n\n",
+    "task_completed": true
+  },
+  {
+    "case_id": "AGENT-004",
+    "repetition": 3,
+    "strategy": "rag",
+    "requested_model": "deepseek-chat",
+    "returned_model": "deepseek-flash",
+    "resumed": false,
+    "generation": "ok",
+    "error": null,
+    "elapsed_ms": 2284,
+    "usage": {
+      "prompt_tokens": 1146,
+      "completion_tokens": 131,
+      "total_tokens": 1277,
+      "prompt_tokens_details": {
+        "cached_tokens": 896
+      },
+      "prompt_cache_hit_tokens": 896,
+      "prompt_cache_miss_tokens": 250
+    },
+    "estimated_prompt_tokens": 1564,
+    "knowledge_tokens_estimated": 1193,
+    "violations": [
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 15,
+        "column": 13,
+        "snippet": "pool.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      },
+      {
+        "rule_id": "TP-SHUTDOWN-004",
+        "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+        "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+        "severity": "warning",
+        "line": 18,
+        "column": 13,
+        "snippet": "pool.shutdownNow();",
+        "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+      }
+    ],
+    "parse_errors": 0,
+    "checked_rules": [
+      "TP-SHUTDOWN-002",
+      "TP-SHUTDOWN-003",
+      "TP-SHUTDOWN-004"
+    ],
+    "compliance": 0.6666666666666666,
+    "compile": "ok",
+    "behavior": "passed",
+    "diagnostics": "PASS\n\n",
+    "task_completed": true
+  }
+]

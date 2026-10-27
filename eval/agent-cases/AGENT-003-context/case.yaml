@@ -1,0 +1,8 @@
+{
+  "id": "AGENT-003",
+  "title": "复用工作线程中的请求上下文",
+  "task": "实现 ContextRunner，保留 public static final ThreadLocal<String> CONTEXT 和 public static Runnable wrap(String requestId, Runnable task)。返回的 Runnable 在执行时设置请求上下文，task 可读取；无论成功或异常都必须恢复工作线程原来的值，原来无值则 remove；异常应继续传播给任务的调用者。不得改写提交线程上下文。不添加 package，仅用 JDK。",
+  "notes": [
+    "独立编写的生产场景模拟任务；不是开源项目原始代码。"
+  ]
+}

@@ -1,0 +1,109 @@
+{
+  "version": 1,
+  "config": {
+    "casesDir": "/workspace/ontology-demo/eval/agent-cases",
+    "outputDir": "/workspace/ontology-demo/.eval-cache/agent-final",
+    "model": "deepseek-chat",
+    "temperature": 0,
+    "maxTokens": 4096,
+    "tokenBudget": 1200,
+    "repetitions": 3
+  },
+  "protocol": "single-turn; no validation feedback or repair; rotating arm order; Java 21; shared system prompt",
+  "system_prompt": "You are a Java coding assistant. Return exactly one complete Java source file, without explanations. Preserve the required public API. Use Java 21 and only the standard library.",
+  "evaluator_sha256": "76486b8df78f4abe16badf8d6f332a6369a610656b592e0f039754e603fb3413",
+  "engine_sha256": "aada9f096510d20e0c064b7910f2346e41458dfbc92fadf9bce6c875a9b42e21",
+  "rag_corpus": [
+    {
+      "file": "java-thread-pool-best-practices.md",
+      "sha256": "ee317638a98fadaeb94372e17291938e9643213a5ab746442aa7b1a4e29e69c7"
+    },
+    {
+      "file": "java-thread-pool-summary.md",
+      "sha256": "d4e76cfe948b2484db0321d7231080725a9e180d27397d842965358f61420953"
+    }
+  ],
+  "rules": "832fd4335c95b8084ff3503d2afb9e70b43b135f23b38f9ff0a5237933d44b62",
+  "cases": [
+    {
+      "id": "AGENT-001",
+      "task": "实现 NotificationService implements AutoCloseable。保留无参构造、public void notifyCreated(Runnable send)、public void close()。notifyCreated 必须异步提交，远程通知失败不能传播到调用方，也不能导致后续通知停止；关闭后提交必须安全返回，close 必须等待已接受任务完成，最长 2 秒，然后强制关闭。仅使用 JDK，不添加 package。",
+      "before": "e4f651df9798e64eba7742cdd8075fc010242eab91bef81900f6538c12f77e33",
+      "contract": "014f1196346895d2f07962128bf3789e372652ee259294bdac231ead0d16c3eb",
+      "fixtures": [
+        {
+          "file": "Harness.java",
+          "sha256": "3ca871a2a6ecea452e27414ecb804ceb28725a2b068a5c2849fb88a9eee75384"
+        },
+        {
+          "file": "before.java",
+          "sha256": "e4f651df9798e64eba7742cdd8075fc010242eab91bef81900f6538c12f77e33"
+        },
+        {
+          "file": "reference.java",
+          "sha256": "236753b03045c792eb1db59a99ae227b24e09c9b9408aad7418152dafef1cf7f"
+        }
+      ]
+    },
+    {
+      "id": "AGENT-002",
+      "task": "实现 TimedQuery，保留 public static String query(ExecutorService pool, Callable<String> work, long timeoutMillis)。成功返回 work 结果；超时返回 \"timeout\" 并取消任务且允许中断；任务执行异常返回 \"failed\"；调用线程被中断时恢复中断标记并返回 \"interrupted\"。不得关闭调用方传入的线程池。不添加 package，仅用 JDK。",
+      "before": "e98648bcb23481cf938ce41de89eeacf49c4b4da901de85f60c491658f91bf0f",
+      "contract": "ad29a6810b78925e2845b710a35fb3b5688d67ee1ffbe8a7c52ecdc7bf1a2ebc",
+      "fixtures": [
+        {
+          "file": "Harness.java",
+          "sha256": "de0fd434d1fd55ab6b797eaefa9f59bca4e91901d8ae52e1c33db36c183d3b27"
+        },
+        {
+          "file": "before.java",
+          "sha256": "e98648bcb23481cf938ce41de89eeacf49c4b4da901de85f60c491658f91bf0f"
+        },
+        {
+          "file": "reference.java",
+          "sha256": "2054fbe6dc204e0c8cd0fc362bb8013779cc4cc5747a5980d6ae2f42e6f06ad2"
+        }
+      ]
+    },
+    {
+      "id": "AGENT-003",
+      "task": "实现 ContextRunner，保留 public static final ThreadLocal<String> CONTEXT 和 public static Runnable wrap(String requestId, Runnable task)。返回的 Runnable 在执行时设置请求上下文，task 可读取；无论成功或异常都必须恢复工作线程原来的值，原来无值则 remove；异常应继续传播给任务的调用者。不得改写提交线程上下文。不添加 package，仅用 JDK。",
+      "before": "857b65c1fdfcec5745da61cf885f9f158e1d0634b17e5097d9f1d0ae3c4fdc0e",
+      "contract": "edd511567f54a4d893451d40d97a744052f643e2f24677f34415f89c0c650e73",
+      "fixtures": [
+        {
+          "file": "Harness.java",
+          "sha256": "259a2768dd36f2dacad016dd9fde38d13c53373805e6eec2b7b779465ac0d219"
+        },
+        {
+          "file": "before.java",
+          "sha256": "857b65c1fdfcec5745da61cf885f9f158e1d0634b17e5097d9f1d0ae3c4fdc0e"
+        },
+        {
+          "file": "reference.java",
+          "sha256": "0e15bab87232aa62f42eacfefb3875ec430878aadbc69d79100dcbc7aa7d3865"
+        }
+      ]
+    },
+    {
+      "id": "AGENT-004",
+      "task": "实现 PoolShutdown，保留 public static boolean stop(ExecutorService pool, long timeoutMillis)。先 shutdown 并最多等待 timeoutMillis；若正常终止返回 true，超时则 shutdownNow 并返回 false；被中断则 shutdownNow、恢复中断标记并返回 false。不添加 package，仅用 JDK。",
+      "before": "b3d3424da5126d683abb5080107544caf5c33496626fdcebe872bdd1432047f3",
+      "contract": "1bc665254365fa5e980e5bf3a92da3e249276683b06128394649a2426174a1bb",
+      "fixtures": [
+        {
+          "file": "Harness.java",
+          "sha256": "a339f801772668a9263c9efd97905a2e3c9ab6e83ef35b5feefca8ad1cf3bbb9"
+        },
+        {
+          "file": "before.java",
+          "sha256": "b3d3424da5126d683abb5080107544caf5c33496626fdcebe872bdd1432047f3"
+        },
+        {
+          "file": "reference.java",
+          "sha256": "9b9c769131d307eb88fb39632ac1733e632807193170a7dbf152a65a33133c05"
+        }
+      ]
+    }
+  ]
+}

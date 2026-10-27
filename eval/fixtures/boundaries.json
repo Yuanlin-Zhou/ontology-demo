@@ -1,0 +1,76 @@
+[
+  {
+    "id": "queue-unbounded",
+    "rule": "TP-CONFIG-004",
+    "violation": true,
+    "code": "import java.util.concurrent.*; class Boundary { ThreadPoolExecutor pool = new ThreadPoolExecutor(2, 4, 30L, TimeUnit.SECONDS, new LinkedBlockingQueue<>()); }",
+    "reason": "无参 LinkedBlockingQueue 无界"
+  },
+  {
+    "id": "queue-one",
+    "rule": "TP-CONFIG-004",
+    "violation": false,
+    "code": "import java.util.concurrent.*; class Boundary { ThreadPoolExecutor pool = new ThreadPoolExecutor(2, 4, 30L, TimeUnit.SECONDS, new ArrayBlockingQueue<>(1)); }",
+    "reason": "容量 1 是合法边界"
+  },
+  {
+    "id": "queue-underscored-max",
+    "rule": "TP-CONFIG-005",
+    "violation": true,
+    "code": "import java.util.concurrent.*; class Boundary { ThreadPoolExecutor pool = new ThreadPoolExecutor(2, 4, 30L, TimeUnit.SECONDS, new ArrayBlockingQueue<>(1_000_000)); }",
+    "reason": "带下划线容量仍超过上限"
+  },
+  {
+    "id": "queue-synchronous",
+    "rule": "TP-CONFIG-004",
+    "violation": false,
+    "code": "import java.util.concurrent.*; class Boundary { ThreadPoolExecutor pool = new ThreadPoolExecutor(2, 4, 30L, TimeUnit.SECONDS, new SynchronousQueue<>()); }",
+    "reason": "同步交接队列没有无界缓冲"
+  },
+  {
+    "id": "future-with-timeout",
+    "rule": "TP-SUBMIT-002",
+    "violation": false,
+    "code": "import java.util.concurrent.*; class Boundary { String read(Future<String> f) throws Exception { return f.get(1, TimeUnit.SECONDS); } }",
+    "reason": "带超时的 Future.get"
+  },
+  {
+    "id": "future-no-timeout",
+    "rule": "TP-SUBMIT-002",
+    "violation": true,
+    "code": "import java.util.concurrent.*; class Boundary { String read(Future<String> f) throws Exception { return f.get(); } }",
+    "reason": "无超时的 Future.get"
+  },
+  {
+    "id": "threadlocal-finally",
+    "rule": "TP-SUBMIT-004",
+    "violation": false,
+    "code": "class Boundary { ThreadLocal<String> context = new ThreadLocal<>(); void run() { try { context.set(\"id\"); } finally { context.remove(); } } }",
+    "reason": "finally 清理异常路径"
+  },
+  {
+    "id": "threadlocal-leak",
+    "rule": "TP-SUBMIT-004",
+    "violation": true,
+    "code": "class Boundary { ThreadLocal<String> context = new ThreadLocal<>(); void run() { context.set(\"id\"); } }",
+    "reason": "复用线程上下文泄漏"
+  },
+  {
+    "id": "cross-file-cleanup",
+    "rule": "TP-SUBMIT-004",
+    "violation": false,
+    "code": "class Boundary { static final ThreadLocal<String> context = new ThreadLocal<>(); void run() { try { context.set(\"id\"); } finally { Cleanup.clear(); } } }",
+    "support": "class Cleanup { static void clear() { Boundary.context.remove(); } }",
+    "reason": "跨文件 helper 实际清理，但当前分析器无法追踪",
+    "known_limitation": true
+  },
+  {
+    "id": "cross-file-field-queue",
+    "rule": "TP-CONFIG-004",
+    "violation": true,
+    "code": "import java.util.concurrent.*; class Boundary { ThreadPoolExecutor pool = new ThreadPoolExecutor(2, 4, 30L, TimeUnit.SECONDS, QueueFactory.queue()); }",
+    "support": "import java.util.concurrent.*; class QueueFactory { static BlockingQueue<Runnable> queue() { return new LinkedBlockingQueue<>(); } }",
+    "reason": "跨文件工厂返回无界队列，需要跨文件返回值推导",
+    "known_limitation": true
+  }
+]

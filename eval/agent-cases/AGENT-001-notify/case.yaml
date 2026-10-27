@@ -1,0 +1,8 @@
+{
+  "id": "AGENT-001",
+  "title": "订单异步通知",
+  "task": "实现 NotificationService implements AutoCloseable。保留无参构造、public void notifyCreated(Runnable send)、public void close()。notifyCreated 必须异步提交，远程通知失败不能传播到调用方，也不能导致后续通知停止；关闭后提交必须安全返回，close 必须等待已接受任务完成，最长 2 秒，然后强制关闭。仅使用 JDK，不添加 package。",
+  "notes": [
+    "独立编写的生产场景模拟任务；不是开源项目原始代码。"
+  ]
+}

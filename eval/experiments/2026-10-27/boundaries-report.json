@@ -1,0 +1,112 @@
+{
+  "results": [
+    {
+      "id": "queue-unbounded",
+      "rule": "TP-CONFIG-004",
+      "expected": true,
+      "detected": true,
+      "correct": true,
+      "known_limitation": false,
+      "reason": "无参 LinkedBlockingQueue 无界"
+    },
+    {
+      "id": "queue-one",
+      "rule": "TP-CONFIG-004",
+      "expected": false,
+      "detected": false,
+      "correct": true,
+      "known_limitation": false,
+      "reason": "容量 1 是合法边界"
+    },
+    {
+      "id": "queue-underscored-max",
+      "rule": "TP-CONFIG-005",
+      "expected": true,
+      "detected": true,
+      "correct": true,
+      "known_limitation": false,
+      "reason": "带下划线容量仍超过上限"
+    },
+    {
+      "id": "queue-synchronous",
+      "rule": "TP-CONFIG-004",
+      "expected": false,
+      "detected": false,
+      "correct": true,
+      "known_limitation": false,
+      "reason": "同步交接队列没有无界缓冲"
+    },
+    {
+      "id": "future-with-timeout",
+      "rule": "TP-SUBMIT-002",
+      "expected": false,
+      "detected": false,
+      "correct": true,
+      "known_limitation": false,
+      "reason": "带超时的 Future.get"
+    },
+    {
+      "id": "future-no-timeout",
+      "rule": "TP-SUBMIT-002",
+      "expected": true,
+      "detected": true,
+      "correct": true,
+      "known_limitation": false,
+      "reason": "无超时的 Future.get"
+    },
+    {
+      "id": "threadlocal-finally",
+      "rule": "TP-SUBMIT-004",
+      "expected": false,
+      "detected": false,
+      "correct": true,
+      "known_limitation": false,
+      "reason": "finally 清理异常路径"
+    },
+    {
+      "id": "threadlocal-leak",
+      "rule": "TP-SUBMIT-004",
+      "expected": true,
+      "detected": true,
+      "correct": true,
+      "known_limitation": false,
+      "reason": "复用线程上下文泄漏"
+    },
+    {
+      "id": "cross-file-cleanup",
+      "rule": "TP-SUBMIT-004",
+      "expected": false,
+      "detected": true,
+      "correct": false,
+      "known_limitation": true,
+      "reason": "跨文件 helper 实际清理，但当前分析器无法追踪"
+    },
+    {
+      "id": "cross-file-field-queue",
+      "rule": "TP-CONFIG-004",
+      "expected": true,
+      "detected": false,
+      "correct": false,
+      "known_limitation": true,
+      "reason": "跨文件工厂返回无界队列，需要跨文件返回值推导"
+    }
+  ],
+  "realWorld": {
+    "source": "Apache Commons Lang 3.17.0 BasicThreadFactory",
+    "parse_errors": 0,
+    "features": [
+      "THREAD_POOL.EXCEPTION.UNCAUGHT_HANDLER",
+      "THREAD_POOL.THREAD_FACTORY.CUSTOM_IMPL"
+    ],
+    "violations": []
+  },
+  "metrics": {
+    "tp": 4,
+    "fp": 1,
+    "fn": 1,
+    "tn": 4,
+    "precision": 0.8,
+    "recall": 0.8,
+    "false_positive_rate": 0.2
+  }
+}
