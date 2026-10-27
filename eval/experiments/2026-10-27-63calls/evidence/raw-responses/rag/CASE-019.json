@@ -1,0 +1,28 @@
+{
+  "id": "72ca9c3e-b4b0-4f0d-ac8b-128d095bd7d5",
+  "object": "chat.completion",
+  "created": 1793087517,
+  "model": "deepseek-flash",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```java\npackage com.example.order.domain;\n\nimport java.math.BigDecimal;\nimport java.util.List;\n\n/** before.java: 负样本 —— 纯业务计算代码，没有任何并发语义。 */\npublic class OrderAmountCalculator {\n\n    private static final BigDecimal VIP_DISCOUNT = new BigDecimal(\"0.95\");\n\n    public BigDecimal total(List<OrderItem> items, boolean vip) {\n        BigDecimal total = BigDecimal.ZERO;\n        for (OrderItem item : items) {\n            total = total.add(item.price().multiply(BigDecimal.valueOf(item.quantity())));\n        }\n        return vip ? total.multiply(VIP_DISCOUNT) : total;\n    }\n\n    public record OrderItem(String sku, BigDecimal price, int quantity) {\n    }\n}\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1322,
+    "completion_tokens": 155,
+    "total_tokens": 1477,
+    "prompt_tokens_details": {
+      "cached_tokens": 1152
+    },
+    "prompt_cache_hit_tokens": 1152,
+    "prompt_cache_miss_tokens": 170
+  },
+  "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501"
+}

@@ -1,0 +1,28 @@
+{
+  "id": "5027be40-bbd0-4640-9f11-b157845be078",
+  "object": "chat.completion",
+  "created": 1793087343,
+  "model": "deepseek-flash",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```java\npackage com.example.report.service;\n\nimport java.util.concurrent.ArrayBlockingQueue;\nimport java.util.concurrent.BlockingQueue;\nimport java.util.concurrent.RejectedExecutionException;\nimport java.util.concurrent.ThreadFactory;\nimport java.util.concurrent.ThreadPoolExecutor;\nimport java.util.concurrent.TimeUnit;\nimport java.util.concurrent.atomic.AtomicInteger;\nimport java.util.concurrent.atomic.AtomicLong;\n\nimport org.slf4j.Logger;\nimport org.slf4j.LoggerFactory;\n\n/**\n * 报表导出线程池：有界队列 + 有界线程数 + 命名线程工厂 + 关闭逻辑 + 可观测。\n */\npublic class ReportExportService {\n\n    private static final Logger log = LoggerFactory.getLogger(ReportExportService.class);\n\n    private static final int CORE_POOL_SIZE = 4;\n    private static final int MAX_POOL_SIZE = 8;\n    private static final long KEEP_ALIVE_SECONDS = 60L;\n    private static final int QUEUE_CAPACITY = 200;\n\n    private final AtomicLong rejectedCount = new AtomicLong(0L);\n\n    private final ThreadPoolExecutor exporter;\n\n    public ReportExportService() {\n        BlockingQueue<Runnable> queue = new ArrayBlockingQueue<>(QUEUE_CAPACITY);\n        ThreadFactory threadFactory = new ThreadFactory() {\n            private final AtomicInteger seq = new AtomicInteger(0);\n\n            @Override\n            public Thread newThread(Runnable r) {\n                Thread t = new Thread(r, \"report-export-\" + seq.incrementAndGet());\n                t.setDaemon(false);\n                return t;\n            }\n        };\n        this.exporter = new ThreadPoolExecutor(\n                CORE_POOL_SIZE,\n                MAX_POOL_SIZE,\n                KEEP_ALIVE_SECONDS,\n                TimeUnit.SECONDS,\n                queue,\n                threadFactory,\n                (r, executor) -> {\n                    rejectedCount.incrementAndGet();\n                    throw new RejectedExecutionException(\"report export queue is full\");\n                });\n    }\n\n    public void export(String reportId) {\n        try {\n            exporter.execute(() -> doExport(reportId));\n        } catch (RejectedExecutionException ex) {\n            log.error(\"export rejected, report={}\", reportId, ex);\n        }\n    }\n\n    private void doExport(String reportId) {\n        // 报表导出：耗时较长\n    }\n\n    public long getRejectedCount() {\n        return rejectedCount.get();\n    }\n\n    public int getQueueSize() {\n        return exporter.getQueue().size();\n    }\n\n    public int getActiveCount() {\n        return exporter.getActiveCount();\n    }\n\n    public long getCompletedTaskCount() {\n        return exporter.getCompletedTaskCount();\n    }\n\n    public long getTaskCount() {\n        return exporter.getTaskCount();\n    }\n\n    public void shutdown() {\n        exporter.shutdown();\n        try {\n            if (!exporter.awaitTermination(60L, TimeUnit.SECONDS)) {\n                exporter.shutdownNow();\n            }\n        } catch (InterruptedException ex) {\n            exporter.shutdownNow();\n            Thread.currentThread().interrupt();\n        }\n    }\n}\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1284,
+    "completion_tokens": 645,
+    "total_tokens": 1929,
+    "prompt_tokens_details": {
+      "cached_tokens": 1150
+    },
+    "prompt_cache_hit_tokens": 1150,
+    "prompt_cache_miss_tokens": 134
+  },
+  "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501"
+}

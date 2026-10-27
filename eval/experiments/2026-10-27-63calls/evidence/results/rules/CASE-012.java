@@ -1,0 +1,45 @@
+package com.example.quote.service;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
+/** QuoteService: 使用 CompletableFuture 编排远程报价，隔离到业务线程池并带超时。 */
+public class QuoteService {
+
+    private static final long TIMEOUT_SECONDS = 2L;
+
+    private final ExecutorService businessExecutor;
+
+    public QuoteService() {
+        this.businessExecutor = Executors.newFixedThreadPool(
+                Math.max(2, Runtime.getRuntime().availableProcessors()),
+                r -> {
+                    Thread t = new Thread(r, "quote-business");
+                    t.setDaemon(true);
+                    return t;
+                });
+    }
+
+    public CompletableFuture<String> quote(String orderId) {
+        CompletableFuture<String> future =
+                CompletableFuture.supplyAsync(() -> remoteQuote(orderId), businessExecutor);
+        return future.orTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                .exceptionallyCompose(ex -> {
+                    Throwable cause = ex;
+                    if (cause instanceof java.util.concurrent.CompletionException && cause.getCause() != null) {
+                        cause = cause.getCause();
+                    }
+                    if (cause instanceof TimeoutException) {
+                        return CompletableFuture.failedFuture(cause);
+                    }
+                    return CompletableFuture.failedFuture(cause);
+                });
+    }
+
+    private String remoteQuote(String orderId) {
+        return "quote-" + orderId;
+    }
+}

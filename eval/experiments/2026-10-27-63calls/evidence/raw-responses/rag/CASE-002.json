@@ -1,0 +1,28 @@
+{
+  "id": "f5bc9a57-0f14-452c-8095-a207a282ad4c",
+  "object": "chat.completion",
+  "created": 1793087332,
+  "model": "deepseek-flash",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```java\npackage com.example.order.service;\n\nimport com.example.order.domain.Order;\nimport java.util.concurrent.ExecutorService;\nimport java.util.concurrent.Executors;\nimport java.util.concurrent.Future;\nimport java.util.concurrent.ThreadFactory;\nimport java.util.concurrent.atomic.AtomicInteger;\nimport org.slf4j.Logger;\nimport org.slf4j.LoggerFactory;\n\n/**\n * OrderSyncService: 数据同步任务，使用 ThreadLocal 传递租户，并直接 get() 等待结果。\n */\npublic class OrderSyncService {\n\n    private static final Logger LOGGER = LoggerFactory.getLogger(OrderSyncService.class);\n\n    private static final ThreadLocal<String> TENANT = new ThreadLocal<>();\n\n    private final ExecutorService syncExecutor = Executors.newFixedThreadPool(8, new ThreadFactory() {\n        private final AtomicInteger counter = new AtomicInteger();\n\n        @Override\n        public Thread newThread(Runnable r) {\n            Thread t = new Thread(r, \"order-sync-\" + counter.incrementAndGet());\n            t.setUncaughtExceptionHandler((thread, ex) ->\n                    LOGGER.error(\"Uncaught exception in thread {}\", thread.getName(), ex));\n            return t;\n        }\n    });\n\n    public void syncCreated(Order order) {\n        syncExecutor.submit(() -> {\n            String previous = TENANT.get();\n            TENANT.set(order.tenantId());\n            try {\n                syncRemote(order);\n            } catch (RuntimeException ex) {\n                LOGGER.error(\"Failed to sync created order, id={}, tenantId={}\",\n                        order.id(), order.tenantId(), ex);\n                throw ex;\n            } finally {\n                if (previous == null) {\n                    TENANT.remove();\n                } else {\n                    TENANT.set(previous);\n                }\n            }\n        });\n    }\n\n    public Order reload(String id) throws Exception {\n        Future<Order> future = syncExecutor.submit(() -> query(id));\n        try {\n            return future.get();\n        } catch (Exception ex) {\n            LOGGER.error(\"Failed to reload order, id={}\", id, ex);\n            throw ex;\n        }\n    }\n\n    private void syncRemote(Order order) {\n        // remote call\n    }\n\n    private Order query(String id) {\n        return null;\n    }\n}\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1332,
+    "completion_tokens": 466,
+    "total_tokens": 1798,
+    "prompt_tokens_details": {
+      "cached_tokens": 1152
+    },
+    "prompt_cache_hit_tokens": 1152,
+    "prompt_cache_miss_tokens": 180
+  },
+  "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501"
+}

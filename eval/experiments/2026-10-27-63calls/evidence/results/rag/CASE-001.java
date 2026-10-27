@@ -1,0 +1,70 @@
+package com.example.order.service;
+
+import com.example.order.domain.Order;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * OrderAsyncService: 订单创建后的异步通知。
+ *
+ * 使用有界队列 + 显式拒绝策略的 ThreadPoolExecutor，避免无界队列导致的 OOM；
+ * 通知失败（异常或拒绝）不影响下单主流程。
+ */
+public class OrderAsyncService {
+
+    private static final Logger log = LoggerFactory.getLogger(OrderAsyncService.class);
+
+    private static final int CORE_POOL_SIZE = 8;
+    private static final int MAX_POOL_SIZE = 16;
+    private static final int QUEUE_CAPACITY = 200;
+    private static final long KEEP_ALIVE_SECONDS = 60L;
+
+    private final ExecutorService notifier;
+
+    public OrderAsyncService() {
+        AtomicInteger threadIndex = new AtomicInteger(0);
+        this.notifier = new ThreadPoolExecutor(
+                CORE_POOL_SIZE,
+                MAX_POOL_SIZE,
+                KEEP_ALIVE_SECONDS,
+                TimeUnit.SECONDS,
+                new ArrayBlockingQueue<>(QUEUE_CAPACITY),
+                r -> {
+                    Thread t = new Thread(r, "order-notifier-" + threadIndex.incrementAndGet());
+                    t.setDaemon(true);
+                    return t;
+                },
+                // 队列满时由调用线程执行，形成背压；但通知失败不能影响主流程，
+                // 因此这里改为丢弃并记录日志，避免阻塞下单主流程。
+                (r, executor) -> log.warn("Order notification rejected: queue full, task dropped"));
+    }
+
+    public void notifyCreated(Order order) {
+        if (order == null) {
+            return;
+        }
+        try {
+            notifier.execute(() -> {
+                try {
+                    sendRemote(order);
+                } catch (Throwable t) {
+                    log.warn("Order notification failed for order id={}, tenantId={}",
+                            order.id(), order.tenantId(), t);
+                }
+            });
+        } catch (Throwable t) {
+            // 提交阶段异常（如线程池已关闭）也不能影响下单主流程
+            log.warn("Failed to submit order notification for order id={}, tenantId={}",
+                    order.id(), order.tenantId(), t);
+        }
+    }
+
+    private void sendRemote(Order order) {
+        // remote call to the notification platform
+    }
+}

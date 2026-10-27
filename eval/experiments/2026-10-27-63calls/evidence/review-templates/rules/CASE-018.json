@@ -1,0 +1,16 @@
+{
+  "source_sha256": "",
+  "reviewer": "",
+  "criteria": [
+    {
+      "criterion": "结算执行与重试调度使用独立线程池",
+      "passed": null,
+      "evidence": ""
+    },
+    {
+      "criterion": "两个线程池都有监控和关闭流程",
+      "passed": null,
+      "evidence": ""
+    }
+  ]
+}

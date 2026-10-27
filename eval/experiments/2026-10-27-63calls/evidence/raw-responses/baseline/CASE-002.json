@@ -1,0 +1,28 @@
+{
+  "id": "b5d45531-8da8-43af-a548-a9a46d3af972",
+  "object": "chat.completion",
+  "created": 1793087330,
+  "model": "deepseek-flash",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```java\npackage com.example.order.service;\n\nimport com.example.order.domain.Order;\nimport java.util.concurrent.ExecutorService;\nimport java.util.concurrent.Executors;\nimport java.util.concurrent.Future;\nimport org.slf4j.Logger;\nimport org.slf4j.LoggerFactory;\n\n/**\n * OrderSyncService: 数据同步任务，使用 ThreadLocal 传递租户，并直接 get() 等待结果。\n */\npublic class OrderSyncService {\n\n    private static final Logger LOGGER = LoggerFactory.getLogger(OrderSyncService.class);\n\n    private static final ThreadLocal<String> TENANT = new ThreadLocal<>();\n\n    private final ExecutorService syncExecutor = Executors.newFixedThreadPool(8);\n\n    public void syncCreated(Order order) {\n        syncExecutor.submit(() -> {\n            try {\n                TENANT.set(order.tenantId());\n                syncRemote(order);\n            } catch (RuntimeException e) {\n                LOGGER.error(\"Failed to sync created order: id={}, tenantId={}\",\n                        order.id(), order.tenantId(), e);\n                throw e;\n            } finally {\n                TENANT.remove();\n            }\n        });\n    }\n\n    public Order reload(String id) throws Exception {\n        Future<Order> future = syncExecutor.submit(() -> query(id));\n        try {\n            return future.get();\n        } catch (java.util.concurrent.ExecutionException e) {\n            Throwable cause = e.getCause();\n            if (cause instanceof Exception ex) {\n                throw ex;\n            }\n            if (cause instanceof Error err) {\n                throw err;\n            }\n            throw e;\n        }\n    }\n\n    private void syncRemote(Order order) {\n        // remote call\n    }\n\n    private Order query(String id) {\n        return null;\n    }\n}\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 607,
+    "completion_tokens": 358,
+    "total_tokens": 965,
+    "prompt_tokens_details": {
+      "cached_tokens": 384
+    },
+    "prompt_cache_hit_tokens": 384,
+    "prompt_cache_miss_tokens": 223
+  },
+  "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501"
+}

@@ -1,0 +1,176 @@
+package com.example.urgent.service;
+
+import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Consumer;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * 紧急任务优先队列调度器。
+ *
+ * <p>优先级数值越大越优先；同级按提交顺序 FIFO。队列有界，满载时原子地淘汰
+ * “最低优先级中最旧且优先级不高于新任务”的排队任务，再接收新任务；若所有排队
+ * 任务都更重要，则抛出 {@link RejectedExecutionException}，不淘汰它们。</p>
+ */
+public class UrgentTaskDispatcher {
+
+    private static final Logger log = LoggerFactory.getLogger(UrgentTaskDispatcher.class);
+
+    private static final int DEFAULT_PRIORITY = 0;
+
+    private final Consumer<String> handler;
+
+    private final ThreadPoolExecutor dispatcher;
+
+    public UrgentTaskDispatcher() {
+        this(taskId -> { });
+    }
+
+    public UrgentTaskDispatcher(Consumer<String> handler) {
+        if (handler == null) {
+            throw new IllegalArgumentException("handler must not be null");
+        }
+        this.handler = handler;
+        // 固定 core=max，避免队列满时扩容非核心线程绕过严格准入控制。
+        this.dispatcher = new ThreadPoolExecutor(
+                4,
+                4,
+                60L,
+                TimeUnit.SECONDS,
+                new PriorityBlockingQueue<>(200),
+                namedFactory("urgent-task"),
+                new StrictAdmissionPolicy());
+    }
+
+    public void dispatch(String taskId) {
+        dispatch(taskId, DEFAULT_PRIORITY);
+    }
+
+    public void dispatch(String taskId, int priority) {
+        if (taskId == null) {
+            throw new IllegalArgumentException("taskId must not be null");
+        }
+        dispatcher.execute(new UrgentTask(taskId, priority));
+    }
+
+    private static java.util.concurrent.ThreadFactory namedFactory(String prefix) {
+        AtomicInteger sequence = new AtomicInteger();
+        return task -> {
+            Thread thread = new Thread(task);
+            thread.setName(prefix + "-" + sequence.incrementAndGet());
+            thread.setDaemon(false);
+            return thread;
+        };
+    }
+
+    private final class UrgentTask implements Runnable, Comparable<UrgentTask> {
+
+        private static final AtomicLong SEQUENCE = new AtomicLong();
+
+        private final String taskId;
+        private final int priority;
+        private final long sequence;
+
+        UrgentTask(String taskId, int priority) {
+            this.taskId = taskId;
+            this.priority = priority;
+            this.sequence = SEQUENCE.getAndIncrement();
+        }
+
+        @Override
+        public void run() {
+            try {
+                handler.accept(taskId);
+            } catch (RuntimeException e) {
+                log.error("urgent task failed, taskId={}, priority={}", taskId, priority, e);
+                throw e;
+            }
+        }
+
+        @Override
+        public int compareTo(UrgentTask other) {
+            int cmp = Integer.compare(other.priority, this.priority);
+            if (cmp != 0) {
+                return cmp;
+            }
+            return Long.compare(this.sequence, other.sequence);
+        }
+
+        @Override
+        public String toString() {
+            return "UrgentTask{taskId='" + taskId + "', priority=" + priority + ", sequence=" + sequence + '}';
+        }
+    }
+
+    /**
+     * 严格准入拒绝策略：队列满时，原子地淘汰“最低优先级中最旧且优先级不高于新任务”
+     * 的排队任务，再接收新任务；若所有排队任务都更重要，则抛出 RejectedExecutionException。
+     */
+    private final class StrictAdmissionPolicy implements java.util.concurrent.RejectedExecutionHandler {
+
+        @Override
+        public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
+            if (executor.isShutdown()) {
+                throw new RejectedExecutionException("dispatcher is shutdown");
+            }
+            if (!(r instanceof UrgentTask)) {
+                throw new RejectedExecutionException("unexpected task type: " + r);
+            }
+            UrgentTask incoming = (UrgentTask) r;
+            PriorityBlockingQueue<Runnable> queue = queueOf(executor);
+            if (queue == null) {
+                throw new RejectedExecutionException("queue is not a PriorityBlockingQueue");
+            }
+
+            UrgentTask victim = null;
+            synchronized (queue) {
+                for (Runnable queued : queue) {
+                    if (!(queued instanceof UrgentTask)) {
+                        continue;
+                    }
+                    UrgentTask candidate = (UrgentTask) queued;
+                    if (candidate.priority > incoming.priority) {
+                        continue;
+                    }
+                    if (victim == null || candidate.compareTo(victim) > 0) {
+                        victim = candidate;
+                    }
+                }
+                if (victim != null) {
+                    queue.remove(victim);
+                }
+            }
+
+            if (victim == null) {
+                log.warn("reject urgent task, all queued tasks are more important, taskId={}, priority={}",
+                        incoming.taskId, incoming.priority);
+                throw new RejectedExecutionException(
+                        "all queued tasks are more important than incoming task: " + incoming);
+            }
+
+            log.warn("evict oldest low-priority task to admit urgent task, evicted={}, incoming={}",
+                    victim, incoming);
+
+            if (!executor.isShutdown()) {
+                executor.execute(incoming);
+            } else {
+                throw new RejectedExecutionException("dispatcher is shutdown");
+            }
+        }
+
+        @SuppressWarnings("unchecked")
+        private PriorityBlockingQueue<Runnable> queueOf(ThreadPoolExecutor executor) {
+            java.util.concurrent.BlockingQueue<Runnable> q = executor.getQueue();
+            if (q instanceof PriorityBlockingQueue) {
+                return (PriorityBlockingQueue<Runnable>) q;
+            }
+            return null;
+        }
+    }
+}

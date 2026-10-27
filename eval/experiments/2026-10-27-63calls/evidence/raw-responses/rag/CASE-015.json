@@ -1,0 +1,28 @@
+{
+  "id": "3333937c-366f-4c79-b67d-e57c2299465f",
+  "object": "chat.completion",
+  "created": 1793087468,
+  "model": "deepseek-flash",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```java\npackage com.example.audit.service;\n\nimport jakarta.annotation.PreDestroy;\nimport java.util.Collection;\nimport java.util.concurrent.ArrayBlockingQueue;\nimport java.util.concurrent.ConcurrentLinkedQueue;\nimport java.util.concurrent.ThreadFactory;\nimport java.util.concurrent.ThreadPoolExecutor;\nimport java.util.concurrent.TimeUnit;\nimport java.util.concurrent.atomic.AtomicInteger;\nimport org.slf4j.Logger;\nimport org.slf4j.LoggerFactory;\n\n/** before.java: shutdownNow() 返回的未执行任务被丢弃。 */\npublic class AuditWriteService {\n\n    private static final Logger log = LoggerFactory.getLogger(AuditWriteService.class);\n\n    /** 强制关闭时未执行的任务转交此补偿通道，避免审计任务丢失。 */\n    private final Collection<Runnable> fallbackQueue = new ConcurrentLinkedQueue<>();\n\n    private final ThreadPoolExecutor auditExecutor = new ThreadPoolExecutor(\n            4, 8, 60L, TimeUnit.SECONDS,\n            new ArrayBlockingQueue<>(200),\n            namedFactory(\"audit-write\"),\n            new ThreadPoolExecutor.CallerRunsPolicy());\n\n    /** 队列积压与活跃线程数，用于监控告警。 */\n    public String stats() {\n        return auditExecutor.getActiveCount() + \"/\" + auditExecutor.getQueue().size();\n    }\n\n    @PreDestroy\n    public void stop() {\n        auditExecutor.shutdown();\n        try {\n            if (!auditExecutor.awaitTermination(30, TimeUnit.SECONDS)) {\n                transferToFallback(auditExecutor.shutdownNow());\n                log.warn(\"audit executor did not terminate in time\");\n            }\n        } catch (InterruptedException ex) {\n            transferToFallback(auditExecutor.shutdownNow());\n            Thread.currentThread().interrupt();\n        }\n    }\n\n    private void transferToFallback(Collection<Runnable> pending) {\n        if (pending != null && !pending.isEmpty()) {\n            fallbackQueue.addAll(pending);\n        }\n    }\n\n    private static ThreadFactory namedFactory(String prefix) {\n        AtomicInteger sequence = new AtomicInteger();\n        return task -> {\n            Thread thread = new Thread(task);\n            thread.setName(prefix + \"-\" + sequence.incrementAndGet());\n            return thread;\n        };\n    }\n}\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1586,
+    "completion_tokens": 473,
+    "total_tokens": 2059,
+    "prompt_tokens_details": {
+      "cached_tokens": 1408
+    },
+    "prompt_cache_hit_tokens": 1408,
+    "prompt_cache_miss_tokens": 178
+  },
+  "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501"
+}

@@ -1,0 +1,28 @@
+{
+  "id": "1f94bc8a-179e-4a13-913a-ea5f60b5cd6e",
+  "object": "chat.completion",
+  "created": 1793087370,
+  "model": "deepseek-flash",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```java\npackage com.example.batch.service;\n\nimport java.util.concurrent.ArrayBlockingQueue;\nimport java.util.concurrent.RejectedExecutionException;\nimport java.util.concurrent.ThreadPoolExecutor;\nimport java.util.concurrent.TimeUnit;\nimport java.util.concurrent.atomic.AtomicInteger;\nimport java.util.concurrent.atomic.AtomicLong;\n\nimport org.slf4j.Logger;\nimport org.slf4j.LoggerFactory;\n\n/**\n * 批量任务线程池：高峰可扩容，空闲可回收超出核心数的线程。\n */\npublic class BatchJobRunner {\n\n    private static final Logger log = LoggerFactory.getLogger(BatchJobRunner.class);\n\n    private static final int CORE_POOL_SIZE = 4;\n    private static final int MAX_POOL_SIZE = 8;\n    private static final long KEEP_ALIVE_SECONDS = 60L;\n    private static final int QUEUE_CAPACITY = 100;\n\n    private final AtomicLong rejectedCount = new AtomicLong();\n\n    private final ThreadPoolExecutor batchExecutor = new ThreadPoolExecutor(\n            CORE_POOL_SIZE,\n            MAX_POOL_SIZE,\n            KEEP_ALIVE_SECONDS,\n            TimeUnit.SECONDS,\n            new ArrayBlockingQueue<>(QUEUE_CAPACITY),\n            namedFactory(\"batch-job\"),\n            (r, executor) -> {\n                rejectedCount.incrementAndGet();\n                throw new RejectedExecutionException(\"batch job rejected\");\n            });\n\n    public void run(String jobId) {\n        try {\n            batchExecutor.execute(() -> execute(jobId));\n        } catch (RejectedExecutionException ex) {\n            log.error(\"batch job rejected, job={}\", jobId, ex);\n        }\n    }\n\n    /**\n     * 可观测指标快照，供监控采集。\n     */\n    public BatchExecutorMetrics metrics() {\n        return new BatchExecutorMetrics(\n                batchExecutor.getQueue().size(),\n                batchExecutor.getActiveCount(),\n                batchExecutor.getCompletedTaskCount(),\n                batchExecutor.getTaskCount(),\n                rejectedCount.get());\n    }\n\n    public void shutdown() {\n        batchExecutor.shutdown();\n        try {\n            if (!batchExecutor.awaitTermination(30, TimeUnit.SECONDS)) {\n                batchExecutor.shutdownNow();\n            }\n        } catch (InterruptedException ex) {\n            batchExecutor.shutdownNow();\n            Thread.currentThread().interrupt();\n        }\n    }\n\n    private static java.util.concurrent.ThreadFactory namedFactory(String prefix) {\n        AtomicInteger sequence = new AtomicInteger();\n        return task -> {\n            Thread thread = new Thread(task);\n            thread.setName(prefix + \"-\" + sequence.incrementAndGet());\n            return thread;\n        };\n    }\n\n    private void execute(String jobId) {\n        // 业务执行逻辑由具体任务实现提供\n    }\n\n    public record BatchExecutorMetrics(\n            int queueSize,\n            int activeCount,\n            long completedTaskCount,\n            long taskCount,\n            long rejectedCount) {\n    }\n}\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1373,
+    "completion_tokens": 602,
+    "total_tokens": 1975,
+    "prompt_tokens_details": {
+      "cached_tokens": 1152
+    },
+    "prompt_cache_hit_tokens": 1152,
+    "prompt_cache_miss_tokens": 221
+  },
+  "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501"
+}

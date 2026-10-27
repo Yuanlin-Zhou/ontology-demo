@@ -1,0 +1,23 @@
+```java
+package com.example.order.domain;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+/** before.java: 负样本 —— 纯业务计算代码，没有任何并发语义。 */
+public class OrderAmountCalculator {
+
+    private static final BigDecimal VIP_DISCOUNT = new BigDecimal("0.95");
+
+    public BigDecimal total(List<OrderItem> items, boolean vip) {
+        BigDecimal total = BigDecimal.ZERO;
+        for (OrderItem item : items) {
+            total = total.add(item.price().multiply(BigDecimal.valueOf(item.quantity())));
+        }
+        return vip ? total.multiply(VIP_DISCOUNT) : total;
+    }
+
+    public record OrderItem(String sku, BigDecimal price, int quantity) {
+    }
+}
+```

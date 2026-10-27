@@ -1,0 +1,28 @@
+{
+  "id": "b3c58494-80da-4698-bf52-3bd27a620ebb",
+  "object": "chat.completion",
+  "created": 1793087445,
+  "model": "deepseek-flash",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```java\npackage com.example.quote.service;\n\nimport java.util.concurrent.CompletableFuture;\nimport java.util.concurrent.ExecutorService;\nimport java.util.concurrent.Executors;\nimport java.util.concurrent.TimeUnit;\nimport java.util.concurrent.TimeoutException;\n\n/** QuoteService: 使用 CompletableFuture 编排远程报价，隔离到业务线程池并带超时。 */\npublic class QuoteService {\n\n    private static final long TIMEOUT_SECONDS = 2L;\n\n    private final ExecutorService businessExecutor;\n\n    public QuoteService() {\n        this.businessExecutor = Executors.newFixedThreadPool(\n                Math.max(2, Runtime.getRuntime().availableProcessors()),\n                r -> {\n                    Thread t = new Thread(r, \"quote-business\");\n                    t.setDaemon(true);\n                    return t;\n                });\n    }\n\n    public CompletableFuture<String> quote(String orderId) {\n        CompletableFuture<String> future =\n                CompletableFuture.supplyAsync(() -> remoteQuote(orderId), businessExecutor);\n        return future.orTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS)\n                .exceptionallyCompose(ex -> {\n                    Throwable cause = ex;\n                    if (cause instanceof java.util.concurrent.CompletionException && cause.getCause() != null) {\n                        cause = cause.getCause();\n                    }\n                    if (cause instanceof TimeoutException) {\n                        return CompletableFuture.failedFuture(cause);\n                    }\n                    return CompletableFuture.failedFuture(cause);\n                });\n    }\n\n    private String remoteQuote(String orderId) {\n        return \"quote-\" + orderId;\n    }\n}\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 590,
+    "completion_tokens": 331,
+    "total_tokens": 921,
+    "prompt_tokens_details": {
+      "cached_tokens": 384
+    },
+    "prompt_cache_hit_tokens": 384,
+    "prompt_cache_miss_tokens": 206
+  },
+  "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501"
+}

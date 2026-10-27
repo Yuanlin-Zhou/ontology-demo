@@ -1,0 +1,102 @@
+```java
+package com.example.order.service;
+
+import com.example.order.domain.Order;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Future;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * OrderSyncService: 数据同步任务，使用 ThreadLocal 传递租户，并直接 get() 等待结果。
+ */
+public class OrderSyncService {
+
+    private static final Logger log = LoggerFactory.getLogger(OrderSyncService.class);
+
+    private static final ThreadLocal<String> TENANT = new ThreadLocal<>();
+
+    private static final int CORE_POOL_SIZE = 8;
+    private static final int MAX_POOL_SIZE = 8;
+    private static final long KEEP_ALIVE_SECONDS = 60L;
+    private static final int QUEUE_CAPACITY = 256;
+
+    private final ThreadPoolExecutor syncExecutor;
+
+    public OrderSyncService() {
+        BlockingQueue<Runnable> queue = new ArrayBlockingQueue<>(QUEUE_CAPACITY);
+        ThreadFactory threadFactory = new ThreadFactory() {
+            private final AtomicInteger seq = new AtomicInteger(0);
+
+            @Override
+            public Thread newThread(Runnable r) {
+                Thread t = new Thread(r, "order-sync-" + seq.incrementAndGet());
+                t.setDaemon(false);
+                return t;
+            }
+        };
+        this.syncExecutor = new ThreadPoolExecutor(
+                CORE_POOL_SIZE,
+                MAX_POOL_SIZE,
+                KEEP_ALIVE_SECONDS,
+                TimeUnit.SECONDS,
+                queue,
+                threadFactory,
+                new ThreadPoolExecutor.AbortPolicy());
+    }
+
+    public void syncCreated(Order order) {
+        try {
+            syncExecutor.execute(() -> {
+                try {
+                    TENANT.set(order.tenantId());
+                    syncRemote(order);
+                } finally {
+                    TENANT.remove();
+                }
+            });
+        } catch (RejectedExecutionException e) {
+            log.error("syncCreated rejected, orderId={}, tenantId={}",
+                    order.id(), order.tenantId(), e);
+            throw e;
+        }
+    }
+
+    public Order reload(String id) throws Exception {
+        Future<Order> future;
+        try {
+            future = syncExecutor.submit(() -> query(id));
+        } catch (RejectedExecutionException e) {
+            log.error("reload rejected, orderId={}", id, e);
+            throw e;
+        }
+        return future.get();
+    }
+
+    public void shutdown() {
+        syncExecutor.shutdown();
+        try {
+            if (!syncExecutor.awaitTermination(30, TimeUnit.SECONDS)) {
+                syncExecutor.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            syncExecutor.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    private void syncRemote(Order order) {
+        // remote call
+    }
+
+    private Order query(String id) {
+        return null;
+    }
+}
+```

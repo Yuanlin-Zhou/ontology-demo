@@ -1,0 +1,16 @@
+{
+  "source_sha256": "b83a45747e76f03292ba7dff8d70eeecedd184bafdab881221214be3e9908c9a",
+  "reviewer": "Codex Agent source review (not human), frozen checklist scope, 2026-10-27",
+  "criteria": [
+    {
+      "criterion": "异步返回正确报价",
+      "passed": true,
+      "evidence": "quote returns a CompletableFuture with remoteQuote(orderId) yielding quote- plus orderId, preserving the declared PoC return contract. No claim of an actual remote pricing platform."
+    },
+    {
+      "criterion": "阻塞下游在业务线程池运行且等待有超时",
+      "passed": true,
+      "evidence": "supplyAsync explicitly receives businessExecutor/quoteExecutor; orTimeout bounds the returned future to 2 seconds. This does not prove cancellation of underlying I/O, which is outside these two frozen criteria."
+    }
+  ]
+}

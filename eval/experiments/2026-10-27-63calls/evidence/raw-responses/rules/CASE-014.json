@@ -1,0 +1,28 @@
+{
+  "id": "fb7633bd-c0e8-4fc6-9af8-01535d814f1c",
+  "object": "chat.completion",
+  "created": 1793087462,
+  "model": "deepseek-flash",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```java\npackage com.example.risk.service;\n\nimport jakarta.annotation.PreDestroy;\nimport java.util.List;\nimport java.util.concurrent.ArrayBlockingQueue;\nimport java.util.concurrent.RejectedExecutionException;\nimport java.util.concurrent.ThreadFactory;\nimport java.util.concurrent.ThreadPoolExecutor;\nimport java.util.concurrent.TimeUnit;\nimport java.util.concurrent.atomic.AtomicInteger;\nimport org.slf4j.Logger;\nimport org.slf4j.LoggerFactory;\n\n/** 风控评估服务：应用关闭时正确响应中断并恢复中断状态。 */\npublic class RiskEvaluateService {\n\n    private static final Logger log = LoggerFactory.getLogger(RiskEvaluateService.class);\n\n    private final ThreadPoolExecutor riskExecutor = new ThreadPoolExecutor(\n            8, 16, 60L, TimeUnit.SECONDS,\n            new ArrayBlockingQueue<>(300),\n            namedFactory(\"risk-eval\"),\n            new ThreadPoolExecutor.AbortPolicy());\n\n    public void evaluate(String orderId) {\n        try {\n            riskExecutor.execute(() -> remoteEvaluate(orderId));\n        } catch (RejectedExecutionException ex) {\n            log.error(\"risk evaluate rejected, order={}\", orderId, ex);\n        }\n    }\n\n    /** 队列积压与活跃线程数，用于监控告警。 */\n    public String stats() {\n        return riskExecutor.getActiveCount() + \"/\" + riskExecutor.getQueue().size();\n    }\n\n    @PreDestroy\n    public void stop() {\n        riskExecutor.shutdown();\n        try {\n            if (!riskExecutor.awaitTermination(30, TimeUnit.SECONDS)) {\n                List<Runnable> pending = riskExecutor.shutdownNow();\n                log.warn(\"{} risk tasks were not executed before shutdown\", pending.size());\n            }\n        } catch (InterruptedException ex) {\n            log.warn(\"shutdown interrupted\", ex);\n            List<Runnable> pending = riskExecutor.shutdownNow();\n            log.warn(\"{} risk tasks were not executed before shutdown\", pending.size());\n            Thread.currentThread().interrupt();\n        }\n    }\n\n    private static ThreadFactory namedFactory(String prefix) {\n        AtomicInteger sequence = new AtomicInteger();\n        return task -> {\n            Thread thread = new Thread(task);\n            thread.setName(prefix + \"-\" + sequence.incrementAndGet());\n            return thread;\n        };\n    }\n\n    private void remoteEvaluate(String orderId) {\n    }\n}\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1550,
+    "completion_tokens": 488,
+    "total_tokens": 2038,
+    "prompt_tokens_details": {
+      "cached_tokens": 1408
+    },
+    "prompt_cache_hit_tokens": 1408,
+    "prompt_cache_miss_tokens": 142
+  },
+  "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501"
+}

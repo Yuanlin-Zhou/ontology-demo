@@ -1,0 +1,16 @@
+{
+  "source_sha256": "",
+  "reviewer": "",
+  "criteria": [
+    {
+      "criterion": "失败订单会被周期性重试",
+      "passed": null,
+      "evidence": ""
+    },
+    {
+      "criterion": "一次重试异常不会永久中止后续调度",
+      "passed": null,
+      "evidence": ""
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "id": "9f5a49eb-72aa-454d-a24f-52c25d48609e",
+  "object": "chat.completion",
+  "created": 1793087413,
+  "model": "deepseek-flash",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```java\npackage com.example.inventory.service;\n\nimport java.util.Collection;\nimport java.util.concurrent.ArrayBlockingQueue;\nimport java.util.concurrent.ConcurrentLinkedQueue;\nimport java.util.concurrent.RejectedExecutionException;\nimport java.util.concurrent.ThreadFactory;\nimport java.util.concurrent.ThreadPoolExecutor;\nimport java.util.concurrent.TimeUnit;\nimport java.util.concurrent.atomic.AtomicInteger;\nimport java.util.concurrent.atomic.AtomicLong;\n\nimport org.slf4j.Logger;\nimport org.slf4j.LoggerFactory;\n\n/** 库存同步任务：独立线程池、显式拒绝策略、调用侧补偿、可观测、可关闭。 */\npublic class InventorySyncService {\n\n    private static final Logger log = LoggerFactory.getLogger(InventorySyncService.class);\n\n    /** 被拒绝的 SKU，供补偿验收读取。 */\n    final Collection<String> retryQueue = new ConcurrentLinkedQueue<>();\n\n    private final AtomicLong rejectedCount = new AtomicLong();\n\n    private final ThreadPoolExecutor syncExecutor;\n\n    public InventorySyncService() {\n        ThreadFactory threadFactory = new ThreadFactory() {\n            private final AtomicInteger seq = new AtomicInteger();\n\n            @Override\n            public Thread newThread(Runnable r) {\n                Thread t = new Thread(r, \"inventory-sync-\" + seq.incrementAndGet());\n                t.setDaemon(false);\n                return t;\n            }\n        };\n        this.syncExecutor = new ThreadPoolExecutor(\n                4,\n                8,\n                60L,\n                TimeUnit.SECONDS,\n                new ArrayBlockingQueue<>(100),\n                threadFactory,\n                new ThreadPoolExecutor.AbortPolicy());\n    }\n\n    public void sync(String sku) {\n        try {\n            syncExecutor.execute(() -> remoteSync(sku));\n        } catch (RejectedExecutionException e) {\n            rejectedCount.incrementAndGet();\n            retryQueue.add(sku);\n            log.warn(\"inventory sync rejected, sku={} queued for compensation, queueSize={}, active={}\",\n                    sku, syncExecutor.getQueue().size(), syncExecutor.getActiveCount());\n        }\n    }\n\n    private void remoteSync(String sku) {\n        // 实际下游同步逻辑\n    }\n\n    /** 可观测指标快照。 */\n    public long getRejectedCount() {\n        return rejectedCount.get();\n    }\n\n    public int getQueueSize() {\n        return syncExecutor.getQueue().size();\n    }\n\n    public int getActiveCount() {\n        return syncExecutor.getActiveCount();\n    }\n\n    public long getCompletedTaskCount() {\n        return syncExecutor.getCompletedTaskCount();\n    }\n\n    public long getTaskCount() {\n        return syncExecutor.getTaskCount();\n    }\n\n    /** 应用关闭时调用，等待队列任务处理完成。 */\n    public void shutdown() {\n        syncExecutor.shutdown();\n        try {\n            if (!syncExecutor.awaitTermination(30, TimeUnit.SECONDS)) {\n                syncExecutor.shutdownNow();\n            }\n        } catch (InterruptedException e) {\n            syncExecutor.shutdownNow();\n            Thread.currentThread().interrupt();\n        }\n    }\n}\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1317,
+    "completion_tokens": 638,
+    "total_tokens": 1955,
+    "prompt_tokens_details": {
+      "cached_tokens": 1152
+    },
+    "prompt_cache_hit_tokens": 1152,
+    "prompt_cache_miss_tokens": 165
+  },
+  "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501"
+}

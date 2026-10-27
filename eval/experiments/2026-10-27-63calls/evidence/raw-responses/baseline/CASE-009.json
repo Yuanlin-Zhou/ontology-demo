@@ -1,0 +1,28 @@
+{
+  "id": "544bab81-e79e-4b89-831e-d512b2bc7b9e",
+  "object": "chat.completion",
+  "created": 1793087417,
+  "model": "deepseek-flash",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```java\npackage com.example.notify.service;\n\nimport java.util.concurrent.ArrayBlockingQueue;\nimport java.util.concurrent.RejectedExecutionHandler;\nimport java.util.concurrent.ThreadPoolExecutor;\nimport java.util.concurrent.TimeUnit;\nimport java.util.concurrent.atomic.AtomicLong;\n\nimport org.slf4j.Logger;\nimport org.slf4j.LoggerFactory;\n\n/** 通知线程池：自定义拒绝策略，保留被拒绝任务的痕迹并支持监控统计。 */\npublic class NotifyDispatcher {\n\n    private static final Logger logger = LoggerFactory.getLogger(NotifyDispatcher.class);\n\n    private final AtomicLong rejectedCount = new AtomicLong();\n\n    private final ThreadPoolExecutor notifier = new ThreadPoolExecutor(\n            8, 16, 60L, TimeUnit.SECONDS,\n            new ArrayBlockingQueue<>(200),\n            namedFactory(\"notify\"),\n            new RecordingRejectionHandler());\n\n    private static java.util.concurrent.ThreadFactory namedFactory(String prefix) {\n        java.util.concurrent.atomic.AtomicInteger sequence = new java.util.concurrent.atomic.AtomicInteger();\n        return task -> {\n            Thread thread = new Thread(task);\n            thread.setName(prefix + \"-\" + sequence.incrementAndGet());\n            return thread;\n        };\n    }\n\n    /** 提交通知任务。 */\n    public void dispatch(String message) {\n        notifier.execute(() -> deliver(message));\n    }\n\n    /** 实际投递逻辑（保留业务入口，具体实现由下游提供）。 */\n    protected void deliver(String message) {\n        logger.info(\"notify: {}\", message);\n    }\n\n    /** 拒绝统计：返回累计被拒绝的任务数量。 */\n    public long stats() {\n        return rejectedCount.get();\n    }\n\n    /** 自定义拒绝策略：记录被拒绝任务的痕迹并累加统计。 */\n    class RecordingRejectionHandler implements RejectedExecutionHandler {\n        @Override\n        public void rejectedExecution(Runnable task, ThreadPoolExecutor executor) {\n            long total = rejectedCount.incrementAndGet();\n            logger.warn(\"notify task rejected, total rejected={}, poolSize={}, activeCount={}, queueSize={}\",\n                    total, executor.getPoolSize(), executor.getActiveCount(), executor.getQueue().size());\n        }\n    }\n}\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 627,
+    "completion_tokens": 455,
+    "total_tokens": 1082,
+    "prompt_tokens_details": {
+      "cached_tokens": 384
+    },
+    "prompt_cache_hit_tokens": 384,
+    "prompt_cache_miss_tokens": 243
+  },
+  "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501"
+}

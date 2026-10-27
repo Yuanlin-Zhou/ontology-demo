@@ -1,0 +1,86 @@
+[
+  {
+    "strategy": "baseline",
+    "case_id": "CASE-020",
+    "scenario": "queued-shutdown",
+    "source_sha256": "401a20b9ffa9888f4efefaf910e6c3f59955caeec2f92d63dab13d93551864c2",
+    "compile": {
+      "status": "ok",
+      "detail": ""
+    },
+    "tests": {
+      "status": "failed",
+      "detail": "[main] WARN com.example.export.service.ExportOrchestrator - 1 exports were not generated before shutdown\nException in thread \"main\" java.lang.AssertionError: Shutdown stranded queued export caller; shutdownNow does not automatically complete results of drained tasks\n\tat AcceptanceTest.verifyQueuedShutdown(AcceptanceTest.java:195)\n\tat AcceptanceTest.main(AcceptanceTest.java:99)\nCaused by: java.util.concurrent.TimeoutException\n\tat java.base/java.util.concurrent.CompletableFuture.timedGet(CompletableFuture.java:1960)\n\tat java.base/java.util.concurrent.CompletableFuture.get(CompletableFuture.java:2095)\n\tat AcceptanceTest.verifyQueuedShutdown(AcceptanceTest.java:194)\n\t... 1 more\n"
+    }
+  },
+  {
+    "strategy": "baseline",
+    "case_id": "CASE-020",
+    "scenario": "uninterruptible-shutdown",
+    "source_sha256": "401a20b9ffa9888f4efefaf910e6c3f59955caeec2f92d63dab13d93551864c2",
+    "compile": {
+      "status": "ok",
+      "detail": ""
+    },
+    "tests": {
+      "status": "failed",
+      "detail": "[pool-1-thread-1] WARN com.example.export.service.ExportOrchestrator - 0 exports were not generated before shutdown\n[pool-1-thread-1] ERROR com.example.export.service.ExportOrchestrator - export executor did not terminate after forced shutdown\nException in thread \"main\" java.lang.AssertionError: stop reported success while uninterruptible work was still running; report termination failure to the caller\n\tat AcceptanceTest.require(AcceptanceTest.java:9)\n\tat AcceptanceTest.verifyUninterruptibleShutdown(AcceptanceTest.java:216)\n\tat AcceptanceTest.main(AcceptanceTest.java:100)\n"
+    }
+  },
+  {
+    "strategy": "rag",
+    "case_id": "CASE-020",
+    "scenario": "queued-shutdown",
+    "source_sha256": "05171c758f9e2a2190619f062290f1c45fc27763b967433c57037a5e852790df",
+    "compile": {
+      "status": "failed",
+      "detail": "/tmp/rule-engine-java-ogR0hN/ExportOrchestrator.java:50: error: cannot reference this before supertype constructor has been called\n        this(DEFAULT_TIMEOUT_MILLIS, this::generate);\n                                     ^\n1 error\n"
+    },
+    "tests": {
+      "status": "not_run",
+      "detail": "Skipped because compilation did not succeed."
+    }
+  },
+  {
+    "strategy": "rag",
+    "case_id": "CASE-020",
+    "scenario": "uninterruptible-shutdown",
+    "source_sha256": "05171c758f9e2a2190619f062290f1c45fc27763b967433c57037a5e852790df",
+    "compile": {
+      "status": "failed",
+      "detail": "/tmp/rule-engine-java-gl5yWJ/ExportOrchestrator.java:50: error: cannot reference this before supertype constructor has been called\n        this(DEFAULT_TIMEOUT_MILLIS, this::generate);\n                                     ^\n1 error\n"
+    },
+    "tests": {
+      "status": "not_run",
+      "detail": "Skipped because compilation did not succeed."
+    }
+  },
+  {
+    "strategy": "rules",
+    "case_id": "CASE-020",
+    "scenario": "queued-shutdown",
+    "source_sha256": "fc43fb9fc1e36679436c62352beaa23d2d48bdfa37a260a1e9efa3d9f72c1b7c",
+    "compile": {
+      "status": "ok",
+      "detail": ""
+    },
+    "tests": {
+      "status": "failed",
+      "detail": "[main] WARN com.example.export.service.ExportOrchestrator - 1 exports were not generated before shutdown\nException in thread \"main\" java.lang.AssertionError: Shutdown stranded queued export caller; shutdownNow does not automatically complete results of drained tasks\n\tat AcceptanceTest.verifyQueuedShutdown(AcceptanceTest.java:195)\n\tat AcceptanceTest.main(AcceptanceTest.java:99)\nCaused by: java.util.concurrent.TimeoutException\n\tat java.base/java.util.concurrent.CompletableFuture.timedGet(CompletableFuture.java:1960)\n\tat java.base/java.util.concurrent.CompletableFuture.get(CompletableFuture.java:2095)\n\tat AcceptanceTest.verifyQueuedShutdown(AcceptanceTest.java:194)\n\t... 1 more\n"
+    }
+  },
+  {
+    "strategy": "rules",
+    "case_id": "CASE-020",
+    "scenario": "uninterruptible-shutdown",
+    "source_sha256": "fc43fb9fc1e36679436c62352beaa23d2d48bdfa37a260a1e9efa3d9f72c1b7c",
+    "compile": {
+      "status": "ok",
+      "detail": ""
+    },
+    "tests": {
+      "status": "failed",
+      "detail": "[pool-1-thread-1] WARN com.example.export.service.ExportOrchestrator - 0 exports were not generated before shutdown\n[pool-1-thread-1] ERROR com.example.export.service.ExportOrchestrator - export executor did not terminate after forced shutdown\nException in thread \"main\" java.lang.AssertionError: stop reported success while uninterruptible work was still running; report termination failure to the caller\n\tat AcceptanceTest.require(AcceptanceTest.java:9)\n\tat AcceptanceTest.verifyUninterruptibleShutdown(AcceptanceTest.java:216)\n\tat AcceptanceTest.main(AcceptanceTest.java:100)\n"
+    }
+  }
+]

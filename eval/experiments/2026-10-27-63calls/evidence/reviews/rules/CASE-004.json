@@ -1,0 +1,16 @@
+{
+  "source_sha256": "a7928a3ebad019f14068a4176e04b4454244a812db4289e2a237434f761083de",
+  "reviewer": "Codex Agent source review (not human), frozen checklist scope, 2026-10-27",
+  "criteria": [
+    {
+      "criterion": "失败订单会被周期性重试",
+      "passed": true,
+      "evidence": "scheduleRetry uses scheduleWithFixedDelay to invoke the configured retryHandler Consumer; runRetry/runOnce calls accept(orderId). This review concerns the injected local handler, not an external order platform."
+    },
+    {
+      "criterion": "一次重试异常不会永久中止后续调度",
+      "passed": true,
+      "evidence": "The callback invocation is inside try/catch RuntimeException, incrementing failure counters and logging without throwing into the periodic scheduler."
+    }
+  ]
+}

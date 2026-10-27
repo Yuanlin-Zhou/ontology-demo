@@ -1,0 +1,16 @@
+{
+  "source_sha256": "",
+  "reviewer": "",
+  "criteria": [
+    {
+      "criterion": "文件处理实际执行",
+      "passed": null,
+      "evidence": ""
+    },
+    {
+      "criterion": "实际工作线程名可识别文件处理业务",
+      "passed": null,
+      "evidence": ""
+    }
+  ]
+}

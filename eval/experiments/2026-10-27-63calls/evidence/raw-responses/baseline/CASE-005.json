@@ -1,0 +1,28 @@
+{
+  "id": "275f1dca-c349-47b7-8744-f6cae338d313",
+  "object": "chat.completion",
+  "created": 1793087365,
+  "model": "deepseek-flash",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```java\npackage com.example.batch.service;\n\nimport java.util.concurrent.ArrayBlockingQueue;\nimport java.util.concurrent.RejectedExecutionException;\nimport java.util.concurrent.ThreadFactory;\nimport java.util.concurrent.ThreadPoolExecutor;\nimport java.util.concurrent.TimeUnit;\nimport java.util.concurrent.atomic.AtomicInteger;\n\nimport org.slf4j.Logger;\nimport org.slf4j.LoggerFactory;\n\n/**\n * BatchJobRunner: 批量任务线程池。\n * 高峰时可扩容至 maximumPoolSize，空闲时按 keepAliveTime 回收超出 corePoolSize 的线程。\n */\npublic class BatchJobRunner {\n\n    private static final Logger log = LoggerFactory.getLogger(BatchJobRunner.class);\n\n    private final ThreadPoolExecutor batchExecutor = new ThreadPoolExecutor(\n            4,\n            8,\n            60L,\n            TimeUnit.SECONDS,\n            new ArrayBlockingQueue<>(100),\n            namedFactory(\"batch-job\"),\n            new ThreadPoolExecutor.AbortPolicy());\n\n    public void run(String jobId) {\n        try {\n            batchExecutor.execute(() -> execute(jobId));\n        } catch (RejectedExecutionException ex) {\n            log.error(\"batch job rejected, job={}\", jobId, ex);\n        }\n    }\n\n    private static ThreadFactory namedFactory(String prefix) {\n        AtomicInteger sequence = new AtomicInteger();\n        return task -> {\n            Thread thread = new Thread(task);\n            thread.setName(prefix + \"-\" + sequence.incrementAndGet());\n            return thread;\n        };\n    }\n\n    private void execute(String jobId) {\n        // 业务执行逻辑由具体任务实现\n    }\n}\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 633,
+    "completion_tokens": 329,
+    "total_tokens": 962,
+    "prompt_tokens_details": {
+      "cached_tokens": 384
+    },
+    "prompt_cache_hit_tokens": 384,
+    "prompt_cache_miss_tokens": 249
+  },
+  "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501"
+}

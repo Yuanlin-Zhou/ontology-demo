@@ -1,0 +1,28 @@
+{
+  "id": "b4e1d241-9c75-4713-a1c7-0b09325540f1",
+  "object": "chat.completion",
+  "created": 1793087542,
+  "model": "deepseek-flash",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```java\npackage com.example.config;\n\nimport java.util.concurrent.ArrayBlockingQueue;\nimport java.util.concurrent.ThreadFactory;\nimport java.util.concurrent.ThreadPoolExecutor;\nimport java.util.concurrent.TimeUnit;\nimport java.util.concurrent.atomic.AtomicInteger;\nimport jakarta.annotation.PreDestroy;\nimport org.slf4j.Logger;\nimport org.slf4j.LoggerFactory;\nimport org.springframework.context.annotation.Bean;\nimport org.springframework.context.annotation.Configuration;\n\n/** 通过 @Bean 暴露订单通知线程池，容器关闭时回收，任务异常可见。 */\n@Configuration\npublic class NotifyExecutorConfig {\n\n    private static final Logger log = LoggerFactory.getLogger(NotifyExecutorConfig.class);\n\n    private ThreadPoolExecutor orderNotifier;\n\n    @Bean(\"orderNotifier\")\n    public ThreadPoolExecutor orderNotifier() {\n        ThreadPoolExecutor executor = new ThreadPoolExecutor(\n                8, 16, 60L, TimeUnit.SECONDS,\n                new ArrayBlockingQueue<>(200),\n                namedFactory(\"order-notify\"),\n                new ThreadPoolExecutor.AbortPolicy());\n        this.orderNotifier = executor;\n        return executor;\n    }\n\n    @PreDestroy\n    public void shutdown() {\n        ThreadPoolExecutor executor = this.orderNotifier;\n        if (executor == null) {\n            return;\n        }\n        executor.shutdown();\n        try {\n            if (!executor.awaitTermination(30, TimeUnit.SECONDS)) {\n                executor.shutdownNow();\n                if (!executor.awaitTermination(10, TimeUnit.SECONDS)) {\n                    log.warn(\"order-notify thread pool did not terminate\");\n                }\n            }\n        } catch (InterruptedException e) {\n            executor.shutdownNow();\n            Thread.currentThread().interrupt();\n        }\n    }\n\n    public void dispatch(ThreadPoolExecutor notifier, String orderId) {\n        notifier.execute(() -> {\n            try {\n                if (orderId == null) {\n                    throw new IllegalArgumentException(\"orderId is null\");\n                }\n                send(orderId);\n            } catch (RuntimeException e) {\n                log.error(\"order notify failed, orderId={}\", orderId, e);\n                throw e;\n            }\n        });\n    }\n\n    private static ThreadFactory namedFactory(String prefix) {\n        AtomicInteger sequence = new AtomicInteger();\n        return task -> {\n            Thread thread = new Thread(task);\n            thread.setName(prefix + \"-\" + sequence.incrementAndGet());\n            thread.setDaemon(false);\n            return thread;\n        };\n    }\n\n    private void send(String orderId) {\n    }\n}\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1473,
+    "completion_tokens": 528,
+    "total_tokens": 2001,
+    "prompt_tokens_details": {
+      "cached_tokens": 1280
+    },
+    "prompt_cache_hit_tokens": 1280,
+    "prompt_cache_miss_tokens": 193
+  },
+  "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501"
+}

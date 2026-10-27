@@ -1,0 +1,16 @@
+{
+  "source_sha256": "",
+  "reviewer": "",
+  "criteria": [
+    {
+      "criterion": "金额求和与 VIP 折扣保持正确",
+      "passed": null,
+      "evidence": ""
+    },
+    {
+      "criterion": "纯金额业务不引入线程池",
+      "passed": null,
+      "evidence": ""
+    }
+  ]
+}

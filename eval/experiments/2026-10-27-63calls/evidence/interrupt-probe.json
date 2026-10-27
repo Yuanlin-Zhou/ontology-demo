@@ -1,0 +1,10 @@
+{
+  "compile": {
+    "status": "ok",
+    "detail": ""
+  },
+  "tests": {
+    "status": "ok",
+    "detail": "PASS: stop restores interruption through loop/finally\n"
+  }
+}

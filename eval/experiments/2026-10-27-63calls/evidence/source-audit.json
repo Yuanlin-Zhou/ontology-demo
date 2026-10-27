@@ -1,0 +1,128 @@
+[
+  {
+    "strategy": "baseline",
+    "case_id": "CASE-006",
+    "status": "failed",
+    "evidence": "L48-55 dispatcher uses PriorityBlockingQueue<>(200); 200 is only initial capacity, offer remains unbounded, so StrictAdmissionPolicy is not reached on ordinary capacity saturation. Cannot enforce overload eviction.",
+    "kind": "business",
+    "source_sha256": "4ba0bc7bc0f0a001cd300aa460bfbb0348b4e3c4d6acd8d28e77d387ff9aa93b",
+    "reviewer": "Codex Agent source review; not human"
+  },
+  {
+    "strategy": "rag",
+    "case_id": "CASE-006",
+    "status": "failed",
+    "evidence": "L41-48 dispatcher uses unbounded PriorityBlockingQueue<>(200). In otherwise unreachable overflow policy, L141 candidate.compareTo(victim)>0 chooses newer equal-priority entries, not the oldest.",
+    "kind": "business",
+    "source_sha256": "ad643c40ae56aae995de88a6fb7af6b4eba50a5f7ab051e2b566d035b3b0c8b3",
+    "reviewer": "Codex Agent source review; not human"
+  },
+  {
+    "strategy": "rules",
+    "case_id": "CASE-006",
+    "status": "failed",
+    "evidence": "L158-165 TreeSet orders priority descending and sequence ascending; L247-252 overwrites victim through ascending sequence within the lowest priority, selecting newest rather than oldest; break on a higher-priority item also skips later eligible lower-priority entries.",
+    "kind": "business",
+    "source_sha256": "fd890789a3d6df8879ba11b385e49c6bf95486c258bcd912145b37264d4419db",
+    "reviewer": "Codex Agent source review; not human"
+  },
+  {
+    "strategy": "baseline",
+    "case_id": "CASE-001",
+    "status": "unverified",
+    "evidence": "notifyCreated schedules sendRemote at L39-41 and catches Throwable, but L51-53 sendRemote has no statements. This proves scheduling/error isolation structure, not an actual notification integration.",
+    "kind": "coverage",
+    "source_sha256": "0a7b8f88141b6c044f517b0943a8f846320a6fd5ab69ae4a9df0e53872e825da",
+    "reviewer": "Codex Agent source review; not human"
+  },
+  {
+    "strategy": "rag",
+    "case_id": "CASE-001",
+    "status": "unverified",
+    "evidence": "L52-58 schedules/catches sendRemote, but L67-69 sendRemote is empty. Cannot infer actual remote notification delivery from the pool test.",
+    "kind": "coverage",
+    "source_sha256": "77c840c4f39970152e5ea6705877caefdc8396dcc4c70cf402b8a9b74df1a6cb",
+    "reviewer": "Codex Agent source review; not human"
+  },
+  {
+    "strategy": "rules",
+    "case_id": "CASE-001",
+    "status": "unverified",
+    "evidence": "L49 invokes sendRemote asynchronously; L58-65 sendRemote has an empty try body. Pool success is not evidence of real remote notification delivery.",
+    "kind": "coverage",
+    "source_sha256": "381d0c62e79575778dd8823f0af39ace924240026bdcf5cd2885e835199f28e0",
+    "reviewer": "Codex Agent source review; not human"
+  },
+  {
+    "strategy": "baseline",
+    "case_id": "CASE-007",
+    "status": "unverified",
+    "evidence": "write submits append at L39-45; append at L79-81 is empty. Reject handler increments and logs at L87-89, but business log append effect is not established.",
+    "kind": "coverage",
+    "source_sha256": "f82c7d86191ee85c08004ba420cf08475956be6891929c5507d2fb7882eebe5b",
+    "reviewer": "Codex Agent source review; not human"
+  },
+  {
+    "strategy": "rules",
+    "case_id": "CASE-017",
+    "kind": "validator_false_positive",
+    "status": "confirmed",
+    "evidence": "TP-SHUTDOWN-003 at L134: awaitStopped sets interrupted=true in catch and restores Thread.currentThread().interrupt in finally L138-140. A separate actual Java interrupt probe compiled and passed; see interrupt-probe.json. This does not prove every lifecycle race is correct.",
+    "source_sha256": "7a86363d22ccb10b0e49b08059ef6b4dd498cee0b1dc7a313c420868bfce75dd",
+    "reviewer": "Codex Agent source review; not human"
+  },
+  {
+    "strategy": "rules",
+    "case_id": "CASE-017",
+    "kind": "policy_review",
+    "status": "unresolved",
+    "evidence": "TP-SHUTDOWN-002 requires executor awaitTermination, while the source waits on a custom stopped latch. L112-140 tracks active tasks but not executor termination; review the required resource-termination semantics separately, do not simply erase the finding.",
+    "source_sha256": "7a86363d22ccb10b0e49b08059ef6b4dd498cee0b1dc7a313c420868bfce75dd",
+    "reviewer": "Codex Agent source review; not human"
+  },
+  {
+    "strategy": "rag",
+    "case_id": "CASE-020",
+    "kind": "compile",
+    "status": "failed",
+    "evidence": "L50 this(DEFAULT_TIMEOUT_MILLIS, this::generate) references this before supertype constructor; actual javac rejects it. API shape alone still passed, illustrating why API checks do not replace compilation.",
+    "source_sha256": "05171c758f9e2a2190619f062290f1c45fc27763b967433c57037a5e852790df",
+    "reviewer": "Codex Agent source review; not human"
+  },
+  {
+    "strategy": "baseline",
+    "case_id": "CASE-017",
+    "kind": "business",
+    "status": "failed",
+    "evidence": "stop L102-104 returns immediately when another stop already set closed, before accepted downstream finishes. Frozen runtime test fails repeated-stop drain assertion.",
+    "source_sha256": "73be2474e74d2efb5b4a444578306e8c987e368c377f97b598f35931447e9174",
+    "reviewer": "Codex Agent source review; not human"
+  },
+  {
+    "strategy": "rag",
+    "case_id": "CASE-017",
+    "kind": "business",
+    "status": "failed",
+    "evidence": "stop L102-104 returns immediately for repeated callers; frozen runtime test fails repeated-stop drain assertion. Interrupt catch L113-116 also breaks while work may still be running.",
+    "source_sha256": "fa60eaf0486cc3af349b3a58083f6b687fb440dd4a91af319c3d402d31d28afb",
+    "reviewer": "Codex Agent source review; not human"
+  },
+  {
+    "strategy": "baseline",
+    "case_id": "CASE-020",
+    "kind": "business",
+    "status": "failed",
+    "evidence": "export L70 validateTenant writes caller TENANT at L187-190 without caller-side finally. Frozen empty-context assertion fails. L115 cancels inner task while queue holds an outer lambda. Independent queued/uninterruptible shutdown probes both fail.",
+    "source_sha256": "401a20b9ffa9888f4efefaf910e6c3f59955caeec2f92d63dab13d93551864c2",
+    "reviewer": "Codex Agent source review; not human"
+  },
+  {
+    "strategy": "rules",
+    "case_id": "CASE-020",
+    "kind": "business",
+    "status": "failed",
+    "evidence": "export L74 validateTenant writes caller TENANT at L191-194 without caller restoration. Frozen assertion fails. remove(task) L120/L125 targets inner FutureTask, but execute enqueued a wrapper at L88. Independent queued/uninterruptible shutdown probes both fail.",
+    "source_sha256": "fc43fb9fc1e36679436c62352beaa23d2d48bdfa37a260a1e9efa3d9f72c1b7c",
+    "reviewer": "Codex Agent source review; not human"
+  }
+]

@@ -1,0 +1,16 @@
+{
+  "source_sha256": "",
+  "reviewer": "",
+  "criteria": [
+    {
+      "criterion": "真实 Spring 容器可创建和销毁线程池 Bean",
+      "passed": null,
+      "evidence": ""
+    },
+    {
+      "criterion": "线程池有可读取的监控出口",
+      "passed": null,
+      "evidence": ""
+    }
+  ]
+}

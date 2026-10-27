@@ -1,0 +1,28 @@
+{
+  "id": "bda108b6-b608-42f5-b1a8-31a0ac5cda54",
+  "object": "chat.completion",
+  "created": 1793087432,
+  "model": "deepseek-flash",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```java\npackage com.example.realtime.service;\n\nimport java.util.concurrent.ArrayBlockingQueue;\nimport java.util.concurrent.RejectedExecutionException;\nimport java.util.concurrent.ThreadFactory;\nimport java.util.concurrent.ThreadPoolExecutor;\nimport java.util.concurrent.TimeUnit;\nimport java.util.concurrent.atomic.AtomicInteger;\n\nimport org.slf4j.Logger;\nimport org.slf4j.LoggerFactory;\n\n/** RealtimePushHandler: 复用单个线程池处理实时事件推送。 */\npublic class RealtimePushHandler {\n\n    private static final Logger log = LoggerFactory.getLogger(RealtimePushHandler.class);\n\n    private final ThreadPoolExecutor executor;\n\n    public RealtimePushHandler() {\n        this.executor = new ThreadPoolExecutor(\n                2, 4, 60L, TimeUnit.SECONDS,\n                new ArrayBlockingQueue<>(50),\n                namedFactory(\"realtime-push\"),\n                new ThreadPoolExecutor.AbortPolicy());\n    }\n\n    public void onEvent(String eventId) {\n        try {\n            executor.execute(() -> push(eventId));\n        } catch (RejectedExecutionException ex) {\n            log.warn(\"push rejected, event={}\", eventId, ex);\n        }\n    }\n\n    private static ThreadFactory namedFactory(String prefix) {\n        AtomicInteger sequence = new AtomicInteger();\n        return task -> {\n            Thread thread = new Thread(task);\n            thread.setName(prefix + \"-\" + sequence.incrementAndGet());\n            return thread;\n        };\n    }\n\n    private void push(String eventId) {\n    }\n}\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 637,
+    "completion_tokens": 311,
+    "total_tokens": 948,
+    "prompt_tokens_details": {
+      "cached_tokens": 384
+    },
+    "prompt_cache_hit_tokens": 384,
+    "prompt_cache_miss_tokens": 253
+  },
+  "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501"
+}

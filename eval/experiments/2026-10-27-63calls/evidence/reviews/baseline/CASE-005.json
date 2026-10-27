@@ -1,0 +1,16 @@
+{
+  "source_sha256": "1f245d7d9e773ea2e9f65e1319669433abbafdab94bcc91e19f8ef548d31bf64",
+  "reviewer": "Codex Agent source review (not human), frozen checklist scope, 2026-10-27",
+  "criteria": [
+    {
+      "criterion": "高峰时线程数能扩容",
+      "passed": true,
+      "evidence": "The executor has core=4, max=8, a finite queue of 100 and execute submissions. The runtime harness checks max > core, not an actual saturation/load trace."
+    },
+    {
+      "criterion": "空闲后非核心线程可以回收",
+      "passed": true,
+      "evidence": "keepAlive=60 seconds with core<max enables reclamation of excess noncore workers; the runtime harness checks configuration; actual 60-second idle reclamation timing is not measured."
+    }
+  ]
+}

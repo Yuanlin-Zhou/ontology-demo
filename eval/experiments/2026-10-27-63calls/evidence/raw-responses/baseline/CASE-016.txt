@@ -1,0 +1,115 @@
+```java
+package com.example.config;
+
+import io.micrometer.core.instrument.Gauge;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.binder.MeterBinder;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.concurrent.ThreadPoolExecutor;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+
+/** Spring 托管的线程池，配置完整并暴露监控指标。 */
+@Configuration
+public class AsyncExecutorConfig {
+
+    private static final String BEAN_NAME = "orderNotifier";
+
+    private volatile ThreadPoolTaskExecutor orderNotifierExecutor;
+
+    public AsyncExecutorConfig() {
+    }
+
+    @Bean(name = BEAN_NAME)
+    public ThreadPoolTaskExecutor orderNotifier() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(8);
+        executor.setMaxPoolSize(16);
+        executor.setQueueCapacity(200);
+        executor.setThreadNamePrefix("order-notify-");
+        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.AbortPolicy());
+        executor.setThreadNamePrefix("order-notify-");
+        executor.initialize();
+        this.orderNotifierExecutor = executor;
+        return executor;
+    }
+
+    @Bean
+    public MeterBinder orderNotifierMeterBinder() {
+        return new MeterBinder() {
+            @Override
+            public void bindTo(MeterRegistry registry) {
+                ThreadPoolTaskExecutor executor = orderNotifierExecutor;
+                if (executor == null) {
+                    return;
+                }
+                ThreadPoolExecutor pool = executor.getThreadPoolExecutor();
+                Gauge.builder("order.notifier.pool.size", pool, ThreadPoolExecutor::getPoolSize)
+                        .description("Current number of threads in the order notifier pool")
+                        .register(registry);
+                Gauge.builder("order.notifier.pool.active", pool, ThreadPoolExecutor::getActiveCount)
+                        .description("Number of actively executing order notifier tasks")
+                        .register(registry);
+                Gauge.builder("order.notifier.pool.core", pool, ThreadPoolExecutor::getCorePoolSize)
+                        .description("Core pool size of the order notifier pool")
+                        .register(registry);
+                Gauge.builder("order.notifier.pool.max", pool, ThreadPoolExecutor::getMaximumPoolSize)
+                        .description("Maximum pool size of the order notifier pool")
+                        .register(registry);
+                Gauge.builder("order.notifier.queue.size", pool, p -> p.getQueue().size())
+                        .description("Number of tasks waiting in the order notifier queue")
+                        .register(registry);
+                Gauge.builder("order.notifier.queue.capacity", pool, p -> p.getQueue().remainingCapacity() + p.getQueue().size())
+                        .description("Capacity of the order notifier queue")
+                        .register(registry);
+                Gauge.builder("order.notifier.completed", pool, ThreadPoolExecutor::getCompletedTaskCount)
+                        .description("Approximate number of completed order notifier tasks")
+                        .register(registry);
+            }
+        };
+    }
+
+    /** 监控入口：返回当前线程池的关键指标快照。 */
+    public Map<String, Object> stats() {
+        ThreadPoolTaskExecutor executor = orderNotifierExecutor;
+        Map<String, Object> snapshot = new LinkedHashMap<>();
+        if (executor == null) {
+            snapshot.put("initialized", false);
+            return snapshot;
+        }
+        ThreadPoolExecutor pool = executor.getThreadPoolExecutor();
+        snapshot.put("initialized", true);
+        snapshot.put("poolSize", pool.getPoolSize());
+        snapshot.put("activeCount", pool.getActiveCount());
+        snapshot.put("corePoolSize", pool.getCorePoolSize());
+        snapshot.put("maxPoolSize", pool.getMaximumPoolSize());
+        snapshot.put("queueSize", pool.getQueue().size());
+        snapshot.put("queueCapacity", pool.getQueue().remainingCapacity() + pool.getQueue().size());
+        snapshot.put("completedTaskCount", pool.getCompletedTaskCount());
+        snapshot.put("taskCount", pool.getTaskCount());
+        return snapshot;
+    }
+
+    /** 静态监控入口：从给定 Bean 读取指标快照。 */
+    public static Map<String, Object> stats(ThreadPoolTaskExecutor executor) {
+        Map<String, Object> snapshot = new LinkedHashMap<>();
+        if (executor == null) {
+            snapshot.put("initialized", false);
+            return snapshot;
+        }
+        ThreadPoolExecutor pool = executor.getThreadPoolExecutor();
+        snapshot.put("initialized", true);
+        snapshot.put("poolSize", pool.getPoolSize());
+        snapshot.put("activeCount", pool.getActiveCount());
+        snapshot.put("corePoolSize", pool.getCorePoolSize());
+        snapshot.put("maxPoolSize", pool.getMaximumPoolSize());
+        snapshot.put("queueSize", pool.getQueue().size());
+        snapshot.put("queueCapacity", pool.getQueue().remainingCapacity() + pool.getQueue().size());
+        snapshot.put("completedTaskCount", pool.getCompletedTaskCount());
+        snapshot.put("taskCount", pool.getTaskCount());
+        return snapshot;
+    }
+}
+```

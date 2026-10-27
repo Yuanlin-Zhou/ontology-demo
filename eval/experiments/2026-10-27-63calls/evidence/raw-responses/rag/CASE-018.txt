@@ -1,0 +1,98 @@
+```java
+package com.example.settle.service;
+
+import jakarta.annotation.PreDestroy;
+import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * Settlement service with two observable, closable thread pools:
+ * a settlement executor and a retry scheduler.
+ */
+public class SettlementService {
+
+    private static final Logger log = LoggerFactory.getLogger(SettlementService.class);
+
+    private final ThreadPoolExecutor settleExecutor = new ThreadPoolExecutor(
+            8, 16, 60L, TimeUnit.SECONDS,
+            new ArrayBlockingQueue<>(200),
+            namedFactory("settle"),
+            new ThreadPoolExecutor.AbortPolicy());
+
+    private final ScheduledThreadPoolExecutor retryScheduler;
+
+    public SettlementService() {
+        this.retryScheduler = new ScheduledThreadPoolExecutor(
+                1,
+                namedFactory("settle-retry"),
+                new ThreadPoolExecutor.AbortPolicy());
+        this.retryScheduler.setRemoveOnCancelPolicy(true);
+    }
+
+    public void settle(String billId) {
+        try {
+            settleExecutor.execute(() -> doSettle(billId));
+        } catch (RejectedExecutionException ex) {
+            log.error("settle rejected, bill={}", billId, ex);
+        }
+    }
+
+    public void scheduleRetry(String billId) {
+        try {
+            retryScheduler.schedule(() -> doSettle(billId), 30, TimeUnit.SECONDS);
+        } catch (RejectedExecutionException ex) {
+            log.error("retry schedule rejected, bill={}", billId, ex);
+        }
+    }
+
+    /** Settlement pool backlog/active threads plus retry scheduler queue size. */
+    public String stats() {
+        return settleExecutor.getActiveCount() + "/" + settleExecutor.getQueue().size()
+                + " retryQueue=" + retryScheduler.getQueue().size();
+    }
+
+    @PreDestroy
+    public void stop() {
+        settleExecutor.shutdown();
+        retryScheduler.shutdown();
+        try {
+            if (!settleExecutor.awaitTermination(30, TimeUnit.SECONDS)) {
+                List<Runnable> pending = settleExecutor.shutdownNow();
+                log.warn("{} settle tasks were not executed before shutdown", pending.size());
+            }
+            if (!retryScheduler.awaitTermination(30, TimeUnit.SECONDS)) {
+                List<Runnable> pending = retryScheduler.shutdownNow();
+                log.warn("{} retry tasks were not executed before shutdown", pending.size());
+            }
+        } catch (InterruptedException ex) {
+            List<Runnable> pendingSettle = settleExecutor.shutdownNow();
+            List<Runnable> pendingRetry = retryScheduler.shutdownNow();
+            log.warn("shutdown interrupted, {} settle tasks and {} retry tasks left",
+                    pendingSettle.size(), pendingRetry.size());
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    private static ThreadFactory namedFactory(String prefix) {
+        AtomicInteger sequence = new AtomicInteger();
+        return task -> {
+            Thread thread = new Thread(task);
+            thread.setName(prefix + "-" + sequence.incrementAndGet());
+            thread.setDaemon(false);
+            return thread;
+        };
+    }
+
+    private void doSettle(String billId) {
+        // settlement business logic
+    }
+}
+```

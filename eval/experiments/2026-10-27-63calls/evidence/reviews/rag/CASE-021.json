@@ -1,0 +1,16 @@
+{
+  "source_sha256": "8b58a9bc7b496db971003848a14ed3f33e05c14704e930580d3874ec9cf271ad",
+  "reviewer": "Codex Agent source review (not human), frozen checklist scope, 2026-10-27",
+  "criteria": [
+    {
+      "criterion": "真实 Spring 容器关闭时回收裸线程池",
+      "passed": true,
+      "evidence": "@Configuration declares @Bean(orderNotifier), retains the created executor in a field, and @PreDestroy shutdown uses shutdown/awaitTermination. The real Spring context test checks lifecycle."
+    },
+    {
+      "criterion": "通知任务异常可见且不杀死后续任务处理",
+      "passed": true,
+      "evidence": "dispatch executes send inside a worker RuntimeException guard; null orderId triggers observable log evidence, and subsequent tasks are processed. This proves the declared error-isolation criterion, not delivery to a real notification platform."
+    }
+  ]
+}

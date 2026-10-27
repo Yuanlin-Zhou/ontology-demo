@@ -1,0 +1,28 @@
+{
+  "id": "0d069600-ff65-4c37-906f-3df30928521d",
+  "object": "chat.completion",
+  "created": 1793087544,
+  "model": "deepseek-flash",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```java\npackage com.example.config;\n\nimport java.util.concurrent.ArrayBlockingQueue;\nimport java.util.concurrent.RejectedExecutionException;\nimport java.util.concurrent.ThreadFactory;\nimport java.util.concurrent.ThreadPoolExecutor;\nimport java.util.concurrent.TimeUnit;\nimport java.util.concurrent.atomic.AtomicInteger;\nimport java.util.concurrent.atomic.AtomicLong;\nimport jakarta.annotation.PreDestroy;\nimport org.slf4j.Logger;\nimport org.slf4j.LoggerFactory;\nimport org.springframework.context.annotation.Bean;\nimport org.springframework.context.annotation.Configuration;\n\n/** 通过 @Bean 暴露订单通知线程池，容器关闭时回收，任务异常可见。 */\n@Configuration\npublic class NotifyExecutorConfig {\n\n    private static final Logger log = LoggerFactory.getLogger(NotifyExecutorConfig.class);\n\n    private final AtomicLong rejectedCount = new AtomicLong();\n\n    private volatile ThreadPoolExecutor orderNotifierExecutor;\n\n    @Bean(\"orderNotifier\")\n    public ThreadPoolExecutor orderNotifier() {\n        ThreadPoolExecutor executor = new ThreadPoolExecutor(\n                8, 16, 60L, TimeUnit.SECONDS,\n                new ArrayBlockingQueue<>(200),\n                namedFactory(\"order-notify\"),\n                (r, e) -> {\n                    rejectedCount.incrementAndGet();\n                    log.warn(\"order-notify rejected task, poolSize={}, queueSize={}, activeCount={}\",\n                            e.getPoolSize(), e.getQueue().size(), e.getActiveCount());\n                    throw new RejectedExecutionException(\"order-notify queue is full\");\n                });\n        this.orderNotifierExecutor = executor;\n        return executor;\n    }\n\n    @PreDestroy\n    public void shutdown() {\n        ThreadPoolExecutor executor = this.orderNotifierExecutor;\n        if (executor == null) {\n            return;\n        }\n        executor.shutdown();\n        try {\n            if (!executor.awaitTermination(30, TimeUnit.SECONDS)) {\n                log.warn(\"order-notify did not terminate in time, forcing shutdownNow\");\n                executor.shutdownNow();\n                if (!executor.awaitTermination(10, TimeUnit.SECONDS)) {\n                    log.error(\"order-notify still not terminated after shutdownNow\");\n                }\n            }\n        } catch (InterruptedException ex) {\n            executor.shutdownNow();\n            Thread.currentThread().interrupt();\n        }\n    }\n\n    public void dispatch(ThreadPoolExecutor notifier, String orderId) {\n        try {\n            notifier.execute(() -> {\n                try {\n                    if (orderId == null) {\n                        throw new IllegalArgumentException(\"orderId is null\");\n                    }\n                    send(orderId);\n                } catch (RuntimeException ex) {\n                    log.error(\"order-notify task failed, orderId={}\", orderId, ex);\n                }\n            });\n        } catch (RejectedExecutionException ex) {\n            log.error(\"order-notify rejected dispatch, orderId={}, rejectedTotal={}\",\n                    orderId, rejectedCount.get(), ex);\n            throw ex;\n        }\n    }\n\n    public long getRejectedCount() {\n        return rejectedCount.get();\n    }\n\n    private static ThreadFactory namedFactory(String prefix) {\n        AtomicInteger sequence = new AtomicInteger();\n        return task -> {\n            Thread thread = new Thread(task);\n            thread.setName(prefix + \"-\" + sequence.incrementAndGet());\n            thread.setUncaughtExceptionHandler((t, ex) ->\n                    log.error(\"order-notify uncaught exception in thread {}\", t.getName(), ex));\n            return thread;\n        };\n    }\n\n    private void send(String orderId) {\n        // 实际发送逻辑\n    }\n}\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1441,
+    "completion_tokens": 743,
+    "total_tokens": 2184,
+    "prompt_tokens_details": {
+      "cached_tokens": 1280
+    },
+    "prompt_cache_hit_tokens": 1280,
+    "prompt_cache_miss_tokens": 161
+  },
+  "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501"
+}

@@ -1,0 +1,58 @@
+package com.example.file.service;
+
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/** 文件处理服务：独立线程池，线程名可定位业务。 */
+public class FileProcessService {
+
+    private static final Logger log = LoggerFactory.getLogger(FileProcessService.class);
+
+    private final ThreadPoolExecutor processor;
+
+    public FileProcessService() {
+        this.processor = new ThreadPoolExecutor(
+                4, 8, 60L, TimeUnit.SECONDS,
+                new ArrayBlockingQueue<>(100),
+                new NamedThreadFactory("file-process"),
+                new ThreadPoolExecutor.AbortPolicy());
+    }
+
+    public void process(String fileId) {
+        try {
+            processor.execute(() -> handle(fileId));
+        } catch (RejectedExecutionException e) {
+            log.error("file-process rejected, fileId={}, queueSize={}, activeCount={}",
+                    fileId, processor.getQueue().size(), processor.getActiveCount(), e);
+            throw e;
+        }
+    }
+
+    private void handle(String fileId) {
+        log.info("handle file, fileId={}, thread={}", fileId, Thread.currentThread().getName());
+    }
+
+    static class NamedThreadFactory implements ThreadFactory {
+        private final String prefix;
+        private final AtomicLong sequence = new AtomicLong(0);
+
+        NamedThreadFactory(String prefix) {
+            this.prefix = prefix;
+        }
+
+        @Override
+        public Thread newThread(Runnable task) {
+            Thread thread = new Thread(task);
+            thread.setName(prefix + "-" + sequence.incrementAndGet());
+            thread.setDaemon(false);
+            return thread;
+        }
+    }
+}

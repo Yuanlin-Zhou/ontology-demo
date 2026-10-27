@@ -1,0 +1,16 @@
+{
+  "source_sha256": "",
+  "reviewer": "",
+  "criteria": [
+    {
+      "criterion": "阻塞通知在虚拟线程执行",
+      "passed": null,
+      "evidence": ""
+    },
+    {
+      "criterion": "并发访问下游有实际限流上限",
+      "passed": null,
+      "evidence": ""
+    }
+  ]
+}

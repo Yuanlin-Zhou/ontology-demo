@@ -1,0 +1,44 @@
+```java
+package com.example.file.service;
+
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
+/** before.java: 自定义 ThreadFactory 没有给线程命名。 */
+public class FileProcessService {
+
+    private final ThreadPoolExecutor processor = new ThreadPoolExecutor(
+            4, 8, 60L, TimeUnit.SECONDS,
+            new ArrayBlockingQueue<>(100),
+            new NamingThreadFactory("file-process"),
+            new ThreadPoolExecutor.AbortPolicy());
+
+    public void process(String fileId) {
+        processor.execute(() -> handle(fileId));
+    }
+
+    private void handle(String fileId) {
+    }
+
+    static class NamingThreadFactory implements ThreadFactory {
+
+        private final AtomicInteger sequence = new AtomicInteger();
+        private final String prefix;
+
+        NamingThreadFactory(String prefix) {
+            this.prefix = prefix;
+        }
+
+        @Override
+        public Thread newThread(Runnable task) {
+            Thread thread = new Thread(task);
+            thread.setName(prefix + "-" + sequence.incrementAndGet());
+            thread.setDaemon(false);
+            return thread;
+        }
+    }
+}
+```

@@ -1,0 +1,23 @@
+import { readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { checkJava } from '../eval/java.ts';
+import { checkPublicApi } from '../eval/api-compatibility.ts';
+import { acceptanceTest, sha256 } from '../eval/acceptance.ts';
+import { loadCases, readCaseFile } from '../eval/cases.ts';
+const root='.eval-cache/merged-20261027-run';
+const manifest=JSON.parse(readFileSync(join(root,'experiment.json'),'utf8'));
+const cases=loadCases('cases');
+const api=[];
+for(const strategy of ['baseline','rag','rules']) for(const c of cases){
+ const file=join(root,'results',strategy,`${c.id}.java`);const source=readFileSync(file,'utf8');
+ api.push({strategy,case_id:c.id,source_sha256:sha256(source),...checkPublicApi(readCaseFile(c,'before')??'',source)});
+}
+writeFileSync(join(root,'api-audit.json'),JSON.stringify(api,null,2)+'\n');
+const scenarios=[];
+for(const strategy of ['baseline','rag','rules']) for(const scenario of ['queued-shutdown','uninterruptible-shutdown']){
+ const file=join(root,'results',strategy,'CASE-020.java');
+ const result=checkJava(file,{...manifest.config.java,...acceptanceTest('CASE-020'),testArgs:[scenario]});
+ scenarios.push({strategy,case_id:'CASE-020',scenario,source_sha256:sha256(readFileSync(file,'utf8')),...result});
+ console.log(strategy,scenario,result.compile.status,result.tests.status);
+}
+writeFileSync(join(root,'independent-scenarios.json'),JSON.stringify(scenarios,null,2)+'\n');

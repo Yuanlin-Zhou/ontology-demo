@@ -1,0 +1,99 @@
+package com.example.report.service;
+
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * 报表导出线程池：有界队列 + 有界线程数 + 命名线程工厂 + 关闭逻辑 + 可观测。
+ */
+public class ReportExportService {
+
+    private static final Logger log = LoggerFactory.getLogger(ReportExportService.class);
+
+    private static final int CORE_POOL_SIZE = 4;
+    private static final int MAX_POOL_SIZE = 8;
+    private static final long KEEP_ALIVE_SECONDS = 60L;
+    private static final int QUEUE_CAPACITY = 200;
+
+    private final AtomicLong rejectedCount = new AtomicLong(0L);
+
+    private final ThreadPoolExecutor exporter;
+
+    public ReportExportService() {
+        BlockingQueue<Runnable> queue = new ArrayBlockingQueue<>(QUEUE_CAPACITY);
+        ThreadFactory threadFactory = new ThreadFactory() {
+            private final AtomicInteger seq = new AtomicInteger(0);
+
+            @Override
+            public Thread newThread(Runnable r) {
+                Thread t = new Thread(r, "report-export-" + seq.incrementAndGet());
+                t.setDaemon(false);
+                return t;
+            }
+        };
+        this.exporter = new ThreadPoolExecutor(
+                CORE_POOL_SIZE,
+                MAX_POOL_SIZE,
+                KEEP_ALIVE_SECONDS,
+                TimeUnit.SECONDS,
+                queue,
+                threadFactory,
+                (r, executor) -> {
+                    rejectedCount.incrementAndGet();
+                    throw new RejectedExecutionException("report export queue is full");
+                });
+    }
+
+    public void export(String reportId) {
+        try {
+            exporter.execute(() -> doExport(reportId));
+        } catch (RejectedExecutionException ex) {
+            log.error("export rejected, report={}", reportId, ex);
+        }
+    }
+
+    private void doExport(String reportId) {
+        // 报表导出：耗时较长
+    }
+
+    public long getRejectedCount() {
+        return rejectedCount.get();
+    }
+
+    public int getQueueSize() {
+        return exporter.getQueue().size();
+    }
+
+    public int getActiveCount() {
+        return exporter.getActiveCount();
+    }
+
+    public long getCompletedTaskCount() {
+        return exporter.getCompletedTaskCount();
+    }
+
+    public long getTaskCount() {
+        return exporter.getTaskCount();
+    }
+
+    public void shutdown() {
+        exporter.shutdown();
+        try {
+            if (!exporter.awaitTermination(60L, TimeUnit.SECONDS)) {
+                exporter.shutdownNow();
+            }
+        } catch (InterruptedException ex) {
+            exporter.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
+    }
+}

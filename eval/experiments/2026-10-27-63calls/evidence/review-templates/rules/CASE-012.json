@@ -1,0 +1,16 @@
+{
+  "source_sha256": "",
+  "reviewer": "",
+  "criteria": [
+    {
+      "criterion": "异步返回正确报价",
+      "passed": null,
+      "evidence": ""
+    },
+    {
+      "criterion": "阻塞下游在业务线程池运行且等待有超时",
+      "passed": null,
+      "evidence": ""
+    }
+  ]
+}

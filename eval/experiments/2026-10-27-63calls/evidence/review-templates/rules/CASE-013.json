@@ -1,0 +1,16 @@
+{
+  "source_sha256": "",
+  "reviewer": "",
+  "criteria": [
+    {
+      "criterion": "关闭时已接受的队列任务被处理",
+      "passed": null,
+      "evidence": ""
+    },
+    {
+      "criterion": "关闭方法等待任务完成后返回",
+      "passed": null,
+      "evidence": ""
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "source_sha256": "",
+  "reviewer": "",
+  "criteria": [
+    {
+      "criterion": "CompletableFuture 编排返回正确导出结果",
+      "passed": null,
+      "evidence": ""
+    },
+    {
+      "criterion": "线程上下文在正常和异常路径都得到清理",
+      "passed": null,
+      "evidence": ""
+    },
+    {
+      "criterion": "超时取消及关闭路径有效",
+      "passed": null,
+      "evidence": ""
+    }
+  ]
+}

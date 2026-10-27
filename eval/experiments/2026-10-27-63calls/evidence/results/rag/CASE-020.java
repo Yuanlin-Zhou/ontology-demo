@@ -1,0 +1,190 @@
+package com.example.export.service;
+
+import jakarta.annotation.PreDestroy;
+import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * before.java: 综合场景 —— 导出任务使用 CompletableFuture 编排，配合业务线程池、
+ * 线程上下文清理、拒绝补偿、监控与优雅关闭。
+ */
+public class ExportOrchestrator {
+
+    private static final Logger log = LoggerFactory.getLogger(ExportOrchestrator.class);
+
+    private static final ThreadLocal<String> TENANT = new ThreadLocal<>();
+
+    private static final long DEFAULT_TIMEOUT_MILLIS = 30_000L;
+    private static final long SHUTDOWN_GRACE_MILLIS = 200L;
+
+    private final ThreadPoolExecutor exportExecutor = new ThreadPoolExecutor(
+            8, 16, 60L, TimeUnit.SECONDS,
+            new ArrayBlockingQueue<>(200),
+            namedFactory("export"),
+            new ThreadPoolExecutor.AbortPolicy());
+
+    private final Queue<String> pendingReports = new ConcurrentLinkedQueue<>();
+
+    private final long timeoutMillis;
+    private final Function<String, String> generator;
+
+    private final Object shutdownLock = new Object();
+    private volatile boolean stopping;
+    private volatile boolean terminated;
+
+    public ExportOrchestrator() {
+        this(DEFAULT_TIMEOUT_MILLIS, this::generate);
+    }
+
+    public ExportOrchestrator(long timeoutMillis, Function<String, String> generator) {
+        this.timeoutMillis = timeoutMillis;
+        this.generator = generator;
+    }
+
+    public String export(String reportId) {
+        if (stopping) {
+            pendingReports.offer(reportId);
+            throw new RejectedExecutionException("export orchestrator is shutting down");
+        }
+        validateTenant(reportId);
+
+        FutureTask<String> task = new FutureTask<>(() -> {
+            String previous = TENANT.get();
+            TENANT.set(tenantOf(reportId));
+            try {
+                return generator.apply(reportId);
+            } finally {
+                restore(previous);
+            }
+        });
+
+        CompletableFuture<String> future = new CompletableFuture<>();
+        try {
+            exportExecutor.execute(() -> {
+                try {
+                    task.run();
+                    if (task.isCancelled()) {
+                        future.cancel(false);
+                    } else {
+                        try {
+                            future.complete(task.get());
+                        } catch (ExecutionException ex) {
+                            future.completeExceptionally(ex.getCause());
+                        } catch (InterruptedException ex) {
+                            Thread.currentThread().interrupt();
+                            future.completeExceptionally(ex);
+                        }
+                    }
+                } catch (Throwable t) {
+                    future.completeExceptionally(t);
+                }
+            });
+        } catch (RejectedExecutionException ex) {
+            log.error("export rejected, report={}", reportId, ex);
+            pendingReports.offer(reportId);
+            throw ex;
+        }
+
+        try {
+            return future.get(timeoutMillis, TimeUnit.MILLISECONDS);
+        } catch (TimeoutException ex) {
+            task.cancel(true);
+            future.cancel(true);
+            throw new IllegalStateException("export timeout", ex);
+        } catch (InterruptedException ex) {
+            task.cancel(true);
+            future.cancel(true);
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("export interrupted", ex);
+        } catch (ExecutionException ex) {
+            Throwable cause = ex.getCause();
+            if (cause instanceof RuntimeException re) {
+                throw re;
+            }
+            throw new IllegalStateException("export failed", cause);
+        }
+    }
+
+    /** 队列积压、活跃线程与完成数，用于监控告警。 */
+    public String stats() {
+        return exportExecutor.getActiveCount() + "/" + exportExecutor.getQueue().size()
+                + "/" + exportExecutor.getCompletedTaskCount();
+    }
+
+    @PreDestroy
+    public void stop() {
+        synchronized (shutdownLock) {
+            if (terminated) {
+                return;
+            }
+            stopping = true;
+            exportExecutor.shutdown();
+            try {
+                if (!exportExecutor.awaitTermination(SHUTDOWN_GRACE_MILLIS, TimeUnit.MILLISECONDS)) {
+                    List<Runnable> pending = exportExecutor.shutdownNow();
+                    log.warn("{} exports were not generated before shutdown", pending.size());
+                    if (!exportExecutor.awaitTermination(SHUTDOWN_GRACE_MILLIS, TimeUnit.MILLISECONDS)) {
+                        log.error("线程池未能正常退出");
+                    }
+                }
+            } catch (InterruptedException ex) {
+                List<Runnable> pending = exportExecutor.shutdownNow();
+                log.warn("shutdown interrupted, {} exports left", pending.size());
+                Thread.currentThread().interrupt();
+                try {
+                    exportExecutor.awaitTermination(SHUTDOWN_GRACE_MILLIS, TimeUnit.MILLISECONDS);
+                } catch (InterruptedException ignored) {
+                    Thread.currentThread().interrupt();
+                }
+            } finally {
+                terminated = true;
+            }
+        }
+    }
+
+    private static void restore(String previous) {
+        if (previous == null) {
+            TENANT.remove();
+        } else {
+            TENANT.set(previous);
+        }
+    }
+
+    private static ThreadFactory namedFactory(String prefix) {
+        AtomicInteger sequence = new AtomicInteger();
+        return task -> {
+            Thread thread = new Thread(task);
+            thread.setName(prefix + "-" + sequence.incrementAndGet());
+            thread.setDaemon(false);
+            return thread;
+        };
+    }
+
+    private void validateTenant(String reportId) {
+        if (TENANT.get() == null) {
+            TENANT.set(tenantOf(reportId));
+        }
+    }
+
+    private String tenantOf(String reportId) {
+        return "tenant-" + reportId;
+    }
+
+    private String generate(String reportId) {
+        return "report-" + reportId;
+    }
+}

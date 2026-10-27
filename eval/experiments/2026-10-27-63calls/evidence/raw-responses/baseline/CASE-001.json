@@ -1,0 +1,28 @@
+{
+  "id": "0d333e28-0e41-4d94-9c28-15627f562b98",
+  "object": "chat.completion",
+  "created": 1793087320,
+  "model": "deepseek-flash",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```java\npackage com.example.order.service;\n\nimport com.example.order.domain.Order;\nimport java.util.concurrent.ExecutorService;\nimport java.util.concurrent.Executors;\nimport java.util.concurrent.ThreadFactory;\nimport java.util.concurrent.atomic.AtomicInteger;\nimport org.slf4j.Logger;\nimport org.slf4j.LoggerFactory;\n\n/**\n * OrderAsyncService: 订单异步通知。\n * 通知失败不影响下单主流程，异常在异步任务内部捕获并记录。\n */\npublic class OrderAsyncService {\n\n    private static final Logger logger = LoggerFactory.getLogger(OrderAsyncService.class);\n\n    private final ExecutorService notifier;\n\n    public OrderAsyncService() {\n        this.notifier = Executors.newFixedThreadPool(16, new ThreadFactory() {\n            private final AtomicInteger counter = new AtomicInteger(0);\n\n            @Override\n            public Thread newThread(Runnable r) {\n                Thread t = new Thread(r, \"order-notifier-\" + counter.incrementAndGet());\n                t.setDaemon(true);\n                return t;\n            }\n        });\n    }\n\n    public void notifyCreated(Order order) {\n        if (order == null) {\n            return;\n        }\n        try {\n            notifier.execute(() -> {\n                try {\n                    sendRemote(order);\n                } catch (Throwable t) {\n                    logger.warn(\"Failed to send order created notification for order {}\", order.id(), t);\n                }\n            });\n        } catch (Throwable t) {\n            logger.warn(\"Failed to submit order created notification for order {}\", order.id(), t);\n        }\n    }\n\n    private void sendRemote(Order order) {\n        // remote call to the notification platform\n    }\n}\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 515,
+    "completion_tokens": 343,
+    "total_tokens": 858,
+    "prompt_tokens_details": {
+      "cached_tokens": 381
+    },
+    "prompt_cache_hit_tokens": 381,
+    "prompt_cache_miss_tokens": 134
+  },
+  "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501"
+}

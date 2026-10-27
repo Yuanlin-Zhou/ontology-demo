@@ -1,0 +1,28 @@
+{
+  "id": "1c53cd16-30fe-4739-bc55-4cec3e2d22a6",
+  "object": "chat.completion",
+  "created": 1793087340,
+  "model": "deepseek-flash",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```java\npackage com.example.report.service;\n\nimport java.util.concurrent.ArrayBlockingQueue;\nimport java.util.concurrent.RejectedExecutionException;\nimport java.util.concurrent.ThreadFactory;\nimport java.util.concurrent.ThreadPoolExecutor;\nimport java.util.concurrent.TimeUnit;\nimport java.util.concurrent.atomic.AtomicInteger;\n\nimport org.slf4j.Logger;\nimport org.slf4j.LoggerFactory;\n\n/**\n * 报表导出线程池，使用有界队列承接导出请求，过载时快速拒绝，避免压垮内存。\n */\npublic class ReportExportService {\n\n    private static final Logger log = LoggerFactory.getLogger(ReportExportService.class);\n\n    private final ThreadPoolExecutor exporter;\n\n    public ReportExportService() {\n        ThreadFactory threadFactory = new ThreadFactory() {\n            private final AtomicInteger seq = new AtomicInteger(1);\n\n            @Override\n            public Thread newThread(Runnable r) {\n                Thread t = new Thread(r, \"report-export-\" + seq.getAndIncrement());\n                t.setDaemon(false);\n                return t;\n            }\n        };\n\n        this.exporter = new ThreadPoolExecutor(\n                4,\n                8,\n                60L,\n                TimeUnit.SECONDS,\n                new ArrayBlockingQueue<>(200),\n                threadFactory,\n                new ThreadPoolExecutor.AbortPolicy());\n    }\n\n    public void export(String reportId) {\n        try {\n            exporter.execute(() -> doExport(reportId));\n        } catch (RejectedExecutionException ex) {\n            log.error(\"export rejected, report={}\", reportId, ex);\n        }\n    }\n\n    private void doExport(String reportId) {\n        // 报表导出：耗时较长\n    }\n}\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1258,
+    "completion_tokens": 341,
+    "total_tokens": 1599,
+    "prompt_tokens_details": {
+      "cached_tokens": 1024
+    },
+    "prompt_cache_hit_tokens": 1024,
+    "prompt_cache_miss_tokens": 234
+  },
+  "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501"
+}

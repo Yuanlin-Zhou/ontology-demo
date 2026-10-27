@@ -1,0 +1,28 @@
+{
+  "id": "d04d6538-c9a4-4efc-8671-25eb3061f0ee",
+  "object": "chat.completion",
+  "created": 1793087507,
+  "model": "deepseek-flash",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```java\npackage com.example.settle.service;\n\nimport jakarta.annotation.PreDestroy;\nimport java.util.List;\nimport java.util.concurrent.ArrayBlockingQueue;\nimport java.util.concurrent.RejectedExecutionException;\nimport java.util.concurrent.ScheduledThreadPoolExecutor;\nimport java.util.concurrent.ThreadFactory;\nimport java.util.concurrent.ThreadPoolExecutor;\nimport java.util.concurrent.TimeUnit;\nimport java.util.concurrent.atomic.AtomicInteger;\nimport org.slf4j.Logger;\nimport org.slf4j.LoggerFactory;\n\n/**\n * Settlement service with two observable, closable thread pools:\n * a settlement executor and a retry scheduler.\n */\npublic class SettlementService {\n\n    private static final Logger log = LoggerFactory.getLogger(SettlementService.class);\n\n    private final ThreadPoolExecutor settleExecutor = new ThreadPoolExecutor(\n            8, 16, 60L, TimeUnit.SECONDS,\n            new ArrayBlockingQueue<>(200),\n            namedFactory(\"settle\"),\n            new ThreadPoolExecutor.AbortPolicy());\n\n    private final ScheduledThreadPoolExecutor retryScheduler;\n\n    public SettlementService() {\n        this.retryScheduler = new ScheduledThreadPoolExecutor(\n                1,\n                namedFactory(\"settle-retry\"),\n                new ThreadPoolExecutor.AbortPolicy());\n        this.retryScheduler.setRemoveOnCancelPolicy(true);\n    }\n\n    public void settle(String billId) {\n        try {\n            settleExecutor.execute(() -> doSettle(billId));\n        } catch (RejectedExecutionException ex) {\n            log.error(\"settle rejected, bill={}\", billId, ex);\n        }\n    }\n\n    public void scheduleRetry(String billId) {\n        try {\n            retryScheduler.schedule(() -> doSettle(billId), 30, TimeUnit.SECONDS);\n        } catch (RejectedExecutionException ex) {\n            log.error(\"retry schedule rejected, bill={}\", billId, ex);\n        }\n    }\n\n    /** Settlement pool backlog/active threads plus retry scheduler queue size. */\n    public String stats() {\n        return settleExecutor.getActiveCount() + \"/\" + settleExecutor.getQueue().size()\n                + \" retryQueue=\" + retryScheduler.getQueue().size();\n    }\n\n    @PreDestroy\n    public void stop() {\n        settleExecutor.shutdown();\n        retryScheduler.shutdown();\n        try {\n            if (!settleExecutor.awaitTermination(30, TimeUnit.SECONDS)) {\n                List<Runnable> pending = settleExecutor.shutdownNow();\n                log.warn(\"{} settle tasks were not executed before shutdown\", pending.size());\n            }\n            if (!retryScheduler.awaitTermination(30, TimeUnit.SECONDS)) {\n                List<Runnable> pending = retryScheduler.shutdownNow();\n                log.warn(\"{} retry tasks were not executed before shutdown\", pending.size());\n            }\n        } catch (InterruptedException ex) {\n            List<Runnable> pendingSettle = settleExecutor.shutdownNow();\n            List<Runnable> pendingRetry = retryScheduler.shutdownNow();\n            log.warn(\"shutdown interrupted, {} settle tasks and {} retry tasks left\",\n                    pendingSettle.size(), pendingRetry.size());\n            Thread.currentThread().interrupt();\n        }\n    }\n\n    private static ThreadFactory namedFactory(String prefix) {\n        AtomicInteger sequence = new AtomicInteger();\n        return task -> {\n            Thread thread = new Thread(task);\n            thread.setName(prefix + \"-\" + sequence.incrementAndGet());\n            thread.setDaemon(false);\n            return thread;\n        };\n    }\n\n    private void doSettle(String billId) {\n        // settlement business logic\n    }\n}\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1767,
+    "completion_tokens": 758,
+    "total_tokens": 2525,
+    "prompt_tokens_details": {
+      "cached_tokens": 1536
+    },
+    "prompt_cache_hit_tokens": 1536,
+    "prompt_cache_miss_tokens": 231
+  },
+  "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501"
+}

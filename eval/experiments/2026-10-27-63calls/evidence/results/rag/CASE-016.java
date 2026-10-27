@@ -1,0 +1,108 @@
+package com.example.config;
+
+import io.micrometer.core.instrument.Gauge;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.binder.MeterBinder;
+import java.util.concurrent.ThreadPoolExecutor;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+
+/**
+ * Spring 托管的订单通知线程池，参数完整并暴露监控指标。
+ */
+@Configuration
+public class AsyncExecutorConfig {
+
+    private static final String BEAN_NAME = "orderNotifier";
+
+    private ThreadPoolTaskExecutor orderNotifierExecutor;
+
+    public AsyncExecutorConfig() {
+    }
+
+    @Bean(name = BEAN_NAME)
+    public ThreadPoolTaskExecutor orderNotifier() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(8);
+        executor.setMaxPoolSize(16);
+        executor.setQueueCapacity(200);
+        executor.setThreadNamePrefix("order-notify-");
+        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.AbortPolicy());
+        executor.setWaitForTasksToCompleteOnShutdown(true);
+        executor.setAwaitTerminationSeconds(30);
+        this.orderNotifierExecutor = executor;
+        return executor;
+    }
+
+    @Bean
+    public MeterBinder orderNotifierMetrics(ThreadPoolTaskExecutor orderNotifier) {
+        return registry -> {
+            ThreadPoolExecutor tpe = orderNotifier.getThreadPoolExecutor();
+            Gauge.builder("order.notifier.pool.size", tpe, ThreadPoolExecutor::getPoolSize)
+                    .description("Current number of threads in the order notifier pool")
+                    .register(registry);
+            Gauge.builder("order.notifier.active", tpe, ThreadPoolExecutor::getActiveCount)
+                    .description("Number of actively executing order notifier tasks")
+                    .register(registry);
+            Gauge.builder("order.notifier.queue.size", tpe, e -> e.getQueue().size())
+                    .description("Number of tasks waiting in the order notifier queue")
+                    .register(registry);
+            Gauge.builder("order.notifier.queue.remaining", tpe, e -> e.getQueue().remainingCapacity())
+                    .description("Remaining capacity of the order notifier queue")
+                    .register(registry);
+            Gauge.builder("order.notifier.completed", tpe, ThreadPoolExecutor::getCompletedTaskCount)
+                    .description("Approximate total number of completed order notifier tasks")
+                    .register(registry);
+            Gauge.builder("order.notifier.largest.pool.size", tpe, ThreadPoolExecutor::getLargestPoolSize)
+                    .description("Largest number of threads ever in the order notifier pool")
+                    .register(registry);
+        };
+    }
+
+    /**
+     * 监控入口：返回当前线程池的关键指标快照。
+     */
+    public String stats() {
+        ThreadPoolTaskExecutor executor = this.orderNotifierExecutor;
+        if (executor == null) {
+            return "orderNotifier=not-initialized";
+        }
+        ThreadPoolExecutor tpe = executor.getThreadPoolExecutor();
+        return "orderNotifier{poolSize=" + tpe.getPoolSize()
+                + ", active=" + tpe.getActiveCount()
+                + ", queueSize=" + tpe.getQueue().size()
+                + ", queueRemaining=" + tpe.getQueue().remainingCapacity()
+                + ", completed=" + tpe.getCompletedTaskCount()
+                + ", largestPoolSize=" + tpe.getLargestPoolSize()
+                + ", corePoolSize=" + tpe.getCorePoolSize()
+                + ", maxPoolSize=" + tpe.getMaximumPoolSize()
+                + "}";
+    }
+
+    /**
+     * 静态监控入口：按 Bean 名从容器中获取线程池并返回指标快照。
+     */
+    public static String stats(org.springframework.context.ApplicationContext context) {
+        if (context == null) {
+            return "orderNotifier=no-context";
+        }
+        if (!context.containsBean(BEAN_NAME)) {
+            return "orderNotifier=not-found";
+        }
+        Object bean = context.getBean(BEAN_NAME);
+        if (!(bean instanceof ThreadPoolTaskExecutor executor)) {
+            return "orderNotifier=unexpected-type:" + bean.getClass().getName();
+        }
+        ThreadPoolExecutor tpe = executor.getThreadPoolExecutor();
+        return "orderNotifier{poolSize=" + tpe.getPoolSize()
+                + ", active=" + tpe.getActiveCount()
+                + ", queueSize=" + tpe.getQueue().size()
+                + ", queueRemaining=" + tpe.getQueue().remainingCapacity()
+                + ", completed=" + tpe.getCompletedTaskCount()
+                + ", largestPoolSize=" + tpe.getLargestPoolSize()
+                + ", corePoolSize=" + tpe.getCorePoolSize()
+                + ", maxPoolSize=" + tpe.getMaximumPoolSize()
+                + "}";
+    }
+}

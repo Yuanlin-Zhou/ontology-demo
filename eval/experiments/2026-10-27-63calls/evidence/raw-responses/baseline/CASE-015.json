@@ -1,0 +1,28 @@
+{
+  "id": "047bdd21-29ee-4dd5-865c-827db0ac3041",
+  "object": "chat.completion",
+  "created": 1793087465,
+  "model": "deepseek-flash",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```java\npackage com.example.audit.service;\n\nimport jakarta.annotation.PreDestroy;\nimport java.util.Collection;\nimport java.util.List;\nimport java.util.concurrent.ArrayBlockingQueue;\nimport java.util.concurrent.ConcurrentLinkedQueue;\nimport java.util.concurrent.ThreadFactory;\nimport java.util.concurrent.ThreadPoolExecutor;\nimport java.util.concurrent.TimeUnit;\nimport java.util.concurrent.atomic.AtomicInteger;\nimport org.slf4j.Logger;\nimport org.slf4j.LoggerFactory;\n\n/** before.java: shutdownNow() 返回的未执行任务被丢弃。 */\npublic class AuditWriteService {\n\n    private static final Logger log = LoggerFactory.getLogger(AuditWriteService.class);\n\n    private final ThreadPoolExecutor auditExecutor = new ThreadPoolExecutor(\n            4, 8, 60L, TimeUnit.SECONDS,\n            new ArrayBlockingQueue<>(200),\n            namedFactory(\"audit-write\"),\n            new ThreadPoolExecutor.CallerRunsPolicy());\n\n    /** 强制关闭时未执行的任务，转交补偿通道。 */\n    private final Collection<Runnable> fallbackQueue = new ConcurrentLinkedQueue<>();\n\n    /** 队列积压与活跃线程数，用于监控告警。 */\n    public String stats() {\n        return auditExecutor.getActiveCount() + \"/\" + auditExecutor.getQueue().size();\n    }\n\n    @PreDestroy\n    public void stop() {\n        auditExecutor.shutdown();\n        try {\n            if (!auditExecutor.awaitTermination(30, TimeUnit.SECONDS)) {\n                List<Runnable> pending = auditExecutor.shutdownNow();\n                fallbackQueue.addAll(pending);\n                log.warn(\"audit executor did not terminate in time, {} tasks moved to fallback\", pending.size());\n            }\n        } catch (InterruptedException ex) {\n            List<Runnable> pending = auditExecutor.shutdownNow();\n            fallbackQueue.addAll(pending);\n            log.warn(\"audit executor shutdown interrupted, {} tasks moved to fallback\", pending.size());\n            Thread.currentThread().interrupt();\n        }\n    }\n\n    private static ThreadFactory namedFactory(String prefix) {\n        AtomicInteger sequence = new AtomicInteger();\n        return task -> {\n            Thread thread = new Thread(task);\n            thread.setName(prefix + \"-\" + sequence.incrementAndGet());\n            return thread;\n        };\n    }\n}\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 733,
+    "completion_tokens": 482,
+    "total_tokens": 1215,
+    "prompt_tokens_details": {
+      "cached_tokens": 512
+    },
+    "prompt_cache_hit_tokens": 512,
+    "prompt_cache_miss_tokens": 221
+  },
+  "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501"
+}

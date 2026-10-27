@@ -1,0 +1,28 @@
+{
+  "id": "aa090252-b79f-4570-b995-c96120b581f7",
+  "object": "chat.completion",
+  "created": 1793087437,
+  "model": "deepseek-flash",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```java\npackage com.example.realtime.service;\n\nimport java.util.concurrent.ArrayBlockingQueue;\nimport java.util.concurrent.RejectedExecutionException;\nimport java.util.concurrent.ThreadFactory;\nimport java.util.concurrent.ThreadPoolExecutor;\nimport java.util.concurrent.TimeUnit;\nimport java.util.concurrent.atomic.AtomicInteger;\n\nimport org.slf4j.Logger;\nimport org.slf4j.LoggerFactory;\n\n/** 实时事件推送处理器：应用级共享线程池，事件提交到共享池执行。 */\npublic class RealtimePushHandler {\n\n    private static final Logger log = LoggerFactory.getLogger(RealtimePushHandler.class);\n\n    /** 应用级共享线程池，作为实例字段创建一次，供所有事件复用。 */\n    private final ThreadPoolExecutor executor;\n\n    public RealtimePushHandler() {\n        this.executor = new ThreadPoolExecutor(\n                2, 4, 60L, TimeUnit.SECONDS,\n                new ArrayBlockingQueue<>(50),\n                namedFactory(\"realtime-push\"),\n                new ThreadPoolExecutor.AbortPolicy());\n    }\n\n    public void onEvent(String eventId) {\n        try {\n            executor.execute(() -> push(eventId));\n        } catch (RejectedExecutionException ex) {\n            log.warn(\"push rejected, event={}\", eventId, ex);\n        }\n    }\n\n    /** 优雅关闭：由容器/调用方统一负责，只关闭一次。 */\n    public void shutdown() {\n        executor.shutdown();\n        try {\n            if (!executor.awaitTermination(30, TimeUnit.SECONDS)) {\n                executor.shutdownNow();\n                executor.awaitTermination(10, TimeUnit.SECONDS);\n            }\n        } catch (InterruptedException ex) {\n            executor.shutdownNow();\n            Thread.currentThread().interrupt();\n        }\n    }\n\n    private static ThreadFactory namedFactory(String prefix) {\n        AtomicInteger sequence = new AtomicInteger();\n        return task -> {\n            Thread thread = new Thread(task);\n            thread.setName(prefix + \"-\" + sequence.incrementAndGet());\n            return thread;\n        };\n    }\n\n    private void push(String eventId) {\n        // 原始业务逻辑：推送事件\n    }\n}\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1352,
+    "completion_tokens": 448,
+    "total_tokens": 1800,
+    "prompt_tokens_details": {
+      "cached_tokens": 1152
+    },
+    "prompt_cache_hit_tokens": 1152,
+    "prompt_cache_miss_tokens": 200
+  },
+  "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501"
+}

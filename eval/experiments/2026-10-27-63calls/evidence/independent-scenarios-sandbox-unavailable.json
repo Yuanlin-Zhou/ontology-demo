@@ -1,0 +1,86 @@
+[
+  {
+    "strategy": "baseline",
+    "case_id": "CASE-020",
+    "scenario": "queued-shutdown",
+    "source_sha256": "401a20b9ffa9888f4efefaf910e6c3f59955caeec2f92d63dab13d93551864c2",
+    "compile": {
+      "status": "unavailable",
+      "detail": "spawnSync /workspace/ontology-demo/.tools/jdk/bin/javac EPERM"
+    },
+    "tests": {
+      "status": "not_run",
+      "detail": "Skipped because compilation did not succeed."
+    }
+  },
+  {
+    "strategy": "baseline",
+    "case_id": "CASE-020",
+    "scenario": "uninterruptible-shutdown",
+    "source_sha256": "401a20b9ffa9888f4efefaf910e6c3f59955caeec2f92d63dab13d93551864c2",
+    "compile": {
+      "status": "unavailable",
+      "detail": "spawnSync /workspace/ontology-demo/.tools/jdk/bin/javac EPERM"
+    },
+    "tests": {
+      "status": "not_run",
+      "detail": "Skipped because compilation did not succeed."
+    }
+  },
+  {
+    "strategy": "rag",
+    "case_id": "CASE-020",
+    "scenario": "queued-shutdown",
+    "source_sha256": "05171c758f9e2a2190619f062290f1c45fc27763b967433c57037a5e852790df",
+    "compile": {
+      "status": "unavailable",
+      "detail": "/tmp/rule-engine-java-zpvV1D/ExportOrchestrator.java:50: error: cannot reference this before supertype constructor has been called\n        this(DEFAULT_TIMEOUT_MILLIS, this::generate);\n                                     ^\n1 error\nspawnSync /workspace/ontology-demo/.tools/jdk/bin/javac EPERM"
+    },
+    "tests": {
+      "status": "not_run",
+      "detail": "Skipped because compilation did not succeed."
+    }
+  },
+  {
+    "strategy": "rag",
+    "case_id": "CASE-020",
+    "scenario": "uninterruptible-shutdown",
+    "source_sha256": "05171c758f9e2a2190619f062290f1c45fc27763b967433c57037a5e852790df",
+    "compile": {
+      "status": "unavailable",
+      "detail": "/tmp/rule-engine-java-fWeUGC/ExportOrchestrator.java:50: error: cannot reference this before supertype constructor has been called\n        this(DEFAULT_TIMEOUT_MILLIS, this::generate);\n                                     ^\n1 error\nspawnSync /workspace/ontology-demo/.tools/jdk/bin/javac EPERM"
+    },
+    "tests": {
+      "status": "not_run",
+      "detail": "Skipped because compilation did not succeed."
+    }
+  },
+  {
+    "strategy": "rules",
+    "case_id": "CASE-020",
+    "scenario": "queued-shutdown",
+    "source_sha256": "fc43fb9fc1e36679436c62352beaa23d2d48bdfa37a260a1e9efa3d9f72c1b7c",
+    "compile": {
+      "status": "unavailable",
+      "detail": "spawnSync /workspace/ontology-demo/.tools/jdk/bin/javac EPERM"
+    },
+    "tests": {
+      "status": "not_run",
+      "detail": "Skipped because compilation did not succeed."
+    }
+  },
+  {
+    "strategy": "rules",
+    "case_id": "CASE-020",
+    "scenario": "uninterruptible-shutdown",
+    "source_sha256": "fc43fb9fc1e36679436c62352beaa23d2d48bdfa37a260a1e9efa3d9f72c1b7c",
+    "compile": {
+      "status": "unavailable",
+      "detail": "spawnSync /workspace/ontology-demo/.tools/jdk/bin/javac EPERM"
+    },
+    "tests": {
+      "status": "not_run",
+      "detail": "Skipped because compilation did not succeed."
+    }
+  }
+]

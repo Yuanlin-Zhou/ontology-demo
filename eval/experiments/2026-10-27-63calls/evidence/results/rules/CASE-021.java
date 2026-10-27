@@ -1,0 +1,100 @@
+package com.example.config;
+
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+import jakarta.annotation.PreDestroy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+/** 通过 @Bean 暴露订单通知线程池，容器关闭时回收，任务异常可见。 */
+@Configuration
+public class NotifyExecutorConfig {
+
+    private static final Logger log = LoggerFactory.getLogger(NotifyExecutorConfig.class);
+
+    private final AtomicLong rejectedCount = new AtomicLong();
+
+    private volatile ThreadPoolExecutor orderNotifierExecutor;
+
+    @Bean("orderNotifier")
+    public ThreadPoolExecutor orderNotifier() {
+        ThreadPoolExecutor executor = new ThreadPoolExecutor(
+                8, 16, 60L, TimeUnit.SECONDS,
+                new ArrayBlockingQueue<>(200),
+                namedFactory("order-notify"),
+                (r, e) -> {
+                    rejectedCount.incrementAndGet();
+                    log.warn("order-notify rejected task, poolSize={}, queueSize={}, activeCount={}",
+                            e.getPoolSize(), e.getQueue().size(), e.getActiveCount());
+                    throw new RejectedExecutionException("order-notify queue is full");
+                });
+        this.orderNotifierExecutor = executor;
+        return executor;
+    }
+
+    @PreDestroy
+    public void shutdown() {
+        ThreadPoolExecutor executor = this.orderNotifierExecutor;
+        if (executor == null) {
+            return;
+        }
+        executor.shutdown();
+        try {
+            if (!executor.awaitTermination(30, TimeUnit.SECONDS)) {
+                log.warn("order-notify did not terminate in time, forcing shutdownNow");
+                executor.shutdownNow();
+                if (!executor.awaitTermination(10, TimeUnit.SECONDS)) {
+                    log.error("order-notify still not terminated after shutdownNow");
+                }
+            }
+        } catch (InterruptedException ex) {
+            executor.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    public void dispatch(ThreadPoolExecutor notifier, String orderId) {
+        try {
+            notifier.execute(() -> {
+                try {
+                    if (orderId == null) {
+                        throw new IllegalArgumentException("orderId is null");
+                    }
+                    send(orderId);
+                } catch (RuntimeException ex) {
+                    log.error("order-notify task failed, orderId={}", orderId, ex);
+                }
+            });
+        } catch (RejectedExecutionException ex) {
+            log.error("order-notify rejected dispatch, orderId={}, rejectedTotal={}",
+                    orderId, rejectedCount.get(), ex);
+            throw ex;
+        }
+    }
+
+    public long getRejectedCount() {
+        return rejectedCount.get();
+    }
+
+    private static ThreadFactory namedFactory(String prefix) {
+        AtomicInteger sequence = new AtomicInteger();
+        return task -> {
+            Thread thread = new Thread(task);
+            thread.setName(prefix + "-" + sequence.incrementAndGet());
+            thread.setUncaughtExceptionHandler((t, ex) ->
+                    log.error("order-notify uncaught exception in thread {}", t.getName(), ex));
+            return thread;
+        };
+    }
+
+    private void send(String orderId) {
+        // 实际发送逻辑
+    }
+}

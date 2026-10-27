@@ -1,0 +1,97 @@
+package com.example.inventory.service;
+
+import java.util.Collection;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/** 库存同步任务：独立线程池、显式拒绝策略、调用侧补偿、可观测、可关闭。 */
+public class InventorySyncService {
+
+    private static final Logger log = LoggerFactory.getLogger(InventorySyncService.class);
+
+    /** 被拒绝的 SKU，供补偿验收读取。 */
+    final Collection<String> retryQueue = new ConcurrentLinkedQueue<>();
+
+    private final AtomicLong rejectedCount = new AtomicLong();
+
+    private final ThreadPoolExecutor syncExecutor;
+
+    public InventorySyncService() {
+        ThreadFactory threadFactory = new ThreadFactory() {
+            private final AtomicInteger seq = new AtomicInteger();
+
+            @Override
+            public Thread newThread(Runnable r) {
+                Thread t = new Thread(r, "inventory-sync-" + seq.incrementAndGet());
+                t.setDaemon(false);
+                return t;
+            }
+        };
+        this.syncExecutor = new ThreadPoolExecutor(
+                4,
+                8,
+                60L,
+                TimeUnit.SECONDS,
+                new ArrayBlockingQueue<>(100),
+                threadFactory,
+                new ThreadPoolExecutor.AbortPolicy());
+    }
+
+    public void sync(String sku) {
+        try {
+            syncExecutor.execute(() -> remoteSync(sku));
+        } catch (RejectedExecutionException e) {
+            rejectedCount.incrementAndGet();
+            retryQueue.add(sku);
+            log.warn("inventory sync rejected, sku={} queued for compensation, queueSize={}, active={}",
+                    sku, syncExecutor.getQueue().size(), syncExecutor.getActiveCount());
+        }
+    }
+
+    private void remoteSync(String sku) {
+        // 实际下游同步逻辑
+    }
+
+    /** 可观测指标快照。 */
+    public long getRejectedCount() {
+        return rejectedCount.get();
+    }
+
+    public int getQueueSize() {
+        return syncExecutor.getQueue().size();
+    }
+
+    public int getActiveCount() {
+        return syncExecutor.getActiveCount();
+    }
+
+    public long getCompletedTaskCount() {
+        return syncExecutor.getCompletedTaskCount();
+    }
+
+    public long getTaskCount() {
+        return syncExecutor.getTaskCount();
+    }
+
+    /** 应用关闭时调用，等待队列任务处理完成。 */
+    public void shutdown() {
+        syncExecutor.shutdown();
+        try {
+            if (!syncExecutor.awaitTermination(30, TimeUnit.SECONDS)) {
+                syncExecutor.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            syncExecutor.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
+    }
+}

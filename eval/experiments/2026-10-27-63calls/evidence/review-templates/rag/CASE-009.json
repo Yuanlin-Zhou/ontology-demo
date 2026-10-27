@@ -1,0 +1,16 @@
+{
+  "source_sha256": "",
+  "reviewer": "",
+  "criteria": [
+    {
+      "criterion": "自定义拒绝路径留有日志或持久记录",
+      "passed": null,
+      "evidence": ""
+    },
+    {
+      "criterion": "拒绝次数可被监控统计",
+      "passed": null,
+      "evidence": ""
+    }
+  ]
+}

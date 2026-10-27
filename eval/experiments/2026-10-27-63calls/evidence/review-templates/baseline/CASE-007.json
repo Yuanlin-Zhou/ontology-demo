@@ -1,0 +1,16 @@
+{
+  "source_sha256": "",
+  "reviewer": "",
+  "criteria": [
+    {
+      "criterion": "日志异步写入",
+      "passed": null,
+      "evidence": ""
+    },
+    {
+      "criterion": "过载丢弃有计数并有可观测告警",
+      "passed": null,
+      "evidence": ""
+    }
+  ]
+}

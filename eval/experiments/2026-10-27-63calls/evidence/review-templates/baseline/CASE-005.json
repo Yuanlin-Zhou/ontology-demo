@@ -1,0 +1,16 @@
+{
+  "source_sha256": "",
+  "reviewer": "",
+  "criteria": [
+    {
+      "criterion": "高峰时线程数能扩容",
+      "passed": null,
+      "evidence": ""
+    },
+    {
+      "criterion": "空闲后非核心线程可以回收",
+      "passed": null,
+      "evidence": ""
+    }
+  ]
+}

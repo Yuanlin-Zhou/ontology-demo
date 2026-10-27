@@ -1,0 +1,28 @@
+{
+  "id": "9220bdbd-ae38-49c0-96cc-df74c420e14f",
+  "object": "chat.completion",
+  "created": 1793087408,
+  "model": "deepseek-flash",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```java\npackage com.example.inventory.service;\n\nimport java.util.Collection;\nimport java.util.concurrent.ArrayBlockingQueue;\nimport java.util.concurrent.ConcurrentLinkedQueue;\nimport java.util.concurrent.RejectedExecutionException;\nimport java.util.concurrent.ThreadFactory;\nimport java.util.concurrent.ThreadPoolExecutor;\nimport java.util.concurrent.TimeUnit;\nimport java.util.concurrent.atomic.AtomicInteger;\n\nimport org.slf4j.Logger;\nimport org.slf4j.LoggerFactory;\n\n/**\n * InventorySyncService: 独立线程池执行库存同步任务。\n * 过载时使用确定的拒绝策略（AbortPolicy），并在调用侧捕获拒绝异常，\n * 将 SKU 放入 retryQueue 供补偿处理。\n */\npublic class InventorySyncService {\n\n    private static final Logger logger = LoggerFactory.getLogger(InventorySyncService.class);\n\n    /** 被拒绝的 SKU 保留队列，供补偿验收读取。 */\n    final Collection<String> retryQueue = new ConcurrentLinkedQueue<>();\n\n    private final ThreadPoolExecutor syncExecutor;\n\n    public InventorySyncService() {\n        this.syncExecutor = new ThreadPoolExecutor(\n                4, 8, 60L, TimeUnit.SECONDS,\n                new ArrayBlockingQueue<>(100),\n                new NamedThreadFactory(\"inventory-sync-\"),\n                new ThreadPoolExecutor.AbortPolicy());\n    }\n\n    public void sync(String sku) {\n        try {\n            syncExecutor.execute(() -> remoteSync(sku));\n        } catch (RejectedExecutionException ex) {\n            logger.warn(\"Inventory sync rejected for sku={}, enqueue for compensation\", sku);\n            retryQueue.add(sku);\n        }\n    }\n\n    private void remoteSync(String sku) {\n        // 原始业务逻辑占位：实际远程同步实现\n    }\n\n    private static final class NamedThreadFactory implements ThreadFactory {\n        private final String prefix;\n        private final AtomicInteger counter = new AtomicInteger(0);\n\n        NamedThreadFactory(String prefix) {\n            this.prefix = prefix;\n        }\n\n        @Override\n        public Thread newThread(Runnable r) {\n            Thread t = new Thread(r, prefix + counter.incrementAndGet());\n            t.setDaemon(false);\n            return t;\n        }\n    }\n}\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 533,
+    "completion_tokens": 461,
+    "total_tokens": 994,
+    "prompt_tokens_details": {
+      "cached_tokens": 384
+    },
+    "prompt_cache_hit_tokens": 384,
+    "prompt_cache_miss_tokens": 149
+  },
+  "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501"
+}

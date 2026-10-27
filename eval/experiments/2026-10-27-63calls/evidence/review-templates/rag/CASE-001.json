@@ -1,0 +1,16 @@
+{
+  "source_sha256": "",
+  "reviewer": "",
+  "criteria": [
+    {
+      "criterion": "订单通知确实在异步执行路径发生",
+      "passed": null,
+      "evidence": ""
+    },
+    {
+      "criterion": "下游通知失败不影响下单主流程",
+      "passed": null,
+      "evidence": ""
+    }
+  ]
+}

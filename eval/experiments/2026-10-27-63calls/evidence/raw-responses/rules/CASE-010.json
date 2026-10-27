@@ -1,0 +1,28 @@
+{
+  "id": "feced6bc-19b9-43d0-807c-0b8710bf1fde",
+  "object": "chat.completion",
+  "created": 1793087430,
+  "model": "deepseek-flash",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```java\npackage com.example.file.service;\n\nimport java.util.concurrent.ArrayBlockingQueue;\nimport java.util.concurrent.RejectedExecutionException;\nimport java.util.concurrent.ThreadFactory;\nimport java.util.concurrent.ThreadPoolExecutor;\nimport java.util.concurrent.TimeUnit;\nimport java.util.concurrent.atomic.AtomicLong;\n\nimport org.slf4j.Logger;\nimport org.slf4j.LoggerFactory;\n\n/** 文件处理服务：独立线程池，线程名可定位业务。 */\npublic class FileProcessService {\n\n    private static final Logger log = LoggerFactory.getLogger(FileProcessService.class);\n\n    private final ThreadPoolExecutor processor;\n\n    public FileProcessService() {\n        this.processor = new ThreadPoolExecutor(\n                4, 8, 60L, TimeUnit.SECONDS,\n                new ArrayBlockingQueue<>(100),\n                new NamedThreadFactory(\"file-process\"),\n                new ThreadPoolExecutor.AbortPolicy());\n    }\n\n    public void process(String fileId) {\n        try {\n            processor.execute(() -> handle(fileId));\n        } catch (RejectedExecutionException e) {\n            log.error(\"file-process rejected, fileId={}, queueSize={}, activeCount={}\",\n                    fileId, processor.getQueue().size(), processor.getActiveCount(), e);\n            throw e;\n        }\n    }\n\n    private void handle(String fileId) {\n        log.info(\"handle file, fileId={}, thread={}\", fileId, Thread.currentThread().getName());\n    }\n\n    static class NamedThreadFactory implements ThreadFactory {\n        private final String prefix;\n        private final AtomicLong sequence = new AtomicLong(0);\n\n        NamedThreadFactory(String prefix) {\n            this.prefix = prefix;\n        }\n\n        @Override\n        public Thread newThread(Runnable task) {\n            Thread thread = new Thread(task);\n            thread.setName(prefix + \"-\" + sequence.incrementAndGet());\n            thread.setDaemon(false);\n            return thread;\n        }\n    }\n}\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1329,
+    "completion_tokens": 398,
+    "total_tokens": 1727,
+    "prompt_tokens_details": {
+      "cached_tokens": 1152
+    },
+    "prompt_cache_hit_tokens": 1152,
+    "prompt_cache_miss_tokens": 177
+  },
+  "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501"
+}

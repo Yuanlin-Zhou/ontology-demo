@@ -1,0 +1,28 @@
+{
+  "id": "6020cb8b-03a1-49fa-bc12-3b027271370e",
+  "object": "chat.completion",
+  "created": 1793087422,
+  "model": "deepseek-flash",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```java\npackage com.example.notify.service;\n\nimport java.util.concurrent.ArrayBlockingQueue;\nimport java.util.concurrent.RejectedExecutionHandler;\nimport java.util.concurrent.ThreadPoolExecutor;\nimport java.util.concurrent.TimeUnit;\nimport java.util.concurrent.atomic.AtomicLong;\n\nimport org.slf4j.Logger;\nimport org.slf4j.LoggerFactory;\n\n/** 通知分发器：自定义拒绝策略，保留被拒绝任务的痕迹并统计。 */\npublic class NotifyDispatcher {\n\n    private static final Logger log = LoggerFactory.getLogger(NotifyDispatcher.class);\n\n    private final AtomicLong rejectedCount = new AtomicLong();\n\n    private final ThreadPoolExecutor notifier = new ThreadPoolExecutor(\n            8, 16, 60L, TimeUnit.SECONDS,\n            new ArrayBlockingQueue<>(200),\n            namedFactory(\"notify\"),\n            new RecordingRejectionHandler());\n\n    public NotifyDispatcher() {\n        // 应用级线程池必须有确定的关闭逻辑\n        Runtime.getRuntime().addShutdownHook(new Thread(this::shutdown, \"notify-shutdown\"));\n    }\n\n    /** 分发通知任务。 */\n    public void dispatch(String message) {\n        notifier.execute(() -> {\n            try {\n                // 原始业务行为：处理通知\n                handle(message);\n            } catch (RuntimeException e) {\n                log.error(\"notify task failed, message={}\", message, e);\n            }\n        });\n    }\n\n    /** 拒绝统计。 */\n    public long stats() {\n        return rejectedCount.get();\n    }\n\n    /** 关闭线程池。 */\n    public void shutdown() {\n        notifier.shutdown();\n        try {\n            if (!notifier.awaitTermination(30, TimeUnit.SECONDS)) {\n                notifier.shutdownNow();\n            }\n        } catch (InterruptedException e) {\n            notifier.shutdownNow();\n            Thread.currentThread().interrupt();\n        }\n    }\n\n    private void handle(String message) {\n        // 原始业务处理逻辑占位：实际通知发送\n        log.debug(\"dispatch notify: {}\", message);\n    }\n\n    private static java.util.concurrent.ThreadFactory namedFactory(String prefix) {\n        java.util.concurrent.atomic.AtomicInteger sequence = new java.util.concurrent.atomic.AtomicInteger();\n        return task -> {\n            Thread thread = new Thread(task);\n            thread.setName(prefix + \"-\" + sequence.incrementAndGet());\n            return thread;\n        };\n    }\n\n    class RecordingRejectionHandler implements RejectedExecutionHandler {\n        @Override\n        public void rejectedExecution(Runnable task, ThreadPoolExecutor executor) {\n            long total = rejectedCount.incrementAndGet();\n            log.warn(\"notify task rejected, rejectedCount={}, queueSize={}, activeCount={}, poolSize={}\",\n                    total, executor.getQueue().size(), executor.getActiveCount(), executor.getPoolSize());\n        }\n    }\n}\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1356,
+    "completion_tokens": 588,
+    "total_tokens": 1944,
+    "prompt_tokens_details": {
+      "cached_tokens": 1152
+    },
+    "prompt_cache_hit_tokens": 1152,
+    "prompt_cache_miss_tokens": 204
+  },
+  "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501"
+}

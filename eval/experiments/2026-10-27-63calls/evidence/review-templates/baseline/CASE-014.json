@@ -1,0 +1,16 @@
+{
+  "source_sha256": "",
+  "reviewer": "",
+  "criteria": [
+    {
+      "criterion": "关闭流程响应中断",
+      "passed": null,
+      "evidence": ""
+    },
+    {
+      "criterion": "捕获中断后恢复中断标志",
+      "passed": null,
+      "evidence": ""
+    }
+  ]
+}

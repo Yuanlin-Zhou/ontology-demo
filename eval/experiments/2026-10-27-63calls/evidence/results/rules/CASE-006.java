@@ -1,0 +1,427 @@
+package com.example.urgent.service;
+
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Consumer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+/**
+ * 紧急任务优先队列调度器。
+ *
+ * 业务要求：紧急任务优先处理；过载时丢弃最旧的低优先级任务，而不是最重要的任务。
+ * 队列有界；满载时原子地淘汰“最低优先级中最旧且优先级不高于新任务”的排队任务，
+ * 若所有排队任务都更重要则抛出 RejectedExecutionException。
+ */
+public class UrgentTaskDispatcher {
+
+    private static final Logger LOGGER = Logger.getLogger(UrgentTaskDispatcher.class.getName());
+
+    private static final int CORE_POOL_SIZE = 4;
+    private static final int MAX_POOL_SIZE = 4; // 固定 core=max，禁止满队列扩容绕过拒绝
+    private static final long KEEP_ALIVE_SECONDS = 60L;
+    private static final int QUEUE_CAPACITY = 200;
+
+    private final Consumer<String> handler;
+
+    private final AtomicLong rejectedCount = new AtomicLong();
+    private final AtomicLong evictedCount = new AtomicLong();
+    private final AtomicLong failedCount = new AtomicLong();
+
+    private final ThreadPoolExecutor dispatcher;
+
+    public UrgentTaskDispatcher() {
+        this(taskId -> { });
+    }
+
+    public UrgentTaskDispatcher(Consumer<String> handler) {
+        if (handler == null) {
+            throw new IllegalArgumentException("handler must not be null");
+        }
+        this.handler = handler;
+        BoundedPriorityQueue queue = new BoundedPriorityQueue(QUEUE_CAPACITY);
+        this.dispatcher = new ThreadPoolExecutor(
+                CORE_POOL_SIZE,
+                MAX_POOL_SIZE,
+                KEEP_ALIVE_SECONDS,
+                TimeUnit.SECONDS,
+                queue,
+                namedFactory("urgent-task"),
+                new ThreadPoolExecutor.AbortPolicy());
+    }
+
+    public void dispatch(String taskId) {
+        dispatch(taskId, 0);
+    }
+
+    public void dispatch(String taskId, int priority) {
+        if (taskId == null) {
+            throw new IllegalArgumentException("taskId must not be null");
+        }
+        Task task = new Task(taskId, priority);
+        try {
+            dispatcher.execute(task);
+        } catch (RejectedExecutionException e) {
+            rejectedCount.incrementAndGet();
+            LOGGER.log(Level.WARNING, "Task rejected: id={0}, priority={1}", new Object[]{taskId, priority});
+            throw e;
+        }
+    }
+
+    public long getRejectedCount() {
+        return rejectedCount.get();
+    }
+
+    public long getEvictedCount() {
+        return evictedCount.get();
+    }
+
+    public long getFailedCount() {
+        return failedCount.get();
+    }
+
+    public int getQueueSize() {
+        return dispatcher.getQueue().size();
+    }
+
+    public int getActiveCount() {
+        return dispatcher.getActiveCount();
+    }
+
+    public long getCompletedTaskCount() {
+        return dispatcher.getCompletedTaskCount();
+    }
+
+    public long getTaskCount() {
+        return dispatcher.getTaskCount();
+    }
+
+    public void shutdown() {
+        dispatcher.shutdown();
+    }
+
+    private static java.util.concurrent.ThreadFactory namedFactory(String prefix) {
+        AtomicInteger sequence = new AtomicInteger();
+        return task -> {
+            Thread thread = new Thread(task);
+            thread.setName(prefix + "-" + sequence.incrementAndGet());
+            return thread;
+        };
+    }
+
+    private final class Task implements Runnable {
+        final String taskId;
+        final int priority;
+        final long sequence;
+
+        Task(String taskId, int priority) {
+            this.taskId = taskId;
+            this.priority = priority;
+            this.sequence = 0L;
+        }
+
+        Task(String taskId, int priority, long sequence) {
+            this.taskId = taskId;
+            this.priority = priority;
+            this.sequence = sequence;
+        }
+
+        @Override
+        public void run() {
+            try {
+                handler.accept(taskId);
+            } catch (RuntimeException e) {
+                failedCount.incrementAndGet();
+                LOGGER.log(Level.SEVERE, "Task failed: id=" + taskId, e);
+                throw e;
+            }
+        }
+    }
+
+    /**
+     * 有界优先级阻塞队列：优先级降序，同级按提交序号升序（FIFO）。
+     * 满载时原子地淘汰最低优先级中最旧且优先级不高于新任务的排队任务。
+     */
+    private final class BoundedPriorityQueue extends java.util.AbstractQueue<Runnable>
+            implements BlockingQueue<Runnable> {
+
+        private final int capacity;
+        private final ReentrantLock lock = new ReentrantLock();
+        private final Condition notEmpty = lock.newCondition();
+        private final Condition notFull = lock.newCondition();
+        private final java.util.TreeSet<Task> tasks = new java.util.TreeSet<>(
+                (a, b) -> {
+                    int cmp = Integer.compare(b.priority, a.priority);
+                    if (cmp != 0) {
+                        return cmp;
+                    }
+                    return Long.compare(a.sequence, b.sequence);
+                });
+        private final AtomicLong sequenceGenerator = new AtomicLong();
+
+        BoundedPriorityQueue(int capacity) {
+            this.capacity = capacity;
+        }
+
+        @Override
+        public int size() {
+            lock.lock();
+            try {
+                return tasks.size();
+            } finally {
+                lock.unlock();
+            }
+        }
+
+        @Override
+        public java.util.Iterator<Runnable> iterator() {
+            lock.lock();
+            try {
+                return new java.util.ArrayList<Runnable>(tasks).iterator();
+            } finally {
+                lock.unlock();
+            }
+        }
+
+        @Override
+        public void put(Runnable r) throws InterruptedException {
+            offer(r, Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+        }
+
+        @Override
+        public boolean offer(Runnable r, long timeout, TimeUnit unit) throws InterruptedException {
+            long nanos = unit.toNanos(timeout);
+            lock.lockInterruptibly();
+            try {
+                while (tasks.size() >= capacity) {
+                    if (nanos <= 0L) {
+                        return false;
+                    }
+                    nanos = notFull.awaitNanos(nanos);
+                }
+                enqueueLocked(r);
+                return true;
+            } finally {
+                lock.unlock();
+            }
+        }
+
+        @Override
+        public boolean offer(Runnable r) {
+            lock.lock();
+            try {
+                if (tasks.size() < capacity) {
+                    enqueueLocked(r);
+                    return true;
+                }
+                return tryEvictAndEnqueueLocked(r);
+            } finally {
+                lock.unlock();
+            }
+        }
+
+        private void enqueueLocked(Runnable r) {
+            Task task = toTask(r);
+            tasks.add(task);
+            notEmpty.signal();
+        }
+
+        private Task toTask(Runnable r) {
+            if (r instanceof UrgentTaskDispatcher.Task) {
+                Task t = (Task) r;
+                return new Task(t.taskId, t.priority, sequenceGenerator.incrementAndGet());
+            }
+            return new Task(r.toString(), 0, sequenceGenerator.incrementAndGet());
+        }
+
+        private boolean tryEvictAndEnqueueLocked(Runnable r) {
+            Task incoming = toTask(r);
+            // 找到最低优先级中最旧且优先级不高于新任务的排队任务
+            Task victim = null;
+            for (Task t : tasks) {
+                if (t.priority <= incoming.priority) {
+                    victim = t;
+                } else {
+                    break;
+                }
+            }
+            if (victim == null) {
+                return false;
+            }
+            tasks.remove(victim);
+            evictedCount.incrementAndGet();
+            LOGGER.log(Level.INFO, "Evicted task: id={0}, priority={1} for incoming id={2}, priority={3}",
+                    new Object[]{victim.taskId, victim.priority, incoming.taskId, incoming.priority});
+            tasks.add(incoming);
+            notEmpty.signal();
+            return true;
+        }
+
+        @Override
+        public Runnable take() throws InterruptedException {
+            lock.lockInterruptibly();
+            try {
+                while (tasks.isEmpty()) {
+                    notEmpty.await();
+                }
+                Task task = tasks.pollFirst();
+                notFull.signal();
+                return task;
+            } finally {
+                lock.unlock();
+            }
+        }
+
+        @Override
+        public Runnable poll(long timeout, TimeUnit unit) throws InterruptedException {
+            long nanos = unit.toNanos(timeout);
+            lock.lockInterruptibly();
+            try {
+                while (tasks.isEmpty()) {
+                    if (nanos <= 0L) {
+                        return null;
+                    }
+                    nanos = notEmpty.awaitNanos(nanos);
+                }
+                Task task = tasks.pollFirst();
+                notFull.signal();
+                return task;
+            } finally {
+                lock.unlock();
+            }
+        }
+
+        @Override
+        public Runnable poll() {
+            lock.lock();
+            try {
+                Task task = tasks.pollFirst();
+                if (task != null) {
+                    notFull.signal();
+                }
+                return task;
+            } finally {
+                lock.unlock();
+            }
+        }
+
+        @Override
+        public Runnable peek() {
+            lock.lock();
+            try {
+                return tasks.isEmpty() ? null : tasks.first();
+            } finally {
+                lock.unlock();
+            }
+        }
+
+        @Override
+        public int remainingCapacity() {
+            lock.lock();
+            try {
+                return capacity - tasks.size();
+            } finally {
+                lock.unlock();
+            }
+        }
+
+        @Override
+        public int drainTo(java.util.Collection<? super Runnable> c) {
+            if (c == null) {
+                throw new NullPointerException();
+            }
+            lock.lock();
+            try {
+                int n = 0;
+                Task t;
+                while ((t = tasks.pollFirst()) != null) {
+                    c.add(t);
+                    n++;
+                }
+                if (n > 0) {
+                    notFull.signalAll();
+                }
+                return n;
+            } finally {
+                lock.unlock();
+            }
+        }
+
+        @Override
+        public int drainTo(java.util.Collection<? super Runnable> c, int maxElements) {
+            if (c == null) {
+                throw new NullPointerException();
+            }
+            if (maxElements <= 0) {
+                return 0;
+            }
+            lock.lock();
+            try {
+                int n = 0;
+                while (n < maxElements) {
+                    Task t = tasks.pollFirst();
+                    if (t == null) {
+                        break;
+                    }
+                    c.add(t);
+                    n++;
+                }
+                if (n > 0) {
+                    notFull.signalAll();
+                }
+                return n;
+            } finally {
+                lock.unlock();
+            }
+        }
+
+        @Override
+        public boolean add(Runnable r) {
+            if (offer(r)) {
+                return true;
+            }
+            throw new IllegalStateException("Queue full");
+        }
+
+        @Override
+        public boolean remove(Object o) {
+            lock.lock();
+            try {
+                boolean removed = tasks.remove(o);
+                if (removed) {
+                    notFull.signal();
+                }
+                return removed;
+            } finally {
+                lock.unlock();
+            }
+        }
+
+        @Override
+        public boolean contains(Object o) {
+            lock.lock();
+            try {
+                return tasks.contains(o);
+            } finally {
+                lock.unlock();
+            }
+        }
+
+        @Override
+        public void clear() {
+            lock.lock();
+            try {
+                tasks.clear();
+                notFull.signalAll();
+            } finally {
+                lock.unlock();
+            }
+        }
+    }
+}

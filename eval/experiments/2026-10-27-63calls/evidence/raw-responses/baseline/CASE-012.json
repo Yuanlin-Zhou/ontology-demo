@@ -1,0 +1,28 @@
+{
+  "id": "393a2a15-2fcb-4662-b574-7d97bea76744",
+  "object": "chat.completion",
+  "created": 1793087440,
+  "model": "deepseek-flash",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```java\npackage com.example.quote.service;\n\nimport java.util.concurrent.CompletableFuture;\nimport java.util.concurrent.ExecutorService;\nimport java.util.concurrent.Executors;\nimport java.util.concurrent.TimeUnit;\nimport java.util.concurrent.TimeoutException;\n\n/** before.java: 使用 CompletableFuture 编排远程报价，但没有指定业务线程池。 */\npublic class QuoteService {\n\n    private static final long TIMEOUT_SECONDS = 2L;\n\n    private final ExecutorService businessExecutor = Executors.newFixedThreadPool(\n            Math.max(2, Runtime.getRuntime().availableProcessors()));\n\n    public CompletableFuture<String> quote(String orderId) {\n        return CompletableFuture\n                .supplyAsync(() -> remoteQuote(orderId), businessExecutor)\n                .orTimeout(TIMEOUT_SECONDS, TimeUnit.SECONDS)\n                .exceptionallyCompose(ex -> {\n                    Throwable cause = ex;\n                    while (cause != null && !(cause instanceof TimeoutException)) {\n                        cause = cause.getCause();\n                    }\n                    if (cause instanceof TimeoutException) {\n                        return CompletableFuture.failedFuture(new TimeoutException(\n                                \"quote timed out for order \" + orderId));\n                    }\n                    return CompletableFuture.failedFuture(ex);\n                });\n    }\n\n    private String remoteQuote(String orderId) {\n        return \"quote-\" + orderId;\n    }\n}\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 515,
+    "completion_tokens": 288,
+    "total_tokens": 803,
+    "prompt_tokens_details": {
+      "cached_tokens": 381
+    },
+    "prompt_cache_hit_tokens": 381,
+    "prompt_cache_miss_tokens": 134
+  },
+  "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501"
+}

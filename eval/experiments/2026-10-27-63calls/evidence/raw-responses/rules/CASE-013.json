@@ -1,0 +1,28 @@
+{
+  "id": "74bfee82-c7c4-4e85-bc8d-856aa3cd561b",
+  "object": "chat.completion",
+  "created": 1793087453,
+  "model": "deepseek-flash",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```java\npackage com.example.points.service;\n\nimport jakarta.annotation.PreDestroy;\nimport java.util.concurrent.ArrayBlockingQueue;\nimport java.util.concurrent.RejectedExecutionException;\nimport java.util.concurrent.ThreadFactory;\nimport java.util.concurrent.ThreadPoolExecutor;\nimport java.util.concurrent.TimeUnit;\nimport java.util.concurrent.atomic.AtomicInteger;\nimport java.util.concurrent.atomic.AtomicLong;\nimport org.slf4j.Logger;\nimport org.slf4j.LoggerFactory;\n\n/**\n * 积分类异步任务服务。\n *\n * <p>关闭时按优雅关闭标准模式处理：先 shutdown() 停止接收新任务并继续处理已提交任务，\n * 再 awaitTermination 等待；超时后 shutdownNow() 并再次等待。关闭责任方唯一（本类 @PreDestroy）。</p>\n */\npublic class PointsAccrueService {\n\n    private static final Logger log = LoggerFactory.getLogger(PointsAccrueService.class);\n\n    /** 优雅关闭等待超时（秒）。 */\n    private static final long SHUTDOWN_TIMEOUT_SECONDS = 30L;\n\n    private final ThreadPoolExecutor accrueExecutor = new ThreadPoolExecutor(\n            4, 8, 60L, TimeUnit.SECONDS,\n            new ArrayBlockingQueue<>(200),\n            namedFactory(\"points-accrue\"),\n            new ThreadPoolExecutor.AbortPolicy());\n\n    /** 拒绝次数统计（AbortPolicy 抛出异常时由调用侧累加）。 */\n    private final AtomicLong rejectedCount = new AtomicLong();\n\n    public void accrue(String userId) {\n        try {\n            accrueExecutor.execute(() -> doAccrue(userId));\n        } catch (RejectedExecutionException ex) {\n            rejectedCount.incrementAndGet();\n            log.error(\"points accrue rejected, user={}\", userId, ex);\n        }\n    }\n\n    @PreDestroy\n    public void stop() {\n        accrueExecutor.shutdown();\n        try {\n            if (!accrueExecutor.awaitTermination(SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {\n                log.warn(\"points accrue executor did not terminate in {}s, forcing shutdownNow\",\n                        SHUTDOWN_TIMEOUT_SECONDS);\n                accrueExecutor.shutdownNow();\n                if (!accrueExecutor.awaitTermination(SHUTDOWN_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {\n                    log.error(\"points accrue executor still not terminated after shutdownNow\");\n                }\n            }\n        } catch (InterruptedException ex) {\n            accrueExecutor.shutdownNow();\n            Thread.currentThread().interrupt();\n        }\n    }\n\n    /**\n     * 线程池可观测指标快照，供监控上报使用。\n     */\n    public ExecutorMetrics metrics() {\n        return new ExecutorMetrics(\n                accrueExecutor.getQueue().size(),\n                accrueExecutor.getActiveCount(),\n                accrueExecutor.getCompletedTaskCount(),\n                accrueExecutor.getTaskCount(),\n                rejectedCount.get());\n    }\n\n    /** 线程池可观测指标。 */\n    public record ExecutorMetrics(\n            int queueSize,\n            int activeCount,\n            long completedTaskCount,\n            long taskCount,\n            long rejectedCount) {\n    }\n\n    private static ThreadFactory namedFactory(String prefix) {\n        AtomicInteger sequence = new AtomicInteger();\n        return task -> {\n            Thread thread = new Thread(task);\n            thread.setName(prefix + \"-\" + sequence.incrementAndGet());\n            return thread;\n        };\n    }\n\n    private void doAccrue(String userId) {\n        // 积分入账业务实现（保持原有行为）。\n    }\n}\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1429,
+    "completion_tokens": 743,
+    "total_tokens": 2172,
+    "prompt_tokens_details": {
+      "cached_tokens": 1280
+    },
+    "prompt_cache_hit_tokens": 1280,
+    "prompt_cache_miss_tokens": 149
+  },
+  "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501"
+}

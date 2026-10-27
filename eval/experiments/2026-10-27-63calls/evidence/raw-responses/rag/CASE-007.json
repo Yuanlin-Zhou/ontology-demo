@@ -1,0 +1,28 @@
+{
+  "id": "ff066ed5-0623-4def-81c6-338de6e9e06f",
+  "object": "chat.completion",
+  "created": 1793087399,
+  "model": "deepseek-flash",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```java\npackage com.example.log.service;\n\nimport java.util.concurrent.ArrayBlockingQueue;\nimport java.util.concurrent.RejectedExecutionHandler;\nimport java.util.concurrent.ThreadFactory;\nimport java.util.concurrent.ThreadPoolExecutor;\nimport java.util.concurrent.TimeUnit;\nimport java.util.concurrent.atomic.AtomicInteger;\nimport java.util.concurrent.atomic.AtomicLong;\n\nimport org.slf4j.Logger;\nimport org.slf4j.LoggerFactory;\n\n/** before.java: 日志异步写入线程池使用 DiscardPolicy（任务被静默丢弃）。 */\npublic class AsyncLogWriter {\n\n    private static final Logger log = LoggerFactory.getLogger(AsyncLogWriter.class);\n\n    private final AtomicLong rejectedCount = new AtomicLong();\n\n    private final ThreadPoolExecutor writer = new ThreadPoolExecutor(\n            4, 8, 60L, TimeUnit.SECONDS,\n            new ArrayBlockingQueue<>(1000),\n            namedFactory(\"async-log\"),\n            new CountingRejectedHandler());\n\n    public void write(String message) {\n        writer.execute(() -> append(message));\n    }\n\n    /**\n     * 暴露运行及拒绝统计，便于监控与隔离测试。\n     */\n    public Stats stats() {\n        return new Stats(\n                writer.getPoolSize(),\n                writer.getActiveCount(),\n                writer.getQueue().size(),\n                writer.getCompletedTaskCount(),\n                rejectedCount.get());\n    }\n\n    private static ThreadFactory namedFactory(String prefix) {\n        AtomicInteger sequence = new AtomicInteger();\n        return task -> {\n            Thread thread = new Thread(task);\n            thread.setName(prefix + \"-\" + sequence.incrementAndGet());\n            return thread;\n        };\n    }\n\n    private void append(String message) {\n        // 业务实现：将日志消息写入目标存储。\n        log.info(\"{}\", message);\n    }\n\n    /** 拒绝时计数并告警，不静默丢弃。 */\n    private final class CountingRejectedHandler implements RejectedExecutionHandler {\n        @Override\n        public void rejectedExecution(Runnable r, ThreadPoolExecutor e) {\n            long total = rejectedCount.incrementAndGet();\n            log.warn(\"async-log rejected task, totalRejected={}, poolSize={}, activeCount={}, queueSize={}\",\n                    total, e.getPoolSize(), e.getActiveCount(), e.getQueue().size());\n        }\n    }\n\n    /** 运行及拒绝统计快照。 */\n    public static final class Stats {\n        private final int poolSize;\n        private final int activeCount;\n        private final int queueSize;\n        private final long completedTaskCount;\n        private final long rejectedCount;\n\n        public Stats(int poolSize, int activeCount, int queueSize,\n                     long completedTaskCount, long rejectedCount) {\n            this.poolSize = poolSize;\n            this.activeCount = activeCount;\n            this.queueSize = queueSize;\n            this.completedTaskCount = completedTaskCount;\n            this.rejectedCount = rejectedCount;\n        }\n\n        public int getPoolSize() {\n            return poolSize;\n        }\n\n        public int getActiveCount() {\n            return activeCount;\n        }\n\n        public int getQueueSize() {\n            return queueSize;\n        }\n\n        public long getCompletedTaskCount() {\n            return completedTaskCount;\n        }\n\n        public long getRejectedCount() {\n            return rejectedCount;\n        }\n\n        @Override\n        public String toString() {\n            return \"Stats{poolSize=\" + poolSize\n                    + \", activeCount=\" + activeCount\n                    + \", queueSize=\" + queueSize\n                    + \", completedTaskCount=\" + completedTaskCount\n                    + \", rejectedCount=\" + rejectedCount + '}';\n        }\n    }\n}\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1450,
+    "completion_tokens": 752,
+    "total_tokens": 2202,
+    "prompt_tokens_details": {
+      "cached_tokens": 1280
+    },
+    "prompt_cache_hit_tokens": 1280,
+    "prompt_cache_miss_tokens": 170
+  },
+  "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501"
+}

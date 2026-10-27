@@ -1,0 +1,28 @@
+{
+  "id": "e20479d7-c18a-4390-875d-91c063fe78bd",
+  "object": "chat.completion",
+  "created": 1793087335,
+  "model": "deepseek-flash",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```java\npackage com.example.order.service;\n\nimport com.example.order.domain.Order;\nimport java.util.concurrent.ArrayBlockingQueue;\nimport java.util.concurrent.BlockingQueue;\nimport java.util.concurrent.Future;\nimport java.util.concurrent.RejectedExecutionException;\nimport java.util.concurrent.ThreadFactory;\nimport java.util.concurrent.ThreadPoolExecutor;\nimport java.util.concurrent.TimeUnit;\nimport java.util.concurrent.atomic.AtomicInteger;\nimport org.slf4j.Logger;\nimport org.slf4j.LoggerFactory;\n\n/**\n * OrderSyncService: 数据同步任务，使用 ThreadLocal 传递租户，并直接 get() 等待结果。\n */\npublic class OrderSyncService {\n\n    private static final Logger log = LoggerFactory.getLogger(OrderSyncService.class);\n\n    private static final ThreadLocal<String> TENANT = new ThreadLocal<>();\n\n    private static final int CORE_POOL_SIZE = 8;\n    private static final int MAX_POOL_SIZE = 8;\n    private static final long KEEP_ALIVE_SECONDS = 60L;\n    private static final int QUEUE_CAPACITY = 256;\n\n    private final ThreadPoolExecutor syncExecutor;\n\n    public OrderSyncService() {\n        BlockingQueue<Runnable> queue = new ArrayBlockingQueue<>(QUEUE_CAPACITY);\n        ThreadFactory threadFactory = new ThreadFactory() {\n            private final AtomicInteger seq = new AtomicInteger(0);\n\n            @Override\n            public Thread newThread(Runnable r) {\n                Thread t = new Thread(r, \"order-sync-\" + seq.incrementAndGet());\n                t.setDaemon(false);\n                return t;\n            }\n        };\n        this.syncExecutor = new ThreadPoolExecutor(\n                CORE_POOL_SIZE,\n                MAX_POOL_SIZE,\n                KEEP_ALIVE_SECONDS,\n                TimeUnit.SECONDS,\n                queue,\n                threadFactory,\n                new ThreadPoolExecutor.AbortPolicy());\n    }\n\n    public void syncCreated(Order order) {\n        try {\n            syncExecutor.execute(() -> {\n                try {\n                    TENANT.set(order.tenantId());\n                    syncRemote(order);\n                } finally {\n                    TENANT.remove();\n                }\n            });\n        } catch (RejectedExecutionException e) {\n            log.error(\"syncCreated rejected, orderId={}, tenantId={}\",\n                    order.id(), order.tenantId(), e);\n            throw e;\n        }\n    }\n\n    public Order reload(String id) throws Exception {\n        Future<Order> future;\n        try {\n            future = syncExecutor.submit(() -> query(id));\n        } catch (RejectedExecutionException e) {\n            log.error(\"reload rejected, orderId={}\", id, e);\n            throw e;\n        }\n        return future.get();\n    }\n\n    public void shutdown() {\n        syncExecutor.shutdown();\n        try {\n            if (!syncExecutor.awaitTermination(30, TimeUnit.SECONDS)) {\n                syncExecutor.shutdownNow();\n            }\n        } catch (InterruptedException e) {\n            syncExecutor.shutdownNow();\n            Thread.currentThread().interrupt();\n        }\n    }\n\n    private void syncRemote(Order order) {\n        // remote call\n    }\n\n    private Order query(String id) {\n        return null;\n    }\n}\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1350,
+    "completion_tokens": 663,
+    "total_tokens": 2013,
+    "prompt_tokens_details": {
+      "cached_tokens": 1152
+    },
+    "prompt_cache_hit_tokens": 1152,
+    "prompt_cache_miss_tokens": 198
+  },
+  "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501"
+}

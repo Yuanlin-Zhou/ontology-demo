@@ -1,0 +1,28 @@
+{
+  "id": "e6c210d1-1e87-4b4f-863c-bd70a04a4271",
+  "object": "chat.completion",
+  "created": 1793087411,
+  "model": "deepseek-flash",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```java\npackage com.example.inventory.service;\n\nimport java.util.Collection;\nimport java.util.concurrent.ArrayBlockingQueue;\nimport java.util.concurrent.ConcurrentLinkedQueue;\nimport java.util.concurrent.RejectedExecutionException;\nimport java.util.concurrent.ThreadFactory;\nimport java.util.concurrent.ThreadPoolExecutor;\nimport java.util.concurrent.TimeUnit;\nimport java.util.concurrent.atomic.AtomicInteger;\n\n/**\n * InventorySyncService: 库存同步任务使用独立线程池，过载时确定拒绝并记录到 retryQueue 供调用侧补偿。\n */\npublic class InventorySyncService {\n\n    private static final System.Logger LOGGER = System.getLogger(InventorySyncService.class.getName());\n\n    /** 被拒绝的 SKU 保留队列，供补偿验收读取。 */\n    private final Collection<String> retryQueue = new ConcurrentLinkedQueue<>();\n\n    private final ThreadPoolExecutor syncExecutor;\n\n    public InventorySyncService() {\n        ThreadFactory threadFactory = new ThreadFactory() {\n            private final AtomicInteger seq = new AtomicInteger(1);\n\n            @Override\n            public Thread newThread(Runnable r) {\n                Thread t = new Thread(r, \"inventory-sync-\" + seq.getAndIncrement());\n                t.setDaemon(false);\n                return t;\n            }\n        };\n\n        this.syncExecutor = new ThreadPoolExecutor(\n                4,\n                8,\n                60L,\n                TimeUnit.SECONDS,\n                new ArrayBlockingQueue<>(100),\n                threadFactory,\n                new ThreadPoolExecutor.AbortPolicy());\n    }\n\n    public void sync(String sku) {\n        try {\n            syncExecutor.execute(() -> remoteSync(sku));\n        } catch (RejectedExecutionException ex) {\n            retryQueue.add(sku);\n            LOGGER.log(System.Logger.Level.WARNING,\n                    \"Inventory sync rejected for sku={0}, queued for compensation\", sku);\n        }\n    }\n\n    private void remoteSync(String sku) {\n        // 原始业务逻辑占位：实际远程同步实现\n    }\n}\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1276,
+    "completion_tokens": 412,
+    "total_tokens": 1688,
+    "prompt_tokens_details": {
+      "cached_tokens": 1024
+    },
+    "prompt_cache_hit_tokens": 1024,
+    "prompt_cache_miss_tokens": 252
+  },
+  "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501"
+}

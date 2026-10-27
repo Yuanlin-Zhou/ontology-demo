@@ -1,0 +1,28 @@
+{
+  "id": "cf7221bb-937b-4a2b-b9b6-89711018f0ad",
+  "object": "chat.completion",
+  "created": 1793087447,
+  "model": "deepseek-flash",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```java\npackage com.example.points.service;\n\nimport jakarta.annotation.PreDestroy;\nimport java.util.concurrent.ArrayBlockingQueue;\nimport java.util.concurrent.RejectedExecutionException;\nimport java.util.concurrent.ThreadFactory;\nimport java.util.concurrent.ThreadPoolExecutor;\nimport java.util.concurrent.TimeUnit;\nimport java.util.concurrent.atomic.AtomicInteger;\nimport org.slf4j.Logger;\nimport org.slf4j.LoggerFactory;\n\n/** 积分类异步任务服务：应用关闭时等待队列中的任务处理完成后再退出。 */\npublic class PointsAccrueService {\n\n    private static final Logger log = LoggerFactory.getLogger(PointsAccrueService.class);\n\n    private final ThreadPoolExecutor accrueExecutor = new ThreadPoolExecutor(\n            4, 8, 60L, TimeUnit.SECONDS,\n            new ArrayBlockingQueue<>(200),\n            namedFactory(\"points-accrue\"),\n            new ThreadPoolExecutor.AbortPolicy());\n\n    public void accrue(String userId) {\n        try {\n            accrueExecutor.execute(() -> doAccrue(userId));\n        } catch (RejectedExecutionException ex) {\n            log.error(\"points accrue rejected, user={}\", userId, ex);\n        }\n    }\n\n    @PreDestroy\n    public void stop() {\n        accrueExecutor.shutdown();\n        try {\n            if (!accrueExecutor.awaitTermination(60L, TimeUnit.SECONDS)) {\n                log.warn(\"points accrue executor did not terminate within timeout, forcing shutdown\");\n                accrueExecutor.shutdownNow();\n                if (!accrueExecutor.awaitTermination(30L, TimeUnit.SECONDS)) {\n                    log.error(\"points accrue executor did not terminate after forced shutdown\");\n                }\n            }\n        } catch (InterruptedException ex) {\n            accrueExecutor.shutdownNow();\n            Thread.currentThread().interrupt();\n        }\n    }\n\n    private static ThreadFactory namedFactory(String prefix) {\n        AtomicInteger sequence = new AtomicInteger();\n        return task -> {\n            Thread thread = new Thread(task);\n            thread.setName(prefix + \"-\" + sequence.incrementAndGet());\n            return thread;\n        };\n    }\n\n    private void doAccrue(String userId) {\n        // 业务实现：积分累计逻辑\n    }\n}\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 659,
+    "completion_tokens": 461,
+    "total_tokens": 1120,
+    "prompt_tokens_details": {
+      "cached_tokens": 512
+    },
+    "prompt_cache_hit_tokens": 512,
+    "prompt_cache_miss_tokens": 147
+  },
+  "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501"
+}

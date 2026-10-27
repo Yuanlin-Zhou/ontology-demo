@@ -1,0 +1,28 @@
+{
+  "id": "c564a685-6757-4b82-8c5e-6c6066d571a6",
+  "object": "chat.completion",
+  "created": 1793087326,
+  "model": "deepseek-flash",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```java\npackage com.example.order.service;\n\nimport com.example.order.domain.Order;\nimport java.util.concurrent.ArrayBlockingQueue;\nimport java.util.concurrent.RejectedExecutionException;\nimport java.util.concurrent.ThreadFactory;\nimport java.util.concurrent.ThreadPoolExecutor;\nimport java.util.concurrent.TimeUnit;\nimport java.util.concurrent.atomic.AtomicInteger;\nimport java.util.concurrent.atomic.AtomicLong;\nimport org.slf4j.Logger;\nimport org.slf4j.LoggerFactory;\n\n/**\n * 订单异步通知服务。\n *\n * <p>订单创建后异步发送通知，通知失败不影响下单主流程。</p>\n */\npublic class OrderAsyncService {\n\n    private static final Logger log = LoggerFactory.getLogger(OrderAsyncService.class);\n\n    private static final int CORE_POOL_SIZE = 16;\n    private static final int MAX_POOL_SIZE = 16;\n    private static final long KEEP_ALIVE_SECONDS = 60L;\n    private static final int QUEUE_CAPACITY = 1024;\n\n    private final AtomicLong rejectedCount = new AtomicLong(0L);\n\n    private final ThreadPoolExecutor notifier;\n\n    public OrderAsyncService() {\n        this.notifier = new ThreadPoolExecutor(\n                CORE_POOL_SIZE,\n                MAX_POOL_SIZE,\n                KEEP_ALIVE_SECONDS,\n                TimeUnit.SECONDS,\n                new ArrayBlockingQueue<Runnable>(QUEUE_CAPACITY),\n                new NotifierThreadFactory(),\n                new ThreadPoolExecutor.AbortPolicy());\n        this.notifier.allowCoreThreadTimeOut(false);\n    }\n\n    public void notifyCreated(Order order) {\n        if (order == null) {\n            return;\n        }\n        try {\n            notifier.execute(() -> sendRemote(order));\n        } catch (RejectedExecutionException ex) {\n            rejectedCount.incrementAndGet();\n            log.warn(\"Order notification rejected, orderId={}, tenantId={}, queueSize={}, activeCount={}\",\n                    order.id(), order.tenantId(),\n                    notifier.getQueue().size(), notifier.getActiveCount());\n        }\n    }\n\n    private void sendRemote(Order order) {\n        try {\n            // remote call to the notification platform\n        } catch (RuntimeException ex) {\n            log.warn(\"Order notification failed, orderId={}, tenantId={}\",\n                    order.id(), order.tenantId(), ex);\n        }\n    }\n\n    public long getRejectedCount() {\n        return rejectedCount.get();\n    }\n\n    public int getQueueSize() {\n        return notifier.getQueue().size();\n    }\n\n    public int getActiveCount() {\n        return notifier.getActiveCount();\n    }\n\n    public long getCompletedTaskCount() {\n        return notifier.getCompletedTaskCount();\n    }\n\n    public long getTaskCount() {\n        return notifier.getTaskCount();\n    }\n\n    public void shutdown() {\n        notifier.shutdown();\n        try {\n            if (!notifier.awaitTermination(30, TimeUnit.SECONDS)) {\n                notifier.shutdownNow();\n            }\n        } catch (InterruptedException ex) {\n            notifier.shutdownNow();\n            Thread.currentThread().interrupt();\n        }\n    }\n\n    private static final class NotifierThreadFactory implements ThreadFactory {\n        private final AtomicInteger seq = new AtomicInteger(0);\n\n        @Override\n        public Thread newThread(Runnable r) {\n            Thread t = new Thread(r, \"order-notify-\" + seq.incrementAndGet());\n            t.setDaemon(false);\n            return t;\n        }\n    }\n}\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1251,
+    "completion_tokens": 732,
+    "total_tokens": 1983,
+    "prompt_tokens_details": {
+      "cached_tokens": 1024
+    },
+    "prompt_cache_hit_tokens": 1024,
+    "prompt_cache_miss_tokens": 227
+  },
+  "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501"
+}

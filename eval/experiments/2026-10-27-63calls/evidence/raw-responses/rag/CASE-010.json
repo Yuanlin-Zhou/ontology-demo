@@ -1,0 +1,28 @@
+{
+  "id": "83fadcc9-b94d-43b6-9ce0-d3b82250e3b2",
+  "object": "chat.completion",
+  "created": 1793087428,
+  "model": "deepseek-flash",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```java\npackage com.example.file.service;\n\nimport java.util.concurrent.ArrayBlockingQueue;\nimport java.util.concurrent.ThreadFactory;\nimport java.util.concurrent.ThreadPoolExecutor;\nimport java.util.concurrent.TimeUnit;\nimport java.util.concurrent.atomic.AtomicInteger;\n\n/** before.java: 自定义 ThreadFactory 没有给线程命名。 */\npublic class FileProcessService {\n\n    private final ThreadPoolExecutor processor = new ThreadPoolExecutor(\n            4, 8, 60L, TimeUnit.SECONDS,\n            new ArrayBlockingQueue<>(100),\n            new NamingThreadFactory(\"file-process\"),\n            new ThreadPoolExecutor.AbortPolicy());\n\n    public void process(String fileId) {\n        processor.execute(() -> handle(fileId));\n    }\n\n    private void handle(String fileId) {\n    }\n\n    static class NamingThreadFactory implements ThreadFactory {\n\n        private final AtomicInteger sequence = new AtomicInteger();\n        private final String prefix;\n\n        NamingThreadFactory(String prefix) {\n            this.prefix = prefix;\n        }\n\n        @Override\n        public Thread newThread(Runnable task) {\n            Thread thread = new Thread(task);\n            thread.setName(prefix + \"-\" + sequence.incrementAndGet());\n            thread.setDaemon(false);\n            return thread;\n        }\n    }\n}\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1327,
+    "completion_tokens": 262,
+    "total_tokens": 1589,
+    "prompt_tokens_details": {
+      "cached_tokens": 1152
+    },
+    "prompt_cache_hit_tokens": 1152,
+    "prompt_cache_miss_tokens": 175
+  },
+  "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501"
+}

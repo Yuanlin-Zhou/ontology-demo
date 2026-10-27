@@ -1,0 +1,188 @@
+package com.example.config;
+
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.Gauge;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import jakarta.annotation.PreDestroy;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+
+/**
+ * Spring 托管的订单通知线程池，参数完整且可观测。
+ */
+@Configuration
+public class AsyncExecutorConfig {
+
+    private static final Logger log = LoggerFactory.getLogger(AsyncExecutorConfig.class);
+
+    private static final int CORE_POOL_SIZE = 8;
+    private static final int MAX_POOL_SIZE = 16;
+    private static final int QUEUE_CAPACITY = 200;
+    private static final long KEEP_ALIVE_SECONDS = 60L;
+    private static final String THREAD_NAME_PREFIX = "order-notify-";
+
+    private final AtomicInteger rejectedCount = new AtomicInteger(0);
+
+    private ThreadPoolTaskExecutor orderNotifierExecutor;
+
+    private MeterRegistry meterRegistry;
+
+    public AsyncExecutorConfig() {
+    }
+
+    @Bean("orderNotifier")
+    public ThreadPoolTaskExecutor orderNotifier() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor() {
+            @Override
+            protected BlockingQueue<Runnable> createQueue(int queueCapacity) {
+                return new ArrayBlockingQueue<>(queueCapacity);
+            }
+        };
+        executor.setCorePoolSize(CORE_POOL_SIZE);
+        executor.setMaxPoolSize(MAX_POOL_SIZE);
+        executor.setQueueCapacity(QUEUE_CAPACITY);
+        executor.setKeepAliveSeconds((int) KEEP_ALIVE_SECONDS);
+        executor.setThreadNamePrefix(THREAD_NAME_PREFIX);
+        executor.setThreadFactory(new NamedThreadFactory(THREAD_NAME_PREFIX));
+        executor.setRejectedExecutionHandler(new CountingAbortPolicy());
+        executor.setWaitForTasksToCompleteOnShutdown(true);
+        executor.setAwaitTerminationSeconds(30);
+        this.orderNotifierExecutor = executor;
+        return executor;
+    }
+
+    @Bean
+    public MeterRegistry meterRegistry() {
+        SimpleMeterRegistry registry = new SimpleMeterRegistry();
+        this.meterRegistry = registry;
+        return registry;
+    }
+
+    /**
+     * 监控入口：返回线程池关键指标快照。
+     */
+    public Map<String, Object> stats() {
+        return stats(orderNotifierExecutor);
+    }
+
+    /**
+     * 静态监控入口：返回指定线程池的关键指标快照。
+     */
+    public static Map<String, Object> stats(ThreadPoolTaskExecutor executor) {
+        Map<String, Object> snapshot = new LinkedHashMap<>();
+        if (executor == null) {
+            return snapshot;
+        }
+        ThreadPoolExecutor tpe = executor.getThreadPoolExecutor();
+        if (tpe == null) {
+            return snapshot;
+        }
+        snapshot.put("queueSize", tpe.getQueue().size());
+        snapshot.put("activeCount", tpe.getActiveCount());
+        snapshot.put("completedTaskCount", tpe.getCompletedTaskCount());
+        snapshot.put("taskCount", tpe.getTaskCount());
+        snapshot.put("poolSize", tpe.getPoolSize());
+        snapshot.put("largestPoolSize", tpe.getLargestPoolSize());
+        snapshot.put("corePoolSize", tpe.getCorePoolSize());
+        snapshot.put("maximumPoolSize", tpe.getMaximumPoolSize());
+        snapshot.put("queueCapacity", QUEUE_CAPACITY);
+        RejectedExecutionHandler handler = tpe.getRejectedExecutionHandler();
+        if (handler instanceof CountingAbortPolicy counting) {
+            snapshot.put("rejectedCount", counting.getRejectedCount());
+        } else {
+            snapshot.put("rejectedCount", 0);
+        }
+        return snapshot;
+    }
+
+    private void registerMetrics(ThreadPoolTaskExecutor executor) {
+        if (meterRegistry == null) {
+            return;
+        }
+        ThreadPoolExecutor tpe = executor.getThreadPoolExecutor();
+        if (tpe == null) {
+            return;
+        }
+        Gauge.builder("order.notify.executor.queue.size", tpe, e -> e.getQueue().size())
+                .description("订单通知线程池队列长度")
+                .register(meterRegistry);
+        Gauge.builder("order.notify.executor.active", tpe, ThreadPoolExecutor::getActiveCount)
+                .description("订单通知线程池活跃线程数")
+                .register(meterRegistry);
+        Gauge.builder("order.notify.executor.completed", tpe, ThreadPoolExecutor::getCompletedTaskCount)
+                .description("订单通知线程池已完成任务数")
+                .register(meterRegistry);
+        Gauge.builder("order.notify.executor.tasks", tpe, ThreadPoolExecutor::getTaskCount)
+                .description("订单通知线程池已提交任务总数")
+                .register(meterRegistry);
+        Gauge.builder("order.notify.executor.pool.size", tpe, ThreadPoolExecutor::getPoolSize)
+                .description("订单通知线程池当前线程数")
+                .register(meterRegistry);
+        Counter.builder("order.notify.executor.rejected")
+                .description("订单通知线程池拒绝任务数")
+                .register(meterRegistry);
+    }
+
+    @PreDestroy
+    public void shutdown() {
+        if (orderNotifierExecutor != null) {
+            log.info("Shutting down orderNotifier executor, stats={}", stats(orderNotifierExecutor));
+            orderNotifierExecutor.shutdown();
+        }
+    }
+
+    /**
+     * 带计数的 AbortPolicy：拒绝时累加计数并抛出 RejectedExecutionException。
+     */
+    private final class CountingAbortPolicy implements RejectedExecutionHandler {
+
+        private final AtomicInteger count = new AtomicInteger(0);
+
+        @Override
+        public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
+            int total = count.incrementAndGet();
+            rejectedCount.incrementAndGet();
+            log.warn("orderNotifier rejected task, totalRejected={}, queueSize={}, activeCount={}",
+                    total, executor.getQueue().size(), executor.getActiveCount());
+            throw new java.util.concurrent.RejectedExecutionException(
+                    "orderNotifier queue full, rejected task #" + total);
+        }
+
+        int getRejectedCount() {
+            return count.get();
+        }
+    }
+
+    /**
+     * 可区分业务的线程工厂。
+     */
+    private static final class NamedThreadFactory implements ThreadFactory {
+
+        private final String prefix;
+        private final AtomicInteger sequence = new AtomicInteger(0);
+
+        NamedThreadFactory(String prefix) {
+            this.prefix = prefix;
+        }
+
+        @Override
+        public Thread newThread(Runnable r) {
+            Thread thread = new Thread(r, prefix + sequence.incrementAndGet());
+            thread.setDaemon(false);
+            return thread;
+        }
+    }
+}

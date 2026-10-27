@@ -1,0 +1,28 @@
+{
+  "id": "55ff2df6-2998-41c2-83df-37fad747fd0a",
+  "object": "chat.completion",
+  "created": 1793087495,
+  "model": "deepseek-flash",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```java\npackage com.example.loom.service;\n\nimport java.util.Map;\nimport java.util.Objects;\nimport java.util.concurrent.ConcurrentHashMap;\nimport java.util.concurrent.ExecutorService;\nimport java.util.concurrent.Executors;\nimport java.util.concurrent.RejectedExecutionException;\nimport java.util.concurrent.Semaphore;\nimport java.util.concurrent.TimeUnit;\nimport java.util.concurrent.atomic.AtomicBoolean;\nimport java.util.concurrent.atomic.AtomicLong;\nimport java.util.function.Consumer;\n\nimport org.slf4j.Logger;\nimport org.slf4j.LoggerFactory;\n\n/** before.java: 使用虚拟线程执行阻塞式下游调用。 */\npublic class LoomNotifier {\n\n    private static final Logger log = LoggerFactory.getLogger(LoomNotifier.class);\n\n    private final ExecutorService virtualExecutor = Executors.newVirtualThreadPerTaskExecutor();\n\n    private final Semaphore permits;\n    private final Consumer<String> downstream;\n    private final AtomicBoolean closed = new AtomicBoolean(false);\n\n    private final AtomicLong active = new AtomicLong();\n    private final AtomicLong completed = new AtomicLong();\n    private final AtomicLong failed = new AtomicLong();\n    private final AtomicLong rejected = new AtomicLong();\n\n    public LoomNotifier() {\n        this(64, LoomNotifier::defaultRemoteNotify);\n    }\n\n    public LoomNotifier(int maxConcurrent, Consumer<String> downstream) {\n        if (maxConcurrent <= 0) {\n            throw new IllegalArgumentException(\"maxConcurrent must be positive\");\n        }\n        this.permits = new Semaphore(maxConcurrent);\n        this.downstream = Objects.requireNonNull(downstream, \"downstream\");\n    }\n\n    public void notify(String orderId) {\n        if (closed.get()) {\n            rejected.incrementAndGet();\n            throw new RejectedExecutionException(\"LoomNotifier is closed\");\n        }\n        if (!permits.tryAcquire()) {\n            rejected.incrementAndGet();\n            throw new RejectedExecutionException(\"Concurrency limit reached: \" + orderId);\n        }\n        active.incrementAndGet();\n        try {\n            virtualExecutor.execute(() -> runTask(orderId));\n        } catch (RejectedExecutionException e) {\n            active.decrementAndGet();\n            permits.release();\n            rejected.incrementAndGet();\n            throw e;\n        } catch (RuntimeException e) {\n            active.decrementAndGet();\n            permits.release();\n            rejected.incrementAndGet();\n            throw new RejectedExecutionException(\"Failed to submit task\", e);\n        }\n    }\n\n    private void runTask(String orderId) {\n        boolean success = false;\n        try {\n            downstream.accept(orderId);\n            success = true;\n        } catch (Throwable t) {\n            if (t instanceof InterruptedException) {\n                Thread.currentThread().interrupt();\n            }\n            log.error(\"Downstream notify failed for order {}\", orderId, t);\n        } finally {\n            if (success) {\n                completed.incrementAndGet();\n            } else {\n                failed.incrementAndGet();\n            }\n            active.decrementAndGet();\n            permits.release();\n        }\n    }\n\n    public Map<String, Long> stats() {\n        Map<String, Long> result = new ConcurrentHashMap<>();\n        result.put(\"active\", active.get());\n        result.put(\"completed\", completed.get());\n        result.put(\"failed\", failed.get());\n        result.put(\"rejected\", rejected.get());\n        return result;\n    }\n\n    public void stop() {\n        if (!closed.compareAndSet(false, true)) {\n            return;\n        }\n        virtualExecutor.shutdown();\n        boolean interrupted = false;\n        try {\n            while (true) {\n                try {\n                    if (virtualExecutor.awaitTermination(1, TimeUnit.SECONDS)) {\n                        break;\n                    }\n                } catch (InterruptedException e) {\n                    interrupted = true;\n                    log.warn(\"Interrupted while waiting for LoomNotifier to stop\");\n                    break;\n                }\n            }\n        } finally {\n            if (interrupted) {\n                Thread.currentThread().interrupt();\n            }\n        }\n    }\n\n    private static void defaultRemoteNotify(String orderId) {\n        // 阻塞式 HTTP 调用\n    }\n}\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1448,
+    "completion_tokens": 864,
+    "total_tokens": 2312,
+    "prompt_tokens_details": {
+      "cached_tokens": 1280
+    },
+    "prompt_cache_hit_tokens": 1280,
+    "prompt_cache_miss_tokens": 168
+  },
+  "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501"
+}

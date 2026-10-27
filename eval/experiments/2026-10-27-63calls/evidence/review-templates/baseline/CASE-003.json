@@ -1,0 +1,16 @@
+{
+  "source_sha256": "",
+  "reviewer": "",
+  "criteria": [
+    {
+      "criterion": "导出请求能够被执行",
+      "passed": null,
+      "evidence": ""
+    },
+    {
+      "criterion": "过载时队列内存有界且拒绝行为明确",
+      "passed": null,
+      "evidence": ""
+    }
+  ]
+}

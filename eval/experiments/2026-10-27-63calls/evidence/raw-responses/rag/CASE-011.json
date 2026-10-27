@@ -1,0 +1,28 @@
+{
+  "id": "3516ad86-9ea4-446c-8bb6-c99ca9a3c7d6",
+  "object": "chat.completion",
+  "created": 1793087434,
+  "model": "deepseek-flash",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```java\npackage com.example.realtime.service;\n\nimport java.util.concurrent.ArrayBlockingQueue;\nimport java.util.concurrent.RejectedExecutionException;\nimport java.util.concurrent.ThreadFactory;\nimport java.util.concurrent.ThreadPoolExecutor;\nimport java.util.concurrent.TimeUnit;\nimport java.util.concurrent.atomic.AtomicInteger;\n\nimport org.slf4j.Logger;\nimport org.slf4j.LoggerFactory;\n\n/** 实时事件推送处理器：复用应用级线程池，避免每次调用新建线程池。 */\npublic class RealtimePushHandler {\n\n    private static final Logger log = LoggerFactory.getLogger(RealtimePushHandler.class);\n\n    /** 应用级共享线程池，保留为可反射观察的实例字段。 */\n    private final ThreadPoolExecutor executor;\n\n    public RealtimePushHandler() {\n        this.executor = new ThreadPoolExecutor(\n                2, 4, 60L, TimeUnit.SECONDS,\n                new ArrayBlockingQueue<>(50),\n                namedFactory(\"realtime-push\"),\n                new ThreadPoolExecutor.AbortPolicy());\n    }\n\n    public void onEvent(String eventId) {\n        try {\n            executor.execute(() -> push(eventId));\n        } catch (RejectedExecutionException ex) {\n            log.warn(\"push rejected, event={}\", eventId, ex);\n        }\n    }\n\n    private static ThreadFactory namedFactory(String prefix) {\n        AtomicInteger sequence = new AtomicInteger();\n        return task -> {\n            Thread thread = new Thread(task);\n            thread.setName(prefix + \"-\" + sequence.incrementAndGet());\n            thread.setDaemon(false);\n            return thread;\n        };\n    }\n\n    private void push(String eventId) {\n        // 原始业务实现占位：实际推送逻辑由具体业务提供。\n    }\n}\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1418,
+    "completion_tokens": 358,
+    "total_tokens": 1776,
+    "prompt_tokens_details": {
+      "cached_tokens": 1280
+    },
+    "prompt_cache_hit_tokens": 1280,
+    "prompt_cache_miss_tokens": 138
+  },
+  "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501"
+}

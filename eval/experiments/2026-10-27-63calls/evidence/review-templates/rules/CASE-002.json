@@ -1,0 +1,16 @@
+{
+  "source_sha256": "",
+  "reviewer": "",
+  "criteria": [
+    {
+      "criterion": "订单同步任务实际执行且异常可见",
+      "passed": null,
+      "evidence": ""
+    },
+    {
+      "criterion": "复用工作线程时租户上下文不串数据",
+      "passed": null,
+      "evidence": ""
+    }
+  ]
+}

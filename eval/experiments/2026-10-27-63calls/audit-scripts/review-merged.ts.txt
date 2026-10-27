@@ -1,0 +1,36 @@
+/** Agent source review of selected frozen checklist items; does not run a model or rewrite code. */
+import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { join } from 'node:path';
+import { TASK_CRITERIA, sha256, readTaskReview } from '../eval/acceptance.ts';
+import { renderReportMarkdown, type EvalReport } from '../eval/runner.ts';
+const root='.eval-cache/merged-20261027-run';
+const original=JSON.parse(readFileSync(join(root,'report.json'),'utf8')) as EvalReport;
+writeFileSync(join(root,'first-pass-report.json'),JSON.stringify(original,null,2)+'\n');
+const notes:Record<string,[string,string]>={
+ 'CASE-004':['scheduleRetry uses scheduleWithFixedDelay to invoke the configured retryHandler Consumer; runRetry/runOnce calls accept(orderId). This review concerns the injected local handler, not an external order platform.','The callback invocation is inside try/catch RuntimeException, incrementing failure counters and logging without throwing into the periodic scheduler.'],
+ 'CASE-005':['The executor has core=4, max=8, a finite queue of 100 and execute submissions. The runtime harness checks max > core, not an actual saturation/load trace.','keepAlive=60 seconds with core<max enables reclamation of excess noncore workers; the runtime harness checks configuration; actual 60-second idle reclamation timing is not measured.'],
+ 'CASE-006':['PrioritizedTask/UrgentTask compareTo or Task queue comparator sorts larger priority before smaller priority among waiting work. Running work is not preempted.','baseline/rag use an unbounded PriorityBlockingQueue(200), so finite capacity is not enforced. rules uses a descending TreeSet: its eviction traversal breaks on higher-priority items and otherwise overwrites the victim through newer sequence numbers. Frozen acceptance fails for all three outputs.'],
+ 'CASE-012':['quote returns a CompletableFuture with remoteQuote(orderId) yielding quote- plus orderId, preserving the declared PoC return contract. No claim of an actual remote pricing platform.','supplyAsync explicitly receives businessExecutor/quoteExecutor; orTimeout bounds the returned future to 2 seconds. This does not prove cancellation of underlying I/O, which is outside these two frozen criteria.'],
+ 'CASE-013':['stop calls shutdown before awaiting; normal accepted queued tasks can finish without immediate shutdownNow. This is the declared bounded graceful shutdown policy, not a guarantee for noncooperative tasks past its timeout.','stop invokes awaitTermination and handles timeout with shutdownNow; normal runtime acceptance verifies the wait.'],
+ 'CASE-017':['The service owns newVirtualThreadPerTaskExecutor and schedules runTask -> downstream.accept. The configured Consumer is invoked on virtual threads in the frozen runtime test.','The explicit maxConcurrent constructor initializes Semaphore; notify uses tryAcquire before submitting, and finally releases it. The default baseline constructor effectively permits Integer.MAX_VALUE concurrency, so this positive review is scoped to the configured limit contract.'],
+ 'CASE-019':['total iterates items, adds BigDecimal price multiplied by quantity, then applies 0.95 only for vip; source and runtime arithmetic test agree.','The complete source contains only BigDecimal/List and the OrderItem record; no executor/thread-pool creation or async execution is introduced.'],
+ 'CASE-020':['export submits generator.apply and waits for the CompletableFuture with a timeout, preserving the declared local report generator contract. rag has an invalid constructor and cannot instantiate this path.','export invokes validateTenant on the caller before scheduling; validateTenant sets TENANT when absent and export never restores the caller. Only worker context is restored in its finally. This fails the frozen empty-caller-context assertion.','Timeout cancels inner FutureTask/future, but queued work is an outer lambda. baseline/rag do not remove it; rules removes the inner task rather than the actual queued Runnable. Drained shutdown lambdas also do not complete associated caller futures. Independent shutdown scenarios are recorded separately.'],
+ 'CASE-021':['@Configuration declares @Bean(orderNotifier), retains the created executor in a field, and @PreDestroy shutdown uses shutdown/awaitTermination. The real Spring context test checks lifecycle.','dispatch executes send inside a worker RuntimeException guard; null orderId triggers observable log evidence, and subsequent tasks are processed. This proves the declared error-isolation criterion, not delivery to a real notification platform.'],
+};
+for(const row of original.agent){
+ const evidence=notes[row.case_id];if(!evidence)continue;
+ const source=readFileSync(row.file,'utf8');
+ const criteria=TASK_CRITERIA[row.case_id]!.map((criterion,index)=>({criterion,passed:!(row.case_id==='CASE-006'&&index===1)&&!(row.case_id==='CASE-020'&&(index>0||row.strategy==='rag')),evidence:evidence[index]!}));
+ const dir=join(root,'reviews',row.strategy);mkdirSync(dir,{recursive:true});
+ writeFileSync(join(dir,`${row.case_id}.json`),JSON.stringify({source_sha256:sha256(source),reviewer:'Codex Agent source review (not human), frozen checklist scope, 2026-10-27',criteria},null,2)+'\n');
+}
+// Reuse the frozen compiler/test outcomes; do not silently rerun or replace first-pass evidence.
+const reviewed=structuredClone(original);
+for(const row of reviewed.agent){
+ const review=readTaskReview(join(root,'reviews',row.strategy,`${row.case_id}.json`),readFileSync(row.file,'utf8'),row.case_id);
+ const failed=row.output!=='present'||['failed','timeout'].includes(row.compile)||['failed','timeout'].includes(row.test_check.status);
+ row.task_check=failed?{status:'failed',detail:'Required syntax, compilation or frozen functional check failed.'}:review.status!=='ok'?review:row.compile!=='ok'||row.test_check.status!=='ok'?{status:'not_run',detail:'Required automatic check unavailable.'}:review;
+}
+reviewed.notes.push('Selected frozen checklist items reviewed by Codex Agent, not a human reviewer. Unreviewed tasks remain not_run; first-pass compiler/test outcomes are reused without rerunning or overwriting original report. No claim of real external business integration from empty/stub helper methods.');
+writeFileSync(join(root,'reviewed-report.json'),JSON.stringify(reviewed,null,2)+'\n');
+writeFileSync(join(root,'reviewed-report.md'),renderReportMarkdown(reviewed));

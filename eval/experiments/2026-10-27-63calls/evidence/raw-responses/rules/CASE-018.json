@@ -1,0 +1,28 @@
+{
+  "id": "c5ba4eda-4fb0-4b7c-a786-2a244c3e083a",
+  "object": "chat.completion",
+  "created": 1793087511,
+  "model": "deepseek-flash",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```java\npackage com.example.settle.service;\n\nimport jakarta.annotation.PreDestroy;\nimport java.util.List;\nimport java.util.concurrent.ArrayBlockingQueue;\nimport java.util.concurrent.RejectedExecutionException;\nimport java.util.concurrent.ScheduledThreadPoolExecutor;\nimport java.util.concurrent.ThreadFactory;\nimport java.util.concurrent.ThreadPoolExecutor;\nimport java.util.concurrent.TimeUnit;\nimport java.util.concurrent.atomic.AtomicInteger;\nimport java.util.concurrent.atomic.AtomicLong;\nimport org.slf4j.Logger;\nimport org.slf4j.LoggerFactory;\n\n/**\n * 结算服务：结算线程池 + 失败重试调度线程池，两者均可观测、可关闭。\n */\npublic class SettlementService {\n\n    private static final Logger log = LoggerFactory.getLogger(SettlementService.class);\n\n    private final ThreadPoolExecutor settleExecutor = new ThreadPoolExecutor(\n            8, 16, 60L, TimeUnit.SECONDS,\n            new ArrayBlockingQueue<>(200),\n            namedFactory(\"settle\"),\n            new ThreadPoolExecutor.AbortPolicy());\n\n    private final ScheduledThreadPoolExecutor retryScheduler = new ScheduledThreadPoolExecutor(\n            2,\n            namedFactory(\"settle-retry\"),\n            new ThreadPoolExecutor.AbortPolicy());\n\n    private final AtomicLong settleRejected = new AtomicLong();\n    private final AtomicLong retryRejected = new AtomicLong();\n\n    public SettlementService() {\n        retryScheduler.setRemoveOnCancelPolicy(true);\n    }\n\n    public void settle(String billId) {\n        try {\n            settleExecutor.execute(() -> doSettle(billId));\n        } catch (RejectedExecutionException ex) {\n            settleRejected.incrementAndGet();\n            log.error(\"settle rejected, bill={}\", billId, ex);\n        }\n    }\n\n    public void scheduleRetry(String billId) {\n        try {\n            retryScheduler.schedule(() -> doSettle(billId), 30, TimeUnit.SECONDS);\n        } catch (RejectedExecutionException ex) {\n            retryRejected.incrementAndGet();\n            log.error(\"retry schedule rejected, bill={}\", billId, ex);\n        }\n    }\n\n    /** 两个线程池的队列积压、活跃线程数、完成数、任务总数与拒绝次数。 */\n    public String stats() {\n        return \"settle[active=\" + settleExecutor.getActiveCount()\n                + \",queue=\" + settleExecutor.getQueue().size()\n                + \",completed=\" + settleExecutor.getCompletedTaskCount()\n                + \",total=\" + settleExecutor.getTaskCount()\n                + \",rejected=\" + settleRejected.get() + \"]\"\n                + \" retry[active=\" + retryScheduler.getActiveCount()\n                + \",queue=\" + retryScheduler.getQueue().size()\n                + \",completed=\" + retryScheduler.getCompletedTaskCount()\n                + \",total=\" + retryScheduler.getTaskCount()\n                + \",rejected=\" + retryRejected.get() + \"]\";\n    }\n\n    @PreDestroy\n    public void stop() {\n        settleExecutor.shutdown();\n        retryScheduler.shutdown();\n        try {\n            if (!settleExecutor.awaitTermination(30, TimeUnit.SECONDS)) {\n                List<Runnable> pending = settleExecutor.shutdownNow();\n                log.warn(\"{} settle tasks were not executed before shutdown\", pending.size());\n            }\n            if (!retryScheduler.awaitTermination(30, TimeUnit.SECONDS)) {\n                List<Runnable> pending = retryScheduler.shutdownNow();\n                log.warn(\"{} retry tasks were not executed before shutdown\", pending.size());\n            }\n        } catch (InterruptedException ex) {\n            List<Runnable> pendingSettle = settleExecutor.shutdownNow();\n            List<Runnable> pendingRetry = retryScheduler.shutdownNow();\n            log.warn(\"shutdown interrupted, {} settle tasks and {} retry tasks left\",\n                    pendingSettle.size(), pendingRetry.size());\n            Thread.currentThread().interrupt();\n        }\n    }\n\n    private static ThreadFactory namedFactory(String prefix) {\n        AtomicInteger sequence = new AtomicInteger();\n        return task -> {\n            Thread thread = new Thread(task);\n            thread.setName(prefix + \"-\" + sequence.incrementAndGet());\n            return thread;\n        };\n    }\n\n    private void doSettle(String billId) {\n    }\n}\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1673,
+    "completion_tokens": 911,
+    "total_tokens": 2584,
+    "prompt_tokens_details": {
+      "cached_tokens": 1536
+    },
+    "prompt_cache_hit_tokens": 1536,
+    "prompt_cache_miss_tokens": 137
+  },
+  "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501"
+}

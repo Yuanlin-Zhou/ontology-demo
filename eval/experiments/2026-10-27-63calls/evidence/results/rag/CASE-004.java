@@ -1,0 +1,228 @@
+package com.example.schedule.service;
+
+import java.util.Objects;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Consumer;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * 订单重试调度器。
+ *
+ * <p>使用 {@link ScheduledThreadPoolExecutor} 的 {@code scheduleWithFixedDelay} 实现固定延迟重试：
+ * 上一轮执行完成后再等待指定延迟，不重叠、不追赶补跑。</p>
+ *
+ * <p>注意：{@link ScheduledThreadPoolExecutor} 内部使用无界的 {@code DelayedWorkQueue}，
+ * 本类并未使用有界队列；{@code removeOnCancelPolicy} 仅用于及时移除已取消任务，不是容量上限。</p>
+ */
+public class RetryScheduler {
+
+    private static final Logger log = LoggerFactory.getLogger(RetryScheduler.class);
+
+    private static final long DEFAULT_INITIAL_DELAY_MILLIS = 1000L;
+    private static final long DEFAULT_DELAY_MILLIS = 30_000L;
+    private static final int POOL_SIZE = 4;
+    private static final long SHUTDOWN_GRACE_MILLIS = 200L;
+    private static final long SHUTDOWN_AWAIT_MILLIS = 5_000L;
+
+    /** 供隔离测试反射观察的调度器实例。 */
+    private final ScheduledThreadPoolExecutor scheduler;
+
+    /** 关闭后仍被拒绝的订单，供补偿观察。 */
+    private final Queue<String> pendingRetries = new ConcurrentLinkedQueue<>();
+
+    private final long initialDelayMillis;
+    private final long delayMillis;
+    private final Consumer<String> retryHandler;
+
+    private final AtomicLong scheduledCount = new AtomicLong();
+    private final AtomicLong executedCount = new AtomicLong();
+    private final AtomicLong failedCount = new AtomicLong();
+    private final AtomicLong rejectedCount = new AtomicLong();
+
+    private volatile boolean stopped;
+
+    /**
+     * 无参构造：未配置真实下游，调用 {@link #scheduleRetry(String)} 会抛出
+     * {@link IllegalStateException}。仍保留可用的监控与生命周期入口。
+     */
+    public RetryScheduler() {
+        this.initialDelayMillis = DEFAULT_INITIAL_DELAY_MILLIS;
+        this.delayMillis = DEFAULT_DELAY_MILLIS;
+        this.retryHandler = null;
+        this.scheduler = createScheduler();
+    }
+
+    /**
+     * 三参构造：注入重试回调。
+     *
+     * @param initialDelayMillis 初始延迟，单位毫秒，必须非负
+     * @param delayMillis        固定延迟，单位毫秒，必须严格为正
+     * @param retryHandler       重试回调，非 null
+     */
+    public RetryScheduler(long initialDelayMillis, long delayMillis, Consumer<String> retryHandler) {
+        if (initialDelayMillis < 0) {
+            throw new IllegalArgumentException("initialDelayMillis must be >= 0");
+        }
+        if (delayMillis <= 0) {
+            throw new IllegalArgumentException("delayMillis must be > 0");
+        }
+        this.initialDelayMillis = initialDelayMillis;
+        this.delayMillis = delayMillis;
+        this.retryHandler = Objects.requireNonNull(retryHandler, "retryHandler must not be null");
+        this.scheduler = createScheduler();
+    }
+
+    private static ScheduledThreadPoolExecutor createScheduler() {
+        ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(POOL_SIZE);
+        executor.setRemoveOnCancelPolicy(true);
+        executor.setExecuteExistingDelayedTasksAfterShutdownPolicy(false);
+        executor.setContinueExistingPeriodicTasksAfterShutdownPolicy(false);
+        return executor;
+    }
+
+    /**
+     * 注册订单重试。使用固定延迟调度，同一注册不重叠、不追赶补跑。
+     *
+     * @param orderId 订单号
+     * @throws IllegalStateException      无参构造未配置下游时
+     * @throws RejectedExecutionException 调度器已关闭时（订单会进入 pendingRetries）
+     */
+    public void scheduleRetry(String orderId) {
+        Objects.requireNonNull(orderId, "orderId must not be null");
+        Consumer<String> handler = this.retryHandler;
+        if (handler == null) {
+            throw new IllegalStateException("RetryScheduler is not configured with a retry handler");
+        }
+        if (stopped) {
+            rejectedCount.incrementAndGet();
+            pendingRetries.add(orderId);
+            throw new RejectedExecutionException("RetryScheduler is stopped, orderId=" + orderId);
+        }
+        try {
+            ScheduledFuture<?> future = scheduler.scheduleWithFixedDelay(
+                    () -> runOnce(orderId, handler),
+                    initialDelayMillis,
+                    delayMillis,
+                    TimeUnit.MILLISECONDS);
+            scheduledCount.incrementAndGet();
+            if (stopped) {
+                // 与 stop 并发：注册成功后若已关闭，取消该注册并记录拒绝
+                future.cancel(false);
+                rejectedCount.incrementAndGet();
+                pendingRetries.add(orderId);
+                throw new RejectedExecutionException("RetryScheduler is stopped, orderId=" + orderId);
+            }
+        } catch (RejectedExecutionException e) {
+            rejectedCount.incrementAndGet();
+            pendingRetries.add(orderId);
+            throw e;
+        }
+    }
+
+    private void runOnce(String orderId, Consumer<String> handler) {
+        try {
+            handler.accept(orderId);
+            executedCount.incrementAndGet();
+        } catch (RuntimeException e) {
+            failedCount.incrementAndGet();
+            log.warn("Retry failed for orderId={}", orderId, e);
+        }
+    }
+
+    /**
+     * 监控统计快照。
+     */
+    public Stats stats() {
+        return new Stats(
+                scheduledCount.get(),
+                executedCount.get(),
+                failedCount.get(),
+                rejectedCount.get(),
+                pendingRetries.size(),
+                stopped);
+    }
+
+    /**
+     * 关闭调度器：取消未开始的延迟注册，不再发起后续周期，等待已运行回调完成，
+     * 宽限 200ms 后可强制中断，再有界等待终止；无法终止时向调用方报错。
+     */
+    public void stop() {
+        stopped = true;
+        scheduler.shutdown();
+        try {
+            if (!scheduler.awaitTermination(SHUTDOWN_GRACE_MILLIS, TimeUnit.MILLISECONDS)) {
+                scheduler.shutdownNow();
+                if (!scheduler.awaitTermination(SHUTDOWN_AWAIT_MILLIS, TimeUnit.MILLISECONDS)) {
+                    throw new IllegalStateException("RetryScheduler did not terminate in time");
+                }
+            }
+        } catch (InterruptedException e) {
+            scheduler.shutdownNow();
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Interrupted while stopping RetryScheduler", e);
+        }
+    }
+
+    /**
+     * 监控统计快照。
+     */
+    public static final class Stats {
+        private final long scheduled;
+        private final long executed;
+        private final long failed;
+        private final long rejected;
+        private final int pending;
+        private final boolean stopped;
+
+        Stats(long scheduled, long executed, long failed, long rejected, int pending, boolean stopped) {
+            this.scheduled = scheduled;
+            this.executed = executed;
+            this.failed = failed;
+            this.rejected = rejected;
+            this.pending = pending;
+            this.stopped = stopped;
+        }
+
+        public long getScheduled() {
+            return scheduled;
+        }
+
+        public long getExecuted() {
+            return executed;
+        }
+
+        public long getFailed() {
+            return failed;
+        }
+
+        public long getRejected() {
+            return rejected;
+        }
+
+        public int getPending() {
+            return pending;
+        }
+
+        public boolean isStopped() {
+            return stopped;
+        }
+
+        @Override
+        public String toString() {
+            return "Stats{scheduled=" + scheduled
+                    + ", executed=" + executed
+                    + ", failed=" + failed
+                    + ", rejected=" + rejected
+                    + ", pending=" + pending
+                    + ", stopped=" + stopped + '}';
+        }
+    }
+}

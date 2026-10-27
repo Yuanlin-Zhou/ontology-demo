@@ -1,0 +1,16 @@
+{
+  "source_sha256": "",
+  "reviewer": "",
+  "criteria": [
+    {
+      "criterion": "强制关闭时未执行任务被记录或补偿",
+      "passed": null,
+      "evidence": ""
+    },
+    {
+      "criterion": "正常关闭与中断路径都不静默丢弃待执行任务",
+      "passed": null,
+      "evidence": ""
+    }
+  ]
+}

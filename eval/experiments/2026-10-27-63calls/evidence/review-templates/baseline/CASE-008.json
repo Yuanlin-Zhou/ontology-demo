@@ -1,0 +1,16 @@
+{
+  "source_sha256": "",
+  "reviewer": "",
+  "criteria": [
+    {
+      "criterion": "库存同步实际执行",
+      "passed": null,
+      "evidence": ""
+    },
+    {
+      "criterion": "拒绝时调用侧执行可验证的补偿",
+      "passed": null,
+      "evidence": ""
+    }
+  ]
+}

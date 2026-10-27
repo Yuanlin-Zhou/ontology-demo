@@ -1,0 +1,54 @@
+package com.example.order.service;
+
+import com.example.order.domain.Order;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * OrderAsyncService: 订单异步通知。
+ * 通知失败不影响下单主流程，异常在异步任务内部捕获并记录。
+ */
+public class OrderAsyncService {
+
+    private static final Logger logger = LoggerFactory.getLogger(OrderAsyncService.class);
+
+    private final ExecutorService notifier;
+
+    public OrderAsyncService() {
+        this.notifier = Executors.newFixedThreadPool(16, new ThreadFactory() {
+            private final AtomicInteger counter = new AtomicInteger(0);
+
+            @Override
+            public Thread newThread(Runnable r) {
+                Thread t = new Thread(r, "order-notifier-" + counter.incrementAndGet());
+                t.setDaemon(true);
+                return t;
+            }
+        });
+    }
+
+    public void notifyCreated(Order order) {
+        if (order == null) {
+            return;
+        }
+        try {
+            notifier.execute(() -> {
+                try {
+                    sendRemote(order);
+                } catch (Throwable t) {
+                    logger.warn("Failed to send order created notification for order {}", order.id(), t);
+                }
+            });
+        } catch (Throwable t) {
+            logger.warn("Failed to submit order created notification for order {}", order.id(), t);
+        }
+    }
+
+    private void sendRemote(Order order) {
+        // remote call to the notification platform
+    }
+}

@@ -1,0 +1,16 @@
+{
+  "source_sha256": "",
+  "reviewer": "",
+  "criteria": [
+    {
+      "criterion": "真实 Spring 容器关闭时回收裸线程池",
+      "passed": null,
+      "evidence": ""
+    },
+    {
+      "criterion": "通知任务异常可见且不杀死后续任务处理",
+      "passed": null,
+      "evidence": ""
+    }
+  ]
+}

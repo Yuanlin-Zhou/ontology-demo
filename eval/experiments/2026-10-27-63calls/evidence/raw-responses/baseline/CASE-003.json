@@ -1,0 +1,28 @@
+{
+  "id": "c3723b97-a3e2-4d22-abee-67fe69fe3957",
+  "object": "chat.completion",
+  "created": 1793087338,
+  "model": "deepseek-flash",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```java\npackage com.example.report.service;\n\nimport java.util.concurrent.LinkedBlockingQueue;\nimport java.util.concurrent.RejectedExecutionException;\nimport java.util.concurrent.ThreadPoolExecutor;\nimport java.util.concurrent.TimeUnit;\n\nimport org.slf4j.Logger;\nimport org.slf4j.LoggerFactory;\n\n/**\n * 报表导出线程池，使用有界队列，过载时拒绝请求以避免压垮内存。\n */\npublic class ReportExportService {\n\n    private static final Logger log = LoggerFactory.getLogger(ReportExportService.class);\n\n    private static final int QUEUE_CAPACITY = 256;\n\n    private final ThreadPoolExecutor exporter = new ThreadPoolExecutor(\n            4,\n            8,\n            60L,\n            TimeUnit.SECONDS,\n            new LinkedBlockingQueue<>(QUEUE_CAPACITY),\n            new ThreadPoolExecutor.AbortPolicy());\n\n    public void export(String reportId) {\n        try {\n            exporter.execute(() -> doExport(reportId));\n        } catch (RejectedExecutionException ex) {\n            log.error(\"export rejected, report={}\", reportId, ex);\n        }\n    }\n\n    private void doExport(String reportId) {\n        // 报表导出：耗时较长\n    }\n}\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 561,
+    "completion_tokens": 249,
+    "total_tokens": 810,
+    "prompt_tokens_details": {
+      "cached_tokens": 384
+    },
+    "prompt_cache_hit_tokens": 384,
+    "prompt_cache_miss_tokens": 177
+  },
+  "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501"
+}

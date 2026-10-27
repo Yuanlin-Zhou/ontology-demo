@@ -1,0 +1,28 @@
+{
+  "id": "850ccab7-4c42-447b-a0a8-e96f81ea10c5",
+  "object": "chat.completion",
+  "created": 1793087426,
+  "model": "deepseek-flash",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```java\npackage com.example.file.service;\n\nimport java.util.concurrent.ArrayBlockingQueue;\nimport java.util.concurrent.ThreadFactory;\nimport java.util.concurrent.ThreadPoolExecutor;\nimport java.util.concurrent.TimeUnit;\nimport java.util.concurrent.atomic.AtomicInteger;\n\n/** 文件处理服务：使用独立线程池，线程名可定位业务。 */\npublic class FileProcessService {\n\n    private static final String THREAD_NAME_PREFIX = \"file-process-\";\n\n    private final ThreadPoolExecutor processor = new ThreadPoolExecutor(\n            4, 8, 60L, TimeUnit.SECONDS,\n            new ArrayBlockingQueue<>(100),\n            new NamedThreadFactory(THREAD_NAME_PREFIX),\n            new ThreadPoolExecutor.AbortPolicy());\n\n    public void process(String fileId) {\n        processor.execute(() -> handle(fileId));\n    }\n\n    private void handle(String fileId) {\n        // 业务处理逻辑\n    }\n\n    static class NamedThreadFactory implements ThreadFactory {\n        private final String prefix;\n        private final AtomicInteger counter = new AtomicInteger(1);\n\n        NamedThreadFactory(String prefix) {\n            this.prefix = prefix;\n        }\n\n        @Override\n        public Thread newThread(Runnable task) {\n            Thread thread = new Thread(task, prefix + counter.getAndIncrement());\n            thread.setDaemon(false);\n            return thread;\n        }\n    }\n}\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 544,
+    "completion_tokens": 282,
+    "total_tokens": 826,
+    "prompt_tokens_details": {
+      "cached_tokens": 384
+    },
+    "prompt_cache_hit_tokens": 384,
+    "prompt_cache_miss_tokens": 160
+  },
+  "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501"
+}
