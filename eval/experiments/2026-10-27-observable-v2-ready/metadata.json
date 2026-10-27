@@ -1,0 +1,59 @@
+{
+  "source_revision": "849ebdb87801fc0216f4c52f7bad24dea7c951be",
+  "business_contract_version": 2,
+  "model_calls": 0,
+  "prepared_only": true,
+  "planned_calls": 27,
+  "historical_results_changed": false,
+  "historical_experiments_tree_sha": "20af4a7c4d9f1f263ca160e4f4f2228b86e2ab18",
+  "validation": {
+    "tests": 144,
+    "passed": 144,
+    "failed": 0,
+    "skipped": 0
+  },
+  "references": [
+    {
+      "case_id": "CASE-001",
+      "file": "eval/contracts/v2/CASE-001.java",
+      "sha256": "bfaf1e77458523a6eebffd2eb862ae015ead3a97088f921bc8ed1c53f8b6eb01",
+      "validation": "All seven compiled and passed BusinessAcceptance in tests/observable-contracts.test.ts"
+    },
+    {
+      "case_id": "CASE-002",
+      "file": "eval/contracts/v2/CASE-002.java",
+      "sha256": "8bd418d0b578670c0aec45167024215e01e5fa2b9b4ca0fdbfe21c44d2868ff8",
+      "validation": "All seven compiled and passed BusinessAcceptance in tests/observable-contracts.test.ts"
+    },
+    {
+      "case_id": "CASE-003",
+      "file": "eval/contracts/v2/CASE-003.java",
+      "sha256": "b2ac58f8c7917b9426051f5b5368c309abb45116480b7e8336170087977c0c60",
+      "validation": "All seven compiled and passed BusinessAcceptance in tests/observable-contracts.test.ts"
+    },
+    {
+      "case_id": "CASE-007",
+      "file": "eval/contracts/v2/CASE-007.java",
+      "sha256": "2f1e5c39a9cb29ca5f32b08f0bab86acc4b88d4aa6b9f4df4a16f876a74153c8",
+      "validation": "All seven compiled and passed BusinessAcceptance in tests/observable-contracts.test.ts"
+    },
+    {
+      "case_id": "CASE-008",
+      "file": "eval/contracts/v2/CASE-008.java",
+      "sha256": "7a26740821862ec56f11d451cf1235abaa0ad30fc85f912de9b64e4a5e9bd9f1",
+      "validation": "All seven compiled and passed BusinessAcceptance in tests/observable-contracts.test.ts"
+    },
+    {
+      "case_id": "CASE-010",
+      "file": "eval/contracts/v2/CASE-010.java",
+      "sha256": "6deb4fd85c4ba741217dd24e52d90e7f0a50b454dc78b5a60fa95d572164e755",
+      "validation": "All seven compiled and passed BusinessAcceptance in tests/observable-contracts.test.ts"
+    },
+    {
+      "case_id": "CASE-011",
+      "file": "eval/contracts/v2/CASE-011.java",
+      "sha256": "558641d13f44e1336effb2b84a54917e53f582f19c54ebedac3143c64d5d6d43",
+      "validation": "All seven compiled and passed BusinessAcceptance in tests/observable-contracts.test.ts"
+    }
+  ]
+}

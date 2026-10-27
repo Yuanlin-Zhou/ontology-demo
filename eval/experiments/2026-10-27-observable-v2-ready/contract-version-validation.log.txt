@@ -1,0 +1,10 @@
+✔ makes observable contracts opt-in without changing v1 or unrelated tasks (676.6429ms)
+✔ verifies all seven callback references and rejects counter-only or caller-thread substitutes (19121.470223ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 20066.312884
