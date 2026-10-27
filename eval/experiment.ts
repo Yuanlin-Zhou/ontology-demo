@@ -13,6 +13,7 @@ import { extractJavaSource, type ExtractedJava } from './model-output.ts';
 import { deliveryContract } from './delivery-contract.ts';
 
 export interface ExperimentConfig {
+  businessContractVersion?: 1 | 2;
   model: string;
   command: string;
   args: string[];
@@ -35,6 +36,7 @@ export function validateExperimentConfig(config: ExperimentConfig): void {
       ![config.maxOutputTokens, config.maxCalls, config.timeoutMs, config.tokenBudget, config.topK].every(n => Number.isSafeInteger(n) && n > 0)) {
     throw new Error('Invalid experiment config: specify model, executable/args, seed, temperature, positive limits and retrieval settings.');
   }
+  if (config.businessContractVersion !== undefined && ![1,2].includes(config.businessContractVersion)) throw new Error('businessContractVersion must be 1 or 2');
   if (config.strategies !== undefined && (!Array.isArray(config.strategies) || !config.strategies.length ||
       config.strategies.some(s => !['baseline', 'rag', 'rules'].includes(s)) || new Set(config.strategies).size !== config.strategies.length)) {
     throw new Error('strategies must contain unique supported strategy names.');
@@ -65,7 +67,7 @@ export function runExperiment(configFile: string, outputDir: string, prepareOnly
     const source = readCaseFile(testCase, 'before') ?? '';
     const rendered = engine.buildPrompt({ task: testCase.task, strategy, caseId: testCase.id, code: source,
       tokenBudget: config.tokenBudget, topK: config.topK });
-    const prompt = rendered.prompt + deliveryContract(testCase);
+    const prompt = rendered.prompt + deliveryContract(testCase, config.businessContractVersion ?? 1);
     const promptFile = join(outputDir, 'prompts', strategy, `${testCase.id}.md`);
     mkdirSync(dirname(promptFile), { recursive: true });
     if (!resume) writeFileSync(promptFile, prompt);
@@ -161,7 +163,7 @@ export function runExperiment(configFile: string, outputDir: string, prepareOnly
       if (failure && !outputFailure) break;
     }
     const report = runEvaluation({ casesDir: join(REPOSITORY_ROOT, 'cases'), outputDir,
-      tokenBudget: config.tokenBudget, topK: config.topK, strategies, evaluateAgentResults: true,
+      tokenBudget: config.tokenBudget, topK: config.topK, strategies, evaluateAgentResults: true, businessContractVersion: config.businessContractVersion ?? 1,
       ...(config.caseIds ? { caseIds: config.caseIds } : {}),
       ...(config.java ? { java: config.java } : {}) });
     writeReport(report, outputDir);

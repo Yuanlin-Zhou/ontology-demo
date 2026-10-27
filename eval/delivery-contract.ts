@@ -1,4 +1,5 @@
 /** Test adapters are scoped to each task, never injected as unrelated business requirements. */
+import { observableContract } from './business-contracts.ts';
 import type { EvaluationCase } from './cases.ts';
 
 const ADAPTERS: Record<string, readonly string[]> = {
@@ -18,8 +19,8 @@ const ADAPTERS: Record<string, readonly string[]> = {
   'CASE-021': ['Spring 线程池 Bean 名保持 orderNotifier。'],
 };
 
-export function deliveryContract(testCase: Pick<EvaluationCase, 'id'>): string {
-  const adapters = ADAPTERS[testCase.id] ?? [];
+export function deliveryContract(testCase: Pick<EvaluationCase, 'id'>, businessContractVersion: 1 | 2 = 1): string {
+  const adapters = [...(ADAPTERS[testCase.id] ?? []), ...(businessContractVersion === 2 ? observableContract(testCase.id) : [])];
   return `\n\n## 实验交付约定（三种策略相同）
 返回完整的单个 Java 源文件，保留当前类名和公开方法签名，完成原始任务；不添加当前任务之外的业务功能。
 补齐片段中省略的必要成员与业务实现，不用空方法替代任务。使用 Java 21，返回源码，不输出解释文本。

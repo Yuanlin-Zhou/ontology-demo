@@ -120,6 +120,9 @@
     offer 的容量检查与插入、过载时选择并替换淘汰对象，都必须在同一队列锁内原子完成。
     替换操作若已将新任务入队，拒绝处理器须直接返回；不能再次 execute 同一任务造成重复入队或递归淘汰。
     ThreadPoolExecutor 接收 BlockingQueue<Runnable>，不是 BlockingQueue<具体任务子类>。
+    PriorityBlockingQueue(capacity) 的 capacity 只是初始容量，不是容量上限。
+    淘汰最低优先级中最旧任务时按 (priority 最小, sequence 最小) 选择；不能不断覆盖候选而选成最新。
+    优先级队列 iterator 不保证排序；即使用有序 TreeSet，也不能遇到高优先级元素就 break 而漏掉后面的低优先级候选。
   rationale: |
     无界队列会一直增长：任务被接收却迟迟不执行，可能已超过业务超时时间，同时占用大量堆内存导致 OOM；
     有界队列 + 明确的拒绝策略才能在过载时快速失败并触发告警。

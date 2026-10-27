@@ -318,3 +318,5 @@ npm run eval:boundaries
 最新 21 用例三策略实验已实际完成 63 次调用；冻结参数、原始结果、源码及独立诊断见 [2026-10-27 合并后实验](eval/experiments/2026-10-27-63calls/README.md)。
 
 63 份源码清单审查已全部完成，并保留业务证据不足状态；中断恢复定向修复和真实扩容/回收复验见 [完整审查与修复记录](eval/experiments/2026-10-27-complete-review/README.md)。
+
+可选的 `businessContractVersion: 2` 提供可注入业务回调与实际效果验收，及 9 用例、27 次调用的定向实验配置；参见 [v2 业务契约](eval/contracts/v2/README.md)。历史实验默认 v1，不重新评分。

@@ -22,6 +22,7 @@ import { acceptanceTest, readTaskReview, sha256 } from './acceptance.ts';
 import { extractJavaSource } from './model-output.ts';
 
 export interface EvalOptions {
+  businessContractVersion?: 1 | 2;
   casesDir: string;
   /** Output directory (prompts / results / report). */
   outputDir: string;
@@ -119,6 +120,13 @@ export interface EvalReport {
   provenance: { controlled_experiment: boolean; model: string | null; issues: string[] };
 }
 export function runEvaluation(options: EvalOptions): EvalReport {
+  const recordedManifest = join(options.outputDir, 'experiment.json');
+  let recordedVersion: number | undefined;
+  if (existsSync(recordedManifest)) {
+    try { recordedVersion = (JSON.parse(readFileSync(recordedManifest, 'utf8')) as { config?: { businessContractVersion?: number } }).config?.businessContractVersion; } catch { /* Existing provenance validation reports malformed manifests. */ }
+  }
+  const businessContractVersion = options.businessContractVersion ?? recordedVersion ?? 1;
+  if (![1,2].includes(businessContractVersion)) throw new Error('Unsupported business contract version');
   const engine = options.engine ?? RuleEngine.load();
   const cases = loadCases(options.casesDir, options.caseIds);
   const strategies = options.strategies ?? (['baseline', 'rag', 'rules'] as const);
@@ -228,7 +236,7 @@ export function runEvaluation(options: EvalOptions): EvalReport {
         // Information-only findings are advisory, not failed compliance requirements.
         const checked = result.checked_rules.filter(id => engine.rule(id)?.check && engine.rule(id)?.severity !== 'info');
         const violationIds = result.violations.filter(v => v.severity !== 'info').map(v => v.rule_id);
-        const checks = checkJava(file, { ...options.java, ...acceptanceTest(testCase.id) });
+        const checks = checkJava(file, { ...options.java, ...acceptanceTest(testCase.id, businessContractVersion as 1 | 2) });
         const review = readTaskReview(join(options.outputDir, 'reviews', strategy, `${testCase.id}.json`), source, testCase.id);
         // A review cannot override a compilation or functional failure.
         const failedCheck = !valid || [checks.compile.status, checks.tests.status].some(status => status === 'failed' || status === 'timeout');
@@ -257,12 +265,12 @@ export function runEvaluation(options: EvalOptions): EvalReport {
     } else {
       try {
         const manifest = JSON.parse(readFileSync(manifestFile, 'utf8')) as {
-          prepare_only: boolean; config: { model: string; tokenBudget: number; topK: number };
+          prepare_only: boolean; config: { businessContractVersion?: number; model: string; tokenBudget: number; topK: number };
           jobs: Array<{ case_id: string; strategy: string; input_sha256: string; prompt_sha256: string }>;
         };
         provenance.model = manifest.config.model;
         if (manifest.prepare_only) provenance.issues.push('Manifest was prepared without running the model.');
-        if (manifest.config.tokenBudget !== tokenBudget || manifest.config.topK !== topK) provenance.issues.push('Retrieval settings differ from the recorded experiment.');
+        if ((manifest.config.businessContractVersion ?? 1) !== businessContractVersion || manifest.config.tokenBudget !== tokenBudget || manifest.config.topK !== topK) provenance.issues.push('Retrieval settings differ from the recorded experiment.');
         if (manifest.jobs.length !== agent.length) provenance.issues.push('Planned job coverage differs from this evaluation.');
         for (const item of agent) {
           const testCase = cases.find(c => c.id === item.case_id)!;

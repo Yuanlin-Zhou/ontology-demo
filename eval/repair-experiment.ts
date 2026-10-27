@@ -81,7 +81,7 @@ export async function runRepairExperiment(sourceRun: string, outputDir: string, 
       const result=await engine.repair({task:testCase.task,code:continued.get(target.case_id)?.code??readFileSync(target.file,'utf8'),maxRepairs:Math.min(2,maxCalls-calls),tokenBudget:config.tokenBudget,
         verify:code=>{
           const file=join(dir,`candidate-${verificationIndex++}.java`);writeFileSync(file,code);
-          const javaOptions={...config.java,...acceptanceTest(testCase.id)};
+          const javaOptions={...config.java,...acceptanceTest(testCase.id, config.businessContractVersion ?? 1)};
           const checks=checkJava(file,javaOptions);const api=checkPublicApi(original,code);
           // Report independent behavior failures even when the complete path fails earlier.
           const scenarios=acceptanceScenarios(testCase.id);
@@ -101,7 +101,7 @@ export async function runRepairExperiment(sourceRun: string, outputDir: string, 
         generate:({prompt,attempt})=>{
           calls++;
           const stem=join(dir,`call-${attempt}`);
-          const fullPrompt=prompt+`\n\n## 原始输入（公开接口与业务基准）\n\`\`\`java\n${original}\n\`\`\``+deliveryContract(testCase);
+          const fullPrompt=prompt+`\n\n## 原始输入（公开接口与业务基准）\n\`\`\`java\n${original}\n\`\`\``+deliveryContract(testCase, config.businessContractVersion ?? 1);
           writeFileSync(stem+'.prompt.md',fullPrompt);
           writeJson(stem+'.json',{status:'started',global_call:calls,prompt_sha256:sha256(fullPrompt)});
           const response=spawnSync(config.command,config.args,{cwd:REPOSITORY_ROOT,encoding:'utf8',timeout:config.timeoutMs,killSignal:'SIGKILL',maxBuffer:2*1024*1024,

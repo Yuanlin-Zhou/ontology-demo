@@ -2,6 +2,7 @@
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { OBSERVABLE_CASES } from './business-contracts.ts';
 import { REPOSITORY_ROOT } from '../src/api/engine.ts';
 
 export const TASK_CRITERIA: Record<string, readonly string[]> = {
@@ -30,7 +31,8 @@ export const TASK_CRITERIA: Record<string, readonly string[]> = {
 
 export function sha256(text: string): string { return createHash('sha256').update(text).digest('hex'); }
 
-export function acceptanceTest(caseId: string): { testSource: string; testClass: string; testArgs?: string[] } | undefined {
+export function acceptanceTest(caseId: string, businessContractVersion: 1 | 2 = 1): { testSource: string; testClass: string; testArgs?: string[] } | undefined {
+  if (businessContractVersion === 2 && (OBSERVABLE_CASES as readonly string[]).includes(caseId)) return { testSource: resolve(REPOSITORY_ROOT, 'eval/acceptance/BusinessAcceptance.java'), testClass: 'BusinessAcceptance', testArgs: [caseId] };
   if (['CASE-004', 'CASE-006', 'CASE-012', 'CASE-017', 'CASE-019', 'CASE-020'].includes(caseId)) return { testSource: resolve(REPOSITORY_ROOT, 'eval', 'acceptance', `${caseId}.java`), testClass: 'AcceptanceTest' };
   if (TASK_CRITERIA[caseId]) {
     return { testSource: resolve(REPOSITORY_ROOT, 'eval', 'acceptance', 'RuntimeAcceptance.java'), testClass: 'RuntimeAcceptance', testArgs: [caseId] };

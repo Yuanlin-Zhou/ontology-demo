@@ -207,6 +207,13 @@ describe('real Java checks', () => {
     assert.equal(wrongEviction.compile.status,'ok',wrongEviction.compile.detail);
     assert.equal(wrongEviction.tests.status,'failed');
     assert.match(wrongEviction.tests.detail??'',/highest priority/);
+    // Preserve execution order but choose the newest task among tied eviction candidates.
+    const newest=good.replace('candidate.order < victim.order','candidate.order > victim.order');
+    assert.notEqual(newest,good);writeFileSync(source,newest);
+    const wrongAge=checkJava(source,options);
+    assert.equal(wrongAge.compile.status,'ok',wrongAge.compile.detail);
+    assert.equal(wrongAge.tests.status,'failed');
+    assert.match(wrongAge.tests.detail??'',/oldest among lowest priority|Equal-priority overload/);
     writeFileSync(source,good.replace('4, 4, 60L','4, 8, 60L'));
     const bypass=checkJava(source,options);
     assert.equal(bypass.compile.status,'ok',bypass.compile.detail);
