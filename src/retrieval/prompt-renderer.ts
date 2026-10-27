@@ -5,6 +5,7 @@
  * which is what the baseline / RAG / rule-retrieval comparison feeds to Cline.
  */
 import type { FeatureId, RetrievalStrategy, RetrievedChunk, RetrievedRule } from '../domain/types.ts';
+import { ruleContext, chunkContext } from './knowledge-payload.ts';
 import { estimateTokens } from './token-estimator.ts';
 
 export interface PromptInput {
@@ -22,6 +23,8 @@ export interface PromptInput {
 }
 
 export interface RenderPromptResult {
+  warnings?: string[];
+  dropped_rule_ids?: string[];
   prompt: string;
   estimated_tokens: number;
   /** Token cost of the injected knowledge (rules / chunks), i.e. Context Token Cost. */
@@ -45,7 +48,7 @@ export function renderPrompt(input: PromptInput): RenderPromptResult {
     sections.push(`## ${label}\n\`\`\`java\n${input.code.trim()}\n\`\`\``);
   }
 
-  sections.push('## 要求\n请完成任务并严格遵循以上工程规范；如规范与实现冲突，请说明取舍原因。');
+  sections.push('## 交付要求\n保持原始业务行为、类名和公开接口；只做任务及适用规范要求的必要修改。先保证代码可编译、功能正确，再核对适用规则。\n使用目标运行环境真实存在的 API 和已声明的依赖，不臆造方法、不为满足规范添加无关业务。规范中的代码片段仅作示意，应按实际接收者类型选择正确 API。\n返回完整 Java 源码；不要通过删除业务逻辑、空实现或改变接口来消除违规。');
 
   const prompt = sections.join('\n\n');
   const result: RenderPromptResult = {
@@ -66,27 +69,14 @@ function renderKnowledge(input: PromptInput, sections: string[]): number {
     case 'rag': {
       const chunks = input.chunks ?? [];
       if (chunks.length === 0) return 0;
-      const body = chunks
-        .map((chunk) => `### ${chunk.heading} (source: ${chunk.source}, score=${chunk.score})\n${chunk.text}`)
-        .join('\n\n');
-      sections.push(`## Retrieved Knowledge (RAG)\n${body}`);
-      return chunks.reduce((total, chunk) => total + chunk.estimated_tokens, 0);
+      const context = chunkContext(chunks);
+      sections.push(context);
+      return estimateTokens(context);
     }
     case 'rules': {
-      const rules = input.rules ?? [];
-      if (rules.length === 0) return 0;
-      const features =
-        input.features === undefined || input.features.length === 0
-          ? ''
-          : `检测到的语义特征：\n${input.features.map((feature) => `- ${feature}`).join('\n')}\n\n`;
-      const body = rules
-        .map((rule) => {
-          const related = rule.related_rules.length > 0 ? `\nRelated rules: ${rule.related_rules.join(', ')}` : '';
-          return `[${rule.id}] ${rule.name} (${rule.severity}/${rule.priority})\n${rule.content}${related}`;
-        })
-        .join('\n\n');
-      sections.push(`## Applicable Engineering Rules\n${features}${body}`);
-      return rules.reduce((total, rule) => total + rule.estimated_tokens, 0);
+      const context = ruleContext(input.rules ?? []);
+      if (context) sections.push(context);
+      return estimateTokens(context);
     }
     default:
       return 0;

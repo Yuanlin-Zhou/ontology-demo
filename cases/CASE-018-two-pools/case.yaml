@@ -50,11 +50,12 @@ expected:
     - TP-SUBMIT-005
   optional_rules: []
   violations:
+    - TP-MONITOR-001
     - TP-CREATE-001
     - TP-CREATE-003
     - TP-REJECT-003
     - TP-SHUTDOWN-001
   compliant_violations: []
 notes:
-  - TP-MONITOR-001 是文件级判断：本文件已有监控出口，因此不报违规（已知局限，见 README）。
+  - TP-MONITOR-001 按具体线程池判断：结算池已有监控，调度池仍缺少监控出口。
   - 调度线程池没有关闭调用，因此 TP-SHUTDOWN-001 报违规。

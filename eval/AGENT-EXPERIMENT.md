@@ -47,3 +47,7 @@ npm run eval:boundaries
 两个跨文件案例分别暴露清理 helper 的误报和队列工厂的漏报。它们保留真实标签并参与所有指标分母；报告注明 known limitation，普通回归检查不会把已知局限误当成本次新增缺陷。Apache Commons Lang 的真实代码另作兼容性检查，来源和许可证见 `fixtures/real-world/README.md`。
 
 原有 21 用例的 100% 与独立范围验证的指标属于不同数据集，不应合并为真实项目质量结论。四个功能任务的样本仍然很小；temperature=0 的重复轮次也不等同于独立随机样本，provider 的 model 别名可能随时间变化。需要更多真实业务任务、依赖完整的项目和人工复核，才能判断推广价值。这里验证的是单次模型生成，尚未接入 Cline 工具调用或 Repair 循环。
+
+## 与远端 work 合并后的说明
+
+远端已有完整 experiment / repair-experiment 和 eval/java.ts 编译工具。本功能保留为独立的标准库功能基准，Java 辅助模块命名为 eval/benchmark-java.ts，避免覆盖已有接口。2026-10-27 的结果是在提交 5edb375 对应引擎上产生的历史结果；合并后引擎及规则有变化，开始新实验必须使用新的 outputDir，不复用历史结论。现有完整实验协议请同时参阅 eval/PROTOCOL.md。

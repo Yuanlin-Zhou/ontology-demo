@@ -11,6 +11,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /** good.java: 线程工厂设置业务前缀 + 拒绝补偿 + 监控 + 优雅关闭。 */
 public class FileProcessService {
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(FileProcessService.class);
+    private final java.util.Queue<String> retryQueue = new java.util.concurrent.ConcurrentLinkedQueue<>();
+
 
     private final ThreadPoolExecutor processor = new ThreadPoolExecutor(
             4, 8, 60L, TimeUnit.SECONDS,

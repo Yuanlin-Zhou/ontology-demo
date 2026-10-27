@@ -41,6 +41,7 @@ expected:
     - TP-SUBMIT-005
   optional_rules: []
   violations:
+    - TP-SHUTDOWN-001
     - TP-CREATE-005
     - TP-MONITOR-001
     - TP-REJECT-003

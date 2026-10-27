@@ -23,3 +23,6 @@ export type * from './domain/types.ts';
 export type { JavaThreadPoolModel, PoolCreationFact, SubmitFact, ShutdownFact } from './analyzer/model.ts';
 export type { EvaluationCase } from '../eval/cases.ts';
 export type { EvalReport, EvalOptions } from '../eval/runner.ts';
+
+export { repairCode, buildRepairPrompt } from './api/repair.ts';
+export type { RepairInput, RepairResult, RepairAttempt, Verification } from './api/repair.ts';

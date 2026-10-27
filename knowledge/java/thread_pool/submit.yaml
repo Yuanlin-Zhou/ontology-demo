@@ -9,11 +9,13 @@
   priority: high
   applies_when:
     features: [THREAD_POOL.SUBMIT]
-  description: 调用 submit 后必须消费返回的 Future（get / join / 回调），否则任务异常会被静默吞掉。
+  description: 调用 submit 后必须消费返回的 Future 并处理异常；普通 Future 使用带超时的 get。
   content: |
-    使用 submit 提交任务时，必须处理返回的 Future：要么 get()/join() 并处理异常，要么链接
-    thenAccept / whenComplete 回调。如果需要“让异常暴露”，可以使用 execute() 并自行捕获，
-    或为线程池设置 UncaughtExceptionHandler。
+    ExecutorService.submit 返回普通 Future，使用 get(timeout, unit) 消费结果并处理异常；
+    普通 Future 没有 join、thenAccept 或 whenComplete 方法。只有 CompletableFuture 支持
+    whenComplete 等回调，阻塞等待也必须有超时保护。execute 的任务可自行捕获并记录异常，
+    或由 ThreadFactory 为创建的 Thread 设置 Thread#setUncaughtExceptionHandler。
+    ThreadPoolExecutor 没有 setUncaughtExceptionHandler 方法；线程的处理器也不能观察 submit 封装在 Future 中的异常。
   rationale: |
     submit 会把任务异常封装在 Future 中，不调用 get() 就不会抛出，异常只会在 Future 中被悄悄保存，
     线上表现为“任务没执行但也没有报错”。
@@ -50,6 +52,13 @@
   content: |
     调用 Future.get() 必须带超时参数，并处理 TimeoutException：future.get(3, TimeUnit.SECONDS)。
     CompletableFuture 可用 orTimeout / completeOnTimeout 代替无限等待。
+    等待超时不等于底层工作已经停止。CompletableFuture.cancel(true) 的 true 不会中断执行线程，
+    orTimeout 也不会取消实际计算；保留实际执行句柄（如 FutureTask）或实现协作取消，
+    并验证阻塞工作响应中断、finally 清理上下文，取消的排队任务不再占用容量。
+    队列移除必须使用实际入队的同一个 Runnable：execute(() -> task.run()) 入队的是包装器，
+    remove(task) 无法移除它；优先 execute(task)，如需包装则保留包装器与执行句柄的对应关系。
+    shutdownNow 返回的排队任务不会自动完成其 Future；必须取消执行句柄并完成/取消对应结果，
+    让等待调用方及时结束，不能只记录 pending.size() 后丢弃任务。
   rationale: |
     无超时参数的 get() 会无限阻塞调用线程；当任务卡在慢 SQL 或下游超时上时，调用线程也会被拖住，
     在 Web 场景会快速耗尽请求处理线程。
@@ -157,10 +166,17 @@
     any_features:
       - THREAD_POOL.EXECUTE
       - THREAD_POOL.EXCEPTION
-  description: 使用 execute 提交的任务必须自行捕获异常，或为线程池设置未捕获异常处理器。
+      - THREAD_POOL.SCHEDULED
+  description: execute 任务需处理异常；周期任务必须在业务回调内部保护异常，避免后续调度永久停止。
   content: |
-    使用 execute() 提交任务时，任务体内必须 try/catch 并记录日志（同时做补偿），或者为线程池设置
-    setUncaughtExceptionHandler 统一上报；不要依赖默认的“打印堆栈到标准错误”。
+    使用 execute() 提交任务时，任务体内必须 try/catch 并记录日志（同时做补偿），或者通过
+    ThreadFactory 创建 Thread，并调用 thread.setUncaughtExceptionHandler(handler) 统一上报。
+    该方法属于 Thread，不属于 ThreadPoolExecutor，禁止调用 executor.setUncaughtExceptionHandler。
+    不要依赖默认的“打印堆栈到标准错误”；此处理器不能代替 submit 返回的 Future 异常处理。
+    scheduleWithFixedDelay / scheduleAtFixedRate 的回调抛异常后，该注册的后续周期会被抑制。
+    必须在实际任务内部 try/catch(RuntimeException) 并记录失败，不重新抛出；提交外层 catch
+    或 ThreadFactory 的 UncaughtExceptionHandler 不能让周期继续。用失败后至少两轮实际回调验证。
+    scheduleWithFixedDelay 从上轮结束计算间隔；scheduleAtFixedRate 在慢任务后可能追赶补跑。
   rationale: |
     execute() 的异常会直接抛出在工作线程上，默认只打印到标准错误，业务日志里看不到，
     监控也无法统计；缺少处理会导致任务静默失败。

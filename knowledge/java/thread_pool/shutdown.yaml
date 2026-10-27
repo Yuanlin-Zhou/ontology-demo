@@ -58,7 +58,8 @@
   content: |
     优雅关闭的标准模式：调用 shutdown()（不再接收新任务，继续处理已提交任务），
     然后 awaitTermination(timeout, unit) 等待，超时后调用 shutdownNow() 并再次等待；
-    只能有一个地方负责关闭，避免重复 shutdown。
+    Java 21 ExecutorService.close() 自身会等待终止，无需再追加 awaitTermination；
+    ThreadPoolTaskExecutor 可配置等待任务和终止超时，由容器关闭。只能有一个关闭责任方。
   rationale: |
     shutdown() / shutdownNow() 都不会等待线程池真正终止；缺少 awaitTermination 时应用可能在
     任务执行一半时退出，造成数据不完整或资源未释放。
@@ -176,6 +177,8 @@
   content: |
     线程池需要可观测：暴露或上报 getQueue().size()、getActiveCount()、getCompletedTaskCount()、
     getTaskCount() 以及拒绝次数，并针对队列堆积与拒绝配置监控告警；线程名要能区分业务。
+    上述 getter 属于 ThreadPoolExecutor。虚拟线程 ExecutorService 没有这些 API，不能强转或直接调用；
+    应在业务准入与回调完成/异常/finally 路径独立统计 active、completed、failed、rejected，验收真实下游调用。
   rationale: |
     队列堆积通常是任务提交速率、执行耗时或下游容量变化的结果，只有先看到队列长度、活跃线程、
     完成速率和拒绝次数，才能判断该限流、扩实例还是治理依赖。

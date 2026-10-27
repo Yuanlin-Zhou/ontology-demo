@@ -6,6 +6,8 @@
  * async / ThreadLocal / monitoring calls). All facts are collected into the
  * model, from which both semantic features and rule violations are derived.
  */
+import { interruptRestored } from './interrupt-flow.ts';
+import { JavaSymbols, enclosing } from './java-symbols.ts';
 import { readFileSync } from 'node:fs';
 import {
   callArguments,
@@ -13,7 +15,6 @@ import {
   childForField,
   compactText,
   declaredTypeOf,
-  enclosingTry,
   isInFinally,
   lastIdentifier,
   methodNameOf,
@@ -80,32 +81,19 @@ const MONITOR_METHODS: readonly string[] = [
   'getLargestPoolSize',
   'getCompletedTaskCount',
   'getTaskCount',
-  'getCorePoolSize',
-  'getMaximumPoolSize',
-  'getMaxPoolSize',
-  'getKeepAliveTime',
-  'getRejectedExecutionHandler',
-  'getThreadPoolExecutor',
-  'isShutdown',
-  'isTerminated',
 ];
 
-const EXECUTOR_TYPE_PATTERN = /(Executor|ExecutorService|ThreadPoolExecutor|ScheduledExecutorService|ThreadPoolTaskExecutor|ThreadPool)$/;
-const EXECUTOR_NAME_HEURISTIC = /(executor|threadpool|thread_pool|pool|loom)/i;
-const REPORTING_PATTERN = /(log\.|logger\.|LOG\.|System\.(?:out|err)|metrics|counter|Counter|meter|Meter|incrementAndGet|addAndGet|prometheus)/;
+const EXECUTOR_TYPES = new Set(['Executor','ExecutorService','ScheduledExecutorService','ThreadPoolExecutor','ScheduledThreadPoolExecutor','ForkJoinPool','ThreadPoolTaskExecutor','ThreadPoolTaskScheduler','TaskExecutor','AsyncTaskExecutor']);
 const INTEGER_MAX_VALUE = 2147483647;
 
 interface BuilderState {
   parsed: ParsedJavaFile;
   poolId: number;
+  symbols: JavaSymbols;
 }
 
 interface Registry {
   executorVars: Map<string, ExecutorRefFact>;
-  futureVars: Set<string>;
-  threadLocalVars: Set<string>;
-  queueVars: Map<string, QueueFact>;
-  handlerVars: Map<string, RejectionFact>;
 }
 
 export function readJavaFile(filePath: string): string {
@@ -119,14 +107,10 @@ export function analyzeJavaFile(filePath: string): { parsed: ParsedJavaFile; mod
 }
 
 export function buildThreadPoolModel(parsed: ParsedJavaFile): JavaThreadPoolModel {
-  const state: BuilderState = { parsed, poolId: 0 };
+  const state: BuilderState = { parsed, poolId: 0, symbols: new JavaSymbols(parsed.rootNode) };
   const lines = parsed.lines;
   const registry: Registry = {
     executorVars: new Map<string, ExecutorRefFact>(),
-    futureVars: new Set<string>(),
-    threadLocalVars: new Set<string>(),
-    queueVars: new Map<string, QueueFact>(),
-    handlerVars: new Map<string, RejectionFact>(),
   };
   const model: JavaThreadPoolModel = {
     filePath: parsed.filePath,
@@ -145,7 +129,7 @@ export function buildThreadPoolModel(parsed: ParsedJavaFile): JavaThreadPoolMode
     customImpls: [],
     interruptCatches: [],
     annotations: [],
-    hasUncaughtExceptionHandler: parsed.code.includes('setUncaughtExceptionHandler'),
+    hasUncaughtExceptionHandler: false,
     hasPreDestroy: false,
     hasBeanManagedPool: false,
   };
@@ -179,9 +163,9 @@ export function buildThreadPoolModel(parsed: ParsedJavaFile): JavaThreadPoolMode
       }
       case 'field_declaration':
       case 'local_variable_declaration': {
-        const declarator = childForField(node, 'declarator');
-        if (declarator === null) break;
-        registerDeclaration(state, node, declaredTypeOf(declarator), childForField(declarator, 'name')?.text ?? '', childForField(declarator, 'value'), lines, model, registry);
+        for (const declarator of node.namedChildren.filter(n => n.type === 'variable_declarator')) {
+          registerDeclaration(state, node, declaredTypeOf(declarator), childForField(declarator, 'name')?.text ?? '', childForField(declarator, 'value'), lines, model, registry);
+        }
         break;
       }
       case 'object_creation_expression': {
@@ -200,8 +184,15 @@ export function buildThreadPoolModel(parsed: ParsedJavaFile): JavaThreadPoolMode
         const declaredType = childForField(node, 'type')?.text ?? '';
         const name = childForField(node, 'name')?.text ?? '';
         registerExecutorType(registry, declaredType, name, evidenceOf(node, lines, name));
-        if (/Future/.test(declaredType)) registry.futureVars.add(name);
-        if (/ThreadLocal/.test(declaredType)) registry.threadLocalVars.add(name);
+        break;
+      }
+      case 'assignment_expression': {
+        const value = childForField(node, 'right');
+        if (value && ((value.type === 'object_creation_expression' && isPoolType(typeNameOf(value))) ||
+            (value.type === 'method_invocation' && isExecutorsFactory(value)))) {
+          const name = receiverName(childForField(node, 'left'));
+          model.pools.push(createPoolFact(state, value, { variableName: name, declaredType: state.symbols.typeOf(childForField(node, 'left')), lines, registry }));
+        }
         break;
       }
       default:
@@ -210,12 +201,14 @@ export function buildThreadPoolModel(parsed: ParsedJavaFile): JavaThreadPoolMode
     for (const child of node.children) declarationPass(child);
   };
   declarationPass(parsed.rootNode);
+  promoteConstructorOwnedPools(parsed.rootNode, model);
+  attachContainerOwnership(state.symbols, model);
 
   const usagePass = (node: JavaSyntaxNode): void => {
     if (node.type === 'method_invocation') {
       collectInvocationUsage(state, node, lines, model, registry);
     } else if (node.type === 'catch_clause') {
-      collectInterruptCatch(node, lines, model);
+      collectInterruptCatch(node, lines, model, state.symbols);
     }
     for (const child of node.children) usagePass(child);
   };
@@ -224,6 +217,74 @@ export function buildThreadPoolModel(parsed: ParsedJavaFile): JavaThreadPoolMode
   model.executors = [...registry.executorVars.values()];
   finalizeModel(model);
   return model;
+}
+
+/** One-hop ownership only: direct constructor assignments or a private factory used solely for field initialization. */
+function promoteConstructorOwnedPools(root: JavaSyntaxNode, model: JavaThreadPoolModel): void {
+  const nodes: JavaSyntaxNode[] = [];
+  walk(root, node => nodes.push(node));
+  const owner = (node: JavaSyntaxNode): JavaSyntaxNode | null => {
+    let current = node.parent;
+    while (current && current.type !== 'class_body' && current.type !== 'enum_body') current = current.parent;
+    return current;
+  };
+  const fields = nodes.filter(n => n.type === 'variable_declarator' && n.parent?.type === 'field_declaration');
+  const fieldTarget = (value: JavaSyntaxNode): JavaSyntaxNode | undefined => {
+    for (let ancestor = value.parent; ancestor && ancestor.type !== 'method_declaration' && ancestor.type !== 'constructor_declaration'; ancestor = ancestor.parent) {
+      if (ancestor.type === 'lambda_expression') return undefined;
+    }
+    const parent = value.parent;
+    if (parent?.type === 'variable_declarator' && parent.parent?.type === 'field_declaration') return parent;
+    if (parent?.type !== 'assignment_expression' || enclosingMethodOf(parent)?.type !== 'constructor_declaration') return undefined;
+    const left = childForField(parent, 'left');
+    if (!left || (left.type !== 'identifier' && !(left.type === 'field_access' && childForField(left, 'object')?.text === 'this'))) return undefined;
+    const name = receiverName(left);
+    if (left.type === 'identifier') {
+      const method = enclosingMethodOf(parent)!;
+      if (nodes.some(n => enclosingMethodOf(n)?.id === method.id &&
+          ((n.type === 'formal_parameter' && childForField(n, 'name')?.text === name) ||
+           (n.type === 'variable_declarator' && n.parent?.type === 'local_variable_declaration' && childForField(n, 'name')?.text === name)))) return undefined;
+    }
+    return fields.find(field => owner(field)?.id === owner(value)?.id && childForField(field, 'name')?.text === name);
+  };
+  const escapesAs = (pool: PoolCreationFact, method: JavaSyntaxNode): JavaSyntaxNode[] => {
+    const variable = pool.node.parent?.type === 'variable_declarator' ? childForField(pool.node.parent, 'name')?.text : undefined;
+    if (variable && nodes.some(n => n.type === 'assignment_expression' && enclosingMethodOf(n)?.id === method.id && childForField(n, 'left')?.text === variable)) return [];
+    return nodes.filter(n => enclosingMethodOf(n)?.id === method.id && n.type === 'return_statement' &&
+      (n.namedChildren[0]?.id === pool.node.id || (variable !== undefined && n.namedChildren[0]?.text === variable)));
+  };
+  const promote = (pool: PoolCreationFact, field: JavaSyntaxNode): void => {
+    const modifiers = (field.parent?.namedChildren.find(n => n.type === 'modifiers')?.text ?? '').split(/\s+/).filter(Boolean);
+    pool.scope = modifiers.includes('static') ? 'static_field' : 'field';
+    pool.modifiers = modifiers;
+    pool.variableName = childForField(field, 'name')?.text;
+  };
+  for (const pool of model.pools) {
+    if (pool.scope === 'field' || pool.scope === 'static_field' || pool.isBean) continue;
+    const direct = fieldTarget(pool.node);
+    if (direct) { promote(pool, direct); continue; }
+    const method = enclosingMethodOf(pool.node);
+    if (!method) continue;
+    if (method.type === 'constructor_declaration' && pool.node.parent?.type === 'variable_declarator') {
+      const local = childForField(pool.node.parent, 'name')?.text;
+      const writes = nodes.filter(n => n.type === 'assignment_expression' && enclosingMethodOf(n)?.id === method.id && childForField(n, 'left')?.text === local);
+      if (writes.length) continue;
+      const targets = nodes.filter(n => n.type === 'identifier' && n.text === local && enclosingMethodOf(n)?.id === method.id)
+        .map(n => fieldTarget(n)).filter((n): n is JavaSyntaxNode => n !== undefined);
+      if (targets.length === 1) promote(pool, targets[0]!);
+      continue;
+    }
+    const modifiers = method.namedChildren.find(n => n.type === 'modifiers')?.text ?? '';
+    if (!/\bprivate\b/.test(modifiers) || escapesAs(pool, method).length !== 1) continue;
+    const name = childForField(method, 'name')?.text;
+    if (nodes.filter(n => n.type === 'method_declaration' && owner(n)?.id === owner(method)?.id && childForField(n, 'name')?.text === name).length !== 1) continue;
+    const className = childForField(owner(method)?.parent ?? null, 'name')?.text;
+    const calls = nodes.filter(n => n.type === 'method_invocation' && methodNameOf(n) === name && owner(n)?.id === owner(method)?.id &&
+      (!receiverOf(n) || ['this', className].includes(receiverOf(n)?.text)));
+    const targets = calls.map(fieldTarget);
+    if (targets.length > 0 && targets.every((target): target is JavaSyntaxNode => target !== undefined) &&
+        new Set(targets.map(n => n.id)).size === 1) promote(pool, targets[0]!);
+  }
 }
 
 /** Post-pass: Spring task executor default queue, `@PreDestroy` / `@Bean` flags. */
@@ -278,7 +339,8 @@ function scopeOf(node: JavaSyntaxNode): { scope: PoolScope; isBean: boolean; mod
       ? (declaration.namedChildren.find((c) => c.type === 'modifiers')?.text ?? '').split(/\s+/).filter((m) => m.length > 0)
       : [];
   const method = enclosingMethodOf(node);
-  const isBeanMethod = method !== null && methodAnnotationsOf(method).includes('Bean');
+  const nearestExecution = enclosing(node, ['lambda_expression','method_declaration','constructor_declaration']);
+  const isBeanMethod = method !== null && nearestExecution?.id === method.id && methodAnnotationsOf(method).includes('Bean');
   if (declaration?.type === 'field_declaration') {
     return { scope: modifiers.includes('static') ? 'static_field' : 'field', isBean: isBeanMethod, modifiers };
   }
@@ -287,8 +349,7 @@ function scopeOf(node: JavaSyntaxNode): { scope: PoolScope; isBean: boolean; mod
   }
   // `return new ThreadPoolExecutor(...)` inside an @Bean factory method: the pool
   // becomes a container managed singleton and must not be treated as a transient pool.
-  const isReturnedFromBean = isBeanMethod && node.parent?.type === 'return_statement';
-  return { scope: isReturnedFromBean ? 'bean_method' : 'expression', isBean: isBeanMethod, modifiers };
+  return { scope: isBeanMethod ? 'bean_method' : 'expression', isBean: isBeanMethod, modifiers };
 }
 
 /** The closest enclosing method / constructor declaration. */
@@ -316,7 +377,7 @@ export function methodAnnotationsOf(method: JavaSyntaxNode): string[] {
 
 function isExecutorType(baseType: string): boolean {
   if (baseType === 'Thread' || baseType === 'ThreadLocal' || baseType === 'ThreadFactory') return false;
-  return EXECUTOR_TYPE_PATTERN.test(baseType);
+  return EXECUTOR_TYPES.has(baseType);
 }
 
 function isPoolType(typeName: string): boolean {
@@ -338,7 +399,7 @@ function receiverText(invocation: JavaSyntaxNode): string {
 function registerExecutorType(registry: Registry, declaredType: string, name: string, evidence: ExecutorRefFact['evidence']): void {
   const baseType = baseTypeName(declaredType);
   if (name.length === 0 || !isExecutorType(baseType)) return;
-  registry.executorVars.set(name, { name, declaredType: baseType, resolution: 'declared', evidence });
+  registry.executorVars.set(`${evidence.startLine}:${evidence.startColumn}:${name}`, { name, declaredType: baseType, resolution: 'declared', evidence });
 }
 /** Registers a variable / field declaration and any thread pool it creates. */
 function registerDeclaration(
@@ -354,19 +415,11 @@ function registerDeclaration(
   const baseType = baseTypeName(declaredType);
   const evidence = evidenceOf(declaration, lines, name);
   if (name.length > 0) {
-    if (/Future/.test(declaredType)) registry.futureVars.add(name);
     if (/ThreadLocal/.test(declaredType)) {
-      registry.threadLocalVars.add(name);
-      model.threadLocals.push({ kind: 'declare', name, inFinally: false, evidence });
-    }
-    if (value !== null && value.type === 'object_creation_expression' && QUEUE_TYPES[typeNameOf(value)] !== undefined) {
-      registry.queueVars.set(name, queueFactFromNode(value, typeNameOf(value), lines));
-    }
-    if (/(Policy|Handler)$/.test(baseType) && value !== null) {
-      registry.handlerVars.set(name, buildRejectionFact(value, lines));
+      model.threadLocals.push({ kind: 'declare', name, inFinally: false, evidence, node: declaration });
     }
     if (isExecutorType(baseType)) {
-      registry.executorVars.set(name, { name, declaredType: baseType, resolution: value === null ? 'declared' : 'initializer', evidence });
+      registry.executorVars.set(`${evidence.startLine}:${evidence.startColumn}:${name}`, { name, declaredType: baseType, resolution: value === null ? 'declared' : 'initializer', evidence });
     }
   }
   if (value === null) return;
@@ -399,9 +452,9 @@ function createPoolFact(state: BuilderState, node: JavaSyntaxNode, options: Pool
   const args = callArguments(node);
   const isScheduled = isInvocation ? /Scheduled/.test(factoryMethod ?? '') : typeName === 'ScheduledThreadPoolExecutor';
   const kind: PoolKind = isInvocation
-    ? factoryMethod === 'newVirtualThreadPerTaskExecutor' || factoryMethod === 'newThreadPerTaskExecutor'
+    ? factoryMethod === 'newVirtualThreadPerTaskExecutor'
       ? 'virtual_thread_executor'
-      : 'executors_factory'
+      : factoryMethod === 'newThreadPerTaskExecutor' ? 'thread_per_task_executor' : 'executors_factory'
     : typeName === 'ThreadPoolTaskExecutor'
       ? 'spring_task_executor'
       : isScheduled
@@ -427,31 +480,43 @@ function createPoolFact(state: BuilderState, node: JavaSyntaxNode, options: Pool
   const at = (index: number): JavaSyntaxNode | undefined => args[index];
   if (isInvocation) {
     applyFactoryDefaults(fact, args);
+    const factoryIndex = ['newFixedThreadPool', 'newScheduledThreadPool'].includes(factoryMethod ?? '') ? 1 : 0;
+    if (!['newWorkStealingPool','newVirtualThreadPerTaskExecutor'].includes(factoryMethod ?? '') && args[factoryIndex]) {
+      fact.threadFactory = buildThreadFactoryFact(args[factoryIndex]!, lines, state.symbols);
+    }
   } else if (kind === 'thread_pool_executor') {
     // ThreadPoolExecutor(int, int, long, TimeUnit, BlockingQueue[, ThreadFactory][, RejectedExecutionHandler])
     const [core, max, keepAlive, unit, queue, sixth, seventh] = [at(0), at(1), at(2), at(3), at(4), at(5), at(6)];
-    if (core !== undefined) fact.coreSize = argFact(core);
-    if (max !== undefined) fact.maxSize = argFact(max);
-    if (keepAlive !== undefined) fact.keepAlive = argFact(keepAlive);
+    if (core !== undefined) fact.coreSize = resolvedArg(core, state.symbols);
+    if (max !== undefined) fact.maxSize = resolvedArg(max, state.symbols);
+    if (keepAlive !== undefined) fact.keepAlive = resolvedArg(keepAlive, state.symbols);
     if (unit !== undefined) fact.timeUnit = compactText(unit);
-    if (queue !== undefined) fact.queue = buildQueueFact(queue, lines, registry);
-    if (sixth !== undefined) {
-      if (isFactoryArg(sixth)) fact.threadFactory = buildThreadFactoryFact(sixth, lines);
-      else fact.rejection = resolveRejectionFact(sixth, lines, registry);
+    if (queue !== undefined) {
+      const queueNode = state.symbols.origin(queue) ?? queue;
+      fact.queue = buildQueueFact(queueNode, lines, registry);
+      if (fact.queue && fact.queue.capacityText && fact.queue.capacity === undefined) {
+        const capacityNode = callArguments(queueNode)[0];
+        const capacity = state.symbols.integer(capacityNode ?? null);
+        if (capacity !== undefined) { fact.queue.capacity = capacity; fact.queue.bounded = fact.queue.capacityControllable && capacity < INTEGER_MAX_VALUE; }
+      }
     }
-    if (seventh !== undefined) fact.rejection = resolveRejectionFact(seventh, lines, registry);
+    if (sixth !== undefined) {
+      if (isFactoryArg(sixth, state.symbols)) fact.threadFactory = buildThreadFactoryFact(sixth, lines, state.symbols);
+      else fact.rejection = buildRejectionFact(state.symbols.origin(sixth) ?? sixth, lines);
+    }
+    if (seventh !== undefined) fact.rejection = buildRejectionFact(state.symbols.origin(seventh) ?? seventh, lines);
   } else if (kind === 'scheduled_thread_pool_executor') {
     // ScheduledThreadPoolExecutor(int[, ThreadFactory | RejectedExecutionHandler][, RejectedExecutionHandler])
     const [core, second, third] = [at(0), at(1), at(2)];
     if (core !== undefined) {
-      fact.coreSize = argFact(core);
-      fact.maxSize = argFact(core);
+      fact.coreSize = resolvedArg(core, state.symbols);
+      fact.maxSize = resolvedArg(core, state.symbols);
     }
     if (second !== undefined) {
-      if (isFactoryArg(second)) fact.threadFactory = buildThreadFactoryFact(second, lines);
-      else if (isHandlerArg(second)) fact.rejection = resolveRejectionFact(second, lines, registry);
+      if (isFactoryArg(second, state.symbols)) fact.threadFactory = buildThreadFactoryFact(second, lines, state.symbols);
+      else if (isHandlerArg(second)) fact.rejection = buildRejectionFact(state.symbols.origin(second) ?? second, lines);
     }
-    if (third !== undefined) fact.rejection = resolveRejectionFact(third, lines, registry);
+    if (third !== undefined) fact.rejection = buildRejectionFact(state.symbols.origin(third) ?? third, lines);
   }
   return fact;
 }
@@ -470,7 +535,7 @@ function syntheticQueue(typeName: string, capacity: number | undefined, evidence
   const meta = QUEUE_TYPES[typeName];
   const fact: QueueFact = {
     typeName,
-    bounded: (meta?.bounded ?? false) || (capacity !== undefined && (meta?.capacityControllable ?? false)),
+    bounded: (meta?.bounded ?? false) || (capacity !== undefined && capacity < INTEGER_MAX_VALUE && (meta?.capacityControllable ?? false)),
     capacityControllable: meta?.capacityControllable ?? false,
     reason: meta?.reason ?? '',
     evidence,
@@ -516,7 +581,8 @@ function applyFactoryDefaults(fact: PoolCreationFact, args: JavaSyntaxNode[]): v
   }
 }
 
-function isFactoryArg(node: JavaSyntaxNode): boolean {
+function isFactoryArg(node: JavaSyntaxNode, symbols?: JavaSymbols): boolean {
+  if (/ThreadFactory/.test(symbols?.typeOf(node) ?? '')) return true;
   if (node.type === 'lambda_expression') return lambdaArity(node) !== 2;
   if (node.type === 'object_creation_expression') return /ThreadFactory$/.test(typeNameOf(node));
   const text = compactText(node);
@@ -557,25 +623,21 @@ function containsThrowStatement(node: JavaSyntaxNode): boolean {
   });
   return found;
 }
-function buildThreadFactoryFact(node: JavaSyntaxNode, lines: string[]): ThreadFactoryFact {
+function buildThreadFactoryFact(node: JavaSyntaxNode, lines: string[], symbols?: JavaSymbols): ThreadFactoryFact {
   const fact: ThreadFactoryFact = {
     typeName: node.type === 'object_creation_expression' ? typeNameOf(node) : node.type === 'lambda_expression' ? '<lambda>' : compactText(node),
     expression: compactText(node),
     evidence: evidenceOf(node, lines),
   };
-  if (node.type === 'object_creation_expression' || node.type === 'lambda_expression') {
-    if (invokedMethodNames(node).includes('setName')) fact.setsName = true;
+  const classDeclaration = node.type === 'object_creation_expression' && !childForField(node, 'body') ? symbols?.nodes.find(n => n.type === 'class_declaration' && childForField(n, 'name')?.text === typeNameOf(node)) : undefined;
+  const implementation = classDeclaration ?? (node.type === 'method_invocation' ? symbols?.method(node) : symbols?.origin(node)) ?? node;
+  if (['lambda_expression', 'method_declaration', 'class_declaration'].includes(implementation.type) || (implementation.type === 'object_creation_expression' && implementation.namedChildren.some(n => n.type === 'class_body'))) {
+    fact.setsName = invokedMethodNames(implementation).includes('setName') || /new\s+Thread\([^,]+,/.test(implementation.text);
+    fact.handlesExceptions = symbols?.nodes.some(n => n.type === 'method_invocation' &&
+      n.startIndex >= implementation.startIndex && n.endIndex <= implementation.endIndex && methodNameOf(n) === 'setUncaughtExceptionHandler' &&
+      baseTypeName(symbols.typeOf(receiverOf(n))) === 'Thread') ?? false;
   }
   return fact;
-}
-
-/** Resolves a rejection handler argument, following variables declared in the file. */
-function resolveRejectionFact(node: JavaSyntaxNode, lines: string[], registry: Registry): RejectionFact {
-  if (node.type === 'identifier') {
-    const known = registry.handlerVars.get(node.text.trim());
-    if (known !== undefined) return known;
-  }
-  return buildRejectionFact(node, lines);
 }
 
 function buildRejectionFact(node: JavaSyntaxNode, lines: string[]): RejectionFact {
@@ -594,7 +656,7 @@ function buildRejectionFact(node: JavaSyntaxNode, lines: string[]): RejectionFac
 
 function buildQueueFact(node: JavaSyntaxNode, lines: string[], registry: Registry): QueueFact | undefined {
   if (node.type === 'identifier' || node.type === 'field_access') {
-    return registry.queueVars.get(receiverName(node)) ?? registry.queueVars.get(lastIdentifier(node.text));
+    return undefined; // unresolved queue type/capacity must not borrow another scope's declaration
   }
   if (node.type === 'object_creation_expression') {
     const typeName = typeNameOf(node);
@@ -611,7 +673,7 @@ function queueFactFromNode(node: JavaSyntaxNode, typeName: string, lines: string
   const meta = QUEUE_TYPES[typeName];
   const fact: QueueFact = {
     typeName,
-    bounded: (meta?.bounded ?? false) || (capacity !== undefined && (meta?.capacityControllable ?? false)),
+    bounded: (meta?.bounded ?? false) || (capacityText !== undefined && capacity !== INTEGER_MAX_VALUE && (meta?.capacityControllable ?? false)),
     capacityControllable: meta?.capacityControllable ?? false,
     reason: meta?.reason ?? '未知队列类型',
     evidence: evidenceOf(node, lines),
@@ -635,11 +697,17 @@ function detectCustomImplementation(classNode: JavaSyntaxNode, lines: string[]):
   const className = childForField(classNode, 'name')?.text ?? '<anonymous>';
   const body = childForField(classNode, 'body');
   const names = body === null ? [] : invokedMethodNames(body);
+  let hasReporting = false;
+  const handler = body?.namedChildren.find(n => n.type === 'method_declaration' && childForField(n, 'name')?.text === 'rejectedExecution');
+  if (handler) walk(handler, n => {
+    if (n.type === 'method_invocation' && (/log|logger|System\.(out|err)|metric|counter|meter|count/i.test(receiverOf(n)?.text ?? '') ||
+      ['incrementAndGet', 'addAndGet'].includes(methodNameOf(n)))) hasReporting = true;
+  });
   return {
     kind,
     className,
     hasSetName: names.includes('setName'),
-    hasReporting: REPORTING_PATTERN.test(body?.text ?? ''),
+    hasReporting,
     evidence: evidenceOf(classNode, lines, className),
   };
 }
@@ -662,18 +730,12 @@ function implementedTypeNames(classNode: JavaSyntaxNode): string[] {
  * Usage pass
  * ------------------------------------------------------------------ */
 
-function resolveExecutor(receiver: string, receiverNode: JavaSyntaxNode | null, registry: Registry): ExecutorResolution | 'unresolved' {
-  if (receiver.length === 0) return 'unresolved';
-  const known = registry.executorVars.get(receiver);
-  if (known !== undefined) return known.resolution;
-  if (receiverNode?.type === 'method_invocation' && EXECUTORS_FACTORIES.includes(methodNameOf(receiverNode))) return 'initializer';
-  return EXECUTOR_NAME_HEURISTIC.test(receiver) ? 'heuristic' : 'unresolved';
-}
-
-function isCompletableFutureCall(node: JavaSyntaxNode, receiver: string, registry: Registry): boolean {
-  if (/^CompletableFuture\./.test(node.text.trim())) return true;
-  if (/CompletableFuture/.test(receiver)) return true;
-  return registry.futureVars.has(receiver);
+function isCompletableFutureCall(node: JavaSyntaxNode, symbols: JavaSymbols): boolean {
+  const receiver = receiverOf(node);
+  if (!receiver) return false;
+  if (['CompletableFuture', 'java.util.concurrent.CompletableFuture'].includes(receiver.text)) return true;
+  if (['CompletableFuture', 'CompletionStage'].includes(baseTypeName(symbols.typeOf(receiver)))) return true;
+  return receiver.type === 'method_invocation' && isCompletableFutureCall(receiver, symbols);
 }
 function collectInvocationUsage(
   state: BuilderState,
@@ -685,19 +747,40 @@ function collectInvocationUsage(
   const method = methodNameOf(node);
   const receiverNode = receiverOf(node);
   const receiver = receiverName(receiverNode);
-  if (isExecutorsFactory(node) && !isAssignedValue(node)) {
-    model.pools.push(createPoolFact(state, node, { lines, registry }));
+  const symbolType = state.symbols.typeOf(receiverNode);
+  const origin = state.symbols.origin(receiverNode);
+  let pool = model.pools.find(p => p.node.id === origin?.id);
+  // Explicit static stats(bean) facade for a single compatible bean in this class.
+  if (!pool) {
+    let parameterReceiver = receiverNode;
+    if (parameterReceiver?.type === 'identifier') {
+      const local = state.symbols.lookup(parameterReceiver);
+      if (local?.value?.type === 'method_invocation' && methodNameOf(local.value) === 'getThreadPoolExecutor') parameterReceiver = receiverOf(local.value);
+    }
+    const parameter = state.symbols.lookup(parameterReceiver);
+    const methodOwner = enclosingMethodOf(node);
+    if (parameter?.declaration.type === 'formal_parameter' && /\bstatic\b/.test(methodOwner?.namedChildren.find(n => n.type === 'modifiers')?.text ?? '') &&
+        childForField(methodOwner ?? null, 'name')?.text === 'stats') {
+      const candidates = model.pools.filter(p => p.isBean && enclosing(p.node, ['class_body'])?.id === enclosing(node, ['class_body'])?.id &&
+        (p.kind === 'spring_task_executor' ? /ThreadPoolTaskExecutor/.test(parameter.type) : /ThreadPoolExecutor/.test(parameter.type)));
+      if (candidates.length === 1) pool = candidates[0];
+    }
   }
-  const tryNode = enclosingTry(node);
+  const resolution: ExecutorResolution | 'unresolved' = pool ? 'initializer' : isExecutorType(baseTypeName(symbolType)) ? 'declared' : 'unresolved';
+  const tryNode = synchronousTry(node);
   const insideTry = tryNode !== null;
   const caughtTypes = tryNode === null ? [] : caughtTypesOfTry(tryNode);
 
-  if (SUBMIT_METHODS.includes(method)) {
+  if (SUBMIT_METHODS.includes(method) && resolution !== 'unresolved') {
     const task = callArguments(node)[0] ?? null;
     const submit: SubmitFact = {
       method,
       receiver,
-      receiverResolution: resolveExecutor(receiver, receiverNode, registry),
+      receiverResolution: resolution,
+      ...(pool ? { poolId: pool.id } : {}),
+      resultHandled: futureResultHandled(node, state.symbols),
+      taskExceptionHandled: task !== null && !hasUncaughtThrow(task),
+      ...(['scheduleWithFixedDelay','scheduleAtFixedRate'].includes(method) ? {periodicExceptionHandled:periodicExceptionGuard(task,state.symbols)} : {}),
       resultUsed: node.parent?.type !== 'expression_statement',
       insideTry,
       caughtTypes,
@@ -709,90 +792,104 @@ function collectInvocationUsage(
   }
 
   const resultUsed = node.parent?.type !== 'expression_statement';
-  if (method === 'shutdown' || method === 'shutdownNow' || method === 'awaitTermination') {
-    model.shutdowns.push({ method, receiver, argCount: callArguments(node).length, insideTry, resultUsed, evidence: evidenceOf(node, lines, receiver), node });
-  } else if (method === 'close' && resolveExecutor(receiver, receiverNode, registry) !== 'unresolved') {
-    model.shutdowns.push({ method: 'close', receiver, argCount: 0, insideTry, resultUsed, evidence: evidenceOf(node, lines, receiver), node });
+  if ((method === 'shutdown' || method === 'shutdownNow' || method === 'awaitTermination') && resolution !== 'unresolved') {
+    model.shutdowns.push({ method, receiver, ...(pool ? { poolId: pool.id } : {}), argCount: callArguments(node).length, insideTry, resultUsed, evidence: evidenceOf(node, lines, receiver), node });
+  } else if (method === 'close' && resolution !== 'unresolved') {
+    model.shutdowns.push({ method: 'close', receiver, ...(pool ? { poolId: pool.id } : {}), argCount: 0, insideTry, resultUsed, evidence: evidenceOf(node, lines, receiver), node });
   }
 
   if (method === 'get' || method === 'join') {
     const isFutureReceiver =
-      registry.futureVars.has(receiver) ||
-      /Future/.test(receiverNode?.text ?? '') ||
-      (receiverNode !== null && receiverNode.type === 'method_invocation' && SUBMIT_METHODS.includes(methodNameOf(receiverNode)));
+      /(?:Future|CompletionStage)(?:<|$)/.test(symbolType) ||
+      isCompletableFutureCall(node, state.symbols) ||
+      (receiverNode !== null && receiverNode.type === 'method_invocation' && SUBMIT_METHODS.includes(methodNameOf(receiverNode)) && isExecutorType(baseTypeName(state.symbols.typeOf(receiverOf(receiverNode)))));
     if (isFutureReceiver) {
-      model.futureGets.push({ receiver, hasTimeout: method === 'get' && callArguments(node).length >= 1, evidence: evidenceOf(node, lines, receiver) });
+      model.futureGets.push({ receiver, hasTimeout: (method === 'get' && callArguments(node).length === 2) || hasFutureTimeout(receiverNode, state.symbols), evidence: evidenceOf(node, lines, receiver) });
     }
   }
 
-  if (/Async$/.test(method) && isCompletableFutureCall(node, receiver, registry)) {
+  if (/Async$/.test(method) && isCompletableFutureCall(node, state.symbols)) {
     // *Async(supplier) uses the common pool; passing the executor requires a second argument
     // (`supplyAsync(supplier, executor)`, `thenApplyAsync(fn, executor)`, ...).
     const argCount = callArguments(node).length;
+    const binary = /^(thenCombine|thenAcceptBoth|runAfterBoth|applyToEither|acceptEither|runAfterEither)Async$/.test(method);
     model.asyncs.push({
       kind: 'completable_future',
       method,
-      hasExplicitExecutor: argCount >= 2,
+      asynchronous: true,
+      hasExplicitExecutor: argCount >= (binary ? 3 : 2),
       evidence: evidenceOf(node, lines, receiver),
     });
+  } else if (['thenApply','thenAccept','thenRun','thenCompose','thenCombine','thenAcceptBoth','runAfterBoth',
+    'applyToEither','acceptEither','runAfterEither','handle','whenComplete','exceptionally','exceptionallyCompose',
+    'complete','completeExceptionally','cancel','completedFuture','failedFuture','allOf','anyOf','orTimeout',
+    'completeOnTimeout','toCompletableFuture'].includes(method) && isCompletableFutureCall(node,state.symbols)) {
+    model.asyncs.push({kind:'completable_future',method,asynchronous:false,hasExplicitExecutor:false,evidence:evidenceOf(node,lines,receiver)});
   }
 
-  if (method === 'ofVirtual' || method === 'startVirtualThread' || method === 'newVirtualThreadPerTaskExecutor') {
+  if ((['ofVirtual','startVirtualThread'].includes(method) && ['Thread','java.lang.Thread'].includes(receiverNode?.text ?? '')) ||
+      (method === 'newVirtualThreadPerTaskExecutor' && isExecutorsFactory(node))) {
     model.asyncs.push({ kind: 'virtual_thread', method, hasExplicitExecutor: true, evidence: evidenceOf(node, lines, receiver) });
   }
 
-  if (registry.threadLocalVars.has(receiver) && (method === 'set' || method === 'get' || method === 'remove')) {
-    model.threadLocals.push({ kind: method, name: receiver, method, inFinally: isInFinally(node), evidence: evidenceOf(node, lines, receiver) });
+  if (/ThreadLocal/.test(symbolType) && (method === 'set' || method === 'get' || method === 'remove')) {
+    model.threadLocals.push({ kind: method, name: receiver, method, inFinally: isInFinally(node), node, ...(state.symbols.lookup(receiverNode) ? { symbolId: state.symbols.lookup(receiverNode)!.id } : {}), evidence: evidenceOf(node, lines, receiver) });
   } else if (receiver === 'MDC' && (method === 'put' || method === 'remove' || method === 'clear')) {
     model.threadLocals.push({
       kind: method === 'put' ? 'set' : 'remove',
       name: 'MDC',
       method,
       inFinally: isInFinally(node),
+      node,
       evidence: evidenceOf(node, lines, receiver),
     });
-  } else if (method === 'withInitial') {
-    model.threadLocals.push({ kind: 'declare', name: receiver, method, inFinally: false, evidence: evidenceOf(node, lines, receiver) });
+  } else if (method === 'withInitial' && ['ThreadLocal','java.lang.ThreadLocal'].includes(receiverNode?.text ?? '')) {
+    model.threadLocals.push({ kind: 'declare', name: receiver, method, inFinally: false, node, evidence: evidenceOf(node, lines, receiver) });
   }
 
-  if (MONITOR_METHODS.includes(method) && resolveExecutor(receiver, receiverNode, registry) !== 'unresolved') {
-    model.monitors.push({ method, receiver, evidence: evidenceOf(node, lines, receiver) });
+  if (MONITOR_METHODS.includes(method) && resolution !== 'unresolved') {
+    model.monitors.push({ method, receiver, ...(pool ? { poolId: pool.id } : {}), evidence: evidenceOf(node, lines, receiver) });
   }
 
-  if (method === 'setUncaughtExceptionHandler') model.hasUncaughtExceptionHandler = true;
+  if (method === 'setUncaughtExceptionHandler' && baseTypeName(symbolType) === 'Thread') model.hasUncaughtExceptionHandler = true;
 
-  applySpringSetter(model, method, receiver, node, lines);
+  applySpringSetter(pool, method, node, lines, state.symbols);
 }
 /** Attaches `ThreadPoolTaskExecutor` setter calls to the matching pool fact. */
-function applySpringSetter(model: JavaThreadPoolModel, method: string, receiver: string, node: JavaSyntaxNode, lines: string[]): void {
-  const pool = model.pools.find((candidate) => candidate.variableName === receiver);
+function applySpringSetter(pool: PoolCreationFact | undefined, method: string, node: JavaSyntaxNode, lines: string[], symbols: JavaSymbols): void {
   if (pool === undefined) return;
   const first = callArguments(node)[0];
   if (first === undefined) return;
   switch (method) {
+    case 'setWaitForTasksToCompleteOnShutdown':
+      pool.waitsForTasksOnShutdown = first.text === 'true';
+      break;
+    case 'setAwaitTerminationSeconds':
+      pool.awaitTerminationSeconds = symbols.integer(first);
+      break;
     case 'setCorePoolSize':
-      pool.coreSize = argFact(first);
+      pool.coreSize = resolvedArg(first, symbols);
       break;
     case 'setMaxPoolSize':
     case 'setMaximumPoolSize':
-      pool.maxSize = argFact(first);
+      pool.maxSize = resolvedArg(first, symbols);
       break;
     case 'setKeepAliveSeconds':
     case 'setKeepAliveTime':
-      pool.keepAlive = argFact(first);
+      pool.keepAlive = resolvedArg(first, symbols);
       break;
     case 'setQueueCapacity': {
-      const capacity = numberFromText(compactText(first));
+      const capacity = symbols.integer(first);
       pool.queue =
-        capacity === 0
+        capacity !== undefined && capacity <= 0
           ? syntheticQueue('SynchronousQueue', 0, evidenceOf(first, lines))
           : {
               typeName: 'LinkedBlockingQueue',
-              bounded: true,
+              bounded: capacity !== INTEGER_MAX_VALUE,
               capacityControllable: true,
               reason: 'ThreadPoolTaskExecutor 队列容量由 setQueueCapacity 指定',
               evidence: evidenceOf(first, lines),
-              capacity: capacity ?? 0,
+              ...(capacity === undefined ? {} : { capacity }),
               capacityText: compactText(first),
             };
       break;
@@ -801,7 +898,7 @@ function applySpringSetter(model: JavaThreadPoolModel, method: string, receiver:
       pool.threadFactory = { typeName: 'thread-name-prefix', expression: compactText(first), setsName: true, evidence: evidenceOf(first, lines) };
       break;
     case 'setThreadFactory':
-      pool.threadFactory = buildThreadFactoryFact(first, lines);
+      pool.threadFactory = buildThreadFactoryFact(first, lines, symbols);
       break;
     case 'setRejectedExecutionHandler':
       pool.rejection = buildRejectionFact(first, lines);
@@ -812,16 +909,106 @@ function applySpringSetter(model: JavaThreadPoolModel, method: string, receiver:
 }
 
 /** `catch (InterruptedException)` must restore the interrupt flag (or rethrow). */
-function collectInterruptCatch(node: JavaSyntaxNode, lines: string[], model: JavaThreadPoolModel): void {
+function collectInterruptCatch(node: JavaSyntaxNode, lines: string[], model: JavaThreadPoolModel, symbols: JavaSymbols): void {
   const parameter = node.namedChildren.find((child) => child.type === 'catch_formal_parameter');
   if (parameter === undefined) return;
   const catchType = parameter.namedChildren.find((child) => child.type === 'catch_type');
-  if (lastIdentifier(catchType?.text ?? '') !== 'InterruptedException') return;
-  const body = childForField(node, 'body');
-  const names = body === null ? [] : invokedMethodNames(body);
+  if (!(catchType?.text ?? '').split('|').some(t => lastIdentifier(t) === 'InterruptedException')) return;
   model.interruptCatches.push({
-    restored: names.includes('interrupt') || (body !== null && containsThrowStatement(body)),
+    restored: interruptRestored(node,symbols),
     variableName: childForField(parameter, 'name')?.text ?? '',
     evidence: evidenceOf(node, lines),
   });
+}
+
+function resolvedArg(node: JavaSyntaxNode, symbols: JavaSymbols): ArgFact {
+  const fact = argFact(node);
+  const value = symbols.integer(node);
+  if (value !== undefined) fact.number = value;
+  return fact;
+}
+
+/** A try outside a lambda/method cannot catch an exception raised later on a worker. */
+function synchronousTry(node: JavaSyntaxNode): JavaSyntaxNode | null {
+  for (let current = node.parent; current; current = current.parent) {
+    if (['lambda_expression', 'method_declaration', 'constructor_declaration'].includes(current.type)) return null;
+    if (['try_statement', 'try_with_resources_statement'].includes(current.type)) {
+      const body = childForField(current, 'body');
+      if (body && node.startIndex >= body.startIndex && node.endIndex <= body.endIndex) return current;
+    }
+  }
+  return null;
+}
+/** Conservative structural guard: inline/aliased lambda or one unambiguous private helper. */
+function periodicExceptionGuard(task: JavaSyntaxNode | null,symbols: JavaSymbols): boolean {
+  if(!task)return false;
+  const origin=symbols.origin(task)??task;
+  if(origin.type!=='lambda_expression')return false;
+  let body=childForField(origin,'body');
+  const call=body?.type==='method_invocation'?body:body?.type==='block'&&body.namedChildren.length===1&&body.namedChildren[0]?.type==='expression_statement'
+    ? body.namedChildren[0].namedChildren[0] : undefined;
+  if(call?.type==='method_invocation'){
+    const helper=symbols.method(call);
+    // Argument evaluation occurs before entering the helper's protected try body.
+    const simpleArguments=callArguments(call).every(arg=>arg.type==='identifier'||arg.type.endsWith('_literal'));
+    if(helper && simpleArguments && /\bprivate\b/.test(helper.namedChildren.find(n=>n.type==='modifiers')?.text??''))body=childForField(helper,'body');
+  }
+  if(body?.type!=='block'||body.namedChildren.length!==1)return false;
+  const guard=body.namedChildren[0]!;
+  if(guard.type!=='try_statement'||!caughtTypesOfTry(guard).some(t=>['RuntimeException','Exception','Throwable'].includes(t)))return false;
+  // A catch/finally that explicitly rethrows still terminates future executions.
+  return guard.namedChildren.filter(n=>['catch_clause','finally_clause'].includes(n.type)).every(clause=>!containsThrowStatement(clause));
+}
+function hasUncaughtThrow(task: JavaSyntaxNode): boolean {
+  let uncaught = false;
+  walk(task, node => {
+    if (node.type !== 'throw_statement') return;
+    const caught = synchronousTry(node);
+    const thrown = node.namedChildren[0];
+    const type = thrown?.type === 'object_creation_expression' ? typeNameOf(thrown) : '';
+    const runtime = /^(IllegalStateException|IllegalArgumentException|NullPointerException|ArithmeticException|RejectedExecutionException|RuntimeException)$/.test(type);
+    if (!caught || !caughtTypesOfTry(caught).some(t => t === 'Throwable' || t === type || (t === 'Exception' && /Exception$/.test(type)) || (t === 'RuntimeException' && runtime))) uncaught = true;
+  });
+  return uncaught;
+}
+function futureResultHandled(node: JavaSyntaxNode, symbols: JavaSymbols): boolean {
+  if (node.parent?.type === 'return_statement' || node.parent?.type === 'argument_list') return true;
+  if (node.parent?.type === 'method_invocation') return ['get', 'join'].includes(methodNameOf(node.parent));
+  const declaration = node.parent?.type === 'variable_declarator' ? node.parent : undefined;
+  if (!declaration) return false;
+  const symbol = symbols.symbols.find(s => s.id === declaration.id);
+  if (!symbol) return false;
+  return symbols.nodes.some(n => {
+    if (n.startIndex <= node.startIndex || !['method_invocation', 'identifier'].includes(n.type)) return false;
+    if (n.type === 'method_invocation') return ['get', 'join'].includes(methodNameOf(n)) && symbols.lookup(receiverOf(n))?.id === symbol.id;
+    return ['return_statement', 'argument_list'].includes(n.parent?.type ?? '') && symbols.lookup(n)?.id === symbol.id;
+  });
+}
+function hasFutureTimeout(expression: JavaSyntaxNode | null, symbols: JavaSymbols, seen = new Set<number>()): boolean {
+  if (!expression || seen.has(expression.id)) return false;
+  seen.add(expression.id);
+  if (expression.type === 'method_invocation') {
+    if (['orTimeout', 'completeOnTimeout'].includes(methodNameOf(expression))) return true;
+    return hasFutureTimeout(receiverOf(expression), symbols, seen);
+  }
+  const symbol = symbols.lookup(expression);
+  if (!symbol) return false;
+  if (hasFutureTimeout(symbol.value, symbols, seen)) return true;
+  return symbols.nodes.some(n => n.type === 'method_invocation' && ['orTimeout', 'completeOnTimeout'].includes(methodNameOf(n)) &&
+    n.startIndex < expression.startIndex && symbols.lookup(receiverOf(n))?.id === symbol.id);
+}
+
+
+/** Follow bean return values as well as inline creation; avoid duplicate/manual close owners. */
+function attachContainerOwnership(symbols: JavaSymbols, model: JavaThreadPoolModel): void {
+  for (const method of symbols.nodes.filter(n => n.type === 'method_declaration' && methodAnnotationsOf(n).includes('Bean'))) {
+    const returns = symbols.nodes.filter(n => n.type === 'return_statement' && enclosingMethodOf(n)?.id === method.id);
+    for (const returned of returns) {
+      const origin = symbols.origin(returned.namedChildren[0] ?? null);
+      const pool = model.pools.find(p => p.node.id === origin?.id);
+      if (!pool) continue;
+      pool.isBean = true;
+      pool.containerManaged = !/destroyMethod\s*=\s*""/.test(method.namedChildren.find(n => n.type === 'modifiers')?.text ?? '');
+    }
+  }
 }

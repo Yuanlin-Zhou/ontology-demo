@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class NotifyExecutorConfig {
 
-    @Bean("orderNotifier")
+    @Bean(name = "orderNotifier", destroyMethod = "")
     public ThreadPoolExecutor orderNotifier() {
         return new ThreadPoolExecutor(
                 8, 16, 60L, TimeUnit.SECONDS,

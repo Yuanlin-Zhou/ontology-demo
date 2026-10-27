@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, it } from 'node:test';
 import { extractJava, ruleCompliance, runAgentExperiment, complete, type AgentConfig } from '../eval/agent.ts';
-import { verifyJava, javaTool } from '../eval/java.ts';
+import { verifyJava, javaTool } from '../eval/benchmark-java.ts';
 import { evaluateBoundaries } from '../eval/boundaries.ts';
 import { REPOSITORY_ROOT } from '../src/api/engine.ts';
 import { spawnSync } from 'node:child_process';

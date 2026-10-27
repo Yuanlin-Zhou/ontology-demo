@@ -9,6 +9,7 @@
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { basename, join } from 'node:path';
 import type { RetrievedChunk } from '../domain/types.ts';
+import { chunkContext, nonNegativeLimit } from './knowledge-payload.ts';
 import { estimateTokens } from './token-estimator.ts';
 
 export interface RagOptions {
@@ -40,10 +41,12 @@ const B = 0.75;
 
 export class RagBaseline {
   readonly corpusDir: string;
+  private readonly documents: readonly string[];
   private index: Index | null = null;
 
-  constructor(corpusDir: string) {
+  constructor(corpusDir: string, documents: readonly string[] = ['java-thread-pool-summary.md', 'java-thread-pool-best-practices.md']) {
     this.corpusDir = corpusDir;
+    this.documents = documents;
   }
 
   /** Lazily builds the chunk index from the markdown corpus. */
@@ -51,7 +54,7 @@ export class RagBaseline {
     if (this.index !== null) return this.index;
     const chunks: Chunk[] = [];
     const documents: string[] = [];
-    for (const file of listMarkdownFiles(this.corpusDir)) {
+    for (const file of listMarkdownFiles(this.corpusDir).filter(f => this.documents.includes(basename(f)))) {
       documents.push(basename(file));
       chunks.push(...chunkMarkdown(readFileSync(file, 'utf8'), basename(file)));
     }
@@ -71,6 +74,9 @@ export class RagBaseline {
 
   /** Ranks corpus chunks for a query. */
   retrieve(query: string, options: RagOptions = {}): RetrievedChunk[] {
+    nonNegativeLimit(options.tokenBudget, 'tokenBudget');
+    nonNegativeLimit(options.topK, 'topK');
+    nonNegativeLimit(options.chunkSize, 'chunkSize');
     const index = this.ensureIndex();
     const topK = options.topK ?? 5;
     const chunkSize = options.chunkSize ?? 900;
@@ -84,16 +90,19 @@ export class RagBaseline {
     let usedTokens = 0;
     for (const entry of scored) {
       if (picked.length >= topK) break;
-      const text = entry.chunk.text.length > chunkSize ? `${entry.chunk.text.slice(0, chunkSize)}...` : entry.chunk.text;
+      // Never cut a Java example mid-token or drop its closing fence.
+      if (entry.chunk.text.length > chunkSize) continue;
+      const text = entry.chunk.text;
       const tokens = estimateTokens(text);
-      if (options.tokenBudget !== undefined && picked.length > 0 && usedTokens + tokens > options.tokenBudget) continue;
-      picked.push({
+      const candidate: RetrievedChunk = {
         source: entry.chunk.source,
         heading: entry.chunk.heading,
         text,
         score: Number(entry.score.toFixed(4)),
         estimated_tokens: tokens,
-      });
+      };
+      if (options.tokenBudget !== undefined && estimateTokens(chunkContext([...picked, candidate])) > options.tokenBudget) continue;
+      picked.push(candidate);
       usedTokens += tokens;
     }
     return picked;
@@ -162,13 +171,17 @@ function chunkMarkdown(content: string, source: string, maxChars = 1200): Chunk[
 }
 
 function splitLong(text: string, maxChars: number): string[] {
-  if (text.length <= maxChars) return [text];
+  const blocks = text.match(/```[^\n]*\n[\s\S]*?```|[^`]+|`(?!``)/g) ?? [text];
   const parts: string[] = [];
-  let cursor = 0;
-  while (cursor < text.length) {
-    parts.push(text.slice(cursor, cursor + maxChars));
-    cursor += maxChars - 100;
+  let current = '';
+  for (const block of blocks) {
+    const units = block.startsWith('```') ? [block] : block.split(/(?<=\n\n)/);
+    for (const unit of units) {
+      if (current.length && current.length + unit.length > maxChars) { parts.push(current.trim()); current = ''; }
+      current += unit;
+    }
   }
+  if (current.trim()) parts.push(current.trim());
   return parts;
 }
 

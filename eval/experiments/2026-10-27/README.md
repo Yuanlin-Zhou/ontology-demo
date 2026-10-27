@@ -23,3 +23,5 @@ npm run eval:boundaries
 ```
 
 环境需注入 EVAL_API_BASE、EVAL_API_KEY。相同配置重跑会复用缓存；新实验使用新的 outputDir。temperature=0 的重复执行不代表独立随机样本，provider 别名可能变化。后续应扩大真实业务任务并人工复核违规，再评估 Cline 集成。
+
+历史引擎版本：5edb375。合并远端 work 后引擎与规则已更新，此处报告是合并前快照；重新比较需使用新 outputDir。

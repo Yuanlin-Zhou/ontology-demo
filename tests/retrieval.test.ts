@@ -68,7 +68,7 @@ describe('prompt renderer', () => {
     const rendered = engine.buildPrompt({ task: '增加异步能力', strategy: 'rules', code, filePath: 'A.java', tokenBudget: 800 });
     assert.match(rendered.prompt, /原始任务/);
     assert.match(rendered.prompt, /Applicable Engineering Rules/);
-    assert.match(rendered.prompt, /THREAD_POOL\.CREATE/);
+    assert.ok(rendered.features?.includes('THREAD_POOL.CREATE'));
     assert.match(rendered.prompt, /TP-CREATE-001/);
     assert.ok(rendered.context_tokens > 0);
     assert.ok(rendered.estimated_tokens > rendered.context_tokens);

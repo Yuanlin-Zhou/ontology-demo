@@ -13,6 +13,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * good.java: 显式创建、命名线程、有界队列、显式拒绝策略、可监控、可关闭。
  */
 public class OrderAsyncService {
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(OrderAsyncService.class);
+
 
     private final ThreadPoolExecutor notifier = new ThreadPoolExecutor(
             8,

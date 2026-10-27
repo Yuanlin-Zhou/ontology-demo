@@ -45,3 +45,6 @@ expected:
   compliant_violations: []
 notes:
   - PriorityBlockingQueue 本身无界，命中 TP-CONFIG-004；与 DiscardOldestPolicy 组合再命中 TP-CONFIG-006。
+  - 正确示例保留优先级，不再用 FIFO 替代；dispatch(String,int) 显式指定优先级，同级 FIFO。
+  - 满载淘汰最低优先级中最旧且可被新任务替代的任务；所有排队任务都更重要时拒绝新任务。
+  - 使用 Consumer<String> 注入真实处理回调；运行验收同时检查单工作线程排序与生产参数下的过载准入。

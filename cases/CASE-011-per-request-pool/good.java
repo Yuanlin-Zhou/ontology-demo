@@ -11,6 +11,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /** good.java: 线程池提升为字段复用，配合拒绝补偿、监控与优雅关闭。 */
 public class RealtimePushHandler {
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(RealtimePushHandler.class);
+    private final java.util.Queue<String> pendingEvents = new java.util.concurrent.ConcurrentLinkedQueue<>();
+
 
     private final ThreadPoolExecutor pushExecutor = new ThreadPoolExecutor(
             2, 4, 60L, TimeUnit.SECONDS,

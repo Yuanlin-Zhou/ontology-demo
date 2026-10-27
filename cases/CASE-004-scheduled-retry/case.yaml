@@ -28,6 +28,7 @@ expected:
     - TP-REJECT-003
     - TP-SHUTDOWN-001
     - TP-SUBMIT-001
+    - TP-SUBMIT-005
   optional_rules: []
   violations:
     - TP-CREATE-001
@@ -35,6 +36,9 @@ expected:
     - TP-MONITOR-001
     - TP-REJECT-003
     - TP-SHUTDOWN-001
+    - TP-SUBMIT-005
   compliant_violations: []
 notes:
   - ScheduledThreadPoolExecutor 使用内部无界 DelayedWorkQueue，队列规则不适用（诊断为提示级特征，不产生违规）。
+  - 注入真实重试回调及毫秒级初始/固定延迟；未配置下游的无参实例明确拒绝调度，不能以空方法代替支付重试。
+  - TP-SUBMIT-005 同时检查周期任务保护，提交端 catch 无法阻止周期因业务异常而停止。

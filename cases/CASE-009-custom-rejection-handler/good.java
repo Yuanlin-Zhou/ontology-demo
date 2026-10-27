@@ -13,6 +13,9 @@ import java.util.concurrent.atomic.LongAdder;
 
 /** good.java: 自定义拒绝策略记录日志并上报拒绝计数；线程池可监控、可关闭。 */
 public class NotifyDispatcher {
+    private final java.util.Queue<String> pendingNotifications = new java.util.concurrent.ConcurrentLinkedQueue<>();
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(NotifyDispatcher.class);
+
 
     private static final LongAdder REJECTED = new LongAdder();
 

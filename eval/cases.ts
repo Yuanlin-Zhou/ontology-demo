@@ -68,6 +68,8 @@ export function loadCases(casesDir: string, filter?: readonly string[]): Evaluat
     cases.push(testCase);
   }
   if (problems.length > 0) throw new CaseValidationError(`用例定义有误:\n- ${problems.join('\n- ')}`);
+  const unknown = filter?.filter(id => !cases.some(testCase => testCase.id === id)) ?? [];
+  if (unknown.length) throw new CaseValidationError(`未知的用例: ${unknown.join(', ')}`);
   if (cases.length === 0) throw new CaseValidationError(`没有找到任何用例: ${casesDir}`);
   return cases.sort((a, b) => a.id.localeCompare(b.id));
 }

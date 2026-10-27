@@ -5,7 +5,7 @@ import { join, resolve } from 'node:path';
 import { RuleEngine } from '../src/api/engine.ts';
 import type { RetrievalStrategy } from '../src/domain/types.ts';
 import { loadCases, readCaseFile, writeJson } from './cases.ts';
-import { verifyJava, type JavaContract } from './java.ts';
+import { verifyJava, type JavaContract } from './benchmark-java.ts';
 import { mean, markdownTable, percent } from './metrics.ts';
 
 const SYSTEM_PROMPT = 'You are a Java coding assistant. Return exactly one complete Java source file, without explanations. Preserve the required public API. Use Java 21 and only the standard library.';
@@ -73,7 +73,7 @@ export async function runAgentExperiment(config: AgentConfig, generate: Complete
   const engine = RuleEngine.load();
   const manifest = { version: 1, config: { ...config, casesDir: resolve(config.casesDir), outputDir: out },
     protocol: 'single-turn; no validation feedback or repair; rotating arm order; Java 21; shared system prompt',
-    system_prompt: SYSTEM_PROMPT, evaluator_sha256: hash(readFileSync(import.meta.filename, 'utf8') + readFileSync(new URL('./java.ts', import.meta.url), 'utf8')),
+    system_prompt: SYSTEM_PROMPT, evaluator_sha256: hash(readFileSync(import.meta.filename, 'utf8') + readFileSync(new URL('./benchmark-java.ts', import.meta.url), 'utf8')),
     engine_sha256: hash(sourceSnapshot(new URL('../src/', import.meta.url).pathname)),
     rag_corpus: ['java-thread-pool-best-practices.md', 'java-thread-pool-summary.md'].map(f => ({ file: f, sha256: hash(readFileSync(new URL('../' + f, import.meta.url), 'utf8')) })),
     rules: hash(JSON.stringify(engine.rules())), cases: cases.map(c => ({ id: c.id, task: c.task, before: hash(readCaseFile(c, 'before') ?? ''),

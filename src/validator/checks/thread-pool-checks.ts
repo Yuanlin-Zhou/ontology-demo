@@ -6,7 +6,8 @@
  * only report what can be proven from the AST model (no data-flow analysis).
  */
 import type { JavaSyntaxNode } from '../../analyzer/java-parser.ts';
-import { childForField, methodNameOf, receiverName, receiverOf, walk } from '../../analyzer/ast-utils.ts';
+import { JavaSymbols, enclosing, isWithin } from '../../analyzer/java-symbols.ts';
+import { childForField, isInFinally, methodNameOf, receiverName, receiverOf, walk } from '../../analyzer/ast-utils.ts';
 import {
   INTEGER_MAX_VALUE,
   applicationPools,
@@ -18,7 +19,7 @@ import {
   type CheckFinding,
 } from '../validator-registry.ts';
 
-const RISKY_FACTORY_PATTERN = /^new(FixedThreadPool|SingleThreadExecutor|CachedThreadPool|ScheduledThreadPool|SingleThreadScheduledExecutor|WorkStealingPool)$/;
+const RISKY_FACTORY_PATTERN = /^new(FixedThreadPool|SingleThreadExecutor|CachedThreadPool|ScheduledThreadPool|SingleThreadScheduledExecutor)$/;
 
 function riskOfFactory(factory: string): string {
   switch (factory) {
@@ -70,7 +71,7 @@ registerValidator('thread_pool.no_inline_pool_creation', (ctx: CheckContext): Ch
 registerValidator('thread_pool.thread_factory_present', (ctx: CheckContext): CheckFinding[] => {
   const findings: CheckFinding[] = [];
   for (const pool of ctx.model.pools) {
-    if (pool.kind === 'spring_task_executor' || pool.kind === 'virtual_thread_executor') continue;
+    if (pool.kind === 'spring_task_executor' || pool.kind === 'virtual_thread_executor' || pool.factoryMethod === 'newWorkStealingPool') continue;
     if (pool.threadFactory !== undefined) continue;
     findings.push(
       poolFinding(
@@ -108,20 +109,10 @@ registerValidator('thread_pool.thread_factory_named', (ctx: CheckContext): Check
 
 /** TP-CREATE-005: 交给容器管理线程池生命周期。 */
 registerValidator('thread_pool.pool_lifecycle_managed', (ctx: CheckContext): CheckFinding[] => {
-  const beanPools = applicationPools(ctx.model).filter((pool) => pool.isBean);
-  if (beanPools.length === 0) return [];
-  // `ThreadPoolTaskExecutor` implements DisposableBean: the container closes it.
-  if (beanPools.every((pool) => pool.kind === 'spring_task_executor')) return [];
-  if (ctx.model.hasPreDestroy) return [];
-  const pool = beanPools[0];
-  if (pool === undefined) return [];
-  return [
-    poolFinding(
-      pool,
-      '线程池通过容器托管，但本文件没有 @PreDestroy 关闭逻辑。',
-      '增加 @PreDestroy 方法调用 shutdown()/awaitTermination()，或实现 DisposableBean，确保应用关闭时线程池被回收。',
-    ),
-  ];
+  return applicationPools(ctx.model).filter(pool => pool.isBean && !pool.containerManaged &&
+    !ctx.model.shutdowns.some(s => s.poolId === pool.id && ['shutdown', 'shutdownNow', 'close'].includes(s.method))).map(pool =>
+      poolFinding(pool, 'Bean 禁用了推断销毁且没有针对该池的关闭路径。',
+        '保留 Spring 默认销毁推断、显式配置 destroyMethod，或为该池提供关闭回调；确保只有一个关闭责任方。', pool.variableName));
 });
 
 /** TP-CONFIG-001: 核心线程数必须显式配置且大于 0。 */
@@ -264,10 +255,10 @@ function submitLabel(receiver: string, method: string): string {
 registerValidator('thread_pool.future_result_handled', (ctx: CheckContext): CheckFinding[] => {
   const findings: CheckFinding[] = [];
   for (const submit of ctx.model.submits) {
-    if (submit.method !== 'submit' || submit.resultUsed) continue;
+    if (submit.method !== 'submit' || submit.resultHandled) continue;
     findings.push({
-      message: `${submitLabel(submit.receiver, submit.method)} 的返回值被丢弃，任务异常会一直保存在 Future 中而不被感知。`,
-      suggestion: '处理返回的 Future：get(3, TimeUnit.SECONDS) 并捕获 ExecutionException/TimeoutException，或链接 whenComplete/thenAccept 回调。',
+      message: `${submitLabel(submit.receiver, submit.method)} 返回的 Future 未见消费或委托，任务异常可能一直保存在 Future 中而不被感知。`,
+      suggestion: '普通 Future 使用 get(3, TimeUnit.SECONDS) 并处理 ExecutionException、TimeoutException 和中断；只有 CompletableFuture 支持 whenComplete 等回调。',
       line: submit.evidence.startLine,
       column: submit.evidence.startColumn,
       snippet: submit.evidence.snippet,
@@ -296,7 +287,7 @@ registerValidator('thread_pool.future_get_with_timeout', (ctx: CheckContext): Ch
 registerValidator('thread_pool.completable_future_executor', (ctx: CheckContext): CheckFinding[] => {
   const findings: CheckFinding[] = [];
   for (const async of ctx.model.asyncs) {
-    if (async.kind !== 'completable_future' || async.hasExplicitExecutor) continue;
+    if (async.kind !== 'completable_future' || async.asynchronous === false || async.hasExplicitExecutor) continue;
     findings.push({
       message: `CompletableFuture.${async.method} 没有指定 Executor，会使用公共 ForkJoinPool，阻塞任务会影响应用内其它异步任务。`,
       suggestion: '显式传入业务线程池：CompletableFuture.supplyAsync(supplier, orderExecutor)，并为该线程池配置命名线程、有界队列与拒绝策略。',
@@ -308,93 +299,79 @@ registerValidator('thread_pool.completable_future_executor', (ctx: CheckContext)
   return findings;
 });
 
-/** Method declarations of the file, keyed by method name (1-level inter-procedural helper). */
-function methodDeclarations(root: JavaSyntaxNode): Map<string, JavaSyntaxNode> {
-  const map = new Map<string, JavaSyntaxNode>();
-  walk(root, (node) => {
-    if (node.type !== 'method_declaration') return;
-    const name = childForField(node, 'name')?.text;
-    if (name !== undefined && name !== null && name.length > 0) map.set(name, node);
-  });
-  return map;
-}
-
-function calledMethodNamesIn(node: JavaSyntaxNode): string[] {
-  const names: string[] = [];
-  walk(node, (current) => {
-    if (current.type === 'method_invocation') names.push(methodNameOf(current));
-  });
-  return names;
-}
-
-function invokesRemoveOn(node: JavaSyntaxNode, threadLocalName: string): boolean {
-  let found = false;
-  walk(node, (current) => {
-    if (current.type !== 'method_invocation') return;
-    if (methodNameOf(current) !== 'remove') return;
-    if (receiverName(receiverOf(current)) === threadLocalName) found = true;
-  });
-  return found;
-}
-
-/**
- * True when a `finally` block of the file delegates the cleanup to a method
- * declared in the same file (e.g. `finally { TenantContext.restore(previous); }`).
- * Only one level of indirection is resolved; deeper call chains are reported as
- * violations (documented limitation, no data-flow analysis in Phase 1).
- */
-function cleanedInFinallyThroughHelper(ctx: CheckContext, threadLocalName: string): boolean {
-  const methods = methodDeclarations(ctx.parsed.rootNode);
-  if (methods.size === 0) return false;
-  let cleaned = false;
-  walk(ctx.parsed.rootNode, (node) => {
-    if (node.type !== 'finally_clause') return;
-    for (const called of calledMethodNamesIn(node)) {
-      const method = methods.get(called);
-      if (method === undefined) continue;
-      if (invokesRemoveOn(method, threadLocalName)) cleaned = true;
-    }
-  });
-  return cleaned;
-}
-
-/** TP-SUBMIT-004: ThreadLocal 必须在 finally 中清理。 */
+/** Check each write and one-hop private helper callers in their own execution boundary. */
 registerValidator('thread_pool.thread_local_cleanup', (ctx: CheckContext): CheckFinding[] => {
+  const symbols = new JavaSymbols(ctx.parsed.rootNode);
   const findings: CheckFinding[] = [];
-  const setHits = ctx.model.threadLocals.filter((item) => item.kind === 'set');
-  const removeHits = ctx.model.threadLocals.filter((item) => item.kind === 'remove');
-  for (const name of [...new Set(setHits.map((item) => item.name))]) {
-    const removes = removeHits.filter((item) => item.name === name);
-    if (removes.some((item) => item.inFinally) || cleanedInFinallyThroughHelper(ctx, name)) continue;
-    const hit = setHits.find((item) => item.name === name);
-    if (hit === undefined) continue;
-    const message =
-      removes.length === 0
-        ? `${name} 在任务中被写入，但没有在 finally 中 remove/恢复：线程被复用时会读到上一个任务的值。`
-        : `${name} 有清理调用，但不在 finally 中，异常路径下仍然会残留线程上下文。`;
-    findings.push({
-      message,
-      suggestion: '在任务外包一层 try/finally，在 finally 中 remove() 或恢复原值（日志 MDC、租户、登录信息都要处理），跨线程传递场景使用统一的任务包装器。',
-      line: hit.evidence.startLine,
-      column: hit.evidence.startColumn,
-      snippet: hit.evidence.snippet,
-      symbol: name,
-    });
+  const callables = ['lambda_expression', 'method_declaration', 'constructor_declaration'];
+  for (const write of ctx.model.threadLocals.filter(t => t.kind === 'set' && !t.inFinally)) {
+    const owner = enclosing(write.node, callables);
+    const matches = (expression: JavaSyntaxNode | null): boolean => write.name === 'MDC'
+      ? receiverName(expression) === 'MDC' : expression !== null && symbols.lookup(expression)?.id === write.symbolId;
+    const removes = (body: JavaSyntaxNode): boolean => {
+      let found = false;
+      walk(body, n => {
+        if (n.type === 'method_invocation' && (methodNameOf(n) === 'remove' || (write.name === 'MDC' && methodNameOf(n) === 'clear')) && matches(receiverOf(n))) found = true;
+      });
+      return found;
+    };
+    const protectedAt = (site: JavaSyntaxNode, allowAdjacentWrite: boolean): boolean => {
+      const execution = enclosing(site, callables);
+      return symbols.nodes.filter(n => ['try_statement', 'try_with_resources_statement'].includes(n.type) &&
+        enclosing(n, callables)?.id === execution?.id &&
+        (isWithin(site, childForField(n, 'body') ?? n) ||
+          (allowAdjacentWrite && n.parent?.id === site.parent?.parent?.id && n.startIndex > site.endIndex &&
+            !n.parent?.namedChildren.some(s => s.startIndex > site.endIndex && s.endIndex < n.startIndex))))
+        .some(attempt => {
+          const final = attempt.namedChildren.find(n => n.type === 'finally_clause');
+          if (!final) return false;
+          if (removes(final)) return true;
+          let cleaned = false;
+          walk(final, n => {
+            if (n.type !== 'method_invocation') return;
+            const helper = symbols.method(n);
+            if (helper && removes(helper)) cleaned = true;
+          });
+          return cleaned;
+        });
+    };
+    const callers = owner?.type === 'method_declaration' ? symbols.nodes.filter(n => n.type === 'method_invocation' && symbols.method(n)?.id === owner.id) : [];
+    // A restore helper used exclusively by finally is itself cleanup.
+    if (callers.length && callers.every(isInFinally) && owner && removes(owner)) continue;
+    if (protectedAt(write.node, true)) continue;
+    const privateHelper = owner?.type === 'method_declaration' && /\bprivate\b/.test(owner.namedChildren.find(n => n.type === 'modifiers')?.text ?? '');
+    if (privateHelper && callers.length && callers.every(c => protectedAt(c, false))) continue;
+    const unprotected = privateHelper ? callers.filter(c => !protectedAt(c, false)) : [];
+    const helperName = owner?.childForFieldName('name')?.text;
+    const detail = unprotected.length ? ` 私有方法 ${helperName} 的调用 L${unprotected.map(c => c.startPosition.row + 1).join(', L')} 未位于对应 try/finally 的 try 内。` : '';
+    findings.push({ message: `${write.name} 的本次写入没有对应的 finally 清理路径，复用线程可能残留上下文。${detail}`,
+      suggestion: unprotected.length
+        ? `将 ${helperName}(...) 的调用移入对应 try/finally 的 try 体内，并在 finally 内清理或恢复 ${write.name}；只在调用之后加 finally，不能保护 helper 本身抛异常的路径。`
+        : '把本次任务包装在 try/finally 中，在对应 finally 内 remove() 或调用当前类的上下文恢复方法。',
+      line: write.evidence.startLine, column: write.evidence.startColumn, snippet: write.evidence.snippet, symbol: write.name });
   }
   return findings;
 });
 
 /** TP-SUBMIT-005: 任务内异常必须被处理。 */
 registerValidator('thread_pool.task_exception_handled', (ctx: CheckContext): CheckFinding[] => {
-  if (ctx.model.hasUncaughtExceptionHandler) return [];
   const findings: CheckFinding[] = [];
   for (const submit of ctx.model.submits) {
+    if(['scheduleWithFixedDelay','scheduleAtFixedRate'].includes(submit.method)){
+      if(!submit.periodicExceptionHandled)findings.push({
+        message:`${submitLabel(submit.receiver,submit.method)} 未发现覆盖周期任务整体的异常保护；回调抛 RuntimeException 后可能停止全部后续执行。`,
+        suggestion:'在实际运行的周期任务内用 try/catch(RuntimeException) 保护整个业务回调并记录失败，不向调度器重新抛出；提交外层 catch 和 Thread 的未捕获异常处理器不能维持周期。无法解析的 Runnable/方法引用需要另作源码或运行验收。',
+        line:submit.evidence.startLine,column:submit.evidence.startColumn,snippet:submit.evidence.snippet,
+      });
+      continue;
+    }
     if (submit.method !== 'execute') continue;
-    if (submit.insideTry) continue;
-    if (!submit.taskThrows) continue;
+    if (!submit.taskThrows || submit.taskExceptionHandled) continue;
+    const pool = ctx.model.pools.find(p => p.id === submit.poolId);
+    if (pool?.threadFactory?.handlesExceptions) continue;
     findings.push({
       message: `${submitLabel(submit.receiver, submit.method)} 提交的任务会抛异常，且没有 try/catch 或未捕获异常处理器。`,
-      suggestion: '在任务体内 try/catch 并记录日志（必要时做补偿），或为线程池设置 setUncaughtExceptionHandler 统一上报。',
+      suggestion: '在任务体内 try/catch 并记录日志（必要时做补偿），或通过 ThreadFactory 对新建的 Thread 调用 thread.setUncaughtExceptionHandler(handler)；ThreadPoolExecutor 没有该方法。',
       line: submit.evidence.startLine,
       column: submit.evidence.startColumn,
       snippet: submit.evidence.snippet,
@@ -412,7 +389,7 @@ registerValidator('thread_pool.task_exception_handled', (ctx: CheckContext): Che
 registerValidator('thread_pool.rejection_explicit', (ctx: CheckContext): CheckFinding[] => {
   const findings: CheckFinding[] = [];
   for (const pool of ctx.model.pools) {
-    if (pool.kind === 'executors_factory' || pool.kind === 'virtual_thread_executor') continue;
+    if (pool.kind === 'executors_factory' || pool.kind === 'virtual_thread_executor' || pool.kind === 'thread_per_task_executor') continue;
     if (pool.rejection !== undefined) continue;
     findings.push(
       poolFinding(
@@ -443,9 +420,6 @@ registerValidator('thread_pool.no_silent_discard', (ctx: CheckContext): CheckFin
   return findings;
 });
 
-function abortsOnSaturation(ctx: CheckContext): boolean {
-  return ctx.model.pools.some((pool) => pool.rejection === undefined || pool.rejection.kind === 'abort');
-}
 
 function catchesRejection(submit: { insideTry: boolean; caughtTypes: readonly string[] }): boolean {
   if (!submit.insideTry) return false;
@@ -454,9 +428,10 @@ function catchesRejection(submit: { insideTry: boolean; caughtTypes: readonly st
 
 /** TP-REJECT-003: 必须处理 RejectedExecutionException。 */
 registerValidator('thread_pool.reject_exception_caught', (ctx: CheckContext): CheckFinding[] => {
-  if (!abortsOnSaturation(ctx)) return [];
   const findings: CheckFinding[] = [];
   for (const submit of ctx.model.submits) {
+    const pool = ctx.model.pools.find(p => p.id === submit.poolId);
+    if (pool && pool.rejection && pool.rejection.kind !== 'abort') continue;
     if (catchesRejection(submit)) continue;
     if (submit.receiverResolution === 'unresolved') continue;
     findings.push({
@@ -495,11 +470,10 @@ registerValidator('thread_pool.caller_runs_reviewed', (ctx: CheckContext): Check
 /** TP-SHUTDOWN-001: 应用级线程池必须有确定的关闭逻辑。 */
 registerValidator('thread_pool.shutdown_present', (ctx: CheckContext): CheckFinding[] => {
   const findings: CheckFinding[] = [];
-  const shutdownTargets = new Set(ctx.model.shutdowns.map((shutdown) => shutdown.receiver));
+  const shutdownTargets = new Set(ctx.model.shutdowns.filter(s => ['shutdown', 'shutdownNow', 'close'].includes(s.method)).map(s => s.poolId));
   for (const pool of applicationPools(ctx.model)) {
-    if (pool.kind === 'spring_task_executor') continue;
-    if (pool.variableName === undefined) continue;
-    if (shutdownTargets.has(pool.variableName)) continue;
+    if (pool.containerManaged) continue;
+    if (shutdownTargets.has(pool.id)) continue;
     findings.push(
       poolFinding(
         pool,
@@ -515,10 +489,32 @@ registerValidator('thread_pool.shutdown_present', (ctx: CheckContext): CheckFind
 /** TP-SHUTDOWN-002: 优雅关闭需等待终止。 */
 registerValidator('thread_pool.graceful_shutdown', (ctx: CheckContext): CheckFinding[] => {
   const findings: CheckFinding[] = [];
-  const awaitTargets = new Set(ctx.model.shutdowns.filter((s) => s.method === 'awaitTermination').map((s) => s.receiver));
+  const symbols = new JavaSymbols(ctx.parsed.rootNode);
+  const boundaries = ['method_declaration', 'constructor_declaration', 'lambda_expression'];
+
   for (const shutdown of ctx.model.shutdowns) {
     if (shutdown.method !== 'shutdown' && shutdown.method !== 'close') continue;
-    if (awaitTargets.has(shutdown.receiver)) continue;
+    // ExecutorService.close() (Java 21) waits for termination itself.
+    if (shutdown.method === 'close') continue;
+    const method = enclosing(shutdown.node, boundaries);
+    const waits = ctx.model.shutdowns.filter(s => s.method === 'awaitTermination' &&
+      (shutdown.poolId ? s.poolId === shutdown.poolId : s.receiver === shutdown.receiver) &&
+      s.argCount === 2);
+    if (waits.some(s => enclosing(s.node, boundaries)?.id === method?.id && s.node.startIndex > shutdown.node.startIndex)) continue;
+    // One private, unambiguous, zero-argument helper; no virtual dispatch or parameter mapping.
+    const delegatedWait = symbols.nodes.some(call => {
+      if (call.type !== 'method_invocation' || call.startIndex < shutdown.node.endIndex ||
+        enclosing(call, boundaries)?.id !== method?.id ||
+        (childForField(call, 'arguments')?.namedChildren.length ?? 0) !== 0) return false;
+      const helper = symbols.method(call);
+      if (!helper || helper.id === method?.id ||
+        !/\bprivate\b/.test(helper.namedChildren.find(n => n.type === 'modifiers')?.text ?? '') ||
+        (childForField(helper, 'parameters')?.namedChildren.length ?? 0) !== 0) return false;
+      return waits.some(s => enclosing(s.node, boundaries)?.id === helper.id);
+    });
+    if (delegatedWait) continue;
+    const pool = ctx.model.pools.find(p => p.id === shutdown.poolId);
+    if (pool?.kind === 'spring_task_executor' && pool.waitsForTasksOnShutdown && (pool.awaitTerminationSeconds ?? 0) > 0) continue;
     findings.push({
       message: `${shutdown.receiver}.${shutdown.method}() 之后没有 awaitTermination(timeout, unit)，无法确认任务是否执行完毕。`,
       suggestion: '关闭标准流程：shutdown() → awaitTermination(30, TimeUnit.SECONDS) → 超时后 shutdownNow() 兜底，并在 catch (InterruptedException) 中恢复中断状态。',
@@ -536,8 +532,8 @@ registerValidator('thread_pool.interrupt_restored', (ctx: CheckContext): CheckFi
   for (const caught of ctx.model.interruptCatches) {
     if (caught.restored) continue;
     findings.push({
-      message: `catch (InterruptedException) 中没有恢复中断状态，取消语义（shutdownNow / Future.cancel）会失效。`,
-      suggestion: '在清理动作之后调用 Thread.currentThread().interrupt()，或把 InterruptedException 继续向上抛出。',
+      message: `未确认 catch (InterruptedException) 的所有已分析路径恢复当前线程中断状态或重抛原异常，取消语义可能丢失。`,
+      suggestion: '在当前执行路径或对应 finally 中调用 Thread.currentThread().interrupt()，或继续抛出原 InterruptedException；不要只在延迟 lambda、其他线程或部分条件分支中恢复。复杂循环、嵌套 try 和跨方法恢复需另行审查。',
       line: caught.evidence.startLine,
       column: caught.evidence.startColumn,
       snippet: caught.evidence.snippet,
@@ -567,17 +563,11 @@ registerValidator('thread_pool.shutdown_now_pending_tasks', (ctx: CheckContext):
 registerValidator('thread_pool.pool_observable', (ctx: CheckContext): CheckFinding[] => {
   const pools = applicationPools(ctx.model);
   if (pools.length === 0) return [];
-  if (ctx.model.monitors.length > 0) return [];
-  const pool = pools[0];
-  if (pool === undefined) return [];
-  return [
-    poolFinding(
-      pool,
-      `线程池 ${pool.variableName ?? poolLabel(pool)} 没有暴露任何监控指标（队列长度/活跃线程/完成数/拒绝次数）。`,
-      '暴露 getQueue().size()、getActiveCount()、getCompletedTaskCount()、getTaskCount() 等指标并配置告警，拒绝次数要单独计数。',
-      pool.variableName,
-    ),
-  ];
+  return pools.filter(pool => !ctx.model.monitors.some(m => m.poolId === pool.id)).map(pool =>
+    poolFinding(pool, `线程池 ${pool.variableName ?? poolLabel(pool)} 没有关联到可观察的运行指标。`,
+      pool.kind === 'virtual_thread_executor'
+        ? '虚拟线程 ExecutorService 没有 ThreadPoolExecutor 的运行指标 API；在业务准入与回调 finally 中独立统计已接收未结束、成功、失败和拒绝次数，用真实下游回调验收这些统计。'
+        : '为这个线程池暴露 getQueue().size()、getActiveCount()、getCompletedTaskCount() 等运行指标，并单独统计拒绝次数。', pool.variableName));
 });
 
 /** TP-REJECT-005: 自定义拒绝策略必须记录并上报。 */

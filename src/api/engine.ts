@@ -11,12 +11,15 @@ import { buildThreadPoolModel } from '../analyzer/model-builder.ts';
 import type { JavaThreadPoolModel } from '../analyzer/model.ts';
 import { FEATURE_CATALOG } from '../domain/features.ts';
 import type { AnalyzeStats, FeatureHit, RetrievalStrategy, RetrieveResult, RetrievedChunk, Rule, ValidateResult } from '../domain/types.ts';
-import { matchRules, type MatchOptions } from '../matcher/rule-matcher.ts';
+import { ruleContext } from '../retrieval/knowledge-payload.ts';
+import { matchRules, toRetrievedRule, type MatchOptions } from '../matcher/rule-matcher.ts';
 import { RuleRepository } from '../matcher/rule-repository.ts';
 import { RagBaseline, type RagOptions } from '../retrieval/rag-baseline.ts';
 import { renderPrompt, type PromptInput, type RenderPromptResult } from '../retrieval/prompt-renderer.ts';
 import { estimateTokens } from '../retrieval/token-estimator.ts';
-import { validateCode, type ValidateOptions } from '../validator/rule-validator.ts';
+import { repairCode, type RepairInput, type RepairResult } from './repair.ts';
+import { getValidator } from '../validator/validator-registry.ts';
+import { validateAnalysis, validateCode, type ValidateOptions } from '../validator/rule-validator.ts';
 
 /** Repository root (two levels above `src/api`). */
 export const REPOSITORY_ROOT = resolve(import.meta.dirname, '..', '..');
@@ -31,6 +34,8 @@ export interface RetrieveInput {
   includeRationale?: boolean;
   maxRules?: number;
   tokenBudget?: number;
+  /** Explicit planned capabilities for empty/new code; never inferred from task keywords. */
+  featureHints?: string[];
 }
 
 export interface AnalysisResult {
@@ -49,15 +54,17 @@ export interface PromptBuildInput {
   filePath?: string;
   code?: string;
   includeCode?: boolean;
-  /** Also pull in `related_rules` (default true for the rules strategy). */
+  /** Include conditional related advice (default false). */
   includeRelated?: boolean;
-  /** Soft token budget for the injected knowledge (default 1200). */
+  /** Hard estimated-token budget for serialized knowledge (default 1200). */
   tokenBudget?: number;
   /** Top-K for the RAG strategy (default 5). */
   topK?: number;
+  featureHints?: string[];
 }
 
 export interface RenderedPromptResult {
+  context_tokens: number;
   prompt: string;
   estimated_tokens: number;
   features?: string[];
@@ -71,6 +78,9 @@ export class RuleEngine {
   private readonly rag: RagBaseline;
 
   constructor(repository: RuleRepository, corpusDir: string = REPOSITORY_ROOT) {
+    for (const rule of repository.rules) {
+      if (rule.check && !getValidator(rule.check.validator)) throw new Error(`${rule.id}: unregistered checker ${rule.check.validator}`);
+    }
     this.repository = repository;
     this.corpusDir = corpusDir;
     this.rag = new RagBaseline(corpusDir);
@@ -116,7 +126,11 @@ export class RuleEngine {
     if (input.maxRules !== undefined) matchOptions.maxRules = input.maxRules;
     if (input.tokenBudget !== undefined) matchOptions.tokenBudget = input.tokenBudget;
 
-    const match = matchRules(this.repository, analysis.featureIds, matchOptions);
+    const diagnostics = validateAnalysis(this.repository.rules, analysis.parsed, analysis.model);
+    matchOptions.violatedRuleIds = diagnostics.violations.map(v => v.rule_id);
+    const hints = input.featureHints ?? [];
+    for (const hint of hints) if (!FEATURE_CATALOG.some(f => f.id === hint)) throw new Error(`Unknown planned feature: ${hint}`);
+    const match = matchRules(this.repository, analysis.parsed.errors.length ? [] : [...new Set([...analysis.featureIds, ...hints])], matchOptions);
     const stats: AnalyzeStats = {
       candidate_rules: this.repository.rules.length,
       matched_rules: match.rules.length,
@@ -129,11 +143,13 @@ export class RuleEngine {
       language: 'java',
       features: analysis.featureIds,
       feature_details: analysis.features,
-      rules: match.rules,
+      rules: analysis.parsed.errors.length ? [] : match.rules,
+      selection: { dropped_rule_ids: match.droppedRuleIds, unmatched_features: match.unmatchedFeatures, planned_features: hints },
       stats,
       warnings: analysis.parsed.errors.map((error) => `L${error.line}:${error.column} ${error.message}`),
     };
     if (input.task !== undefined) result.task = input.task;
+    if (analysis.parsed.errors.length) result.warnings.push('源码语法错误：暂停规则注入，先修复语法后重新分析。');
     if (match.truncated) result.warnings.push('规则结果已按 maxRules/tokenBudget 截断');
     return result;
   }
@@ -143,6 +159,9 @@ export class RuleEngine {
     const options: ValidateOptions = input.ruleIds === undefined ? {} : { ruleIds: input.ruleIds };
     return validateCode(this.repository.rules, input.code, input.filePath ?? '<inline>.java', options);
   }
+
+  /** Compiler/business-gated, bounded Retrieve → Validate → Repair loop. */
+  repair(input: RepairInput): Promise<RepairResult> { return repairCode(this, input); }
 
   /** Naive RAG baseline over the knowledge documents (used by the evaluation). */
   retrieveChunks(query: string, options: RagOptions = {}): RetrievedChunk[] {
@@ -182,15 +201,17 @@ export class RuleEngine {
         task: input.task,
         tokenBudget,
         includeRelated: input.includeRelated ?? false,
+        ...(input.featureHints === undefined ? {} : { featureHints: input.featureHints }),
       });
-      return renderPrompt({ ...base, features: retrieved.features, rules: retrieved.rules });
+      return { ...renderPrompt({ ...base, features: retrieved.features, rules: retrieved.rules }),
+        warnings: retrieved.warnings, dropped_rule_ids: retrieved.selection?.dropped_rule_ids ?? [] };
     }
     return renderPrompt(base);
   }
 
   /** Token cost of a rule payload, used for budget planning. */
   estimateRuleTokens(ruleIds: readonly string[]): number {
-    return this.repository.byIds(ruleIds).reduce((total, rule) => total + estimateTokens(rule.content), 0);
+    return estimateTokens(ruleContext(this.repository.byIds(ruleIds).map(rule => toRetrievedRule(rule, new Set(), false))));
   }
 }
 
