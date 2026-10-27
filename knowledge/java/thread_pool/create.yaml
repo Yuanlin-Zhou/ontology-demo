@@ -17,6 +17,9 @@
     newCachedThreadPool / newScheduledThreadPool / newSingleThreadScheduledExecutor），应直接使用
     new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory, handler)，
     把线程数、队列容量和拒绝策略显式写出来。
+    此限制针对上述平台线程快捷工厂；Java 21 的 newVirtualThreadPerTaskExecutor 不在禁止范围。
+    虚拟线程不能提高下游连接容量：应在创建任务之前做有界准入，许可在回调 finally 和启动失败时释放，
+    饱和时明确拒绝或有界补偿，不能用无限量等待许可的虚拟线程堆积请求。
   rationale: |
     FixedThreadPool 与 SingleThreadExecutor 使用无界 LinkedBlockingQueue，任务持续进入时可能堆积导致 OOM；
     CachedThreadPool 使用 SynchronousQueue 且最大线程数为 Integer.MAX_VALUE，可能创建大量线程；
@@ -170,14 +173,16 @@
     any_features:
       - SPRING.EXECUTOR_BEAN
       - SPRING.PRE_DESTROY
-  description: Spring 应用中的线程池应通过 @Bean 暴露，并用 @PreDestroy 管理关闭。
+  description: Spring 应用中的线程池应由一个明确的生命周期责任方管理关闭。
   content: |
-    Spring 项目把线程池声明为 @Bean（或通过 ThreadPoolTaskExecutor），并在关闭时用 @PreDestroy
-    方法调用 shutdown / awaitTermination；不要在多处 new 出未托管实例。
+    Spring 项目通过 @Bean 返回线程池，保留容器的销毁管理；ThreadPoolTaskExecutor 本身实现
+    容器生命周期接口，Java 21 的 ExecutorService.close() 也可被 Spring 推断为销毁入口。
+    使用已有容器销毁路径时不要再添加重复关闭逻辑。禁用推断销毁（destroyMethod=""）时，
+    须由实际持有该池的回调完成关闭、等待及待执行任务处置；不要在多处 new 未托管实例。
   rationale: |
     容器托管可以保证单例复用与生命周期回调，避免遗漏关闭导致线程泄漏和任务丢失。
     @Bean 返回的 ExecutorService 虽然可以被 Spring 推断 shutdown() 作为销毁方法，
-    但仍建议显式声明 @PreDestroy：既便于审阅，也便于在关闭前处理队列中的任务。
+    不必为满足形式再添加 @PreDestroy；只有业务需要专门处置待执行任务时才增加明确的关闭责任方。
   check:
     validator: thread_pool.pool_lifecycle_managed
   examples:
@@ -195,10 +200,6 @@
               return executor;
           }
 
-          @PreDestroy
-          public void stop() {
-              executor.shutdown();
-          }
     negative:
       - note: 本地 new 且没有生命周期回调
         code: |

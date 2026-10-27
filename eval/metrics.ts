@@ -48,6 +48,21 @@ export function percent(value: number, digits = 1): string {
   return `${(value * 100).toFixed(digits)}%`;
 }
 
+/** One violated rule counts once, even when it reports multiple source locations. */
+export function ruleCompliance(checkedRuleIds: readonly string[], violatedRuleIds: readonly string[]): number | null {
+  const checked = new Set(checkedRuleIds);
+  if (checked.size === 0) return null;
+  const violated = new Set(violatedRuleIds.filter(id => checked.has(id)));
+  return round(1 - violated.size / checked.size);
+}
+
+/** Missing/unavailable outcomes are visible in coverage, never silently dropped. */
+export function outcomeRate(statuses: readonly string[]): { passed: number; total: number; rate: number | null; evaluated: number } {
+  const evaluated = statuses.filter(s => ['ok', 'failed', 'timeout'].includes(s)).length;
+  const passed = statuses.filter(s => s === 'ok').length;
+  return { passed, total: statuses.length, rate: statuses.length ? round(passed / statuses.length) : null, evaluated };
+}
+
 /** Renders a markdown table. */
 export function markdownTable(headers: readonly string[], rows: ReadonlyArray<readonly string[]>): string {
   const head = `| ${headers.join(' | ')} |`;

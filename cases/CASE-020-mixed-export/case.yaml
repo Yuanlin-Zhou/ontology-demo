@@ -6,6 +6,7 @@ domain: thread_pool
 files:
   before: before.java
   bad: bad.java
+  good: good.java
 expected:
   features:
     - THREAD_POOL.CREATE
@@ -58,5 +59,7 @@ expected:
     - TP-SUBMIT-004
   compliant_violations: []
 notes:
-  - before.java 中 ThreadLocal 通过 finally 调用的 restore() 辅助方法清理（做了 1 层跨方法推导，因此不报 TP-SUBMIT-004）。
+  - before.java 的 worker 通过 finally 内 restore() 恢复；validateTenant 在调用方 try 之前写入 TENANT，调用方仍缺保护。
+  - good.java 将 CompletableFuture 结果编排与 FutureTask 实际执行句柄分开；超时/中断取消实际工作，强制关闭也完成排队调用者。
+  - 独立验收使用可注入导出回调，验证正常/异常/超时/中断的上下文恢复、排队取消、拒绝补偿与重复关闭。
   - bad.java 使用公共线程池 + 忽略 submit 返回值 + ThreadLocal 不清理，命中 9 条违规。

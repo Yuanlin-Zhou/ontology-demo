@@ -12,6 +12,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /** good.java: 异步任务使用独立线程池 + 超时 + 异常处理，线程池可监控可关闭。 */
 public class QuoteService {
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(QuoteService.class);
+
 
     private final ThreadPoolExecutor quoteExecutor = new ThreadPoolExecutor(
             8, 16, 60L, TimeUnit.SECONDS,

@@ -112,9 +112,14 @@
     features: [THREAD_POOL.CONFIG.QUEUE]
   description: 阻塞队列必须有明确容量，禁止使用无界队列作为任务缓冲。
   content: |
-    使用有界阻塞队列（推荐 ArrayBlockingQueue(capacity)），并显式写出容量；不要使用
+    使用有界阻塞队列；普通 FIFO 业务可用 ArrayBlockingQueue(capacity)，并显式写出容量；不要使用
     LinkedBlockingQueue()（默认 Integer.MAX_VALUE）、PriorityBlockingQueue、DelayedWorkQueue
     等无界队列。队列只用来吸收短时突发流量，不是任务仓库存放地。
+    业务要求优先级时必须保留优先级排序，不能为满足有界约束改成 FIFO。
+    实现有界优先级 BlockingQueue<Runnable>：按优先级降序、同级提交序号升序取任务；
+    offer 的容量检查与插入、过载时选择并替换淘汰对象，都必须在同一队列锁内原子完成。
+    替换操作若已将新任务入队，拒绝处理器须直接返回；不能再次 execute 同一任务造成重复入队或递归淘汰。
+    ThreadPoolExecutor 接收 BlockingQueue<Runnable>，不是 BlockingQueue<具体任务子类>。
   rationale: |
     无界队列会一直增长：任务被接收却迟迟不执行，可能已超过业务超时时间，同时占用大量堆内存导致 OOM；
     有界队列 + 明确的拒绝策略才能在过载时快速失败并触发告警。
@@ -183,6 +188,9 @@
   content: |
     使用 PriorityBlockingQueue 时不要搭配 DiscardOldestPolicy：该策略调用 poll() 丢弃的是
     “优先级最高”的任务而不是最旧的任务，会造成重要任务被静默丢掉。
+    不能通过删除业务优先级来消除此违规。使用有界优先级队列与明确的自定义淘汰规则，
+    优先级由任务元数据提供；替换必须与正常入队共享同一把锁，避免递归 execute 重试。
+    如果要求全体排队任务的优先级顺序，避免满队列后新建非核心线程直接执行新任务而绕过队列。
   rationale: |
     DiscardOldestPolicy 依赖队列的 FIFO 语义，优先级队列下语义完全相反，属于极易被忽略的正确性问题。
   check:

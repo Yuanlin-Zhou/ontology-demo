@@ -4,6 +4,7 @@
  */
 import { detectFeatures, featureIdsOf, summarizeFeatures } from '../analyzer/feature-detector.ts';
 import { parseJava, type ParsedJavaFile } from '../analyzer/java-parser.ts';
+import type { JavaThreadPoolModel } from '../analyzer/model.ts';
 import { buildThreadPoolModel } from '../analyzer/model-builder.ts';
 import { isApplicable } from '../matcher/rule-matcher.ts';
 import type { FeatureId, Rule, ValidateResult, Violation } from '../domain/types.ts';
@@ -23,7 +24,12 @@ interface AnalysisBundle {
 /** Analyses the source once and hands it to the selected checkers. */
 export function validateCode(rules: readonly Rule[], code: string, filePath = '<inline>.java', options: ValidateOptions = {}): ValidateResult {
   const parsed = parseJava(code, filePath);
-  const model = buildThreadPoolModel(parsed);
+  return validateAnalysis(rules, parsed, buildThreadPoolModel(parsed), options);
+}
+
+/** Shared analysis for retrieval diagnostics and validation, without a second AST parse. */
+export function validateAnalysis(rules: readonly Rule[], parsed: ParsedJavaFile, model: JavaThreadPoolModel, options: ValidateOptions = {}): ValidateResult {
+  const { code, filePath } = parsed;
   const hits = detectFeatures(model);
   const features = new Set(featureIdsOf(hits));
   const bundle: AnalysisBundle = { parsed, features };
@@ -32,16 +38,22 @@ export function validateCode(rules: readonly Rule[], code: string, filePath = '<
   const selected = selectRules(rules, bundle.features, options, warnings);
   const violations: Violation[] = [];
   const checkedRules: string[] = [];
+  const checks: NonNullable<ValidateResult['checks']> = [];
 
   for (const rule of selected) {
-    checkedRules.push(rule.id);
+    if (parsed.errors.length) {
+      checks.push({ rule_id: rule.id, status: 'unavailable', reason: 'Java syntax errors; repair syntax before rule validation.' });
+      continue;
+    }
     const checkName = rule.check?.validator;
     if (checkName === undefined) {
+      checks.push({ rule_id: rule.id, status: 'advisory', reason: 'No deterministic checker.' });
       warnings.push(`${rule.id}: 规则没有 check，无法参与 validate`);
       continue;
     }
     const checker = getValidator(checkName);
     if (checker === undefined) {
+      checks.push({ rule_id: rule.id, status: 'unavailable', reason: `Unregistered checker: ${checkName}` });
       warnings.push(`${rule.id}: 未注册的 checker ${checkName}`);
       continue;
     }
@@ -54,6 +66,8 @@ export function validateCode(rules: readonly Rule[], code: string, filePath = '<
       lines: parsed.lines,
       code,
     });
+    checkedRules.push(rule.id);
+    checks.push({ rule_id: rule.id, status: findings.length ? 'violated' : 'passed' });
     for (const finding of findings) violations.push(toViolation(rule, finding));
   }
 
@@ -64,6 +78,8 @@ export function validateCode(rules: readonly Rule[], code: string, filePath = '<
     language: 'java',
     features: [...features],
     checked_rules: checkedRules,
+    checks,
+    status: parsed.errors.length ? 'invalid' : checks.some(c => c.status === 'unavailable') || warnings.some(w => w.startsWith('未知')) ? 'partial' : 'complete',
     violations,
     stats: {
       checked_rules: checkedRules.length,
@@ -80,7 +96,7 @@ function selectRules(
   options: ValidateOptions,
   warnings: string[],
 ): Rule[] {
-  if (options.ruleIds !== undefined && options.ruleIds.length > 0) {
+  if (options.ruleIds !== undefined) {
     const wanted = new Set(options.ruleIds);
     const known = new Set(rules.map((rule) => rule.id));
     for (const id of wanted) {

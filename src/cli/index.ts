@@ -10,7 +10,7 @@
  *   rule-engine eval     [--cases cases] [--out eval] [--emit-prompts] [--agent-results]
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { delimiter, resolve } from 'node:path';
 import { RuleEngine, REPOSITORY_ROOT } from '../api/engine.ts';
 import type { RetrieveResult, ValidateResult } from '../domain/types.ts';
 import { runEvaluation, writeReport } from '../../eval/runner.ts';
@@ -35,6 +35,12 @@ interface Args {
   agentResults: boolean;
   strategies?: string[];
   quiet: boolean;
+  javac?: string;
+  java?: string;
+  classpath?: string;
+  release?: number;
+  timeoutMs?: number;
+  caseIds?: string[];
 }
 
 function parseArgs(argv: readonly string[]): Args {
@@ -43,7 +49,7 @@ function parseArgs(argv: readonly string[]): Args {
     format: 'text',
     strategy: 'rules',
     json: false,
-    includeRelated: true,
+    includeRelated: false,
     includeRationale: false,
     emitPrompts: false,
     agentResults: false,
@@ -103,6 +109,9 @@ function parseArgs(argv: readonly string[]): Args {
         args.topK = Number(value);
         index += 1;
         break;
+      case '--related':
+        args.includeRelated = true;
+        break;
       case '--no-related':
         args.includeRelated = false;
         break;
@@ -117,6 +126,16 @@ function parseArgs(argv: readonly string[]): Args {
         break;
       case '--agent-results':
         args.agentResults = true;
+        break;
+      case '--javac': args.javac = value; index += 1; break;
+      case '--java': args.java = value; index += 1; break;
+      case '--classpath': args.classpath = value; index += 1; break;
+      case '--release': args.release = Number(value); index += 1; break;
+      case '--timeout-ms': args.timeoutMs = Number(value); index += 1; break;
+      case '--case-ids':
+        args.caseIds = [...new Set((value ?? '').split(',').map(id => id.trim()).filter(Boolean))];
+        if (!args.caseIds.length) fail('--case-ids requires at least one case ID');
+        index += 1;
         break;
       case '--quiet':
         args.quiet = true;
@@ -149,6 +168,8 @@ function help(): void {
   rule-engine rules [--domain thread_pool] [--json]
   rule-engine prompt   --file <X.java> --task "..." [--strategy rules|rag|baseline] [--out <dir>]
   rule-engine eval     [--cases cases] [--out eval] [--emit-prompts] [--agent-results] [--budget-tokens N]
+                   [--javac PATH] [--java PATH] [--release 21] [--classpath PATHS] [--timeout-ms 10000]
+                   [--case-ids CASE-012,CASE-019]
 
 示例:
   rule-engine retrieve --file samples/bad/OrderAsyncService.java --format json
@@ -173,6 +194,7 @@ function printRetrieveText(result: RetrieveResult): void {
 
 function printValidateText(result: ValidateResult): void {
   console.log(`file: ${result.file_path}`);
+  console.log(`status: ${result.status ?? 'unknown'}`);
   console.log(`checked ${result.stats.checked_rules} rules | violations ${result.stats.violations}`);
   for (const violation of result.violations) {
     console.log(`  [${violation.severity}] ${violation.rule_id} L${violation.line}:${violation.column} ${violation.message}`);
@@ -209,12 +231,9 @@ function main(): void {
         console.log(JSON.stringify(result, null, 2));
       } else if (args.format === 'prompt') {
         console.log(
-          engine.buildPrompt({
+          engine.renderPrompt({
             task: args.task ?? '请根据当前代码完成任务',
-            strategy: 'rules',
-            code,
-            filePath: file,
-            ...(args.budgetTokens === undefined ? {} : { tokenBudget: args.budgetTokens }),
+            strategy: 'rules', code, filePath: file, features: result.features, rules: result.rules,
           }).prompt,
         );
       } else {
@@ -227,7 +246,8 @@ function main(): void {
       const result = engine.validate({ code, filePath: file, ...(args.rules === undefined ? {} : { ruleIds: args.rules }) });
       if (args.format === 'json' || args.json) console.log(JSON.stringify(result, null, 2));
       else printValidateText(result);
-      if (result.violations.some((violation) => violation.severity === 'error')) process.exitCode = 1;
+      if (result.status === 'invalid' || result.status === 'partial') process.exitCode = 2;
+      else if (result.violations.some((violation) => violation.severity === 'error')) process.exitCode = 1;
       return;
     }
     case 'features': {
@@ -267,6 +287,7 @@ function main(): void {
         ...(args.budgetTokens === undefined ? {} : { tokenBudget: args.budgetTokens }),
         ...(args.topK === undefined ? {} : { topK: args.topK }),
       });
+      for (const warning of rendered.warnings ?? []) console.error(`warning: ${warning}`);
       if (args.out === undefined) {
         console.log(rendered.prompt);
         return;
@@ -288,6 +309,14 @@ function main(): void {
         emitPrompts: args.emitPrompts,
         evaluateAgentResults: args.agentResults,
         engine,
+        ...(args.caseIds === undefined ? {} : { caseIds: args.caseIds }),
+        java: {
+          ...(args.javac === undefined ? {} : { javac: args.javac }),
+          ...(args.java === undefined ? {} : { java: args.java }),
+          ...(args.classpath === undefined ? {} : { classpath: args.classpath.split(delimiter).map(p => resolve(p)) }),
+          ...(args.release === undefined ? {} : { release: args.release }),
+          ...(args.timeoutMs === undefined ? {} : { timeoutMs: args.timeoutMs }),
+        },
       });
       const { markdownPath, jsonPath } = writeReport(report, outputDir);
       console.log(`report: ${markdownPath}`);

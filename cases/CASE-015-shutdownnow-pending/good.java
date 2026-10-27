@@ -10,6 +10,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /** good.java: shutdownNow() 的返回值被记录并转交补偿通道，审计任务不会丢。 */
 public class AuditWriteService {
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(AuditWriteService.class);
+    private final java.util.Queue<Runnable> fallbackQueue = new java.util.concurrent.ConcurrentLinkedQueue<>();
+
 
     private final ThreadPoolExecutor auditExecutor = new ThreadPoolExecutor(
             4, 8, 60L, TimeUnit.SECONDS,

@@ -8,17 +8,20 @@
  */
 import { PRIORITY_ORDER } from '../domain/types.ts';
 import type { FeatureId, RetrievedRule, Rule } from '../domain/types.ts';
+import { ruleContext, renderRule, nonNegativeLimit } from '../retrieval/knowledge-payload.ts';
 import { estimateTokens } from '../retrieval/token-estimator.ts';
 import type { RuleRepository } from './rule-repository.ts';
 
 export interface MatchOptions {
-  /** Also pull in `related_rules` of matched rules (default true). */
+  /** Include one-hop conditional advice (default false); exclusions still apply. */
   includeRelated?: boolean;
+  /** Findings in the current code take precedence over already satisfied guidance. */
+  violatedRuleIds?: readonly string[];
   /** Include `rationale` in the injected content (default false, saves tokens). */
   includeRationale?: boolean;
   /** Hard limit on the number of returned rules. */
   maxRules?: number;
-  /** Soft limit on the estimated token cost of the rule payload. */
+  /** Hard limit on the estimated token cost of the rule payload. */
   tokenBudget?: number;
 }
 
@@ -27,6 +30,7 @@ export interface MatchResult {
   /** Feature ids that did not match any rule (retrieval gaps). */
   unmatchedFeatures: FeatureId[];
   truncated: boolean;
+  droppedRuleIds: string[];
   estimatedTokens: number;
 }
 
@@ -39,7 +43,7 @@ export function isApplicable(rule: Rule, features: ReadonlySet<FeatureId>): bool
   return true;
 }
 
-function toRetrievedRule(rule: Rule, features: ReadonlySet<FeatureId>, includeRationale: boolean): RetrievedRule {
+export function toRetrievedRule(rule: Rule, features: ReadonlySet<FeatureId>, includeRationale: boolean): RetrievedRule {
   const matched = (rule.applies_when.features ?? []).filter((feature) => features.has(feature));
   const anyMatched = (rule.applies_when.any_features ?? []).filter((feature) => features.has(feature));
   const injected = includeRationale && rule.rationale !== undefined ? `${rule.content}\n\n${rule.rationale}` : rule.content;
@@ -56,19 +60,24 @@ function toRetrievedRule(rule: Rule, features: ReadonlySet<FeatureId>, includeRa
     references: rule.references ?? [],
     estimated_tokens: estimateTokens(injected),
   };
-  if (rule.rationale !== undefined) retrieved.rationale = rule.rationale;
+  if (includeRationale && rule.rationale !== undefined) retrieved.rationale = rule.rationale;
+  retrieved.estimated_tokens = estimateTokens(renderRule(retrieved));
   return retrieved;
 }
 
 /** Matches the detected features against the rule repository. */
 export function matchRules(repository: RuleRepository, featureIds: readonly FeatureId[], options: MatchOptions = {}): MatchResult {
-  const includeRelated = options.includeRelated ?? true;
+  nonNegativeLimit(options.tokenBudget, 'tokenBudget');
+  nonNegativeLimit(options.maxRules, 'maxRules');
+  const includeRelated = options.includeRelated ?? false;
   const includeRationale = options.includeRationale ?? false;
   const features = new Set(featureIds);
   const byId = new Map<string, Rule>(repository.rules.map((rule) => [rule.id, rule]));
 
   const matchedRules = repository.rules.filter((rule) => isApplicable(rule, features));
-  const ordered = [...matchedRules].sort(compareRules);
+  const violated = new Set(options.violatedRuleIds ?? []);
+  const ordered = [...matchedRules].sort((a,b) => Number(violated.has(b.id)) - Number(violated.has(a.id)) ||
+    (violated.has(a.id) ? ({error:0,warning:1,info:2}[a.severity] - {error:0,warning:1,info:2}[b.severity]) : 0) || compareRules(a,b));
   const result: RetrievedRule[] = ordered.map((rule) => toRetrievedRule(rule, features, includeRationale));
 
   if (includeRelated) {
@@ -78,11 +87,12 @@ export function matchRules(repository: RuleRepository, featureIds: readonly Feat
       for (const relatedId of rule.related_rules ?? []) {
         if (present.has(relatedId)) continue;
         const related = byId.get(relatedId);
-        if (related === undefined) continue;
+        if (related === undefined || related.applies_when.none_features?.some(f => features.has(f))) continue;
         present.add(relatedId);
         const retrieved = toRetrievedRule(related, features, includeRationale);
         retrieved.via = 'related';
         retrieved.via_rule = rule.id;
+        retrieved.estimated_tokens = estimateTokens(renderRule(retrieved));
         extras.push(retrieved);
       }
     }
@@ -99,14 +109,14 @@ export function matchRules(repository: RuleRepository, featureIds: readonly Feat
   }
   if (options.tokenBudget !== undefined) {
     const budgeted: RetrievedRule[] = [];
-    let used = 0;
+
     for (const rule of kept) {
-      if (budgeted.length > 0 && used + rule.estimated_tokens > options.tokenBudget) {
+      if (estimateTokens(ruleContext([...budgeted, rule])) > options.tokenBudget) {
         truncated = true;
         continue;
       }
       budgeted.push(rule);
-      used += rule.estimated_tokens;
+
     }
     kept = budgeted;
   }
@@ -115,7 +125,8 @@ export function matchRules(repository: RuleRepository, featureIds: readonly Feat
     rules: kept,
     unmatchedFeatures,
     truncated,
-    estimatedTokens: kept.reduce((total, rule) => total + rule.estimated_tokens, 0),
+    droppedRuleIds: result.filter(r => !kept.some(k => k.id === r.id)).map(r => r.id),
+    estimatedTokens: estimateTokens(ruleContext(kept)),
   };
 }
 

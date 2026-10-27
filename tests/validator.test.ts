@@ -85,6 +85,65 @@ class Good {
 }`;
 
 describe('validator: violations', () => {
+  it('tracks a pool assigned to a field in the constructor and still checks shutdown', () => {
+    const code = `class A {
+      private final java.util.concurrent.ExecutorService pool;
+      A() { this.pool = new java.util.concurrent.ThreadPoolExecutor(1,2,1,java.util.concurrent.TimeUnit.SECONDS,new java.util.concurrent.ArrayBlockingQueue<>(8)); }
+    }`;
+    const result = engine.validate({ code });
+    assert.equal(result.violations.some(v => v.rule_id === 'TP-CREATE-002'), false);
+    assert.ok(result.violations.some(v => v.rule_id === 'TP-SHUTDOWN-001'));
+    assert.equal(engine.analyze({ code }).model.pools[0]?.variableName, 'pool');
+  });
+  it('recognises a private factory used solely for constructor field initialization', () => {
+    const code = `class A {
+      private final java.util.concurrent.ExecutorService pool;
+      A() { this.pool = build(); }
+      private static java.util.concurrent.ExecutorService build() {
+        java.util.concurrent.ExecutorService local = java.util.concurrent.Executors.newFixedThreadPool(2);
+        return local;
+      }
+    }`;
+    const result = engine.validate({ code });
+    assert.equal(result.violations.some(v => v.rule_id === 'TP-CREATE-002'), false);
+    assert.ok(result.violations.some(v => v.rule_id === 'TP-SHUTDOWN-001'));
+    assert.equal(engine.analyze({ code }).model.pools[0]?.variableName, 'pool');
+    const closed = code.replace('A() { this.pool = build(); }', 'A() { this.pool = build(); } void stop() { pool.shutdown(); }');
+    assert.equal(engine.validate({ code: closed }).violations.some(v => v.rule_id === 'TP-SHUTDOWN-001'), false);
+  });
+  it('retains per-request warnings when a private factory also runs from a normal method', () => {
+    const code = `class A {
+      private final java.util.concurrent.ExecutorService pool = build();
+      void request() { java.util.concurrent.ExecutorService temporary = build(); }
+      private static java.util.concurrent.ExecutorService build() { return java.util.concurrent.Executors.newFixedThreadPool(2); }
+    }`;
+    assert.ok(engine.validate({ code }).violations.some(v => v.rule_id === 'TP-CREATE-002'));
+  });
+  it('does not confuse a shadowed constructor local with the field', () => {
+    const code = `class A {
+      java.util.concurrent.ExecutorService pool;
+      A() { java.util.concurrent.ExecutorService pool; pool = java.util.concurrent.Executors.newFixedThreadPool(2); }
+    }`;
+    assert.ok(engine.validate({ code }).violations.some(v => v.rule_id === 'TP-CREATE-002'));
+    assert.equal(engine.analyze({ code }).model.pools[0]?.scope, 'expression');
+  });
+  it('recognises a constructor local that escapes only to its service field', () => {
+    const code = `class A {
+      private final java.util.concurrent.ExecutorService pool;
+      A() { java.util.concurrent.ExecutorService value = java.util.concurrent.Executors.newFixedThreadPool(2); this.pool = value; }
+    }`;
+    const result = engine.validate({ code });
+    assert.equal(result.violations.some(v => v.rule_id === 'TP-CREATE-002'), false);
+    assert.ok(result.violations.some(v => v.rule_id === 'TP-SHUTDOWN-001'));
+  });
+  it('does not treat deferred lambda assignments as constructor initialization', () => {
+    const code = `class A {
+      java.util.concurrent.ExecutorService pool;
+      Runnable callback;
+      A() { callback = () -> { this.pool = java.util.concurrent.Executors.newFixedThreadPool(2); }; }
+    }`;
+    assert.ok(engine.validate({ code }).violations.some(v => v.rule_id === 'TP-CREATE-002'));
+  });
   it('reports the documented violations for a violating file', () => {
     const result = engine.validate({ code: BAD, filePath: 'Bad.java' });
     const ruleIds = new Set(result.violations.map((violation) => violation.rule_id));

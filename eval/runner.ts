@@ -16,7 +16,10 @@ import { join } from 'node:path';
 import type { RetrievalStrategy, RetrievedChunk } from '../src/domain/types.ts';
 import { RuleEngine } from '../src/api/engine.ts';
 import { loadCases, readCaseFile, writeJson } from './cases.ts';
-import { markdownTable, mean, percent, round, setMetrics, sum, type SetMetrics } from './metrics.ts';
+import { markdownTable, mean, percent, round, outcomeRate, ruleCompliance, setMetrics, sum, type SetMetrics } from './metrics.ts';
+import { checkJava, type JavaOptions, type JavaCheck } from './java.ts';
+import { acceptanceTest, readTaskReview, sha256 } from './acceptance.ts';
+import { extractJavaSource } from './model-output.ts';
 
 export interface EvalOptions {
   casesDir: string;
@@ -32,6 +35,8 @@ export interface EvalOptions {
   /** Also evaluate `results/<strategy>/<caseId>.java` when present. */
   evaluateAgentResults?: boolean;
   engine?: RuleEngine;
+  java?: JavaOptions;
+  caseIds?: readonly string[];
 }
 
 export interface StrategyCaseResult {
@@ -71,8 +76,14 @@ export interface AgentCaseResult {
   file: string;
   violations: number;
   errors: number;
-  compliance: number;
-  compile: 'ok' | 'failed' | 'unavailable';
+  compliance: number | null;
+  source_sha256?: string;
+  output: 'present' | 'missing' | 'invalid';
+  violated_rules: number;
+  compile_check: JavaCheck;
+  test_check: JavaCheck;
+  task_check: { status: 'ok' | 'failed' | 'not_run'; detail: string };
+  compile: JavaCheck['status'];
   violation_rules: string[];
 }
 
@@ -105,10 +116,11 @@ export interface EvalReport {
   validation: ValidateCaseResult[];
   agent: AgentCaseResult[];
   notes: string[];
+  provenance: { controlled_experiment: boolean; model: string | null; issues: string[] };
 }
 export function runEvaluation(options: EvalOptions): EvalReport {
   const engine = options.engine ?? RuleEngine.load();
-  const cases = loadCases(options.casesDir);
+  const cases = loadCases(options.casesDir, options.caseIds);
   const strategies = options.strategies ?? (['baseline', 'rag', 'rules'] as const);
   const tokenBudget = options.tokenBudget ?? 1200;
   const topK = options.topK ?? 5;
@@ -117,6 +129,7 @@ export function runEvaluation(options: EvalOptions): EvalReport {
   const retrieval: StrategyCaseResult[] = [];
   const validation: ValidateCaseResult[] = [];
   const agent: AgentCaseResult[] = [];
+  const provenance: EvalReport['provenance'] = { controlled_experiment: false, model: null, issues: [] };
 
   mkdirSync(options.outputDir, { recursive: true });
 
@@ -198,27 +211,100 @@ export function runEvaluation(options: EvalOptions): EvalReport {
     for (const strategy of strategies) {
       for (const testCase of cases) {
         const file = join(options.outputDir, 'results', strategy, `${testCase.id}.java`);
-        if (!existsSync(file)) continue;
-        const result = engine.validate({ code: readFileSync(file, 'utf8'), filePath: file });
+        const absent: JavaCheck = { status: 'not_run', detail: 'Agent output is missing.' };
+        if (!existsSync(file)) {
+          const callFile = join(options.outputDir, 'calls', strategy, `${testCase.id}.json`);
+          const call = existsSync(callFile) ? JSON.parse(readFileSync(callFile, 'utf8')) as { status?: string; failure?: string } : undefined;
+          const invalid = call?.status === 'invalid_output';
+          const detail = invalid ? { status: 'not_run' as const, detail: `Model output could not be extracted: ${call.failure}` } : absent;
+          agent.push({ case_id: testCase.id, strategy, file, output: invalid ? 'invalid' : 'missing', violations: 0, errors: 0,
+            compliance: null, violated_rules: 0, compile: 'not_run', compile_check: detail, test_check: detail,
+            task_check: { status: 'not_run', detail: 'Agent output is missing.' }, violation_rules: [] });
+          continue;
+        }
+        const source = readFileSync(file, 'utf8');
+        const result = engine.validate({ code: source, filePath: file });
+        const valid = source.trim().length > 0 && result.stats.parse_errors === 0;
+        // Information-only findings are advisory, not failed compliance requirements.
+        const checked = result.checked_rules.filter(id => engine.rule(id)?.check && engine.rule(id)?.severity !== 'info');
+        const violationIds = result.violations.filter(v => v.severity !== 'info').map(v => v.rule_id);
+        const checks = checkJava(file, { ...options.java, ...acceptanceTest(testCase.id) });
+        const review = readTaskReview(join(options.outputDir, 'reviews', strategy, `${testCase.id}.json`), source, testCase.id);
+        // A review cannot override a compilation or functional failure.
+        const failedCheck = !valid || [checks.compile.status, checks.tests.status].some(status => status === 'failed' || status === 'timeout');
+        const unavailableCheck = checks.compile.status !== 'ok' || checks.tests.status !== 'ok';
+        const taskCheck = failedCheck
+          ? { status: 'failed' as const, detail: 'Required syntax, compilation or functional checks failed.' }
+          : review.status !== 'ok' ? review
+          : unavailableCheck ? { status: 'not_run' as const, detail: 'Task review passed; required automatic checks are unavailable or unrun.' } : review;
         agent.push({
-          case_id: testCase.id,
-          strategy,
-          file,
+          case_id: testCase.id, strategy, file, source_sha256: sha256(source), output: valid ? 'present' : 'invalid',
           violations: result.stats.violations,
-          errors: result.violations.filter((item) => item.severity === 'error').length,
-          compliance: round(result.stats.checked_rules === 0 ? 1 : 1 - result.stats.violations / result.stats.checked_rules),
-          compile: 'unavailable',
-          violation_rules: result.violations.map((violation) => violation.rule_id),
+          errors: result.violations.filter(item => item.severity === 'error').length,
+          compliance: valid ? ruleCompliance(checked, violationIds) : null,
+          violated_rules: new Set(violationIds).size,
+          compile: checks.compile.status, compile_check: checks.compile, test_check: checks.tests, task_check: taskCheck,
+          violation_rules: result.violations.map(item => item.rule_id),
         });
       }
     }
-    if (agent.length === 0) {
+    if (agent.every(item => item.output === 'missing')) {
       notes.push('results/<strategy>/<caseId>.java 为空：Rule Compliance / Compile Rate 需要 Agent 产出后重新运行。');
+    }
+    const manifestFile = join(options.outputDir, 'experiment.json');
+    if (!existsSync(manifestFile)) {
+      provenance.issues.push('No experiment manifest: imported/manual outputs are not a controlled model comparison.');
+    } else {
+      try {
+        const manifest = JSON.parse(readFileSync(manifestFile, 'utf8')) as {
+          prepare_only: boolean; config: { model: string; tokenBudget: number; topK: number };
+          jobs: Array<{ case_id: string; strategy: string; input_sha256: string; prompt_sha256: string }>;
+        };
+        provenance.model = manifest.config.model;
+        if (manifest.prepare_only) provenance.issues.push('Manifest was prepared without running the model.');
+        if (manifest.config.tokenBudget !== tokenBudget || manifest.config.topK !== topK) provenance.issues.push('Retrieval settings differ from the recorded experiment.');
+        if (manifest.jobs.length !== agent.length) provenance.issues.push('Planned job coverage differs from this evaluation.');
+        for (const item of agent) {
+          const testCase = cases.find(c => c.id === item.case_id)!;
+          const job = manifest.jobs.find(j => j.case_id === item.case_id && j.strategy === item.strategy);
+          const callFile = join(options.outputDir, 'calls', item.strategy, `${item.case_id}.json`);
+          const promptFile = join(options.outputDir, 'prompts', item.strategy, `${item.case_id}.md`);
+          if (!job || job.input_sha256 !== sha256(readCaseFile(testCase, 'before') ?? '') || !existsSync(callFile) || !existsSync(promptFile)) {
+            provenance.issues.push(`${item.strategy}/${item.case_id}: missing or stale experiment inputs/call record.`);
+            continue;
+          }
+          const call = JSON.parse(readFileSync(callFile, 'utf8')) as { status: string; model: string; prompt_sha256: string; source_sha256: string | null; raw_sha256?: string;
+            extraction?: { raw_sha256: string; source_sha256: string; format: string } };
+          if (!['ok', 'invalid_output'].includes(call.status) || call.model !== provenance.model || call.prompt_sha256 !== job.prompt_sha256 ||
+              sha256(readFileSync(promptFile, 'utf8')) !== job.prompt_sha256 || call.source_sha256 !== (item.source_sha256 ?? null)) {
+            provenance.issues.push(`${item.strategy}/${item.case_id}: generation provenance does not match.`);
+          }
+          if (call.raw_sha256) {
+            const raw = join(options.outputDir, 'raw-responses', item.strategy, `${item.case_id}.txt`);
+            if (!existsSync(raw) || sha256(readFileSync(raw, 'utf8')) !== call.raw_sha256) provenance.issues.push(`${item.strategy}/${item.case_id}: raw output digest does not match.`);
+          }
+          if (call.extraction) {
+            const rawFile = join(options.outputDir, 'raw-responses', item.strategy, `${item.case_id}.txt`);
+            if (!existsSync(rawFile)) {
+              provenance.issues.push(`${item.strategy}/${item.case_id}: raw model output is missing.`);
+            } else {
+              const extracted = extractJavaSource(readFileSync(rawFile, 'utf8'));
+              if (extracted.raw_sha256 !== call.extraction.raw_sha256 || extracted.source_sha256 !== item.source_sha256 ||
+                  extracted.source_sha256 !== call.extraction.source_sha256 || extracted.format !== call.extraction.format) {
+                provenance.issues.push(`${item.strategy}/${item.case_id}: raw output extraction does not match the evaluated source.`);
+              }
+            }
+          }
+        }
+        provenance.controlled_experiment = provenance.issues.length === 0;
+      } catch { provenance.issues.push('Malformed experiment manifest or call record.'); }
     }
   } else {
     notes.push('未启用 Agent 在环评测（--agent-results）：Rule Compliance / Compile Rate 需要 Agent 产出。');
   }
-  notes.push('Compile Rate 需要 JDK（javac）：未检测到 javac 时统一标记为 unavailable，可在接入 JDK 后补充编译校验。');
+  notes.push('Java 编译使用真实 javac（默认 --release 21），缺失工具、超时、编译失败分别记录；不自动补桩或改写产出。');
+  notes.push('合规率按非 info 的已检查规则去重；无适用规则或语法无效时为 n/a。100% 离线召回衡量未裁剪规则集，不能代表预算裁剪后的覆盖率。');
+  notes.push('Compile/Test/Task Rate 分母为每种策略全部计划用例；缺失、不可用、未执行单独记录并报告覆盖率，不能视为通过。21 个用例均有功能/运行行为断言，但尚未覆盖全部业务和异常分支。完整任务验收均需依据清单审查，不从合规率推断。');
 
   return {
     generated_at: new Date().toISOString(),
@@ -230,6 +316,7 @@ export function runEvaluation(options: EvalOptions): EvalReport {
     validation,
     agent,
     notes,
+    provenance,
   };
 }
 
@@ -361,28 +448,31 @@ export function renderReportMarkdown(report: EvalReport): string {
   }
   lines.push('## 3. Agent 在环指标');
   lines.push('');
+  lines.push(`受控模型实验：${report.provenance.controlled_experiment ? '已核对记录与产物哈希' : '未完成或未验证'}；model: ${report.provenance.model ?? 'n/a'}`);
+  for (const issue of report.provenance.issues) lines.push(`- ${issue}`);
+  lines.push('');
   if (report.agent.length === 0) {
-    lines.push('暂无 Agent 产出，Rule Compliance Rate / Compile Rate 待回填。');
-    lines.push('');
-    lines.push('操作方式：把 `prompts/<strategy>/<caseId>.md` 交给 Cline 执行，把产出的 Java 代码放到');
-    lines.push('`results/<strategy>/<caseId>.java`，再运行 `npm run engine -- eval --agent-results`。');
+    lines.push('未启用 Agent 产出评测。使用 --agent-results，并通过 --out 指向本轮实验目录。');
   } else {
-    lines.push(
-      markdownTable(
-        ['Strategy', 'Cases', 'Avg Compliance', 'Errors', 'Violations', 'Compile'],
-        report.strategies.map((entry) => {
-          const subset = report.agent.filter((item) => item.strategy === entry.strategy);
-          return [
-            entry.strategy,
-            String(subset.length),
-            subset.length === 0 ? 'n/a' : percent(mean(subset.map((item) => item.compliance))),
-            String(sum(subset.map((item) => item.errors))),
-            String(sum(subset.map((item) => item.violations))),
-            subset.length === 0 ? 'n/a' : (subset[0]?.compile ?? 'n/a'),
-          ];
-        }),
-      ),
-    );
+    const rateText = (statuses: string[]): string => {
+      const rate = outcomeRate(statuses);
+      return `${rate.passed}/${rate.total} (${rate.rate === null ? 'n/a' : percent(rate.rate)}); evaluated ${rate.evaluated}`;
+    };
+    lines.push(markdownTable(
+      ['Strategy', 'Planned', 'Missing / Invalid', 'Avg Rule Compliance (N)', 'Violation Instances / Rules', 'Compile', 'Functional Test', 'Task Completion'],
+      report.strategies.map(entry => {
+        const subset = report.agent.filter(item => item.strategy === entry.strategy);
+        const compliance = subset.map(item => item.compliance).filter((n): n is number => n !== null);
+        return [entry.strategy, String(subset.length), `${subset.filter(i => i.output === 'missing').length} / ${subset.filter(i => i.output === 'invalid').length}`,
+          `${compliance.length ? percent(mean(compliance)) : 'n/a'} (${compliance.length})`,
+          `${sum(subset.map(i => i.violations))} / ${sum(subset.map(i => i.violated_rules))}`,
+          rateText(subset.map(i => i.compile)), rateText(subset.map(i => i.test_check.status)), rateText(subset.map(i => i.task_check.status))];
+      }),
+    ));
+    lines.push('');
+    lines.push(markdownTable(['Strategy', 'Case', 'Output', 'Compile', 'Test', 'Task'], report.agent.map(item => [
+      item.strategy, item.case_id, item.output, item.compile, item.test_check.status, item.task_check.status,
+    ])));
   }
   lines.push('');
   lines.push('## 4. 说明');

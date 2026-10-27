@@ -15,6 +15,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * good.java: 有界队列 + 命名线程 + 显式拒绝策略 + 超时等待 + ThreadLocal 清理 + 可关闭可监控。
  */
 public class OrderSyncService {
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(OrderSyncService.class);
+
 
     private static final ThreadLocal<String> TENANT = new ThreadLocal<>();
 
@@ -75,7 +77,7 @@ public class OrderSyncService {
     }
 
     private static void restore(String previous) {
-        if (previous === null) {
+        if (previous == null) {
             TENANT.remove();
         } else {
             TENANT.set(previous);

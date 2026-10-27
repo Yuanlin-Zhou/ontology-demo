@@ -13,6 +13,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * good.java: 空闲存活时间 60s（超出核心数的线程可回收）+ 监控 + 优雅关闭。
  */
 public class BatchJobRunner {
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(BatchJobRunner.class);
+
 
     private final ThreadPoolExecutor batchExecutor = new ThreadPoolExecutor(
             4,

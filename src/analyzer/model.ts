@@ -11,7 +11,8 @@ export type PoolKind =
   | 'scheduled_thread_pool_executor'
   | 'executors_factory'
   | 'spring_task_executor'
-  | 'virtual_thread_executor';
+  | 'virtual_thread_executor'
+  | 'thread_per_task_executor';
 
 export type PoolScope = 'field' | 'static_field' | 'local' | 'expression' | 'bean_method';
 
@@ -46,6 +47,7 @@ export interface RejectionFact {
 export interface ThreadFactoryFact {
   typeName: string;
   expression: string;
+  handlesExceptions?: boolean;
   evidence: Evidence;
   /** True when the factory implementation is in this file and calls `setName`. */
   setsName?: boolean;
@@ -62,6 +64,10 @@ export interface PoolCreationFact {
   modifiers: string[];
   /** True when the pool is created inside an `@Bean` method. */
   isBean: boolean;
+  /** True when the actual bean definition has a container destruction path. */
+  containerManaged?: boolean;
+  waitsForTasksOnShutdown?: boolean;
+  awaitTerminationSeconds?: number;
   /** True when the file contains a `@PreDestroy` method. */
   hasPreDestroy: boolean;
   isScheduled: boolean;
@@ -92,6 +98,12 @@ export interface SubmitFact {
   receiverResolution: ExecutorResolution | 'unresolved';
   /** False when the call is a bare statement, i.e. the Future is discarded. */
   resultUsed: boolean;
+  /** Actual consumption/escape of the returned Future, not merely assignment. */
+  resultHandled: boolean;
+  poolId?: string;
+  taskExceptionHandled: boolean;
+  /** Visible whole-body RuntimeException guard for a recurring task; unknown bodies remain false. */
+  periodicExceptionHandled?: boolean;
   insideTry: boolean;
   caughtTypes: string[];
   /** The submitted task body throws an exception itself. */
@@ -103,6 +115,7 @@ export interface SubmitFact {
 export type ShutdownMethod = 'shutdown' | 'shutdownNow' | 'close' | 'awaitTermination';
 
 export interface ShutdownFact {
+  poolId?: string;
   method: ShutdownMethod;
   receiver: string;
   argCount: number;
@@ -122,6 +135,8 @@ export interface FutureGetFact {
 export interface AsyncFact {
   kind: 'completable_future' | 'virtual_thread';
   method: string;
+  /** False for synchronous CompletableFuture composition/completion operations. */
+  asynchronous?: boolean;
   hasExplicitExecutor: boolean;
   evidence: Evidence;
 }
@@ -131,10 +146,13 @@ export interface ThreadLocalFact {
   name: string;
   method?: string;
   inFinally: boolean;
+  node: JavaSyntaxNode;
+  symbolId?: number;
   evidence: Evidence;
 }
 
 export interface MonitorFact {
+  poolId?: string;
   method: string;
   receiver: string;
   evidence: Evidence;

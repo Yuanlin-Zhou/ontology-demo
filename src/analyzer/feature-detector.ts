@@ -13,7 +13,6 @@ const RISKY_FACTORIES: readonly string[] = [
   'newCachedThreadPool',
   'newScheduledThreadPool',
   'newSingleThreadScheduledExecutor',
-  'newWorkStealingPool',
 ];
 
 function defaultEvidence(): Evidence {
@@ -140,7 +139,7 @@ export function detectFeatures(model: JavaThreadPoolModel): FeatureHit[] {
 
   for (const async of model.asyncs) {
     if (async.kind === 'completable_future') {
-      hits.push(hit('THREAD_POOL.COMPLETABLE_FUTURE', async.evidence, 'method_invocation', { method: async.method, explicit_executor: async.hasExplicitExecutor }));
+      hits.push(hit('THREAD_POOL.COMPLETABLE_FUTURE', async.evidence, 'method_invocation', { method: async.method, asynchronous: async.asynchronous ?? true, explicit_executor: async.hasExplicitExecutor }));
     } else {
       hits.push(hit('VIRTUAL_THREAD', async.evidence, 'method_invocation', { method: async.method }));
     }

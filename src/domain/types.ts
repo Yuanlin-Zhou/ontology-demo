@@ -150,6 +150,7 @@ export interface AnalyzeStats {
 
 /** Result of `retrieve(code, filePath, task?)` (01-phase1 §8). */
 export interface RetrieveResult {
+  selection?: { dropped_rule_ids: string[]; unmatched_features: string[]; planned_features: string[] };
   file_path: string;
   language: string;
   /** Task / user intent the code was retrieved for, when provided. */
@@ -183,6 +184,9 @@ export interface Violation {
 
 /** Result of `validate(code, ruleIds?)` (01-phase1 §8). */
 export interface ValidateResult {
+  /** Execution coverage, never a compilation/business-correctness verdict. */
+  status?: 'complete' | 'partial' | 'invalid';
+  checks?: Array<{ rule_id: string; status: 'passed' | 'violated' | 'advisory' | 'unavailable'; reason?: string }>;
   file_path: string;
   language: string;
   features: FeatureId[];

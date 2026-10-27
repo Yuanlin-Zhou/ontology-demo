@@ -11,6 +11,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /** good.java: 显式拒绝策略 + 命名线程 + 拒绝补偿 + 监控 + 优雅关闭。 */
 public class InventorySyncService {
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(InventorySyncService.class);
+    private final java.util.Queue<String> retryQueue = new java.util.concurrent.ConcurrentLinkedQueue<>();
+
 
     private final ThreadPoolExecutor syncExecutor = new ThreadPoolExecutor(
             4, 8, 60L, TimeUnit.SECONDS,

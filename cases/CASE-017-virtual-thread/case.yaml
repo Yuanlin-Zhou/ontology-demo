@@ -30,4 +30,5 @@ expected:
   compliant_violations: []
 notes:
   - 虚拟线程执行器不带队列与拒绝策略，队列/拒绝配置类规则不适用；TP-CREATE-001 只针对 Executors 快捷工厂。
-  - good.java 用 Thread.startVirtualThread + Semaphore 限流，因此不命中任何线程池规则。
+  - good.java 在启动虚拟线程之前用 Semaphore 快速准入，限额内才创建任务；使用 Consumer<String> 注入下游。
+  - 独立运行验收观察真实回调线程、饱和拒绝、异常释放、统计及关闭；不能仅检查无关执行器是否支持虚拟线程。

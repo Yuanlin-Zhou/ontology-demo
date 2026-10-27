@@ -14,6 +14,9 @@ import org.springframework.context.annotation.Configuration;
 /** good.java: Bean 生命周期完整 —— 任务异常自行处理、拒绝异常补偿、监控埋点、@PreDestroy 关闭。 */
 @Configuration
 public class NotifyExecutorConfig {
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(NotifyExecutorConfig.class);
+    private final java.util.Queue<String> pendingNotifications = new java.util.concurrent.ConcurrentLinkedQueue<>();
+
 
     private ThreadPoolExecutor notifier;
 

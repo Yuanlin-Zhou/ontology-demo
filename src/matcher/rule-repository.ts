@@ -48,7 +48,9 @@ export class RuleRepository {
     const rules: Rule[] = [];
     const strictFeatures = options.strictFeatures ?? true;
 
-    for (const file of listYamlFiles(options.knowledgeDir)) {
+    const files = listYamlFiles(options.knowledgeDir);
+    if (!files.length) throw new RuleValidationError([`No YAML rules found in ${options.knowledgeDir}`]);
+    for (const file of files) {
       let raw: unknown;
       try {
         raw = parseYaml(readFileSync(file, 'utf8'));
@@ -115,8 +117,8 @@ function listYamlFiles(dir: string): string[] {
   let entries: string[];
   try {
     entries = readdirSync(dir);
-  } catch {
-    return out;
+  } catch (error) {
+    throw new RuleValidationError([`Cannot read knowledge directory ${dir}: ${(error as Error).message}`]);
   }
   for (const entry of entries) {
     if (entry === 'schema' || entry.startsWith('.')) continue;
@@ -198,7 +200,12 @@ function normalizeApplicability(
   warnings: string[],
   strictFeatures: boolean,
 ): RuleApplicability {
-  const raw = value === null || typeof value !== 'object' ? {} : (value as Record<string, unknown>);
+  const raw = value === null || typeof value !== 'object' || Array.isArray(value) ? {} : (value as Record<string, unknown>);
+  for (const key of Object.keys(raw)) {
+    if (!['features', 'any_features', 'none_features'].includes(key)) problems.push(`${where}: unknown applies_when key ${key}`);
+    const field = raw[key];
+    if (!Array.isArray(field) || field.some(f => typeof f !== 'string' || !f.trim())) problems.push(`${where}: applies_when.${key} must be an array of feature IDs`);
+  }
   const features = asStringArray(raw['features']);
   const anyFeatures = asStringArray(raw['any_features']);
   const noneFeatures = asStringArray(raw['none_features']);

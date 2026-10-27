@@ -11,6 +11,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /** good.java: shutdown + awaitTermination + shutdownNow 兜底，并暴露监控指标。 */
 public class PointsAccrueService {
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(PointsAccrueService.class);
+    private final java.util.Queue<String> retryQueue = new java.util.concurrent.ConcurrentLinkedQueue<>();
+
 
     private final ThreadPoolExecutor accrueExecutor = new ThreadPoolExecutor(
             4, 8, 60L, TimeUnit.SECONDS,

@@ -14,6 +14,9 @@ import jakarta.annotation.PreDestroy;
  * good.java: 有界队列 + 命名线程 + 失败降级 + 可监控。
  */
 public class ReportExportService {
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ReportExportService.class);
+    private final java.util.Queue<String> pendingReports = new java.util.concurrent.ConcurrentLinkedQueue<>();
+
 
     private final ThreadPoolExecutor exporter = new ThreadPoolExecutor(
             4,

@@ -12,6 +12,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /** good.java: 两个线程池都显式创建、命名、可监控、可优雅关闭。 */
 public class SettlementService {
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(SettlementService.class);
+    private final java.util.Queue<String> retryQueue = new java.util.concurrent.ConcurrentLinkedQueue<>();
+
 
     private final ThreadPoolExecutor settleExecutor = new ThreadPoolExecutor(
             8, 16, 60L, TimeUnit.SECONDS,

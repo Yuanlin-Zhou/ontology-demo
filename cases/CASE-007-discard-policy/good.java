@@ -12,6 +12,8 @@ import java.util.concurrent.atomic.LongAdder;
 
 /** good.java: 拒绝的日志任务必须计数并上报，避免静默丢日志。 */
 public class AsyncLogWriter {
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(AsyncLogWriter.class);
+
 
     private static final LongAdder REJECTED = new LongAdder();
 

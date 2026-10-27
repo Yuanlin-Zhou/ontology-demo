@@ -185,13 +185,19 @@ const retrieved = engine.retrieve({ code, filePath, task, includeRelated: false,
 // → { features, feature_details, rules, stats: { candidate_rules, matched_rules, estimated_tokens, ... } }
 
 const validated = engine.validate({ code, filePath, ruleIds? });
-// → { features, checked_rules, violations: [{ rule_id, message, severity, line, column, snippet, suggestion }] }
+// → { status, checks, features, checked_rules, violations: [{ rule_id, message, severity, line, column, snippet, suggestion }] }
 
 const prompt = engine.buildPrompt({ task, code, filePath, strategy: 'rules' | 'rag' | 'baseline', tokenBudget });
 // → { prompt, estimated_tokens, context_tokens, features?, rule_ids?, chunks? }
 ```
 
-Phase 2 只需把 `engine.retrieve` / `engine.validate` 包装成 Cline 的
+修复闭环通过 `engine.repair({ task, code, verify, generate, maxRepairs })` 调用；详见核心审查文档中的适配示例。
+`verify` 可返回独立的 `task` 状态：完整任务验收失败也会触发修复，尚未验收则返回 unverified。CASE-006 已补真实优先级、淘汰与生产参数验收，过程及证据见 [业务修复记录](eval/PRIORITY-RESULTS.md)。
+CASE-017 已补真实虚拟线程下游回调、限流、异常释放与重复关闭验收，完成两次有界模型修复，并修正私有等待 helper 的静态误报；见 [限流验收记录](eval/VIRTUAL-RESULTS.md)。
+CASE-020 已补实际任务取消、上下文恢复、排队回收与关闭验收，并区分同步 CompletableFuture 编排和异步调度；定向模型修复现已通过运行验收，另保留源码审查及零调用复验记录。见 [导出取消记录](eval/EXPORT-RESULTS.md)。
+21 用例的编译、规则、正常/异常/关闭覆盖与剩余缺口现统一记录在 [验收矩阵](eval/ACCEPTANCE-MATRIX.md)。参考输入均可编译并通过当前探针，14 份仍含空方法；这不是完整业务通过或模型生成成功率。
+
+Phase 2 可以把 `engine.retrieve` / `engine.validate` 包装成 Cline 的
 `knowledge_retrieve` / `knowledge_validate` 两个工具即可（同一进程内的 TS 模块，无需跨进程桥接）。
 
 ---
@@ -219,13 +225,16 @@ Phase 2 只需把 `engine.retrieve` / `engine.validate` 包装成 Cline 的
 ### Agent 在环回填流程
 
 ```bash
-npm run eval                      # 生成 eval/prompts/<strategy>/<caseId>.md
-# 把 prompt 交给 Cline 执行，把产出的 Java 代码放到 eval/results/<strategy>/<caseId>.java
-node src/cli/index.ts eval --agent-results
+npm run eval -- --out .eval-cache/experiment-run
+# 把 prompt 交给 Cline 执行，把产出的 Java 代码放到 .eval-cache/experiment-run/results/<strategy>/<caseId>.java
+node src/cli/index.ts eval --agent-results --out .eval-cache/experiment-run
 ```
 
-`--agent-results` 会计算每个产出文件的 **Rule Compliance Rate**（`1 - violations / checked_rules`）与违规数；
-`Compile Rate` 需要本机 JDK（`javac`），未安装时统一标记 `unavailable`（当前环境无 JDK）。
+`--agent-results` 按非 info 的已检查规则与违规规则去重计算 **Rule Compliance Rate**，同时保留违规实例数；无适用规则或源码语法错误时为 `n/a`。
+生成响应可按协议提取唯一的 Java Markdown 代码块，保留原文和提取哈希，不改动 Java 逻辑。现在会真正调用 Java 21 `javac` 编译产出，记录编译诊断、工具不可用和超时；可通过 `--javac`、`--java`、`--classpath`、`--release`、`--timeout-ms` 配置。
+21 个用例均已提供功能/运行行为断言，但尚未覆盖全部业务与异常分支。任务完成度需绑定源码哈希、逐项填写验收证据，不能用规则合规率代替。
+
+完整实验协议、21 个任务的验收清单、模型执行器与使用方式见 [eval/PROTOCOL.md](eval/PROTOCOL.md)。已完成核心重构后的 v5 三策略、21 用例、63 次真实生成，首次编译通过数为 21/21、21/21、20/21，后续修复独立记录；见 [v5 结果](eval/V5-RESULTS.md)。历史 v3 的首次编译为 21/21、21/21、17/21，原始记录保留。全量任务清单审查尚未完成，现有结果不支持宣称 Rules 普遍优于 RAG。协议 v4 修正规则 API 说明与拒绝计数测试，并支持独立标记的定向复验。
 
 ### 用例期望值是怎么来的
 
@@ -238,20 +247,16 @@ node src/cli/index.ts eval --agent-results
 
 ---
 
-## 8. 已知局限（PoC 有意保留）
+## 8. 当前边界与核心审查
 
-1. **文件级分析**：不跨文件解析类型与依赖，"这个 ExecutorService 是否是业务线程池"只能靠声明类型 + 命名启发式。
-2. **无数据流/别名分析**：`ThreadLocal` 清理只支持 `finally` 直接清理 + **1 层**跨方法推导
-   （`finally { restore(previous); }` 且 `restore` 在本文件里调用了 `remove()`）；更深调用链、反射、动态代理不分析。
-3. **文件级监控判断**：`TP-MONITOR-001` 在"本文件内没有任何监控 getter"时报警，多线程池共存时可能漏报个别池。
-4. **应用级线程池定义**：字段 / 静态字段 / `@Bean` 方法内的线程池才算"应用级"；
-   `@Bean` 直接 `return new ThreadPoolExecutor(...)` 没有变量名，`TP-SHUTDOWN-001` 不判断（由 `TP-CREATE-005` 覆盖）。
-5. **Spring 生命周期**：`ThreadPoolTaskExecutor` 由容器负责 destroy，因此不要求 `@PreDestroy`；
-   `@Bean` 返回的裸 `ExecutorService` 虽然能被 Spring 推断 `shutdown()`，仍按"建议显式声明"给 warning。
-6. **调度线程池的队列**：`ScheduledThreadPoolExecutor` 的 `DelayedWorkQueue` 无界且不可配置，
-   只作为特征（`implicit: true`）提示，不产生队列类违规。
-7. **`CallerRunsPolicy` 的调用链**：无法静态判断调用线程是否延迟敏感，因此固定为 `info` 级提示。
-8. **规则覆盖域**：仅 ThreadPool 域 26 条规则；其它域需要新增特征与 checker（结构可复用）。
+核心流程已完成一次结构性审查，修复了作用域混淆、Spring setter 丢失、全文件监控/异常掩盖、预算低估及校验覆盖失真，并增加编译/业务门控的有限修复接口。问题、修复、回归及取舍见 [docs/ENGINE-REVIEW.md](docs/ENGINE-REVIEW.md)。
+
+- 分析限于文件内词法符号、明确类型及有限的单一赋值/工厂追踪，不是完整 Java 类型检查或控制流证明；跨文件继承、复杂别名、反射及深层调用链不分析。
+- 监控按具体线程池关联，支持明确的一层 delegate 和单一兼容 Bean 的静态 stats(bean)；未知/多义关联仍需审查。
+- Spring 默认销毁和 Java 21 ExecutorService.close() 的等待语义得到认可；不要求重复手工关闭。调度池内部无界队列的容量仍无法靠 setter 改变。
+- `validate` 只验证适用规范；语法无效或 checker 不可用有独立状态，不等于编译和业务正确。`engine.repair` 要求宿主提供真实编译、业务测试和模型适配器，未执行检查返回 unverified。
+- tokenBudget 是完整知识文本的**估算 token 上限**，不是供应商精确 token 数。默认不扩展关联规则；省略规则有明确元数据。语法错误时暂停规则注入。
+- 仍只覆盖 Java ThreadPool 的 26 条规则；完整任务验收与新的模型成功率需要另外验证。
 
 ---
 
@@ -274,7 +279,7 @@ node src/cli/index.ts eval --agent-results
   `validate` 的 `suggestion` 字段就是给 Agent 的修复指令。
 - **注入位置**：读取代码后（或每轮 edit 前）调用 `retrieve`，把返回的 `rules[].content` 拼进上下文；
   生成后调用 `validate`，把 `violations` 反馈给模型做 Repair 循环。
-- **预算控制**：用 `tokenBudget` 控制注入量（1200 tokens 预算下平均注入 1011 tokens / 14.8 条规则）。
+- **预算控制**：用 `tokenBudget` 控制完整序列化知识文本的估算上限；当前违规优先，具体省略规则通过元数据返回。
 - **扩展方向**：新增域只需增加 `knowledge/java/<domain>/*.yaml` + 对应特征与 checker；
   需要跨文件/数据流能力时再引入 CodeGraph，而不是先建图数据库。
 
@@ -292,3 +297,7 @@ node src/cli/index.ts eval --agent-results
 | validate API | `RuleEngine.validate` + CLI `validate`（退出码可用于 CI） |
 | Evaluation Cases | `cases/CASE-001..021`（before / bad / good 三份代码 + 期望表） |
 | Baseline / RAG / Rule Retrieval 对比 | `eval/runner.ts` + `eval/report.md`（离线指标已产出，Agent 在环指标待回填） |
+
+CASE-004 已补真实回调重试、异常后继续、固定延迟和关闭验收；周期任务异常保护纳入 TP-SUBMIT-005。定向模型候选通过，详见 [重试验收记录](eval/RETRY-RESULTS.md)。
+
+当前总体结论与冻结后的三策略对比见 [规则引擎现状](docs/RULE-ENGINE-STATUS.md)：Rules 编译 21/21、已配置业务检查 18/21，与 Baseline 持平，静态诊断更少但成本更高；未完成整个 Phase 1 的业务验收。

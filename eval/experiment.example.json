@@ -1,0 +1,17 @@
+{
+  "model": "SET_MODEL_BEFORE_RUNNING",
+  "command": "/absolute/path/to/provider-wrapper",
+  "args": [],
+  "seed": 42,
+  "temperature": 0,
+  "maxOutputTokens": 8192,
+  "maxCalls": 63,
+  "timeoutMs": 120000,
+  "tokenBudget": 1200,
+  "topK": 5,
+  "java": {
+    "release": 21,
+    "timeoutMs": 10000,
+    "classpath": []
+  }
+}

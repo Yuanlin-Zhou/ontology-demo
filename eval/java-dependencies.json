@@ -1,0 +1,58 @@
+[
+  {
+    "url": "https://repo.maven.apache.org/maven2/org/springframework/spring-context/6.2.11/spring-context-6.2.11.jar",
+    "sha256": "a2c732fce8b24ead7caf4a21a157167bce991048638805cf1277a5ed6a568057"
+  },
+  {
+    "url": "https://repo.maven.apache.org/maven2/org/springframework/spring-aop/6.2.11/spring-aop-6.2.11.jar",
+    "sha256": "91e6cd420cd601a34dc41fc33364cfe77d40b6281ee472a0b72d43791f06a1dd"
+  },
+  {
+    "url": "https://repo.maven.apache.org/maven2/org/springframework/spring-beans/6.2.11/spring-beans-6.2.11.jar",
+    "sha256": "f9ba5dedee94947b11d930209ff1a12bbe9e28b1b4f73c5baeba2fb3fe32d08e"
+  },
+  {
+    "url": "https://repo.maven.apache.org/maven2/org/springframework/spring-core/6.2.11/spring-core-6.2.11.jar",
+    "sha256": "a1de6ff2d88c05442468360b89f881b77ff7a393b8cd5b1d5758756b2e247f8a"
+  },
+  {
+    "url": "https://repo.maven.apache.org/maven2/org/springframework/spring-expression/6.2.11/spring-expression-6.2.11.jar",
+    "sha256": "0fd8753b1ad861019ab1e1cedbba82c1354bab0313f0c8509799edd3fc98bbb3"
+  },
+  {
+    "url": "https://repo.maven.apache.org/maven2/org/springframework/spring-jcl/6.2.11/spring-jcl-6.2.11.jar",
+    "sha256": "a5d92923b658637c62c481dc44eab029afc1b816b10d8d0fda5ed63715f3cf85"
+  },
+  {
+    "url": "https://repo.maven.apache.org/maven2/io/micrometer/micrometer-observation/1.14.11/micrometer-observation-1.14.11.jar",
+    "sha256": "205b18f696aeebcf4c01e7fb3535cad74ed25833672ea9af906e8405dd13f4a9"
+  },
+  {
+    "url": "https://repo.maven.apache.org/maven2/io/micrometer/micrometer-commons/1.14.11/micrometer-commons-1.14.11.jar",
+    "sha256": "040cba58fe2dc346da0d4ba5dc338641b58acf5e165f0661d5decf64f623f42d"
+  },
+  {
+    "url": "https://repo.maven.apache.org/maven2/jakarta/annotation/jakarta.annotation-api/2.1.1/jakarta.annotation-api-2.1.1.jar",
+    "sha256": "5f65fdaf424eee2b55e1d882ba9bb376be93fb09b37b808be6e22e8851c909fe"
+  },
+  {
+    "url": "https://repo.maven.apache.org/maven2/io/micrometer/micrometer-core/1.14.11/micrometer-core-1.14.11.jar",
+    "sha256": "aefe783bad44c8212d90d09837dda45cf8ea8ff69fdbd557db7dca382ab9c0be"
+  },
+  {
+    "url": "https://repo.maven.apache.org/maven2/org/hdrhistogram/HdrHistogram/2.2.2/HdrHistogram-2.2.2.jar",
+    "sha256": "22d1d4316c4ec13a68b559e98c8256d69071593731da96136640f864fa14fad8"
+  },
+  {
+    "url": "https://repo.maven.apache.org/maven2/org/latencyutils/LatencyUtils/2.0.3/LatencyUtils-2.0.3.jar",
+    "sha256": "a32a9ffa06b2f4e01c5360f8f9df7bc5d9454a5d373cd8f361347fa5a57165ec"
+  },
+  {
+    "url": "https://repo.maven.apache.org/maven2/org/slf4j/slf4j-api/2.0.17/slf4j-api-2.0.17.jar",
+    "sha256": "7b751d952061954d5abfed7181c1f645d336091b679891591d63329c622eb832"
+  },
+  {
+    "url": "https://repo.maven.apache.org/maven2/org/slf4j/slf4j-simple/2.0.17/slf4j-simple-2.0.17.jar",
+    "sha256": "ddfea59ac074c6d3e24ac2c38622d2d963895e17f70b38ed4bdae4d780be6964"
+  }
+]

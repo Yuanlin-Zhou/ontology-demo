@@ -11,6 +11,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /** good.java: 关闭流程完整，且 catch (InterruptedException) 中恢复了中断状态。 */
 public class RiskEvaluateService {
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(RiskEvaluateService.class);
+    private final java.util.Queue<String> retryQueue = new java.util.concurrent.ConcurrentLinkedQueue<>();
+
 
     private final ThreadPoolExecutor riskExecutor = new ThreadPoolExecutor(
             8, 16, 60L, TimeUnit.SECONDS,
