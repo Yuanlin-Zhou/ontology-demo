@@ -1,0 +1,1204 @@
+{
+  "revision": "48f9b8d928200f605597a978f8e6bde095668ad5",
+  "model_calls": 0,
+  "source_snapshot": "eval/experiments/2026-10-27",
+  "records": [
+    {
+      "case_id": "AGENT-001",
+      "repetition": 1,
+      "strategy": "baseline",
+      "source_sha256": "f60d7ee3bef1ee6a3528d333b732f449160763ae50961569f7f9f67cb62c4687",
+      "source_file": "eval/experiments/2026-10-27/generated/repeat-1/baseline/AGENT-001.java",
+      "previous_compliance": 0.6666666666666666,
+      "previous_violations": 6,
+      "compliance": 0.6666666666666666,
+      "violations": [
+        {
+          "rule_id": "TP-CONFIG-004",
+          "rule_name": "任务队列必须有界",
+          "message": "pool (executors_factory) 使用了无界队列 LinkedBlockingQueue：不指定容量时最大长度为 Integer.MAX_VALUE，视为无界。",
+          "severity": "error",
+          "line": 9,
+          "column": 42,
+          "snippet": "private final ExecutorService pool = Executors.newFixedThreadPool(2);",
+          "suggestion": "改用 new ArrayBlockingQueue<>(capacity) 并显式给出容量（可参照 Q ≈ (λ_in − λ_out) × Δt 估算），同时配置拒绝策略。"
+        },
+        {
+          "rule_id": "TP-CREATE-001",
+          "rule_name": "显式创建线程池",
+          "message": "Executors.newFixedThreadPool(...) 隐藏了队列与拒绝策略：内部使用无界 LinkedBlockingQueue（容量 Integer.MAX_VALUE），任务会持续堆积直至 OOM。",
+          "severity": "error",
+          "line": 9,
+          "column": 42,
+          "snippet": "private final ExecutorService pool = Executors.newFixedThreadPool(2);",
+          "suggestion": "改为 new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, unit, new ArrayBlockingQueue<>(capacity), threadFactory, rejectionHandler)，把线程数、队列容量、命名工厂和拒绝策略显式写出。"
+        },
+        {
+          "rule_id": "TP-CREATE-003",
+          "rule_name": "线程池必须配置线程工厂",
+          "message": "pool (executors_factory) 没有指定 ThreadFactory，工作线程会使用 pool-N-thread-M 这类默认名称。",
+          "severity": "warning",
+          "line": 9,
+          "column": 42,
+          "snippet": "private final ExecutorService pool = Executors.newFixedThreadPool(2);",
+          "suggestion": "传入命名线程工厂（如 namedFactory(\"order-notify\")），或使用 ThreadPoolTaskExecutor#setThreadNamePrefix。"
+        },
+        {
+          "rule_id": "TP-MONITOR-001",
+          "rule_name": "线程池必须可观测",
+          "message": "线程池 pool 没有关联到可观察的运行指标。",
+          "severity": "warning",
+          "line": 9,
+          "column": 42,
+          "snippet": "private final ExecutorService pool = Executors.newFixedThreadPool(2);",
+          "suggestion": "为这个线程池暴露 getQueue().size()、getActiveCount()、getCompletedTaskCount() 等运行指标，并单独统计拒绝次数。"
+        },
+        {
+          "rule_id": "TP-SHUTDOWN-004",
+          "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+          "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+          "severity": "warning",
+          "line": 36,
+          "column": 17,
+          "snippet": "pool.shutdownNow();",
+          "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+        },
+        {
+          "rule_id": "TP-SHUTDOWN-004",
+          "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+          "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+          "severity": "warning",
+          "line": 39,
+          "column": 13,
+          "snippet": "pool.shutdownNow();",
+          "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+        }
+      ],
+      "compile": "ok",
+      "behavior": "passed",
+      "diagnostics": "spawnSync /workspace/ontology-demo/.tools/jdk/bin/java EPERM"
+    },
+    {
+      "case_id": "AGENT-001",
+      "repetition": 1,
+      "strategy": "rag",
+      "source_sha256": "fccdd1c62d5a8cf0427cf0eb606e44b254eb48fbf9da93da8ed35aaf5725433e",
+      "source_file": "eval/experiments/2026-10-27/generated/repeat-1/rag/AGENT-001.java",
+      "previous_compliance": 0.8333333333333334,
+      "previous_violations": 2,
+      "compliance": 0.85,
+      "violations": [
+        {
+          "rule_id": "TP-CONFIG-004",
+          "rule_name": "任务队列必须有界",
+          "message": "pool (thread_pool_executor) 使用了无界队列 LinkedBlockingQueue：不指定容量时最大长度为 Integer.MAX_VALUE，视为无界。",
+          "severity": "error",
+          "line": 22,
+          "column": 21,
+          "snippet": "this.pool = new ThreadPoolExecutor(",
+          "suggestion": "改用 new ArrayBlockingQueue<>(capacity) 并显式给出容量（可参照 Q ≈ (λ_in − λ_out) × Δt 估算），同时配置拒绝策略。"
+        },
+        {
+          "rule_id": "TP-MONITOR-001",
+          "rule_name": "线程池必须可观测",
+          "message": "线程池 pool 没有关联到可观察的运行指标。",
+          "severity": "warning",
+          "line": 22,
+          "column": 21,
+          "snippet": "this.pool = new ThreadPoolExecutor(",
+          "suggestion": "为这个线程池暴露 getQueue().size()、getActiveCount()、getCompletedTaskCount() 等运行指标，并单独统计拒绝次数。"
+        },
+        {
+          "rule_id": "TP-SHUTDOWN-004",
+          "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+          "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+          "severity": "warning",
+          "line": 60,
+          "column": 17,
+          "snippet": "pool.shutdownNow();",
+          "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+        },
+        {
+          "rule_id": "TP-SHUTDOWN-004",
+          "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+          "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+          "severity": "warning",
+          "line": 64,
+          "column": 13,
+          "snippet": "pool.shutdownNow();",
+          "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+        }
+      ],
+      "compile": "ok",
+      "behavior": "passed",
+      "diagnostics": "spawnSync /workspace/ontology-demo/.tools/jdk/bin/java EPERM"
+    },
+    {
+      "case_id": "AGENT-001",
+      "repetition": 1,
+      "strategy": "rules",
+      "source_sha256": "ee01f991285a6e4f37e36b1aa04ecd048cd553a9e9eb8ab68ed35096ef1edeb6",
+      "source_file": "eval/experiments/2026-10-27/generated/repeat-1/rules/AGENT-001.java",
+      "previous_compliance": 0.8333333333333334,
+      "previous_violations": 1,
+      "compliance": 0.95,
+      "violations": [
+        {
+          "rule_id": "TP-SHUTDOWN-004",
+          "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+          "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+          "severity": "warning",
+          "line": 83,
+          "column": 17,
+          "snippet": "pool.shutdownNow();",
+          "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+        }
+      ],
+      "compile": "ok",
+      "behavior": "passed",
+      "diagnostics": "spawnSync /workspace/ontology-demo/.tools/jdk/bin/java EPERM"
+    },
+    {
+      "case_id": "AGENT-002",
+      "repetition": 1,
+      "strategy": "rag",
+      "source_sha256": "711ff30690a01fdd5285bd93c052875731f0812f03f4391bd05ddda990e992a9",
+      "source_file": "eval/experiments/2026-10-27/generated/repeat-1/rag/AGENT-002.java",
+      "previous_compliance": 1,
+      "previous_violations": 0,
+      "compliance": 0.75,
+      "violations": [
+        {
+          "rule_id": "TP-REJECT-003",
+          "rule_name": "必须处理 RejectedExecutionException",
+          "message": "pool.submit(...) 在 AbortPolicy（或默认策略）下可能抛出 RejectedExecutionException，但调用处没有捕获处理。",
+          "severity": "error",
+          "line": 10,
+          "column": 33,
+          "snippet": "Future<String> future = pool.submit(work);",
+          "suggestion": "用 try/catch 包住提交调用并做补偿：重试、持久化后补偿、降级返回业务错误码，并记录拒绝日志与监控计数。"
+        }
+      ],
+      "compile": "ok",
+      "behavior": "passed",
+      "diagnostics": "spawnSync /workspace/ontology-demo/.tools/jdk/bin/java EPERM"
+    },
+    {
+      "case_id": "AGENT-002",
+      "repetition": 1,
+      "strategy": "rules",
+      "source_sha256": "a2bf2e464eba78c0178560bea990e501dc3a46ed8f83cf1fcaf133aa3af0aadb",
+      "source_file": "eval/experiments/2026-10-27/generated/repeat-1/rules/AGENT-002.java",
+      "previous_compliance": 1,
+      "previous_violations": 0,
+      "compliance": 0.8,
+      "violations": [
+        {
+          "rule_id": "TP-SUBMIT-001",
+          "rule_name": "submit 返回的 Future 必须被处理",
+          "message": "pool.submit(...) 返回的 Future 未见消费或委托，任务异常可能一直保存在 Future 中而不被感知。",
+          "severity": "warning",
+          "line": 18,
+          "column": 22,
+          "snippet": "future = pool.submit(work);",
+          "suggestion": "普通 Future 使用 get(3, TimeUnit.SECONDS) 并处理 ExecutionException、TimeoutException 和中断；只有 CompletableFuture 支持 whenComplete 等回调。"
+        }
+      ],
+      "compile": "ok",
+      "behavior": "passed",
+      "diagnostics": "spawnSync /workspace/ontology-demo/.tools/jdk/bin/java EPERM"
+    },
+    {
+      "case_id": "AGENT-002",
+      "repetition": 1,
+      "strategy": "baseline",
+      "source_sha256": "711ff30690a01fdd5285bd93c052875731f0812f03f4391bd05ddda990e992a9",
+      "source_file": "eval/experiments/2026-10-27/generated/repeat-1/baseline/AGENT-002.java",
+      "previous_compliance": 1,
+      "previous_violations": 0,
+      "compliance": 0.75,
+      "violations": [
+        {
+          "rule_id": "TP-REJECT-003",
+          "rule_name": "必须处理 RejectedExecutionException",
+          "message": "pool.submit(...) 在 AbortPolicy（或默认策略）下可能抛出 RejectedExecutionException，但调用处没有捕获处理。",
+          "severity": "error",
+          "line": 10,
+          "column": 33,
+          "snippet": "Future<String> future = pool.submit(work);",
+          "suggestion": "用 try/catch 包住提交调用并做补偿：重试、持久化后补偿、降级返回业务错误码，并记录拒绝日志与监控计数。"
+        }
+      ],
+      "compile": "ok",
+      "behavior": "passed",
+      "diagnostics": "spawnSync /workspace/ontology-demo/.tools/jdk/bin/java EPERM"
+    },
+    {
+      "case_id": "AGENT-003",
+      "repetition": 1,
+      "strategy": "rules",
+      "source_sha256": "30deee0317bace6fdd08faa8bbacee9dadbfa131f6e5fdfd2f7d4da9b8f062a1",
+      "source_file": "eval/experiments/2026-10-27/generated/repeat-1/rules/AGENT-003.java",
+      "previous_compliance": 1,
+      "previous_violations": 0,
+      "compliance": 1,
+      "violations": [],
+      "compile": "ok",
+      "behavior": "passed",
+      "diagnostics": "spawnSync /workspace/ontology-demo/.tools/jdk/bin/java EPERM"
+    },
+    {
+      "case_id": "AGENT-003",
+      "repetition": 1,
+      "strategy": "baseline",
+      "source_sha256": "30deee0317bace6fdd08faa8bbacee9dadbfa131f6e5fdfd2f7d4da9b8f062a1",
+      "source_file": "eval/experiments/2026-10-27/generated/repeat-1/baseline/AGENT-003.java",
+      "previous_compliance": 1,
+      "previous_violations": 0,
+      "compliance": 1,
+      "violations": [],
+      "compile": "ok",
+      "behavior": "passed",
+      "diagnostics": "spawnSync /workspace/ontology-demo/.tools/jdk/bin/java EPERM"
+    },
+    {
+      "case_id": "AGENT-003",
+      "repetition": 1,
+      "strategy": "rag",
+      "source_sha256": "30deee0317bace6fdd08faa8bbacee9dadbfa131f6e5fdfd2f7d4da9b8f062a1",
+      "source_file": "eval/experiments/2026-10-27/generated/repeat-1/rag/AGENT-003.java",
+      "previous_compliance": 1,
+      "previous_violations": 0,
+      "compliance": 1,
+      "violations": [],
+      "compile": "ok",
+      "behavior": "passed",
+      "diagnostics": "spawnSync /workspace/ontology-demo/.tools/jdk/bin/java EPERM"
+    },
+    {
+      "case_id": "AGENT-004",
+      "repetition": 1,
+      "strategy": "baseline",
+      "source_sha256": "d56d3483287b5d9e7154336d81567ab712950aa7bf1825e567e7d9690b4f05ea",
+      "source_file": "eval/experiments/2026-10-27/generated/repeat-1/baseline/AGENT-004.java",
+      "previous_compliance": 0.6666666666666666,
+      "previous_violations": 2,
+      "compliance": 0.6666666666666666,
+      "violations": [
+        {
+          "rule_id": "TP-SHUTDOWN-004",
+          "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+          "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+          "severity": "warning",
+          "line": 11,
+          "column": 13,
+          "snippet": "pool.shutdownNow();",
+          "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+        },
+        {
+          "rule_id": "TP-SHUTDOWN-004",
+          "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+          "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+          "severity": "warning",
+          "line": 14,
+          "column": 13,
+          "snippet": "pool.shutdownNow();",
+          "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+        }
+      ],
+      "compile": "ok",
+      "behavior": "passed",
+      "diagnostics": "spawnSync /workspace/ontology-demo/.tools/jdk/bin/java EPERM"
+    },
+    {
+      "case_id": "AGENT-004",
+      "repetition": 1,
+      "strategy": "rag",
+      "source_sha256": "8054ec9632f2986ae832a2d38fb21014ac10b6ad4fda6da77794edfff7a6c7e9",
+      "source_file": "eval/experiments/2026-10-27/generated/repeat-1/rag/AGENT-004.java",
+      "previous_compliance": 0.6666666666666666,
+      "previous_violations": 2,
+      "compliance": 0.6666666666666666,
+      "violations": [
+        {
+          "rule_id": "TP-SHUTDOWN-004",
+          "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+          "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+          "severity": "warning",
+          "line": 12,
+          "column": 13,
+          "snippet": "pool.shutdownNow();",
+          "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+        },
+        {
+          "rule_id": "TP-SHUTDOWN-004",
+          "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+          "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+          "severity": "warning",
+          "line": 15,
+          "column": 13,
+          "snippet": "pool.shutdownNow();",
+          "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+        }
+      ],
+      "compile": "ok",
+      "behavior": "passed",
+      "diagnostics": "spawnSync /workspace/ontology-demo/.tools/jdk/bin/java EPERM"
+    },
+    {
+      "case_id": "AGENT-004",
+      "repetition": 1,
+      "strategy": "rules",
+      "source_sha256": "d56d3483287b5d9e7154336d81567ab712950aa7bf1825e567e7d9690b4f05ea",
+      "source_file": "eval/experiments/2026-10-27/generated/repeat-1/rules/AGENT-004.java",
+      "previous_compliance": 0.6666666666666666,
+      "previous_violations": 2,
+      "compliance": 0.6666666666666666,
+      "violations": [
+        {
+          "rule_id": "TP-SHUTDOWN-004",
+          "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+          "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+          "severity": "warning",
+          "line": 11,
+          "column": 13,
+          "snippet": "pool.shutdownNow();",
+          "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+        },
+        {
+          "rule_id": "TP-SHUTDOWN-004",
+          "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+          "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+          "severity": "warning",
+          "line": 14,
+          "column": 13,
+          "snippet": "pool.shutdownNow();",
+          "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+        }
+      ],
+      "compile": "ok",
+      "behavior": "passed",
+      "diagnostics": "spawnSync /workspace/ontology-demo/.tools/jdk/bin/java EPERM"
+    },
+    {
+      "case_id": "AGENT-001",
+      "repetition": 2,
+      "strategy": "rag",
+      "source_sha256": "09d21f8a6d503b83e1780d70c7c726eb0907878139526e72e8f666308372c52d",
+      "source_file": "eval/experiments/2026-10-27/generated/repeat-2/rag/AGENT-001.java",
+      "previous_compliance": 0.8333333333333334,
+      "previous_violations": 2,
+      "compliance": 0.75,
+      "violations": [
+        {
+          "rule_id": "TP-CONFIG-004",
+          "rule_name": "任务队列必须有界",
+          "message": "pool (executors_factory) 使用了无界队列 LinkedBlockingQueue：不指定容量时最大长度为 Integer.MAX_VALUE，视为无界。",
+          "severity": "error",
+          "line": 13,
+          "column": 21,
+          "snippet": "this.pool = Executors.newFixedThreadPool(2, r -> {",
+          "suggestion": "改用 new ArrayBlockingQueue<>(capacity) 并显式给出容量（可参照 Q ≈ (λ_in − λ_out) × Δt 估算），同时配置拒绝策略。"
+        },
+        {
+          "rule_id": "TP-CREATE-001",
+          "rule_name": "显式创建线程池",
+          "message": "Executors.newFixedThreadPool(...) 隐藏了队列与拒绝策略：内部使用无界 LinkedBlockingQueue（容量 Integer.MAX_VALUE），任务会持续堆积直至 OOM。",
+          "severity": "error",
+          "line": 13,
+          "column": 21,
+          "snippet": "this.pool = Executors.newFixedThreadPool(2, r -> {",
+          "suggestion": "改为 new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, unit, new ArrayBlockingQueue<>(capacity), threadFactory, rejectionHandler)，把线程数、队列容量、命名工厂和拒绝策略显式写出。"
+        },
+        {
+          "rule_id": "TP-MONITOR-001",
+          "rule_name": "线程池必须可观测",
+          "message": "线程池 pool 没有关联到可观察的运行指标。",
+          "severity": "warning",
+          "line": 13,
+          "column": 21,
+          "snippet": "this.pool = Executors.newFixedThreadPool(2, r -> {",
+          "suggestion": "为这个线程池暴露 getQueue().size()、getActiveCount()、getCompletedTaskCount() 等运行指标，并单独统计拒绝次数。"
+        },
+        {
+          "rule_id": "TP-SHUTDOWN-004",
+          "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+          "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+          "severity": "warning",
+          "line": 48,
+          "column": 17,
+          "snippet": "pool.shutdownNow();",
+          "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+        },
+        {
+          "rule_id": "TP-SHUTDOWN-004",
+          "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+          "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+          "severity": "warning",
+          "line": 51,
+          "column": 13,
+          "snippet": "pool.shutdownNow();",
+          "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+        }
+      ],
+      "compile": "ok",
+      "behavior": "passed",
+      "diagnostics": "spawnSync /workspace/ontology-demo/.tools/jdk/bin/java EPERM"
+    },
+    {
+      "case_id": "AGENT-001",
+      "repetition": 2,
+      "strategy": "rules",
+      "source_sha256": "82fa83339750bc69dcffc57ce793c6b6dff1e0d54d4da102d71c8d04a8b5591a",
+      "source_file": "eval/experiments/2026-10-27/generated/repeat-2/rules/AGENT-001.java",
+      "previous_compliance": 0.6666666666666666,
+      "previous_violations": 4,
+      "compliance": 0.9,
+      "violations": [
+        {
+          "rule_id": "TP-SHUTDOWN-004",
+          "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+          "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+          "severity": "warning",
+          "line": 80,
+          "column": 17,
+          "snippet": "pool.shutdownNow();",
+          "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+        },
+        {
+          "rule_id": "TP-SHUTDOWN-003",
+          "rule_name": "捕获 InterruptedException 后必须恢复中断状态",
+          "message": "未确认 catch (InterruptedException) 的所有已分析路径恢复当前线程中断状态或重抛原异常，取消语义可能丢失。",
+          "severity": "error",
+          "line": 83,
+          "column": 19,
+          "snippet": "} catch (InterruptedException e) {",
+          "suggestion": "在当前执行路径或对应 finally 中调用 Thread.currentThread().interrupt()，或继续抛出原 InterruptedException；不要只在延迟 lambda、其他线程或部分条件分支中恢复。复杂循环、嵌套 try 和跨方法恢复需另行审查。"
+        },
+        {
+          "rule_id": "TP-SHUTDOWN-004",
+          "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+          "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+          "severity": "warning",
+          "line": 89,
+          "column": 13,
+          "snippet": "pool.shutdownNow();",
+          "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+        }
+      ],
+      "compile": "ok",
+      "behavior": "passed",
+      "diagnostics": "spawnSync /workspace/ontology-demo/.tools/jdk/bin/java EPERM"
+    },
+    {
+      "case_id": "AGENT-001",
+      "repetition": 2,
+      "strategy": "baseline",
+      "source_sha256": "4c38c0d14fbbdc23e50a0d9fb53116e4853832bf4c8a72600b2226e89e708e89",
+      "source_file": "eval/experiments/2026-10-27/generated/repeat-2/baseline/AGENT-001.java",
+      "previous_compliance": 0.6666666666666666,
+      "previous_violations": 6,
+      "compliance": 0.6666666666666666,
+      "violations": [
+        {
+          "rule_id": "TP-CONFIG-004",
+          "rule_name": "任务队列必须有界",
+          "message": "pool (executors_factory) 使用了无界队列 LinkedBlockingQueue：不指定容量时最大长度为 Integer.MAX_VALUE，视为无界。",
+          "severity": "error",
+          "line": 9,
+          "column": 42,
+          "snippet": "private final ExecutorService pool = Executors.newFixedThreadPool(2);",
+          "suggestion": "改用 new ArrayBlockingQueue<>(capacity) 并显式给出容量（可参照 Q ≈ (λ_in − λ_out) × Δt 估算），同时配置拒绝策略。"
+        },
+        {
+          "rule_id": "TP-CREATE-001",
+          "rule_name": "显式创建线程池",
+          "message": "Executors.newFixedThreadPool(...) 隐藏了队列与拒绝策略：内部使用无界 LinkedBlockingQueue（容量 Integer.MAX_VALUE），任务会持续堆积直至 OOM。",
+          "severity": "error",
+          "line": 9,
+          "column": 42,
+          "snippet": "private final ExecutorService pool = Executors.newFixedThreadPool(2);",
+          "suggestion": "改为 new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, unit, new ArrayBlockingQueue<>(capacity), threadFactory, rejectionHandler)，把线程数、队列容量、命名工厂和拒绝策略显式写出。"
+        },
+        {
+          "rule_id": "TP-CREATE-003",
+          "rule_name": "线程池必须配置线程工厂",
+          "message": "pool (executors_factory) 没有指定 ThreadFactory，工作线程会使用 pool-N-thread-M 这类默认名称。",
+          "severity": "warning",
+          "line": 9,
+          "column": 42,
+          "snippet": "private final ExecutorService pool = Executors.newFixedThreadPool(2);",
+          "suggestion": "传入命名线程工厂（如 namedFactory(\"order-notify\")），或使用 ThreadPoolTaskExecutor#setThreadNamePrefix。"
+        },
+        {
+          "rule_id": "TP-MONITOR-001",
+          "rule_name": "线程池必须可观测",
+          "message": "线程池 pool 没有关联到可观察的运行指标。",
+          "severity": "warning",
+          "line": 9,
+          "column": 42,
+          "snippet": "private final ExecutorService pool = Executors.newFixedThreadPool(2);",
+          "suggestion": "为这个线程池暴露 getQueue().size()、getActiveCount()、getCompletedTaskCount() 等运行指标，并单独统计拒绝次数。"
+        },
+        {
+          "rule_id": "TP-SHUTDOWN-004",
+          "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+          "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+          "severity": "warning",
+          "line": 36,
+          "column": 17,
+          "snippet": "pool.shutdownNow();",
+          "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+        },
+        {
+          "rule_id": "TP-SHUTDOWN-004",
+          "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+          "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+          "severity": "warning",
+          "line": 39,
+          "column": 13,
+          "snippet": "pool.shutdownNow();",
+          "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+        }
+      ],
+      "compile": "ok",
+      "behavior": "passed",
+      "diagnostics": "spawnSync /workspace/ontology-demo/.tools/jdk/bin/java EPERM"
+    },
+    {
+      "case_id": "AGENT-002",
+      "repetition": 2,
+      "strategy": "rules",
+      "source_sha256": "499bd7c219fd8223c348d7057f60d2ea652fdb4902f19bbce8901ec0562024d9",
+      "source_file": "eval/experiments/2026-10-27/generated/repeat-2/rules/AGENT-002.java",
+      "previous_compliance": 1,
+      "previous_violations": 0,
+      "compliance": 0.8,
+      "violations": [
+        {
+          "rule_id": "TP-SUBMIT-001",
+          "rule_name": "submit 返回的 Future 必须被处理",
+          "message": "pool.submit(...) 返回的 Future 未见消费或委托，任务异常可能一直保存在 Future 中而不被感知。",
+          "severity": "warning",
+          "line": 18,
+          "column": 22,
+          "snippet": "future = pool.submit(work);",
+          "suggestion": "普通 Future 使用 get(3, TimeUnit.SECONDS) 并处理 ExecutionException、TimeoutException 和中断；只有 CompletableFuture 支持 whenComplete 等回调。"
+        }
+      ],
+      "compile": "ok",
+      "behavior": "passed",
+      "diagnostics": "spawnSync /workspace/ontology-demo/.tools/jdk/bin/java EPERM"
+    },
+    {
+      "case_id": "AGENT-002",
+      "repetition": 2,
+      "strategy": "baseline",
+      "source_sha256": "acc2e964a9b27856b55e5851429058493ffa6bc3d969721e242d1524a9450efa",
+      "source_file": "eval/experiments/2026-10-27/generated/repeat-2/baseline/AGENT-002.java",
+      "previous_compliance": 1,
+      "previous_violations": 0,
+      "compliance": 0.75,
+      "violations": [
+        {
+          "rule_id": "TP-REJECT-003",
+          "rule_name": "必须处理 RejectedExecutionException",
+          "message": "pool.submit(...) 在 AbortPolicy（或默认策略）下可能抛出 RejectedExecutionException，但调用处没有捕获处理。",
+          "severity": "error",
+          "line": 5,
+          "column": 33,
+          "snippet": "Future<String> future = pool.submit(work);",
+          "suggestion": "用 try/catch 包住提交调用并做补偿：重试、持久化后补偿、降级返回业务错误码，并记录拒绝日志与监控计数。"
+        }
+      ],
+      "compile": "ok",
+      "behavior": "passed",
+      "diagnostics": "spawnSync /workspace/ontology-demo/.tools/jdk/bin/java EPERM"
+    },
+    {
+      "case_id": "AGENT-002",
+      "repetition": 2,
+      "strategy": "rag",
+      "source_sha256": "127d70855e64b57d523e6628554c11929f29611691093a1bb65ebe5ed8d18429",
+      "source_file": "eval/experiments/2026-10-27/generated/repeat-2/rag/AGENT-002.java",
+      "previous_compliance": 1,
+      "previous_violations": 0,
+      "compliance": 0.75,
+      "violations": [
+        {
+          "rule_id": "TP-REJECT-003",
+          "rule_name": "必须处理 RejectedExecutionException",
+          "message": "pool.submit(...) 在 AbortPolicy（或默认策略）下可能抛出 RejectedExecutionException，但调用处没有捕获处理。",
+          "severity": "error",
+          "line": 10,
+          "column": 33,
+          "snippet": "Future<String> future = pool.submit(work);",
+          "suggestion": "用 try/catch 包住提交调用并做补偿：重试、持久化后补偿、降级返回业务错误码，并记录拒绝日志与监控计数。"
+        }
+      ],
+      "compile": "ok",
+      "behavior": "passed",
+      "diagnostics": "spawnSync /workspace/ontology-demo/.tools/jdk/bin/java EPERM"
+    },
+    {
+      "case_id": "AGENT-003",
+      "repetition": 2,
+      "strategy": "baseline",
+      "source_sha256": "30deee0317bace6fdd08faa8bbacee9dadbfa131f6e5fdfd2f7d4da9b8f062a1",
+      "source_file": "eval/experiments/2026-10-27/generated/repeat-2/baseline/AGENT-003.java",
+      "previous_compliance": 1,
+      "previous_violations": 0,
+      "compliance": 1,
+      "violations": [],
+      "compile": "ok",
+      "behavior": "passed",
+      "diagnostics": "spawnSync /workspace/ontology-demo/.tools/jdk/bin/java EPERM"
+    },
+    {
+      "case_id": "AGENT-003",
+      "repetition": 2,
+      "strategy": "rag",
+      "source_sha256": "30deee0317bace6fdd08faa8bbacee9dadbfa131f6e5fdfd2f7d4da9b8f062a1",
+      "source_file": "eval/experiments/2026-10-27/generated/repeat-2/rag/AGENT-003.java",
+      "previous_compliance": 1,
+      "previous_violations": 0,
+      "compliance": 1,
+      "violations": [],
+      "compile": "ok",
+      "behavior": "passed",
+      "diagnostics": "spawnSync /workspace/ontology-demo/.tools/jdk/bin/java EPERM"
+    },
+    {
+      "case_id": "AGENT-003",
+      "repetition": 2,
+      "strategy": "rules",
+      "source_sha256": "30deee0317bace6fdd08faa8bbacee9dadbfa131f6e5fdfd2f7d4da9b8f062a1",
+      "source_file": "eval/experiments/2026-10-27/generated/repeat-2/rules/AGENT-003.java",
+      "previous_compliance": 1,
+      "previous_violations": 0,
+      "compliance": 1,
+      "violations": [],
+      "compile": "ok",
+      "behavior": "passed",
+      "diagnostics": "spawnSync /workspace/ontology-demo/.tools/jdk/bin/java EPERM"
+    },
+    {
+      "case_id": "AGENT-004",
+      "repetition": 2,
+      "strategy": "rag",
+      "source_sha256": "3c5c009f583ef7365353822e22d27dba2eb98af936dd713f820599672c80cc11",
+      "source_file": "eval/experiments/2026-10-27/generated/repeat-2/rag/AGENT-004.java",
+      "previous_compliance": 0.6666666666666666,
+      "previous_violations": 2,
+      "compliance": 0.6666666666666666,
+      "violations": [
+        {
+          "rule_id": "TP-SHUTDOWN-004",
+          "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+          "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+          "severity": "warning",
+          "line": 15,
+          "column": 13,
+          "snippet": "pool.shutdownNow();",
+          "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+        },
+        {
+          "rule_id": "TP-SHUTDOWN-004",
+          "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+          "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+          "severity": "warning",
+          "line": 18,
+          "column": 13,
+          "snippet": "pool.shutdownNow();",
+          "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+        }
+      ],
+      "compile": "ok",
+      "behavior": "passed",
+      "diagnostics": "spawnSync /workspace/ontology-demo/.tools/jdk/bin/java EPERM"
+    },
+    {
+      "case_id": "AGENT-004",
+      "repetition": 2,
+      "strategy": "rules",
+      "source_sha256": "d56d3483287b5d9e7154336d81567ab712950aa7bf1825e567e7d9690b4f05ea",
+      "source_file": "eval/experiments/2026-10-27/generated/repeat-2/rules/AGENT-004.java",
+      "previous_compliance": 0.6666666666666666,
+      "previous_violations": 2,
+      "compliance": 0.6666666666666666,
+      "violations": [
+        {
+          "rule_id": "TP-SHUTDOWN-004",
+          "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+          "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+          "severity": "warning",
+          "line": 11,
+          "column": 13,
+          "snippet": "pool.shutdownNow();",
+          "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+        },
+        {
+          "rule_id": "TP-SHUTDOWN-004",
+          "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+          "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+          "severity": "warning",
+          "line": 14,
+          "column": 13,
+          "snippet": "pool.shutdownNow();",
+          "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+        }
+      ],
+      "compile": "ok",
+      "behavior": "passed",
+      "diagnostics": "spawnSync /workspace/ontology-demo/.tools/jdk/bin/java EPERM"
+    },
+    {
+      "case_id": "AGENT-004",
+      "repetition": 2,
+      "strategy": "baseline",
+      "source_sha256": "d56d3483287b5d9e7154336d81567ab712950aa7bf1825e567e7d9690b4f05ea",
+      "source_file": "eval/experiments/2026-10-27/generated/repeat-2/baseline/AGENT-004.java",
+      "previous_compliance": 0.6666666666666666,
+      "previous_violations": 2,
+      "compliance": 0.6666666666666666,
+      "violations": [
+        {
+          "rule_id": "TP-SHUTDOWN-004",
+          "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+          "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+          "severity": "warning",
+          "line": 11,
+          "column": 13,
+          "snippet": "pool.shutdownNow();",
+          "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+        },
+        {
+          "rule_id": "TP-SHUTDOWN-004",
+          "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+          "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+          "severity": "warning",
+          "line": 14,
+          "column": 13,
+          "snippet": "pool.shutdownNow();",
+          "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+        }
+      ],
+      "compile": "ok",
+      "behavior": "passed",
+      "diagnostics": "spawnSync /workspace/ontology-demo/.tools/jdk/bin/java EPERM"
+    },
+    {
+      "case_id": "AGENT-001",
+      "repetition": 3,
+      "strategy": "rules",
+      "source_sha256": "aa47dbad48741d9297dbd60a117b600083d495287482cf03e3e5428350a69643",
+      "source_file": "eval/experiments/2026-10-27/generated/repeat-3/rules/AGENT-001.java",
+      "previous_compliance": 0.8333333333333334,
+      "previous_violations": 2,
+      "compliance": 0.95,
+      "violations": [
+        {
+          "rule_id": "TP-SHUTDOWN-004",
+          "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+          "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+          "severity": "warning",
+          "line": 78,
+          "column": 17,
+          "snippet": "pool.shutdownNow();",
+          "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+        },
+        {
+          "rule_id": "TP-SHUTDOWN-004",
+          "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+          "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+          "severity": "warning",
+          "line": 82,
+          "column": 13,
+          "snippet": "pool.shutdownNow();",
+          "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+        }
+      ],
+      "compile": "ok",
+      "behavior": "passed",
+      "diagnostics": "spawnSync /workspace/ontology-demo/.tools/jdk/bin/java EPERM"
+    },
+    {
+      "case_id": "AGENT-001",
+      "repetition": 3,
+      "strategy": "baseline",
+      "source_sha256": "f60d7ee3bef1ee6a3528d333b732f449160763ae50961569f7f9f67cb62c4687",
+      "source_file": "eval/experiments/2026-10-27/generated/repeat-3/baseline/AGENT-001.java",
+      "previous_compliance": 0.6666666666666666,
+      "previous_violations": 6,
+      "compliance": 0.6666666666666666,
+      "violations": [
+        {
+          "rule_id": "TP-CONFIG-004",
+          "rule_name": "任务队列必须有界",
+          "message": "pool (executors_factory) 使用了无界队列 LinkedBlockingQueue：不指定容量时最大长度为 Integer.MAX_VALUE，视为无界。",
+          "severity": "error",
+          "line": 9,
+          "column": 42,
+          "snippet": "private final ExecutorService pool = Executors.newFixedThreadPool(2);",
+          "suggestion": "改用 new ArrayBlockingQueue<>(capacity) 并显式给出容量（可参照 Q ≈ (λ_in − λ_out) × Δt 估算），同时配置拒绝策略。"
+        },
+        {
+          "rule_id": "TP-CREATE-001",
+          "rule_name": "显式创建线程池",
+          "message": "Executors.newFixedThreadPool(...) 隐藏了队列与拒绝策略：内部使用无界 LinkedBlockingQueue（容量 Integer.MAX_VALUE），任务会持续堆积直至 OOM。",
+          "severity": "error",
+          "line": 9,
+          "column": 42,
+          "snippet": "private final ExecutorService pool = Executors.newFixedThreadPool(2);",
+          "suggestion": "改为 new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, unit, new ArrayBlockingQueue<>(capacity), threadFactory, rejectionHandler)，把线程数、队列容量、命名工厂和拒绝策略显式写出。"
+        },
+        {
+          "rule_id": "TP-CREATE-003",
+          "rule_name": "线程池必须配置线程工厂",
+          "message": "pool (executors_factory) 没有指定 ThreadFactory，工作线程会使用 pool-N-thread-M 这类默认名称。",
+          "severity": "warning",
+          "line": 9,
+          "column": 42,
+          "snippet": "private final ExecutorService pool = Executors.newFixedThreadPool(2);",
+          "suggestion": "传入命名线程工厂（如 namedFactory(\"order-notify\")），或使用 ThreadPoolTaskExecutor#setThreadNamePrefix。"
+        },
+        {
+          "rule_id": "TP-MONITOR-001",
+          "rule_name": "线程池必须可观测",
+          "message": "线程池 pool 没有关联到可观察的运行指标。",
+          "severity": "warning",
+          "line": 9,
+          "column": 42,
+          "snippet": "private final ExecutorService pool = Executors.newFixedThreadPool(2);",
+          "suggestion": "为这个线程池暴露 getQueue().size()、getActiveCount()、getCompletedTaskCount() 等运行指标，并单独统计拒绝次数。"
+        },
+        {
+          "rule_id": "TP-SHUTDOWN-004",
+          "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+          "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+          "severity": "warning",
+          "line": 36,
+          "column": 17,
+          "snippet": "pool.shutdownNow();",
+          "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+        },
+        {
+          "rule_id": "TP-SHUTDOWN-004",
+          "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+          "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+          "severity": "warning",
+          "line": 39,
+          "column": 13,
+          "snippet": "pool.shutdownNow();",
+          "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+        }
+      ],
+      "compile": "ok",
+      "behavior": "passed",
+      "diagnostics": "spawnSync /workspace/ontology-demo/.tools/jdk/bin/java EPERM"
+    },
+    {
+      "case_id": "AGENT-001",
+      "repetition": 3,
+      "strategy": "rag",
+      "source_sha256": "d34a81a20768a3b026593f780318d3650ae65ed327229e25cac20f4c1a53d8fd",
+      "source_file": "eval/experiments/2026-10-27/generated/repeat-3/rag/AGENT-001.java",
+      "previous_compliance": 0.8333333333333334,
+      "previous_violations": 2,
+      "compliance": 0.85,
+      "violations": [
+        {
+          "rule_id": "TP-CONFIG-004",
+          "rule_name": "任务队列必须有界",
+          "message": "pool (thread_pool_executor) 使用了无界队列 LinkedBlockingQueue：不指定容量时最大长度为 Integer.MAX_VALUE，视为无界。",
+          "severity": "error",
+          "line": 24,
+          "column": 21,
+          "snippet": "this.pool = new ThreadPoolExecutor(",
+          "suggestion": "改用 new ArrayBlockingQueue<>(capacity) 并显式给出容量（可参照 Q ≈ (λ_in − λ_out) × Δt 估算），同时配置拒绝策略。"
+        },
+        {
+          "rule_id": "TP-MONITOR-001",
+          "rule_name": "线程池必须可观测",
+          "message": "线程池 pool 没有关联到可观察的运行指标。",
+          "severity": "warning",
+          "line": 24,
+          "column": 21,
+          "snippet": "this.pool = new ThreadPoolExecutor(",
+          "suggestion": "为这个线程池暴露 getQueue().size()、getActiveCount()、getCompletedTaskCount() 等运行指标，并单独统计拒绝次数。"
+        },
+        {
+          "rule_id": "TP-SHUTDOWN-004",
+          "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+          "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+          "severity": "warning",
+          "line": 60,
+          "column": 17,
+          "snippet": "pool.shutdownNow();",
+          "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+        },
+        {
+          "rule_id": "TP-SHUTDOWN-004",
+          "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+          "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+          "severity": "warning",
+          "line": 64,
+          "column": 13,
+          "snippet": "pool.shutdownNow();",
+          "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+        }
+      ],
+      "compile": "ok",
+      "behavior": "passed",
+      "diagnostics": "spawnSync /workspace/ontology-demo/.tools/jdk/bin/java EPERM"
+    },
+    {
+      "case_id": "AGENT-002",
+      "repetition": 3,
+      "strategy": "baseline",
+      "source_sha256": "711ff30690a01fdd5285bd93c052875731f0812f03f4391bd05ddda990e992a9",
+      "source_file": "eval/experiments/2026-10-27/generated/repeat-3/baseline/AGENT-002.java",
+      "previous_compliance": 1,
+      "previous_violations": 0,
+      "compliance": 0.75,
+      "violations": [
+        {
+          "rule_id": "TP-REJECT-003",
+          "rule_name": "必须处理 RejectedExecutionException",
+          "message": "pool.submit(...) 在 AbortPolicy（或默认策略）下可能抛出 RejectedExecutionException，但调用处没有捕获处理。",
+          "severity": "error",
+          "line": 10,
+          "column": 33,
+          "snippet": "Future<String> future = pool.submit(work);",
+          "suggestion": "用 try/catch 包住提交调用并做补偿：重试、持久化后补偿、降级返回业务错误码，并记录拒绝日志与监控计数。"
+        }
+      ],
+      "compile": "ok",
+      "behavior": "passed",
+      "diagnostics": "spawnSync /workspace/ontology-demo/.tools/jdk/bin/java EPERM"
+    },
+    {
+      "case_id": "AGENT-002",
+      "repetition": 3,
+      "strategy": "rag",
+      "source_sha256": "127d70855e64b57d523e6628554c11929f29611691093a1bb65ebe5ed8d18429",
+      "source_file": "eval/experiments/2026-10-27/generated/repeat-3/rag/AGENT-002.java",
+      "previous_compliance": 1,
+      "previous_violations": 0,
+      "compliance": 0.75,
+      "violations": [
+        {
+          "rule_id": "TP-REJECT-003",
+          "rule_name": "必须处理 RejectedExecutionException",
+          "message": "pool.submit(...) 在 AbortPolicy（或默认策略）下可能抛出 RejectedExecutionException，但调用处没有捕获处理。",
+          "severity": "error",
+          "line": 10,
+          "column": 33,
+          "snippet": "Future<String> future = pool.submit(work);",
+          "suggestion": "用 try/catch 包住提交调用并做补偿：重试、持久化后补偿、降级返回业务错误码，并记录拒绝日志与监控计数。"
+        }
+      ],
+      "compile": "ok",
+      "behavior": "passed",
+      "diagnostics": "spawnSync /workspace/ontology-demo/.tools/jdk/bin/java EPERM"
+    },
+    {
+      "case_id": "AGENT-002",
+      "repetition": 3,
+      "strategy": "rules",
+      "source_sha256": "499bd7c219fd8223c348d7057f60d2ea652fdb4902f19bbce8901ec0562024d9",
+      "source_file": "eval/experiments/2026-10-27/generated/repeat-3/rules/AGENT-002.java",
+      "previous_compliance": 1,
+      "previous_violations": 0,
+      "compliance": 0.8,
+      "violations": [
+        {
+          "rule_id": "TP-SUBMIT-001",
+          "rule_name": "submit 返回的 Future 必须被处理",
+          "message": "pool.submit(...) 返回的 Future 未见消费或委托，任务异常可能一直保存在 Future 中而不被感知。",
+          "severity": "warning",
+          "line": 18,
+          "column": 22,
+          "snippet": "future = pool.submit(work);",
+          "suggestion": "普通 Future 使用 get(3, TimeUnit.SECONDS) 并处理 ExecutionException、TimeoutException 和中断；只有 CompletableFuture 支持 whenComplete 等回调。"
+        }
+      ],
+      "compile": "ok",
+      "behavior": "passed",
+      "diagnostics": "spawnSync /workspace/ontology-demo/.tools/jdk/bin/java EPERM"
+    },
+    {
+      "case_id": "AGENT-003",
+      "repetition": 3,
+      "strategy": "rag",
+      "source_sha256": "30deee0317bace6fdd08faa8bbacee9dadbfa131f6e5fdfd2f7d4da9b8f062a1",
+      "source_file": "eval/experiments/2026-10-27/generated/repeat-3/rag/AGENT-003.java",
+      "previous_compliance": 1,
+      "previous_violations": 0,
+      "compliance": 1,
+      "violations": [],
+      "compile": "ok",
+      "behavior": "passed",
+      "diagnostics": "spawnSync /workspace/ontology-demo/.tools/jdk/bin/java EPERM"
+    },
+    {
+      "case_id": "AGENT-003",
+      "repetition": 3,
+      "strategy": "rules",
+      "source_sha256": "30deee0317bace6fdd08faa8bbacee9dadbfa131f6e5fdfd2f7d4da9b8f062a1",
+      "source_file": "eval/experiments/2026-10-27/generated/repeat-3/rules/AGENT-003.java",
+      "previous_compliance": 1,
+      "previous_violations": 0,
+      "compliance": 1,
+      "violations": [],
+      "compile": "ok",
+      "behavior": "passed",
+      "diagnostics": "spawnSync /workspace/ontology-demo/.tools/jdk/bin/java EPERM"
+    },
+    {
+      "case_id": "AGENT-003",
+      "repetition": 3,
+      "strategy": "baseline",
+      "source_sha256": "30deee0317bace6fdd08faa8bbacee9dadbfa131f6e5fdfd2f7d4da9b8f062a1",
+      "source_file": "eval/experiments/2026-10-27/generated/repeat-3/baseline/AGENT-003.java",
+      "previous_compliance": 1,
+      "previous_violations": 0,
+      "compliance": 1,
+      "violations": [],
+      "compile": "ok",
+      "behavior": "passed",
+      "diagnostics": "spawnSync /workspace/ontology-demo/.tools/jdk/bin/java EPERM"
+    },
+    {
+      "case_id": "AGENT-004",
+      "repetition": 3,
+      "strategy": "rules",
+      "source_sha256": "d56d3483287b5d9e7154336d81567ab712950aa7bf1825e567e7d9690b4f05ea",
+      "source_file": "eval/experiments/2026-10-27/generated/repeat-3/rules/AGENT-004.java",
+      "previous_compliance": 0.6666666666666666,
+      "previous_violations": 2,
+      "compliance": 0.6666666666666666,
+      "violations": [
+        {
+          "rule_id": "TP-SHUTDOWN-004",
+          "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+          "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+          "severity": "warning",
+          "line": 11,
+          "column": 13,
+          "snippet": "pool.shutdownNow();",
+          "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+        },
+        {
+          "rule_id": "TP-SHUTDOWN-004",
+          "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+          "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+          "severity": "warning",
+          "line": 14,
+          "column": 13,
+          "snippet": "pool.shutdownNow();",
+          "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+        }
+      ],
+      "compile": "ok",
+      "behavior": "passed",
+      "diagnostics": "spawnSync /workspace/ontology-demo/.tools/jdk/bin/java EPERM"
+    },
+    {
+      "case_id": "AGENT-004",
+      "repetition": 3,
+      "strategy": "baseline",
+      "source_sha256": "d56d3483287b5d9e7154336d81567ab712950aa7bf1825e567e7d9690b4f05ea",
+      "source_file": "eval/experiments/2026-10-27/generated/repeat-3/baseline/AGENT-004.java",
+      "previous_compliance": 0.6666666666666666,
+      "previous_violations": 2,
+      "compliance": 0.6666666666666666,
+      "violations": [
+        {
+          "rule_id": "TP-SHUTDOWN-004",
+          "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+          "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+          "severity": "warning",
+          "line": 11,
+          "column": 13,
+          "snippet": "pool.shutdownNow();",
+          "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+        },
+        {
+          "rule_id": "TP-SHUTDOWN-004",
+          "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+          "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+          "severity": "warning",
+          "line": 14,
+          "column": 13,
+          "snippet": "pool.shutdownNow();",
+          "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+        }
+      ],
+      "compile": "ok",
+      "behavior": "passed",
+      "diagnostics": "spawnSync /workspace/ontology-demo/.tools/jdk/bin/java EPERM"
+    },
+    {
+      "case_id": "AGENT-004",
+      "repetition": 3,
+      "strategy": "rag",
+      "source_sha256": "3c5c009f583ef7365353822e22d27dba2eb98af936dd713f820599672c80cc11",
+      "source_file": "eval/experiments/2026-10-27/generated/repeat-3/rag/AGENT-004.java",
+      "previous_compliance": 0.6666666666666666,
+      "previous_violations": 2,
+      "compliance": 0.6666666666666666,
+      "violations": [
+        {
+          "rule_id": "TP-SHUTDOWN-004",
+          "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+          "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+          "severity": "warning",
+          "line": 15,
+          "column": 13,
+          "snippet": "pool.shutdownNow();",
+          "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+        },
+        {
+          "rule_id": "TP-SHUTDOWN-004",
+          "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+          "message": "pool.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+          "severity": "warning",
+          "line": 18,
+          "column": 13,
+          "snippet": "pool.shutdownNow();",
+          "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+        }
+      ],
+      "compile": "ok",
+      "behavior": "passed",
+      "diagnostics": "spawnSync /workspace/ontology-demo/.tools/jdk/bin/java EPERM"
+    }
+  ],
+  "summary": [
+    {
+      "strategy": "baseline",
+      "cases": 12,
+      "compliance": 0.7708333333333334,
+      "violations": 27,
+      "compile": 12,
+      "behavior": 12
+    },
+    {
+      "strategy": "rag",
+      "cases": 12,
+      "compliance": 0.8083333333333332,
+      "violations": 22,
+      "compile": 12,
+      "behavior": 12
+    },
+    {
+      "strategy": "rules",
+      "cases": 12,
+      "compliance": 0.85,
+      "violations": 15,
+      "compile": 12,
+      "behavior": 12
+    }
+  ]
+}
