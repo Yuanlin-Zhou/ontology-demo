@@ -1,0 +1,11 @@
+✔ records a provider endpoint and credential selector without embedding credentials (1.298693ms)
+✔ uses only the selected runtime credential and keeps it out of normalized results (21.24111ms)
+✔ does not fall back to another provider key or echo failed response bodies (1.038078ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 182.423871

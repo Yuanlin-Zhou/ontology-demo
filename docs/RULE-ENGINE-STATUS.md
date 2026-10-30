@@ -1,5 +1,8 @@
 # 规则引擎现状：冻结后的首次生成对比
 
+2026-10-30 已完成 Ruoli / deepseek-v4.1-flash 的本地提供商适配，完整回归 147 项通过。当前云环境代理在连接 ruoli.dev、docs.ruoli.dev 时返回 CONNECT 403，尚无真实模型请求或文档读取；编辑环境入口同时被用户报告打开即报错，具体错误待补。见 [配置及阻塞记录](../eval/experiments/2026-10-30-ruoli-ready-blocked/README.md)。
+
+
 2026-10-30 的 v2 定向实验在首个请求处收到 DeepSeek HTTP 402，已停止：尝试 1/27，成功生成 0，其余 26 未发送。供应商 usage 未返回，暂无新对比结果，需先恢复账户计费/额度。详见 [本轮失败记录](../eval/experiments/2026-10-30-v2-http402/README.md)。
 
 
