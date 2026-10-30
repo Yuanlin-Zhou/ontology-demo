@@ -320,3 +320,5 @@ npm run eval:boundaries
 63 份源码清单审查已全部完成，并保留业务证据不足状态；中断恢复定向修复和真实扩容/回收复验见 [完整审查与修复记录](eval/experiments/2026-10-27-complete-review/README.md)。
 
 可选的 `businessContractVersion: 2` 提供可注入业务回调与实际效果验收，及 9 用例、27 次调用的定向实验配置；参见 [v2 业务契约](eval/contracts/v2/README.md)。历史实验默认 v1，不重新评分。
+
+可选的 Ruoli 提供商配置及当前网络限制见 [Ruoli 接入说明](eval/RUOLI.md)；密钥仅通过独立的运行时变量提供，不进入实验配置。

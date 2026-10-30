@@ -105,7 +105,7 @@ export async function runRepairExperiment(sourceRun: string, outputDir: string, 
           writeFileSync(stem+'.prompt.md',fullPrompt);
           writeJson(stem+'.json',{status:'started',global_call:calls,prompt_sha256:sha256(fullPrompt)});
           const response=spawnSync(config.command,config.args,{cwd:REPOSITORY_ROOT,encoding:'utf8',timeout:config.timeoutMs,killSignal:'SIGKILL',maxBuffer:2*1024*1024,
-            input:JSON.stringify({model:config.model,seed:config.seed,temperature:config.temperature,maxOutputTokens:config.maxOutputTokens,prompt:fullPrompt})});
+            input:JSON.stringify({model:config.model,seed:config.seed,temperature:config.temperature,maxOutputTokens:config.maxOutputTokens,apiBase:config.apiBase,apiKeyEnv:config.apiKeyEnv,sendSeed:config.sendSeed,prompt:fullPrompt})});
           if (response.status !== 0 || response.error) {
             const status=response.stderr?.match(/HTTP (\d{3})/)?.[1];
             writeJson(stem+'.json',{status:'failed',global_call:calls,prompt_sha256:sha256(fullPrompt),failure:status?`HTTP ${status}`:'Provider failed or timed out; no automatic retry.'});

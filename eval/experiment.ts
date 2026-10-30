@@ -10,10 +10,14 @@ import { runEvaluation, writeReport } from './runner.ts';
 import type { RetrievalStrategy } from '../src/domain/types.ts';
 import type { JavaOptions } from './java.ts';
 import { extractJavaSource, type ExtractedJava } from './model-output.ts';
+import { chatEndpoint } from './providers/openai-compatible.ts';
 import { deliveryContract } from './delivery-contract.ts';
 
 export interface ExperimentConfig {
   businessContractVersion?: 1 | 2;
+  apiBase?: string;
+  apiKeyEnv?: string;
+  sendSeed?: boolean;
   model: string;
   command: string;
   args: string[];
@@ -36,6 +40,9 @@ export function validateExperimentConfig(config: ExperimentConfig): void {
       ![config.maxOutputTokens, config.maxCalls, config.timeoutMs, config.tokenBudget, config.topK].every(n => Number.isSafeInteger(n) && n > 0)) {
     throw new Error('Invalid experiment config: specify model, executable/args, seed, temperature, positive limits and retrieval settings.');
   }
+  if (config.apiBase !== undefined) chatEndpoint(config.apiBase);
+  if (config.apiKeyEnv !== undefined && (typeof config.apiKeyEnv !== 'string' || !/^[A-Z_][A-Z0-9_]*$/.test(config.apiKeyEnv))) throw new Error('Invalid API key environment variable name');
+  if (config.sendSeed !== undefined && typeof config.sendSeed !== 'boolean') throw new Error('sendSeed must be boolean');
   if (config.businessContractVersion !== undefined && ![1,2].includes(config.businessContractVersion)) throw new Error('businessContractVersion must be 1 or 2');
   if (config.strategies !== undefined && (!Array.isArray(config.strategies) || !config.strategies.length ||
       config.strategies.some(s => !['baseline', 'rag', 'rules'].includes(s)) || new Set(config.strategies).size !== config.strategies.length)) {
@@ -117,7 +124,7 @@ export function runExperiment(configFile: string, outputDir: string, prepareOnly
       mkdirSync(dirname(recordFile), { recursive: true });
       writeJson(recordFile, { case_id: job.case_id, strategy: job.strategy, model: config.model, prompt_sha256: job.prompt_sha256, status: "started", source_sha256: null });
       const request = { model: config.model, seed: config.seed, temperature: config.temperature,
-        maxOutputTokens: config.maxOutputTokens, prompt: job.prompt };
+        maxOutputTokens: config.maxOutputTokens, apiBase: config.apiBase, apiKeyEnv: config.apiKeyEnv, sendSeed: config.sendSeed, prompt: job.prompt };
       const started = Date.now();
       const response = spawnSync(config.command, config.args, { input: JSON.stringify(request), cwd: REPOSITORY_ROOT,
         encoding: 'utf8', timeout: config.timeoutMs, killSignal: 'SIGKILL', maxBuffer: 2 * 1024 * 1024 });

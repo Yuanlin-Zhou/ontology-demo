@@ -1,0 +1,39 @@
+{
+  "model": "deepseek-v4.1-flash",
+  "command": "node",
+  "args": [
+    "--use-env-proxy",
+    "eval/providers/openai-compatible.ts"
+  ],
+  "seed": 42,
+  "temperature": 0,
+  "maxOutputTokens": 8192,
+  "maxCalls": 27,
+  "timeoutMs": 120000,
+  "tokenBudget": 1200,
+  "topK": 5,
+  "java": {
+    "release": 21,
+    "timeoutMs": 10000,
+    "classpath": [
+      "/workspace/ontology-demo/.eval-cache/java-deps/*"
+    ],
+    "javac": "/workspace/ontology-demo/.tools/jdk/bin/javac",
+    "java": "/workspace/ontology-demo/.tools/jdk/bin/java"
+  },
+  "businessContractVersion": 2,
+  "caseIds": [
+    "CASE-001",
+    "CASE-002",
+    "CASE-003",
+    "CASE-006",
+    "CASE-007",
+    "CASE-008",
+    "CASE-010",
+    "CASE-011",
+    "CASE-020"
+  ],
+  "apiBase": "https://ruoli.dev/v1/chat/completions",
+  "apiKeyEnv": "RUOLI_API_KEY",
+  "sendSeed": false
+}
