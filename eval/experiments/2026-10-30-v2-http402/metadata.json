@@ -1,0 +1,19 @@
+{
+  "state": "blocked_provider_payment",
+  "business_contract_version": 2,
+  "model": "deepseek-flash",
+  "provider_host": "api.deepseek.com",
+  "planned_requests": 27,
+  "attempted_requests": 1,
+  "successful_generations": 0,
+  "remaining_unattempted_requests": 26,
+  "received_source_files": 0,
+  "provider_http_status": 402,
+  "usage": null,
+  "billing_cost": null,
+  "automatic_retries": 0,
+  "source_revision": "ad56f1e",
+  "prompt_reference": "../2026-10-27-observable-v2-ready/prepared-prompts",
+  "all_27_prompt_hashes_match_reference": true,
+  "comparison_completed": false
+}

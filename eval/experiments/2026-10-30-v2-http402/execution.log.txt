@@ -1,0 +1,13 @@
+1/27 baseline CASE-001: failed
+file:///workspace/ontology-demo/eval/experiment.ts:170
+    if (report.agent.some(item => item.output !== 'present')) throw new Error('Experiment incomplete; see call records and per-case report. Do not claim a completed strategy comparison.');
+                                                                    ^
+
+Error: Experiment incomplete; see call records and per-case report. Do not claim a completed strategy comparison.
+    at runExperiment (file:///workspace/ontology-demo/eval/experiment.ts:170:69)
+    at file:///workspace/ontology-demo/eval/experiment.ts:179:3
+    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)
+    at async node:internal/modules/esm/loader:643:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v24.19.0

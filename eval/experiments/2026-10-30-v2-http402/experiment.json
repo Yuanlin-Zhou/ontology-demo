@@ -1,0 +1,264 @@
+{
+  "protocol": 5,
+  "created_at": "2026-10-30T02:34:38.686Z",
+  "config": {
+    "model": "deepseek-flash",
+    "command": "node",
+    "args": [
+      "--use-env-proxy",
+      "eval/providers/openai-compatible.ts"
+    ],
+    "seed": 42,
+    "temperature": 0,
+    "maxOutputTokens": 8192,
+    "maxCalls": 27,
+    "timeoutMs": 120000,
+    "tokenBudget": 1200,
+    "topK": 5,
+    "java": {
+      "release": 21,
+      "timeoutMs": 10000,
+      "classpath": [
+        "/workspace/ontology-demo/.eval-cache/java-deps/*"
+      ],
+      "javac": "/workspace/ontology-demo/.tools/jdk/bin/javac",
+      "java": "/workspace/ontology-demo/.tools/jdk/bin/java"
+    },
+    "businessContractVersion": 2,
+    "caseIds": [
+      "CASE-001",
+      "CASE-002",
+      "CASE-003",
+      "CASE-006",
+      "CASE-007",
+      "CASE-008",
+      "CASE-010",
+      "CASE-011",
+      "CASE-020"
+    ]
+  },
+  "revision": "ad56f1e791d8f5190546e4886a39f1d53ff64ea1",
+  "working_tree_patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "untracked_sha256": {},
+  "node": "v24.19.0",
+  "planned_calls": 27,
+  "prepare_only": false,
+  "jobs": [
+    {
+      "case_id": "CASE-001",
+      "strategy": "baseline",
+      "prompt_file": "/workspace/ontology-demo/.eval-cache/observable-v2-20261030/prompts/baseline/CASE-001.md",
+      "prompt_sha256": "285a5e029630ef82475a4e10a90361967cb148044edc0577a6c1e8cfc2bf1092",
+      "input_sha256": "456df22100fb62923e549d038e06ebbfbb3b8674d289d724dfba40384f6fcdad",
+      "knowledge_tokens_estimated": 0
+    },
+    {
+      "case_id": "CASE-001",
+      "strategy": "rag",
+      "prompt_file": "/workspace/ontology-demo/.eval-cache/observable-v2-20261030/prompts/rag/CASE-001.md",
+      "prompt_sha256": "f7a41b0d4c43d32641d89c3350c60452c740a58ba1f9b7f17eff151d81501a6d",
+      "input_sha256": "456df22100fb62923e549d038e06ebbfbb3b8674d289d724dfba40384f6fcdad",
+      "knowledge_tokens_estimated": 1194
+    },
+    {
+      "case_id": "CASE-001",
+      "strategy": "rules",
+      "prompt_file": "/workspace/ontology-demo/.eval-cache/observable-v2-20261030/prompts/rules/CASE-001.md",
+      "prompt_sha256": "44af7a5c89f8975ce8dc4bff61a725f6019525f7fdf96b2d9c3462e7fa81e308",
+      "input_sha256": "456df22100fb62923e549d038e06ebbfbb3b8674d289d724dfba40384f6fcdad",
+      "knowledge_tokens_estimated": 1167
+    },
+    {
+      "case_id": "CASE-002",
+      "strategy": "baseline",
+      "prompt_file": "/workspace/ontology-demo/.eval-cache/observable-v2-20261030/prompts/baseline/CASE-002.md",
+      "prompt_sha256": "9fa6731806689c7deb92736b4fc453d1458eafa7e938c53486d28d023c9c482f",
+      "input_sha256": "4f61b738dee592a95743ea0e149d9d4bf4025f6cabbe0e6548ff43f824721bcb",
+      "knowledge_tokens_estimated": 0
+    },
+    {
+      "case_id": "CASE-002",
+      "strategy": "rag",
+      "prompt_file": "/workspace/ontology-demo/.eval-cache/observable-v2-20261030/prompts/rag/CASE-002.md",
+      "prompt_sha256": "de9108ab1e101ac9f23f38c26219b552763bc6f4bc854468e9543d33762ee858",
+      "input_sha256": "4f61b738dee592a95743ea0e149d9d4bf4025f6cabbe0e6548ff43f824721bcb",
+      "knowledge_tokens_estimated": 1192
+    },
+    {
+      "case_id": "CASE-002",
+      "strategy": "rules",
+      "prompt_file": "/workspace/ontology-demo/.eval-cache/observable-v2-20261030/prompts/rules/CASE-002.md",
+      "prompt_sha256": "36f3d5b1dcfe2069c62eabea4c5db19ed08133c3e8f5b5833d9ec15a99b3fca2",
+      "input_sha256": "4f61b738dee592a95743ea0e149d9d4bf4025f6cabbe0e6548ff43f824721bcb",
+      "knowledge_tokens_estimated": 1182
+    },
+    {
+      "case_id": "CASE-003",
+      "strategy": "baseline",
+      "prompt_file": "/workspace/ontology-demo/.eval-cache/observable-v2-20261030/prompts/baseline/CASE-003.md",
+      "prompt_sha256": "6d34299c82b3cc8aeed04cbd422abb3c9e17b67a6267323848c3bc54fbef29c9",
+      "input_sha256": "1d0f197e7bcac7328a803907bb6d4ad345f3ae66ad232b936852ec2235ece2a5",
+      "knowledge_tokens_estimated": 0
+    },
+    {
+      "case_id": "CASE-003",
+      "strategy": "rag",
+      "prompt_file": "/workspace/ontology-demo/.eval-cache/observable-v2-20261030/prompts/rag/CASE-003.md",
+      "prompt_sha256": "d82f55f098831348fefba2895c1e56dce7eb4aa35c5b03ac207c4a269b73c0ed",
+      "input_sha256": "1d0f197e7bcac7328a803907bb6d4ad345f3ae66ad232b936852ec2235ece2a5",
+      "knowledge_tokens_estimated": 1147
+    },
+    {
+      "case_id": "CASE-003",
+      "strategy": "rules",
+      "prompt_file": "/workspace/ontology-demo/.eval-cache/observable-v2-20261030/prompts/rules/CASE-003.md",
+      "prompt_sha256": "9bc260a2ac59c5b240f0cdaaa5aa616f1be68c5c23ebc8d3be77006d129791c4",
+      "input_sha256": "1d0f197e7bcac7328a803907bb6d4ad345f3ae66ad232b936852ec2235ece2a5",
+      "knowledge_tokens_estimated": 1199
+    },
+    {
+      "case_id": "CASE-006",
+      "strategy": "baseline",
+      "prompt_file": "/workspace/ontology-demo/.eval-cache/observable-v2-20261030/prompts/baseline/CASE-006.md",
+      "prompt_sha256": "e5638da74cf543dd4e4a02ea6db4834344ad592b781f4ab8546f10ea014c40d5",
+      "input_sha256": "e6a44f29e1613a1b8d2ab086788f2e13a2655f3545a0f7ce084f3ea2001b77d6",
+      "knowledge_tokens_estimated": 0
+    },
+    {
+      "case_id": "CASE-006",
+      "strategy": "rag",
+      "prompt_file": "/workspace/ontology-demo/.eval-cache/observable-v2-20261030/prompts/rag/CASE-006.md",
+      "prompt_sha256": "7ff16b096040ab8dc9e01d60ed88f578b49272f0d5fb4b14b81aa72a7b417757",
+      "input_sha256": "e6a44f29e1613a1b8d2ab086788f2e13a2655f3545a0f7ce084f3ea2001b77d6",
+      "knowledge_tokens_estimated": 1139
+    },
+    {
+      "case_id": "CASE-006",
+      "strategy": "rules",
+      "prompt_file": "/workspace/ontology-demo/.eval-cache/observable-v2-20261030/prompts/rules/CASE-006.md",
+      "prompt_sha256": "a1ea1da90d66381a76114b860445d3f22b11b82c22ad66d9087e05430c3cb4a0",
+      "input_sha256": "e6a44f29e1613a1b8d2ab086788f2e13a2655f3545a0f7ce084f3ea2001b77d6",
+      "knowledge_tokens_estimated": 1142
+    },
+    {
+      "case_id": "CASE-007",
+      "strategy": "baseline",
+      "prompt_file": "/workspace/ontology-demo/.eval-cache/observable-v2-20261030/prompts/baseline/CASE-007.md",
+      "prompt_sha256": "509267a32a70d2d9646e5ff62a241c230333ef55a1dbb465c0345c9f03a065b7",
+      "input_sha256": "58946ca120b9224d41fdb74a09c024db585f78c3ee1f38a2369d7f5aab2e5b83",
+      "knowledge_tokens_estimated": 0
+    },
+    {
+      "case_id": "CASE-007",
+      "strategy": "rag",
+      "prompt_file": "/workspace/ontology-demo/.eval-cache/observable-v2-20261030/prompts/rag/CASE-007.md",
+      "prompt_sha256": "45286b16e81c4ba2474bcae9b610d03b135999c166b30cbcd0c61bb8c8eeb60a",
+      "input_sha256": "58946ca120b9224d41fdb74a09c024db585f78c3ee1f38a2369d7f5aab2e5b83",
+      "knowledge_tokens_estimated": 1158
+    },
+    {
+      "case_id": "CASE-007",
+      "strategy": "rules",
+      "prompt_file": "/workspace/ontology-demo/.eval-cache/observable-v2-20261030/prompts/rules/CASE-007.md",
+      "prompt_sha256": "a1c8c336cc2c83c98f1076e3516e8f394c4ac47902b34beaf451d5b7099bfad7",
+      "input_sha256": "58946ca120b9224d41fdb74a09c024db585f78c3ee1f38a2369d7f5aab2e5b83",
+      "knowledge_tokens_estimated": 1118
+    },
+    {
+      "case_id": "CASE-008",
+      "strategy": "baseline",
+      "prompt_file": "/workspace/ontology-demo/.eval-cache/observable-v2-20261030/prompts/baseline/CASE-008.md",
+      "prompt_sha256": "fc1b2856af1670b890c69ddfc717dd021fb12da0fc0e416e2ad4800043723521",
+      "input_sha256": "38684094211a714c0721c8814ba18e6671c2f610150b21bccddd0b3e63de2906",
+      "knowledge_tokens_estimated": 0
+    },
+    {
+      "case_id": "CASE-008",
+      "strategy": "rag",
+      "prompt_file": "/workspace/ontology-demo/.eval-cache/observable-v2-20261030/prompts/rag/CASE-008.md",
+      "prompt_sha256": "9240bd725fb6185ae8faae82dc7e5bdfb6fc2d8d9213aae368e69b0fa741657f",
+      "input_sha256": "38684094211a714c0721c8814ba18e6671c2f610150b21bccddd0b3e63de2906",
+      "knowledge_tokens_estimated": 1143
+    },
+    {
+      "case_id": "CASE-008",
+      "strategy": "rules",
+      "prompt_file": "/workspace/ontology-demo/.eval-cache/observable-v2-20261030/prompts/rules/CASE-008.md",
+      "prompt_sha256": "507f25a22c701c3819273b00a0302d91c12757f918c11141c238bbeaf5c4567c",
+      "input_sha256": "38684094211a714c0721c8814ba18e6671c2f610150b21bccddd0b3e63de2906",
+      "knowledge_tokens_estimated": 1124
+    },
+    {
+      "case_id": "CASE-010",
+      "strategy": "baseline",
+      "prompt_file": "/workspace/ontology-demo/.eval-cache/observable-v2-20261030/prompts/baseline/CASE-010.md",
+      "prompt_sha256": "309258ae2ed4fc04189255143b49167d675547df1fd0f3c0ececbaa32185c755",
+      "input_sha256": "5f9e4b717cd0ff52b19a2bc4ec623d5ec2f3c9cbce2f4fad7b3c3e0080c37064",
+      "knowledge_tokens_estimated": 0
+    },
+    {
+      "case_id": "CASE-010",
+      "strategy": "rag",
+      "prompt_file": "/workspace/ontology-demo/.eval-cache/observable-v2-20261030/prompts/rag/CASE-010.md",
+      "prompt_sha256": "5fa45277f9702698a14119f78c49b712bbf61c84786b6c30567b28f9759044c0",
+      "input_sha256": "5f9e4b717cd0ff52b19a2bc4ec623d5ec2f3c9cbce2f4fad7b3c3e0080c37064",
+      "knowledge_tokens_estimated": 1181
+    },
+    {
+      "case_id": "CASE-010",
+      "strategy": "rules",
+      "prompt_file": "/workspace/ontology-demo/.eval-cache/observable-v2-20261030/prompts/rules/CASE-010.md",
+      "prompt_sha256": "29192c2652850d62cc4422e7a1cf6cf52c260e7a63cb80338ae5aef4cbd154e4",
+      "input_sha256": "5f9e4b717cd0ff52b19a2bc4ec623d5ec2f3c9cbce2f4fad7b3c3e0080c37064",
+      "knowledge_tokens_estimated": 1182
+    },
+    {
+      "case_id": "CASE-011",
+      "strategy": "baseline",
+      "prompt_file": "/workspace/ontology-demo/.eval-cache/observable-v2-20261030/prompts/baseline/CASE-011.md",
+      "prompt_sha256": "1ced8861399578f104611282ecfd31584ce3850e44b296d03bcf74ad7a0fbd43",
+      "input_sha256": "85f391799c12df39a449aa1ca74a1a5f8a10ce8b2c5ef64c56abf8d68f8a7c19",
+      "knowledge_tokens_estimated": 0
+    },
+    {
+      "case_id": "CASE-011",
+      "strategy": "rag",
+      "prompt_file": "/workspace/ontology-demo/.eval-cache/observable-v2-20261030/prompts/rag/CASE-011.md",
+      "prompt_sha256": "3dd354fbb07b433309a80486a60d6ae0b9dad4a5dcb685930ed19cde046989ba",
+      "input_sha256": "85f391799c12df39a449aa1ca74a1a5f8a10ce8b2c5ef64c56abf8d68f8a7c19",
+      "knowledge_tokens_estimated": 1130
+    },
+    {
+      "case_id": "CASE-011",
+      "strategy": "rules",
+      "prompt_file": "/workspace/ontology-demo/.eval-cache/observable-v2-20261030/prompts/rules/CASE-011.md",
+      "prompt_sha256": "ca382adc050af55ec2f09cc0da07e30108a21341d7736628db850721d2733962",
+      "input_sha256": "85f391799c12df39a449aa1ca74a1a5f8a10ce8b2c5ef64c56abf8d68f8a7c19",
+      "knowledge_tokens_estimated": 1195
+    },
+    {
+      "case_id": "CASE-020",
+      "strategy": "baseline",
+      "prompt_file": "/workspace/ontology-demo/.eval-cache/observable-v2-20261030/prompts/baseline/CASE-020.md",
+      "prompt_sha256": "32a91bfe7e3a74274cdb42abaab8688f8ad2b3c4107707a378cf4c9130c8b922",
+      "input_sha256": "90aed6276a7f9b50e6953e6c8434f05398f9e83d1ae5dd3ce30acc60d1ee43d4",
+      "knowledge_tokens_estimated": 0
+    },
+    {
+      "case_id": "CASE-020",
+      "strategy": "rag",
+      "prompt_file": "/workspace/ontology-demo/.eval-cache/observable-v2-20261030/prompts/rag/CASE-020.md",
+      "prompt_sha256": "8108775c763004b8c96d1ed31d5e1a2425daf4d8c683998a4f742fbd77e5de9f",
+      "input_sha256": "90aed6276a7f9b50e6953e6c8434f05398f9e83d1ae5dd3ce30acc60d1ee43d4",
+      "knowledge_tokens_estimated": 1193
+    },
+    {
+      "case_id": "CASE-020",
+      "strategy": "rules",
+      "prompt_file": "/workspace/ontology-demo/.eval-cache/observable-v2-20261030/prompts/rules/CASE-020.md",
+      "prompt_sha256": "efa951c2537441eda6d432b4edb22e0765e012ed097252c1753bcbaef18cb9e5",
+      "input_sha256": "90aed6276a7f9b50e6953e6c8434f05398f9e83d1ae5dd3ce30acc60d1ee43d4",
+      "knowledge_tokens_estimated": 1196
+    }
+  ]
+}

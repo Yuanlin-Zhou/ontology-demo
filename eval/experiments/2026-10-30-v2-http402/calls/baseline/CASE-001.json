@@ -1,0 +1,10 @@
+{
+  "case_id": "CASE-001",
+  "strategy": "baseline",
+  "model": "deepseek-flash",
+  "prompt_sha256": "285a5e029630ef82475a4e10a90361967cb148044edc0577a6c1e8cfc2bf1092",
+  "elapsed_ms": 1317,
+  "status": "failed",
+  "failure": "Provider exited 1 (HTTP 402)",
+  "source_sha256": null
+}

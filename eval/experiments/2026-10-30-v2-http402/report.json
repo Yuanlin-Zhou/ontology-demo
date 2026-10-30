@@ -1,0 +1,2943 @@
+{
+  "generated_at": "2026-10-30T02:34:40.511Z",
+  "rule_count": 26,
+  "case_count": 9,
+  "token_budget": 1200,
+  "strategies": [
+    {
+      "strategy": "baseline",
+      "cases": 9,
+      "rule_retrieval_applicable": false,
+      "rule_precision": 0,
+      "rule_recall": 0,
+      "rule_f1": 0,
+      "feature_precision": 0,
+      "feature_recall": 0,
+      "feature_f1": 0,
+      "avg_context_tokens": 0,
+      "avg_context_tokens_budgeted": 0,
+      "avg_retrieved_rules": 0,
+      "context_tokens_total": 0
+    },
+    {
+      "strategy": "rag",
+      "cases": 9,
+      "rule_retrieval_applicable": false,
+      "rule_precision": 0,
+      "rule_recall": 0,
+      "rule_f1": 0,
+      "feature_precision": 0,
+      "feature_recall": 0,
+      "feature_f1": 0,
+      "avg_context_tokens": 1164,
+      "avg_context_tokens_budgeted": 1164,
+      "avg_retrieved_rules": 0,
+      "context_tokens_total": 10477,
+      "reference_recall": 0.189
+    },
+    {
+      "strategy": "rules",
+      "cases": 9,
+      "rule_retrieval_applicable": true,
+      "rule_precision": 1,
+      "rule_recall": 1,
+      "rule_f1": 1,
+      "feature_precision": 1,
+      "feature_recall": 1,
+      "feature_f1": 1,
+      "avg_context_tokens": 2850,
+      "avg_context_tokens_budgeted": 1167,
+      "avg_retrieved_rules": 16.3,
+      "context_tokens_total": 25651
+    }
+  ],
+  "retrieval": [
+    {
+      "case_id": "CASE-001",
+      "strategy": "baseline",
+      "expected_rules": [
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-004",
+        "TP-CONFIG-005",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-003",
+        "TP-SHUTDOWN-001",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005"
+      ],
+      "retrieved_rules": [],
+      "expected_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CREATE.EXECUTORS_FACTORY",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE"
+      ],
+      "retrieved_features": [],
+      "rule_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 12
+      },
+      "feature_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 7
+      },
+      "context_tokens": 0,
+      "context_tokens_budgeted": 0,
+      "prompt_tokens": 438
+    },
+    {
+      "case_id": "CASE-002",
+      "strategy": "baseline",
+      "expected_rules": [
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-004",
+        "TP-CONFIG-005",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-003",
+        "TP-SHUTDOWN-001",
+        "TP-SHUTDOWN-003",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-002",
+        "TP-SUBMIT-004"
+      ],
+      "retrieved_rules": [],
+      "expected_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CREATE.EXECUTORS_FACTORY",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.FUTURE.GET",
+        "THREAD_POOL.THREAD_LOCAL"
+      ],
+      "retrieved_features": [],
+      "rule_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 14
+      },
+      "feature_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 8
+      },
+      "context_tokens": 0,
+      "context_tokens_budgeted": 0,
+      "prompt_tokens": 539
+    },
+    {
+      "case_id": "CASE-003",
+      "strategy": "baseline",
+      "expected_rules": [
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-003",
+        "TP-CONFIG-004",
+        "TP-CONFIG-005",
+        "TP-CONFIG-006",
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-002",
+        "TP-REJECT-003",
+        "TP-REJECT-004",
+        "TP-SHUTDOWN-001",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005"
+      ],
+      "retrieved_rules": [],
+      "expected_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.CONFIG.REJECTION",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE",
+        "THREAD_POOL.EXCEPTION"
+      ],
+      "retrieved_features": [],
+      "rule_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 16
+      },
+      "feature_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 9
+      },
+      "context_tokens": 0,
+      "context_tokens_budgeted": 0,
+      "prompt_tokens": 527
+    },
+    {
+      "case_id": "CASE-006",
+      "strategy": "baseline",
+      "expected_rules": [
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-003",
+        "TP-CONFIG-004",
+        "TP-CONFIG-005",
+        "TP-CONFIG-006",
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-CREATE-004",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-002",
+        "TP-REJECT-003",
+        "TP-REJECT-004",
+        "TP-SHUTDOWN-001",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005"
+      ],
+      "retrieved_rules": [],
+      "expected_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.CONFIG.REJECTION",
+        "THREAD_POOL.CONFIG.THREAD_FACTORY",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE"
+      ],
+      "retrieved_features": [],
+      "rule_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 17
+      },
+      "feature_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 9
+      },
+      "context_tokens": 0,
+      "context_tokens_budgeted": 0,
+      "prompt_tokens": 582
+    },
+    {
+      "case_id": "CASE-007",
+      "strategy": "baseline",
+      "expected_rules": [
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-003",
+        "TP-CONFIG-004",
+        "TP-CONFIG-005",
+        "TP-CONFIG-006",
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-CREATE-004",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-002",
+        "TP-REJECT-003",
+        "TP-REJECT-004",
+        "TP-SHUTDOWN-001",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005"
+      ],
+      "retrieved_rules": [],
+      "expected_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.CONFIG.REJECTION",
+        "THREAD_POOL.CONFIG.THREAD_FACTORY",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE"
+      ],
+      "retrieved_features": [],
+      "rule_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 17
+      },
+      "feature_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 9
+      },
+      "context_tokens": 0,
+      "context_tokens_budgeted": 0,
+      "prompt_tokens": 552
+    },
+    {
+      "case_id": "CASE-008",
+      "strategy": "baseline",
+      "expected_rules": [
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-003",
+        "TP-CONFIG-004",
+        "TP-CONFIG-005",
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-003",
+        "TP-SHUTDOWN-001",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005"
+      ],
+      "retrieved_rules": [],
+      "expected_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE"
+      ],
+      "retrieved_features": [],
+      "rule_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 13
+      },
+      "feature_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 7
+      },
+      "context_tokens": 0,
+      "context_tokens_budgeted": 0,
+      "prompt_tokens": 440
+    },
+    {
+      "case_id": "CASE-010",
+      "strategy": "baseline",
+      "expected_rules": [
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-003",
+        "TP-CONFIG-004",
+        "TP-CONFIG-005",
+        "TP-CONFIG-006",
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-CREATE-004",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-002",
+        "TP-REJECT-003",
+        "TP-REJECT-004",
+        "TP-SHUTDOWN-001",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005"
+      ],
+      "retrieved_rules": [],
+      "expected_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.CONFIG.REJECTION",
+        "THREAD_POOL.CONFIG.THREAD_FACTORY",
+        "THREAD_POOL.THREAD_FACTORY.CUSTOM_IMPL",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE"
+      ],
+      "retrieved_features": [],
+      "rule_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 17
+      },
+      "feature_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 10
+      },
+      "context_tokens": 0,
+      "context_tokens_budgeted": 0,
+      "prompt_tokens": 502
+    },
+    {
+      "case_id": "CASE-011",
+      "strategy": "baseline",
+      "expected_rules": [
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-003",
+        "TP-CONFIG-004",
+        "TP-CONFIG-005",
+        "TP-CONFIG-006",
+        "TP-CREATE-001",
+        "TP-CREATE-002",
+        "TP-CREATE-003",
+        "TP-CREATE-004",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-002",
+        "TP-REJECT-003",
+        "TP-REJECT-004",
+        "TP-SHUTDOWN-001",
+        "TP-SHUTDOWN-002",
+        "TP-SHUTDOWN-003",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005"
+      ],
+      "retrieved_rules": [],
+      "expected_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CREATE.PER_REQUEST",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.CONFIG.REJECTION",
+        "THREAD_POOL.CONFIG.THREAD_FACTORY",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE",
+        "THREAD_POOL.EXCEPTION",
+        "THREAD_POOL.SHUTDOWN"
+      ],
+      "retrieved_features": [],
+      "rule_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 20
+      },
+      "feature_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 12
+      },
+      "context_tokens": 0,
+      "context_tokens_budgeted": 0,
+      "prompt_tokens": 625
+    },
+    {
+      "case_id": "CASE-020",
+      "strategy": "baseline",
+      "expected_rules": [
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-003",
+        "TP-CONFIG-004",
+        "TP-CONFIG-005",
+        "TP-CONFIG-006",
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-CREATE-004",
+        "TP-CREATE-005",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-002",
+        "TP-REJECT-004",
+        "TP-SHUTDOWN-001",
+        "TP-SHUTDOWN-002",
+        "TP-SHUTDOWN-003",
+        "TP-SHUTDOWN-004",
+        "TP-SUBMIT-002",
+        "TP-SUBMIT-003",
+        "TP-SUBMIT-004"
+      ],
+      "retrieved_rules": [],
+      "expected_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.CONFIG.REJECTION",
+        "THREAD_POOL.CONFIG.THREAD_FACTORY",
+        "THREAD_POOL.THREAD_LOCAL",
+        "THREAD_POOL.COMPLETABLE_FUTURE",
+        "THREAD_POOL.FUTURE.GET",
+        "THREAD_POOL.MONITOR",
+        "THREAD_POOL.SHUTDOWN",
+        "THREAD_POOL.SHUTDOWN_NOW",
+        "THREAD_POOL.AWAIT_TERMINATION",
+        "SPRING.PRE_DESTROY"
+      ],
+      "retrieved_features": [],
+      "rule_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 21
+      },
+      "feature_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 15
+      },
+      "context_tokens": 0,
+      "context_tokens_budgeted": 0,
+      "prompt_tokens": 1289
+    },
+    {
+      "case_id": "CASE-001",
+      "strategy": "rag",
+      "expected_rules": [
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-004",
+        "TP-CONFIG-005",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-003",
+        "TP-SHUTDOWN-001",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005"
+      ],
+      "retrieved_rules": [],
+      "expected_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CREATE.EXECUTORS_FACTORY",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE"
+      ],
+      "retrieved_features": [],
+      "rule_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 12
+      },
+      "feature_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 7
+      },
+      "context_tokens": 1194,
+      "context_tokens_budgeted": 1194,
+      "prompt_tokens": 1643,
+      "reference_recall": 0.667
+    },
+    {
+      "case_id": "CASE-002",
+      "strategy": "rag",
+      "expected_rules": [
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-004",
+        "TP-CONFIG-005",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-003",
+        "TP-SHUTDOWN-001",
+        "TP-SHUTDOWN-003",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-002",
+        "TP-SUBMIT-004"
+      ],
+      "retrieved_rules": [],
+      "expected_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CREATE.EXECUTORS_FACTORY",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.FUTURE.GET",
+        "THREAD_POOL.THREAD_LOCAL"
+      ],
+      "retrieved_features": [],
+      "rule_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 14
+      },
+      "feature_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 8
+      },
+      "context_tokens": 1192,
+      "context_tokens_budgeted": 1192,
+      "prompt_tokens": 1733,
+      "reference_recall": 0.1
+    },
+    {
+      "case_id": "CASE-003",
+      "strategy": "rag",
+      "expected_rules": [
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-003",
+        "TP-CONFIG-004",
+        "TP-CONFIG-005",
+        "TP-CONFIG-006",
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-002",
+        "TP-REJECT-003",
+        "TP-REJECT-004",
+        "TP-SHUTDOWN-001",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005"
+      ],
+      "retrieved_rules": [],
+      "expected_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.CONFIG.REJECTION",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE",
+        "THREAD_POOL.EXCEPTION"
+      ],
+      "retrieved_features": [],
+      "rule_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 16
+      },
+      "feature_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 9
+      },
+      "context_tokens": 1147,
+      "context_tokens_budgeted": 1147,
+      "prompt_tokens": 1689,
+      "reference_recall": 0.111
+    },
+    {
+      "case_id": "CASE-006",
+      "strategy": "rag",
+      "expected_rules": [
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-003",
+        "TP-CONFIG-004",
+        "TP-CONFIG-005",
+        "TP-CONFIG-006",
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-CREATE-004",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-002",
+        "TP-REJECT-003",
+        "TP-REJECT-004",
+        "TP-SHUTDOWN-001",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005"
+      ],
+      "retrieved_rules": [],
+      "expected_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.CONFIG.REJECTION",
+        "THREAD_POOL.CONFIG.THREAD_FACTORY",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE"
+      ],
+      "retrieved_features": [],
+      "rule_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 17
+      },
+      "feature_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 9
+      },
+      "context_tokens": 1139,
+      "context_tokens_budgeted": 1139,
+      "prompt_tokens": 1737,
+      "reference_recall": 0.111
+    },
+    {
+      "case_id": "CASE-007",
+      "strategy": "rag",
+      "expected_rules": [
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-003",
+        "TP-CONFIG-004",
+        "TP-CONFIG-005",
+        "TP-CONFIG-006",
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-CREATE-004",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-002",
+        "TP-REJECT-003",
+        "TP-REJECT-004",
+        "TP-SHUTDOWN-001",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005"
+      ],
+      "retrieved_rules": [],
+      "expected_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.CONFIG.REJECTION",
+        "THREAD_POOL.CONFIG.THREAD_FACTORY",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE"
+      ],
+      "retrieved_features": [],
+      "rule_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 17
+      },
+      "feature_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 9
+      },
+      "context_tokens": 1158,
+      "context_tokens_budgeted": 1158,
+      "prompt_tokens": 1710,
+      "reference_recall": 0.111
+    },
+    {
+      "case_id": "CASE-008",
+      "strategy": "rag",
+      "expected_rules": [
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-003",
+        "TP-CONFIG-004",
+        "TP-CONFIG-005",
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-003",
+        "TP-SHUTDOWN-001",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005"
+      ],
+      "retrieved_rules": [],
+      "expected_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE"
+      ],
+      "retrieved_features": [],
+      "rule_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 13
+      },
+      "feature_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 7
+      },
+      "context_tokens": 1143,
+      "context_tokens_budgeted": 1143,
+      "prompt_tokens": 1583,
+      "reference_recall": 0.111
+    },
+    {
+      "case_id": "CASE-010",
+      "strategy": "rag",
+      "expected_rules": [
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-003",
+        "TP-CONFIG-004",
+        "TP-CONFIG-005",
+        "TP-CONFIG-006",
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-CREATE-004",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-002",
+        "TP-REJECT-003",
+        "TP-REJECT-004",
+        "TP-SHUTDOWN-001",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005"
+      ],
+      "retrieved_rules": [],
+      "expected_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.CONFIG.REJECTION",
+        "THREAD_POOL.CONFIG.THREAD_FACTORY",
+        "THREAD_POOL.THREAD_FACTORY.CUSTOM_IMPL",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE"
+      ],
+      "retrieved_features": [],
+      "rule_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 17
+      },
+      "feature_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 10
+      },
+      "context_tokens": 1181,
+      "context_tokens_budgeted": 1181,
+      "prompt_tokens": 1688,
+      "reference_recall": 0.111
+    },
+    {
+      "case_id": "CASE-011",
+      "strategy": "rag",
+      "expected_rules": [
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-003",
+        "TP-CONFIG-004",
+        "TP-CONFIG-005",
+        "TP-CONFIG-006",
+        "TP-CREATE-001",
+        "TP-CREATE-002",
+        "TP-CREATE-003",
+        "TP-CREATE-004",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-002",
+        "TP-REJECT-003",
+        "TP-REJECT-004",
+        "TP-SHUTDOWN-001",
+        "TP-SHUTDOWN-002",
+        "TP-SHUTDOWN-003",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005"
+      ],
+      "retrieved_rules": [],
+      "expected_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CREATE.PER_REQUEST",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.CONFIG.REJECTION",
+        "THREAD_POOL.CONFIG.THREAD_FACTORY",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE",
+        "THREAD_POOL.EXCEPTION",
+        "THREAD_POOL.SHUTDOWN"
+      ],
+      "retrieved_features": [],
+      "rule_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 20
+      },
+      "feature_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 12
+      },
+      "context_tokens": 1130,
+      "context_tokens_budgeted": 1130,
+      "prompt_tokens": 1770,
+      "reference_recall": 0.2
+    },
+    {
+      "case_id": "CASE-020",
+      "strategy": "rag",
+      "expected_rules": [
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-003",
+        "TP-CONFIG-004",
+        "TP-CONFIG-005",
+        "TP-CONFIG-006",
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-CREATE-004",
+        "TP-CREATE-005",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-002",
+        "TP-REJECT-004",
+        "TP-SHUTDOWN-001",
+        "TP-SHUTDOWN-002",
+        "TP-SHUTDOWN-003",
+        "TP-SHUTDOWN-004",
+        "TP-SUBMIT-002",
+        "TP-SUBMIT-003",
+        "TP-SUBMIT-004"
+      ],
+      "retrieved_rules": [],
+      "expected_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.CONFIG.REJECTION",
+        "THREAD_POOL.CONFIG.THREAD_FACTORY",
+        "THREAD_POOL.THREAD_LOCAL",
+        "THREAD_POOL.COMPLETABLE_FUTURE",
+        "THREAD_POOL.FUTURE.GET",
+        "THREAD_POOL.MONITOR",
+        "THREAD_POOL.SHUTDOWN",
+        "THREAD_POOL.SHUTDOWN_NOW",
+        "THREAD_POOL.AWAIT_TERMINATION",
+        "SPRING.PRE_DESTROY"
+      ],
+      "retrieved_features": [],
+      "rule_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 21
+      },
+      "feature_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 15
+      },
+      "context_tokens": 1193,
+      "context_tokens_budgeted": 1193,
+      "prompt_tokens": 2484,
+      "reference_recall": 0.182
+    },
+    {
+      "case_id": "CASE-001",
+      "strategy": "rules",
+      "expected_rules": [
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-004",
+        "TP-CONFIG-005",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-003",
+        "TP-SHUTDOWN-001",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005"
+      ],
+      "retrieved_rules": [
+        "TP-CONFIG-004",
+        "TP-CREATE-001",
+        "TP-SHUTDOWN-001",
+        "TP-REJECT-003",
+        "TP-CREATE-003",
+        "TP-MONITOR-001",
+        "TP-CONFIG-002",
+        "TP-REJECT-001",
+        "TP-CONFIG-001",
+        "TP-CONFIG-005",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005"
+      ],
+      "expected_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CREATE.EXECUTORS_FACTORY",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE"
+      ],
+      "retrieved_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CREATE.EXECUTORS_FACTORY",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE"
+      ],
+      "rule_metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 12,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "feature_metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 7,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "context_tokens": 2244,
+      "context_tokens_budgeted": 1167,
+      "prompt_tokens": 1608
+    },
+    {
+      "case_id": "CASE-002",
+      "strategy": "rules",
+      "expected_rules": [
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-004",
+        "TP-CONFIG-005",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-003",
+        "TP-SHUTDOWN-001",
+        "TP-SHUTDOWN-003",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-002",
+        "TP-SUBMIT-004"
+      ],
+      "retrieved_rules": [
+        "TP-CONFIG-004",
+        "TP-CREATE-001",
+        "TP-SHUTDOWN-001",
+        "TP-SUBMIT-004",
+        "TP-REJECT-003",
+        "TP-CREATE-003",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-002",
+        "TP-MONITOR-001",
+        "TP-CONFIG-002",
+        "TP-REJECT-001",
+        "TP-CONFIG-001",
+        "TP-CONFIG-005",
+        "TP-SHUTDOWN-003"
+      ],
+      "expected_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CREATE.EXECUTORS_FACTORY",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.FUTURE.GET",
+        "THREAD_POOL.THREAD_LOCAL"
+      ],
+      "retrieved_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CREATE.EXECUTORS_FACTORY",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.FUTURE.GET",
+        "THREAD_POOL.THREAD_LOCAL"
+      ],
+      "rule_metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 14,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "feature_metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 8,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "context_tokens": 2488,
+      "context_tokens_budgeted": 1182,
+      "prompt_tokens": 1721
+    },
+    {
+      "case_id": "CASE-003",
+      "strategy": "rules",
+      "expected_rules": [
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-003",
+        "TP-CONFIG-004",
+        "TP-CONFIG-005",
+        "TP-CONFIG-006",
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-002",
+        "TP-REJECT-003",
+        "TP-REJECT-004",
+        "TP-SHUTDOWN-001",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005"
+      ],
+      "retrieved_rules": [
+        "TP-CONFIG-004",
+        "TP-SHUTDOWN-001",
+        "TP-CREATE-003",
+        "TP-MONITOR-001",
+        "TP-CONFIG-002",
+        "TP-CREATE-001",
+        "TP-REJECT-001",
+        "TP-CONFIG-001",
+        "TP-CONFIG-005",
+        "TP-REJECT-002",
+        "TP-REJECT-003",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005",
+        "TP-CONFIG-003",
+        "TP-CONFIG-006",
+        "TP-REJECT-004"
+      ],
+      "expected_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.CONFIG.REJECTION",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE",
+        "THREAD_POOL.EXCEPTION"
+      ],
+      "retrieved_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.CONFIG.REJECTION",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE",
+        "THREAD_POOL.EXCEPTION"
+      ],
+      "rule_metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 16,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "feature_metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 9,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "context_tokens": 2839,
+      "context_tokens_budgeted": 1199,
+      "prompt_tokens": 1740
+    },
+    {
+      "case_id": "CASE-006",
+      "strategy": "rules",
+      "expected_rules": [
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-003",
+        "TP-CONFIG-004",
+        "TP-CONFIG-005",
+        "TP-CONFIG-006",
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-CREATE-004",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-002",
+        "TP-REJECT-003",
+        "TP-REJECT-004",
+        "TP-SHUTDOWN-001",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005"
+      ],
+      "retrieved_rules": [
+        "TP-CONFIG-004",
+        "TP-SHUTDOWN-001",
+        "TP-CONFIG-006",
+        "TP-MONITOR-001",
+        "TP-CONFIG-002",
+        "TP-CREATE-001",
+        "TP-REJECT-001",
+        "TP-CONFIG-001",
+        "TP-CONFIG-005",
+        "TP-CREATE-003",
+        "TP-REJECT-002",
+        "TP-REJECT-003",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005",
+        "TP-CONFIG-003",
+        "TP-CREATE-004",
+        "TP-REJECT-004"
+      ],
+      "expected_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.CONFIG.REJECTION",
+        "THREAD_POOL.CONFIG.THREAD_FACTORY",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE"
+      ],
+      "retrieved_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.CONFIG.REJECTION",
+        "THREAD_POOL.CONFIG.THREAD_FACTORY",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE"
+      ],
+      "rule_metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 17,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "feature_metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 9,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "context_tokens": 2930,
+      "context_tokens_budgeted": 1142,
+      "prompt_tokens": 1728
+    },
+    {
+      "case_id": "CASE-007",
+      "strategy": "rules",
+      "expected_rules": [
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-003",
+        "TP-CONFIG-004",
+        "TP-CONFIG-005",
+        "TP-CONFIG-006",
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-CREATE-004",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-002",
+        "TP-REJECT-003",
+        "TP-REJECT-004",
+        "TP-SHUTDOWN-001",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005"
+      ],
+      "retrieved_rules": [
+        "TP-SHUTDOWN-001",
+        "TP-REJECT-002",
+        "TP-MONITOR-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-004",
+        "TP-CREATE-001",
+        "TP-REJECT-001",
+        "TP-CONFIG-001",
+        "TP-CONFIG-005",
+        "TP-CREATE-003",
+        "TP-REJECT-003",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005",
+        "TP-CONFIG-003",
+        "TP-CONFIG-006",
+        "TP-CREATE-004",
+        "TP-REJECT-004"
+      ],
+      "expected_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.CONFIG.REJECTION",
+        "THREAD_POOL.CONFIG.THREAD_FACTORY",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE"
+      ],
+      "retrieved_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.CONFIG.REJECTION",
+        "THREAD_POOL.CONFIG.THREAD_FACTORY",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE"
+      ],
+      "rule_metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 17,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "feature_metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 9,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "context_tokens": 2930,
+      "context_tokens_budgeted": 1118,
+      "prompt_tokens": 1673
+    },
+    {
+      "case_id": "CASE-008",
+      "strategy": "rules",
+      "expected_rules": [
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-003",
+        "TP-CONFIG-004",
+        "TP-CONFIG-005",
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-003",
+        "TP-SHUTDOWN-001",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005"
+      ],
+      "retrieved_rules": [
+        "TP-REJECT-001",
+        "TP-SHUTDOWN-001",
+        "TP-REJECT-003",
+        "TP-CREATE-003",
+        "TP-MONITOR-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-004",
+        "TP-CREATE-001",
+        "TP-CONFIG-001",
+        "TP-CONFIG-005",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005",
+        "TP-CONFIG-003"
+      ],
+      "expected_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE"
+      ],
+      "retrieved_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE"
+      ],
+      "rule_metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 13,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "feature_metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 7,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "context_tokens": 2356,
+      "context_tokens_budgeted": 1124,
+      "prompt_tokens": 1571
+    },
+    {
+      "case_id": "CASE-010",
+      "strategy": "rules",
+      "expected_rules": [
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-003",
+        "TP-CONFIG-004",
+        "TP-CONFIG-005",
+        "TP-CONFIG-006",
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-CREATE-004",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-002",
+        "TP-REJECT-003",
+        "TP-REJECT-004",
+        "TP-SHUTDOWN-001",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005"
+      ],
+      "retrieved_rules": [
+        "TP-SHUTDOWN-001",
+        "TP-REJECT-003",
+        "TP-CREATE-004",
+        "TP-MONITOR-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-004",
+        "TP-CREATE-001",
+        "TP-REJECT-001",
+        "TP-CONFIG-001",
+        "TP-CONFIG-005",
+        "TP-CREATE-003",
+        "TP-REJECT-002",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005",
+        "TP-CONFIG-003",
+        "TP-CONFIG-006",
+        "TP-REJECT-004"
+      ],
+      "expected_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.CONFIG.REJECTION",
+        "THREAD_POOL.CONFIG.THREAD_FACTORY",
+        "THREAD_POOL.THREAD_FACTORY.CUSTOM_IMPL",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE"
+      ],
+      "retrieved_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.CONFIG.REJECTION",
+        "THREAD_POOL.CONFIG.THREAD_FACTORY",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE",
+        "THREAD_POOL.THREAD_FACTORY.CUSTOM_IMPL"
+      ],
+      "rule_metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 17,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "feature_metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 10,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "context_tokens": 2930,
+      "context_tokens_budgeted": 1182,
+      "prompt_tokens": 1685
+    },
+    {
+      "case_id": "CASE-011",
+      "strategy": "rules",
+      "expected_rules": [
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-003",
+        "TP-CONFIG-004",
+        "TP-CONFIG-005",
+        "TP-CONFIG-006",
+        "TP-CREATE-001",
+        "TP-CREATE-002",
+        "TP-CREATE-003",
+        "TP-CREATE-004",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-002",
+        "TP-REJECT-003",
+        "TP-REJECT-004",
+        "TP-SHUTDOWN-001",
+        "TP-SHUTDOWN-002",
+        "TP-SHUTDOWN-003",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005"
+      ],
+      "retrieved_rules": [
+        "TP-CREATE-002",
+        "TP-SHUTDOWN-002",
+        "TP-CONFIG-002",
+        "TP-CONFIG-004",
+        "TP-CREATE-001",
+        "TP-REJECT-001",
+        "TP-SHUTDOWN-001",
+        "TP-CONFIG-001",
+        "TP-CONFIG-005",
+        "TP-CREATE-003",
+        "TP-REJECT-002",
+        "TP-REJECT-003",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005",
+        "TP-CONFIG-003",
+        "TP-CONFIG-006",
+        "TP-CREATE-004",
+        "TP-MONITOR-001",
+        "TP-REJECT-004",
+        "TP-SHUTDOWN-003"
+      ],
+      "expected_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CREATE.PER_REQUEST",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.CONFIG.REJECTION",
+        "THREAD_POOL.CONFIG.THREAD_FACTORY",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE",
+        "THREAD_POOL.EXCEPTION",
+        "THREAD_POOL.SHUTDOWN"
+      ],
+      "retrieved_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CREATE.PER_REQUEST",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.CONFIG.REJECTION",
+        "THREAD_POOL.CONFIG.THREAD_FACTORY",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE",
+        "THREAD_POOL.EXCEPTION",
+        "THREAD_POOL.SHUTDOWN"
+      ],
+      "rule_metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 20,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "feature_metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 12,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "context_tokens": 3420,
+      "context_tokens_budgeted": 1195,
+      "prompt_tokens": 1828
+    },
+    {
+      "case_id": "CASE-020",
+      "strategy": "rules",
+      "expected_rules": [
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-003",
+        "TP-CONFIG-004",
+        "TP-CONFIG-005",
+        "TP-CONFIG-006",
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-CREATE-004",
+        "TP-CREATE-005",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-002",
+        "TP-REJECT-004",
+        "TP-SHUTDOWN-001",
+        "TP-SHUTDOWN-002",
+        "TP-SHUTDOWN-003",
+        "TP-SHUTDOWN-004",
+        "TP-SUBMIT-002",
+        "TP-SUBMIT-003",
+        "TP-SUBMIT-004"
+      ],
+      "retrieved_rules": [
+        "TP-SUBMIT-004",
+        "TP-CONFIG-002",
+        "TP-CONFIG-004",
+        "TP-CREATE-001",
+        "TP-REJECT-001",
+        "TP-SHUTDOWN-001",
+        "TP-CONFIG-001",
+        "TP-CONFIG-005",
+        "TP-CREATE-003",
+        "TP-REJECT-002",
+        "TP-SHUTDOWN-002",
+        "TP-SUBMIT-002",
+        "TP-SUBMIT-003",
+        "TP-CONFIG-003",
+        "TP-CONFIG-006",
+        "TP-CREATE-004",
+        "TP-CREATE-005",
+        "TP-MONITOR-001",
+        "TP-REJECT-004",
+        "TP-SHUTDOWN-003",
+        "TP-SHUTDOWN-004"
+      ],
+      "expected_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.CONFIG.REJECTION",
+        "THREAD_POOL.CONFIG.THREAD_FACTORY",
+        "THREAD_POOL.THREAD_LOCAL",
+        "THREAD_POOL.COMPLETABLE_FUTURE",
+        "THREAD_POOL.FUTURE.GET",
+        "THREAD_POOL.MONITOR",
+        "THREAD_POOL.SHUTDOWN",
+        "THREAD_POOL.SHUTDOWN_NOW",
+        "THREAD_POOL.AWAIT_TERMINATION",
+        "SPRING.PRE_DESTROY"
+      ],
+      "retrieved_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.CONFIG.REJECTION",
+        "THREAD_POOL.CONFIG.THREAD_FACTORY",
+        "THREAD_POOL.SHUTDOWN",
+        "THREAD_POOL.SHUTDOWN_NOW",
+        "THREAD_POOL.AWAIT_TERMINATION",
+        "THREAD_POOL.FUTURE.GET",
+        "THREAD_POOL.COMPLETABLE_FUTURE",
+        "THREAD_POOL.THREAD_LOCAL",
+        "THREAD_POOL.MONITOR",
+        "SPRING.PRE_DESTROY"
+      ],
+      "rule_metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 21,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "feature_metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 15,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "context_tokens": 3514,
+      "context_tokens_budgeted": 1196,
+      "prompt_tokens": 2492
+    }
+  ],
+  "validation": [
+    {
+      "case_id": "CASE-001",
+      "target": "bad",
+      "reported_violations": [
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-MONITOR-001",
+        "TP-SHUTDOWN-001",
+        "TP-REJECT-003"
+      ],
+      "expected_violations": [
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-MONITOR-001",
+        "TP-REJECT-003",
+        "TP-SHUTDOWN-001"
+      ],
+      "metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 7,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "errors": 5,
+      "warnings": 2,
+      "infos": 0,
+      "checked_rules": 12
+    },
+    {
+      "case_id": "CASE-001",
+      "target": "good",
+      "reported_violations": [
+        "TP-REJECT-004"
+      ],
+      "expected_violations": [
+        "TP-REJECT-004"
+      ],
+      "metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 1,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "errors": 0,
+      "warnings": 0,
+      "infos": 1,
+      "checked_rules": 21
+    },
+    {
+      "case_id": "CASE-002",
+      "target": "bad",
+      "reported_violations": [
+        "TP-CONFIG-004",
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-MONITOR-001",
+        "TP-SHUTDOWN-001",
+        "TP-REJECT-003",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-004",
+        "TP-REJECT-003",
+        "TP-SUBMIT-002"
+      ],
+      "expected_violations": [
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-CONFIG-004",
+        "TP-MONITOR-001",
+        "TP-REJECT-003",
+        "TP-SHUTDOWN-001",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-002",
+        "TP-SUBMIT-004"
+      ],
+      "metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 9,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "errors": 6,
+      "warnings": 4,
+      "infos": 0,
+      "checked_rules": 14
+    },
+    {
+      "case_id": "CASE-002",
+      "target": "good",
+      "reported_violations": [
+        "TP-REJECT-004"
+      ],
+      "expected_violations": [
+        "TP-REJECT-004"
+      ],
+      "metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 1,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "errors": 0,
+      "warnings": 0,
+      "infos": 1,
+      "checked_rules": 23
+    },
+    {
+      "case_id": "CASE-003",
+      "target": "bad",
+      "reported_violations": [
+        "TP-CONFIG-005",
+        "TP-CREATE-003",
+        "TP-MONITOR-001",
+        "TP-SHUTDOWN-001",
+        "TP-REJECT-003",
+        "TP-SUBMIT-001"
+      ],
+      "expected_violations": [
+        "TP-CONFIG-005",
+        "TP-CREATE-003",
+        "TP-MONITOR-001",
+        "TP-REJECT-003",
+        "TP-SHUTDOWN-001",
+        "TP-SUBMIT-001"
+      ],
+      "metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 6,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "errors": 2,
+      "warnings": 4,
+      "infos": 0,
+      "checked_rules": 15
+    },
+    {
+      "case_id": "CASE-003",
+      "target": "good",
+      "reported_violations": [],
+      "expected_violations": [],
+      "metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "errors": 0,
+      "warnings": 0,
+      "infos": 0,
+      "checked_rules": 21
+    },
+    {
+      "case_id": "CASE-006",
+      "target": "bad",
+      "reported_violations": [
+        "TP-CONFIG-004",
+        "TP-CONFIG-006",
+        "TP-MONITOR-001",
+        "TP-SHUTDOWN-001"
+      ],
+      "expected_violations": [
+        "TP-CONFIG-004",
+        "TP-CONFIG-006",
+        "TP-MONITOR-001",
+        "TP-SHUTDOWN-001"
+      ],
+      "metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 4,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "errors": 3,
+      "warnings": 1,
+      "infos": 0,
+      "checked_rules": 17
+    },
+    {
+      "case_id": "CASE-006",
+      "target": "good",
+      "reported_violations": [],
+      "expected_violations": [],
+      "metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "errors": 0,
+      "warnings": 0,
+      "infos": 0,
+      "checked_rules": 17
+    },
+    {
+      "case_id": "CASE-007",
+      "target": "bad",
+      "reported_violations": [
+        "TP-MONITOR-001",
+        "TP-REJECT-002",
+        "TP-SHUTDOWN-001"
+      ],
+      "expected_violations": [
+        "TP-MONITOR-001",
+        "TP-REJECT-002",
+        "TP-SHUTDOWN-001"
+      ],
+      "metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 3,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "errors": 2,
+      "warnings": 1,
+      "infos": 0,
+      "checked_rules": 17
+    },
+    {
+      "case_id": "CASE-007",
+      "target": "good",
+      "reported_violations": [],
+      "expected_violations": [],
+      "metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "errors": 0,
+      "warnings": 0,
+      "infos": 0,
+      "checked_rules": 21
+    },
+    {
+      "case_id": "CASE-008",
+      "target": "bad",
+      "reported_violations": [
+        "TP-CREATE-003",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-SHUTDOWN-001",
+        "TP-REJECT-003"
+      ],
+      "expected_violations": [
+        "TP-CREATE-003",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-003",
+        "TP-SHUTDOWN-001"
+      ],
+      "metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 5,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "errors": 3,
+      "warnings": 2,
+      "infos": 0,
+      "checked_rules": 13
+    },
+    {
+      "case_id": "CASE-008",
+      "target": "good",
+      "reported_violations": [],
+      "expected_violations": [],
+      "metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "errors": 0,
+      "warnings": 0,
+      "infos": 0,
+      "checked_rules": 21
+    },
+    {
+      "case_id": "CASE-010",
+      "target": "bad",
+      "reported_violations": [
+        "TP-CREATE-004",
+        "TP-MONITOR-001",
+        "TP-SHUTDOWN-001",
+        "TP-REJECT-003",
+        "TP-CREATE-004"
+      ],
+      "expected_violations": [
+        "TP-CREATE-004",
+        "TP-MONITOR-001",
+        "TP-REJECT-003",
+        "TP-SHUTDOWN-001"
+      ],
+      "metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 4,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "errors": 2,
+      "warnings": 3,
+      "infos": 0,
+      "checked_rules": 17
+    },
+    {
+      "case_id": "CASE-010",
+      "target": "good",
+      "reported_violations": [],
+      "expected_violations": [],
+      "metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "errors": 0,
+      "warnings": 0,
+      "infos": 0,
+      "checked_rules": 21
+    },
+    {
+      "case_id": "CASE-011",
+      "target": "bad",
+      "reported_violations": [
+        "TP-CREATE-002",
+        "TP-REJECT-003",
+        "TP-SHUTDOWN-002"
+      ],
+      "expected_violations": [
+        "TP-CREATE-002",
+        "TP-REJECT-003",
+        "TP-SHUTDOWN-002"
+      ],
+      "metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 3,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "errors": 3,
+      "warnings": 0,
+      "infos": 0,
+      "checked_rules": 20
+    },
+    {
+      "case_id": "CASE-011",
+      "target": "good",
+      "reported_violations": [],
+      "expected_violations": [],
+      "metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "errors": 0,
+      "warnings": 0,
+      "infos": 0,
+      "checked_rules": 21
+    },
+    {
+      "case_id": "CASE-020",
+      "target": "bad",
+      "reported_violations": [
+        "TP-CONFIG-004",
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-MONITOR-001",
+        "TP-SHUTDOWN-001",
+        "TP-SUBMIT-004",
+        "TP-REJECT-003",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-003",
+        "TP-SUBMIT-004"
+      ],
+      "expected_violations": [
+        "TP-CONFIG-004",
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-MONITOR-001",
+        "TP-REJECT-003",
+        "TP-SHUTDOWN-001",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-003",
+        "TP-SUBMIT-004"
+      ],
+      "metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 9,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "errors": 7,
+      "warnings": 3,
+      "infos": 0,
+      "checked_rules": 13
+    },
+    {
+      "case_id": "CASE-020",
+      "target": "good",
+      "reported_violations": [],
+      "expected_violations": [],
+      "metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "errors": 0,
+      "warnings": 0,
+      "infos": 0,
+      "checked_rules": 24
+    }
+  ],
+  "agent": [
+    {
+      "case_id": "CASE-001",
+      "strategy": "baseline",
+      "file": "/workspace/ontology-demo/.eval-cache/observable-v2-20261030/results/baseline/CASE-001.java",
+      "output": "missing",
+      "violations": 0,
+      "errors": 0,
+      "compliance": null,
+      "violated_rules": 0,
+      "compile": "not_run",
+      "compile_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "test_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "task_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "violation_rules": []
+    },
+    {
+      "case_id": "CASE-002",
+      "strategy": "baseline",
+      "file": "/workspace/ontology-demo/.eval-cache/observable-v2-20261030/results/baseline/CASE-002.java",
+      "output": "missing",
+      "violations": 0,
+      "errors": 0,
+      "compliance": null,
+      "violated_rules": 0,
+      "compile": "not_run",
+      "compile_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "test_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "task_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "violation_rules": []
+    },
+    {
+      "case_id": "CASE-003",
+      "strategy": "baseline",
+      "file": "/workspace/ontology-demo/.eval-cache/observable-v2-20261030/results/baseline/CASE-003.java",
+      "output": "missing",
+      "violations": 0,
+      "errors": 0,
+      "compliance": null,
+      "violated_rules": 0,
+      "compile": "not_run",
+      "compile_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "test_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "task_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "violation_rules": []
+    },
+    {
+      "case_id": "CASE-006",
+      "strategy": "baseline",
+      "file": "/workspace/ontology-demo/.eval-cache/observable-v2-20261030/results/baseline/CASE-006.java",
+      "output": "missing",
+      "violations": 0,
+      "errors": 0,
+      "compliance": null,
+      "violated_rules": 0,
+      "compile": "not_run",
+      "compile_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "test_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "task_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "violation_rules": []
+    },
+    {
+      "case_id": "CASE-007",
+      "strategy": "baseline",
+      "file": "/workspace/ontology-demo/.eval-cache/observable-v2-20261030/results/baseline/CASE-007.java",
+      "output": "missing",
+      "violations": 0,
+      "errors": 0,
+      "compliance": null,
+      "violated_rules": 0,
+      "compile": "not_run",
+      "compile_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "test_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "task_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "violation_rules": []
+    },
+    {
+      "case_id": "CASE-008",
+      "strategy": "baseline",
+      "file": "/workspace/ontology-demo/.eval-cache/observable-v2-20261030/results/baseline/CASE-008.java",
+      "output": "missing",
+      "violations": 0,
+      "errors": 0,
+      "compliance": null,
+      "violated_rules": 0,
+      "compile": "not_run",
+      "compile_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "test_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "task_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "violation_rules": []
+    },
+    {
+      "case_id": "CASE-010",
+      "strategy": "baseline",
+      "file": "/workspace/ontology-demo/.eval-cache/observable-v2-20261030/results/baseline/CASE-010.java",
+      "output": "missing",
+      "violations": 0,
+      "errors": 0,
+      "compliance": null,
+      "violated_rules": 0,
+      "compile": "not_run",
+      "compile_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "test_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "task_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "violation_rules": []
+    },
+    {
+      "case_id": "CASE-011",
+      "strategy": "baseline",
+      "file": "/workspace/ontology-demo/.eval-cache/observable-v2-20261030/results/baseline/CASE-011.java",
+      "output": "missing",
+      "violations": 0,
+      "errors": 0,
+      "compliance": null,
+      "violated_rules": 0,
+      "compile": "not_run",
+      "compile_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "test_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "task_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "violation_rules": []
+    },
+    {
+      "case_id": "CASE-020",
+      "strategy": "baseline",
+      "file": "/workspace/ontology-demo/.eval-cache/observable-v2-20261030/results/baseline/CASE-020.java",
+      "output": "missing",
+      "violations": 0,
+      "errors": 0,
+      "compliance": null,
+      "violated_rules": 0,
+      "compile": "not_run",
+      "compile_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "test_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "task_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "violation_rules": []
+    },
+    {
+      "case_id": "CASE-001",
+      "strategy": "rag",
+      "file": "/workspace/ontology-demo/.eval-cache/observable-v2-20261030/results/rag/CASE-001.java",
+      "output": "missing",
+      "violations": 0,
+      "errors": 0,
+      "compliance": null,
+      "violated_rules": 0,
+      "compile": "not_run",
+      "compile_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "test_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "task_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "violation_rules": []
+    },
+    {
+      "case_id": "CASE-002",
+      "strategy": "rag",
+      "file": "/workspace/ontology-demo/.eval-cache/observable-v2-20261030/results/rag/CASE-002.java",
+      "output": "missing",
+      "violations": 0,
+      "errors": 0,
+      "compliance": null,
+      "violated_rules": 0,
+      "compile": "not_run",
+      "compile_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "test_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "task_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "violation_rules": []
+    },
+    {
+      "case_id": "CASE-003",
+      "strategy": "rag",
+      "file": "/workspace/ontology-demo/.eval-cache/observable-v2-20261030/results/rag/CASE-003.java",
+      "output": "missing",
+      "violations": 0,
+      "errors": 0,
+      "compliance": null,
+      "violated_rules": 0,
+      "compile": "not_run",
+      "compile_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "test_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "task_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "violation_rules": []
+    },
+    {
+      "case_id": "CASE-006",
+      "strategy": "rag",
+      "file": "/workspace/ontology-demo/.eval-cache/observable-v2-20261030/results/rag/CASE-006.java",
+      "output": "missing",
+      "violations": 0,
+      "errors": 0,
+      "compliance": null,
+      "violated_rules": 0,
+      "compile": "not_run",
+      "compile_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "test_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "task_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "violation_rules": []
+    },
+    {
+      "case_id": "CASE-007",
+      "strategy": "rag",
+      "file": "/workspace/ontology-demo/.eval-cache/observable-v2-20261030/results/rag/CASE-007.java",
+      "output": "missing",
+      "violations": 0,
+      "errors": 0,
+      "compliance": null,
+      "violated_rules": 0,
+      "compile": "not_run",
+      "compile_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "test_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "task_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "violation_rules": []
+    },
+    {
+      "case_id": "CASE-008",
+      "strategy": "rag",
+      "file": "/workspace/ontology-demo/.eval-cache/observable-v2-20261030/results/rag/CASE-008.java",
+      "output": "missing",
+      "violations": 0,
+      "errors": 0,
+      "compliance": null,
+      "violated_rules": 0,
+      "compile": "not_run",
+      "compile_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "test_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "task_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "violation_rules": []
+    },
+    {
+      "case_id": "CASE-010",
+      "strategy": "rag",
+      "file": "/workspace/ontology-demo/.eval-cache/observable-v2-20261030/results/rag/CASE-010.java",
+      "output": "missing",
+      "violations": 0,
+      "errors": 0,
+      "compliance": null,
+      "violated_rules": 0,
+      "compile": "not_run",
+      "compile_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "test_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "task_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "violation_rules": []
+    },
+    {
+      "case_id": "CASE-011",
+      "strategy": "rag",
+      "file": "/workspace/ontology-demo/.eval-cache/observable-v2-20261030/results/rag/CASE-011.java",
+      "output": "missing",
+      "violations": 0,
+      "errors": 0,
+      "compliance": null,
+      "violated_rules": 0,
+      "compile": "not_run",
+      "compile_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "test_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "task_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "violation_rules": []
+    },
+    {
+      "case_id": "CASE-020",
+      "strategy": "rag",
+      "file": "/workspace/ontology-demo/.eval-cache/observable-v2-20261030/results/rag/CASE-020.java",
+      "output": "missing",
+      "violations": 0,
+      "errors": 0,
+      "compliance": null,
+      "violated_rules": 0,
+      "compile": "not_run",
+      "compile_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "test_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "task_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "violation_rules": []
+    },
+    {
+      "case_id": "CASE-001",
+      "strategy": "rules",
+      "file": "/workspace/ontology-demo/.eval-cache/observable-v2-20261030/results/rules/CASE-001.java",
+      "output": "missing",
+      "violations": 0,
+      "errors": 0,
+      "compliance": null,
+      "violated_rules": 0,
+      "compile": "not_run",
+      "compile_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "test_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "task_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "violation_rules": []
+    },
+    {
+      "case_id": "CASE-002",
+      "strategy": "rules",
+      "file": "/workspace/ontology-demo/.eval-cache/observable-v2-20261030/results/rules/CASE-002.java",
+      "output": "missing",
+      "violations": 0,
+      "errors": 0,
+      "compliance": null,
+      "violated_rules": 0,
+      "compile": "not_run",
+      "compile_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "test_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "task_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "violation_rules": []
+    },
+    {
+      "case_id": "CASE-003",
+      "strategy": "rules",
+      "file": "/workspace/ontology-demo/.eval-cache/observable-v2-20261030/results/rules/CASE-003.java",
+      "output": "missing",
+      "violations": 0,
+      "errors": 0,
+      "compliance": null,
+      "violated_rules": 0,
+      "compile": "not_run",
+      "compile_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "test_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "task_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "violation_rules": []
+    },
+    {
+      "case_id": "CASE-006",
+      "strategy": "rules",
+      "file": "/workspace/ontology-demo/.eval-cache/observable-v2-20261030/results/rules/CASE-006.java",
+      "output": "missing",
+      "violations": 0,
+      "errors": 0,
+      "compliance": null,
+      "violated_rules": 0,
+      "compile": "not_run",
+      "compile_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "test_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "task_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "violation_rules": []
+    },
+    {
+      "case_id": "CASE-007",
+      "strategy": "rules",
+      "file": "/workspace/ontology-demo/.eval-cache/observable-v2-20261030/results/rules/CASE-007.java",
+      "output": "missing",
+      "violations": 0,
+      "errors": 0,
+      "compliance": null,
+      "violated_rules": 0,
+      "compile": "not_run",
+      "compile_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "test_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "task_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "violation_rules": []
+    },
+    {
+      "case_id": "CASE-008",
+      "strategy": "rules",
+      "file": "/workspace/ontology-demo/.eval-cache/observable-v2-20261030/results/rules/CASE-008.java",
+      "output": "missing",
+      "violations": 0,
+      "errors": 0,
+      "compliance": null,
+      "violated_rules": 0,
+      "compile": "not_run",
+      "compile_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "test_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "task_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "violation_rules": []
+    },
+    {
+      "case_id": "CASE-010",
+      "strategy": "rules",
+      "file": "/workspace/ontology-demo/.eval-cache/observable-v2-20261030/results/rules/CASE-010.java",
+      "output": "missing",
+      "violations": 0,
+      "errors": 0,
+      "compliance": null,
+      "violated_rules": 0,
+      "compile": "not_run",
+      "compile_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "test_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "task_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "violation_rules": []
+    },
+    {
+      "case_id": "CASE-011",
+      "strategy": "rules",
+      "file": "/workspace/ontology-demo/.eval-cache/observable-v2-20261030/results/rules/CASE-011.java",
+      "output": "missing",
+      "violations": 0,
+      "errors": 0,
+      "compliance": null,
+      "violated_rules": 0,
+      "compile": "not_run",
+      "compile_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "test_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "task_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "violation_rules": []
+    },
+    {
+      "case_id": "CASE-020",
+      "strategy": "rules",
+      "file": "/workspace/ontology-demo/.eval-cache/observable-v2-20261030/results/rules/CASE-020.java",
+      "output": "missing",
+      "violations": 0,
+      "errors": 0,
+      "compliance": null,
+      "violated_rules": 0,
+      "compile": "not_run",
+      "compile_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "test_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "task_check": {
+        "status": "not_run",
+        "detail": "Agent output is missing."
+      },
+      "violation_rules": []
+    }
+  ],
+  "notes": [
+    "results/<strategy>/<caseId>.java 为空：Rule Compliance / Compile Rate 需要 Agent 产出后重新运行。",
+    "Java 编译使用真实 javac（默认 --release 21），缺失工具、超时、编译失败分别记录；不自动补桩或改写产出。",
+    "合规率按非 info 的已检查规则去重；无适用规则或语法无效时为 n/a。100% 离线召回衡量未裁剪规则集，不能代表预算裁剪后的覆盖率。",
+    "Task not_run 包含尚未审查，以及已绑定源码完成审查但业务证据不足的情况；通过 task_check.detail 区分，均不算任务成功。",
+    "Compile/Test/Task Rate 分母为每种策略全部计划用例；缺失、不可用、未执行单独记录并报告覆盖率，不能视为通过。21 个用例均有功能/运行行为断言，但尚未覆盖全部业务和异常分支。完整任务验收均需依据清单审查，不从合规率推断。"
+  ],
+  "provenance": {
+    "controlled_experiment": false,
+    "model": "deepseek-flash",
+    "issues": [
+      "baseline/CASE-001: generation provenance does not match.",
+      "baseline/CASE-002: missing or stale experiment inputs/call record.",
+      "baseline/CASE-003: missing or stale experiment inputs/call record.",
+      "baseline/CASE-006: missing or stale experiment inputs/call record.",
+      "baseline/CASE-007: missing or stale experiment inputs/call record.",
+      "baseline/CASE-008: missing or stale experiment inputs/call record.",
+      "baseline/CASE-010: missing or stale experiment inputs/call record.",
+      "baseline/CASE-011: missing or stale experiment inputs/call record.",
+      "baseline/CASE-020: missing or stale experiment inputs/call record.",
+      "rag/CASE-001: missing or stale experiment inputs/call record.",
+      "rag/CASE-002: missing or stale experiment inputs/call record.",
+      "rag/CASE-003: missing or stale experiment inputs/call record.",
+      "rag/CASE-006: missing or stale experiment inputs/call record.",
+      "rag/CASE-007: missing or stale experiment inputs/call record.",
+      "rag/CASE-008: missing or stale experiment inputs/call record.",
+      "rag/CASE-010: missing or stale experiment inputs/call record.",
+      "rag/CASE-011: missing or stale experiment inputs/call record.",
+      "rag/CASE-020: missing or stale experiment inputs/call record.",
+      "rules/CASE-001: missing or stale experiment inputs/call record.",
+      "rules/CASE-002: missing or stale experiment inputs/call record.",
+      "rules/CASE-003: missing or stale experiment inputs/call record.",
+      "rules/CASE-006: missing or stale experiment inputs/call record.",
+      "rules/CASE-007: missing or stale experiment inputs/call record.",
+      "rules/CASE-008: missing or stale experiment inputs/call record.",
+      "rules/CASE-010: missing or stale experiment inputs/call record.",
+      "rules/CASE-011: missing or stale experiment inputs/call record.",
+      "rules/CASE-020: missing or stale experiment inputs/call record."
+    ]
+  }
+}
