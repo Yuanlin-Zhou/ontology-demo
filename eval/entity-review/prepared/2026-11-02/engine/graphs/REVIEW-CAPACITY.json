@@ -1,0 +1,548 @@
+{
+  "schema": 1,
+  "tagger": 1,
+  "tree_hash": "6500fa00cab4e2278f9d34dcac2d39825728c88948eabe207ba20ac78966449d",
+  "file": "eval/entity-review/cases/ExportWorker.java",
+  "source_hash": "608f7bf6261828496ea147f6b2970f4b1d1117ce86e5f9774f7b6760f7c61ce3",
+  "entities": [
+    {
+      "id": "eval/entity-review/cases/ExportWorker.java#ExportWorker",
+      "kind": "class",
+      "name": "ExportWorker",
+      "signature": "ExportWorker",
+      "start": 67,
+      "end": 804,
+      "line": 3,
+      "endLine": 11,
+      "tags": [
+        {
+          "leaf": "tp.use.context",
+          "origin": "ast",
+          "feature": "THREAD_POOL.THREAD_LOCAL",
+          "evidence": "private static final ThreadLocal<String> AUDIT=new ThreadLocal<>();",
+          "line": 6,
+          "column": 5,
+          "confidence": "high",
+          "attributes": {
+            "kind": "declare",
+            "name": "AUDIT",
+            "in_finally": false
+          }
+        },
+        {
+          "leaf": "tp.use.result",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.SUBMIT",
+          "evidence": "public void export(String id){pool.execute(()->sink.accept(id));}",
+          "line": 8,
+          "column": 35,
+          "confidence": "high",
+          "attributes": {
+            "method": "execute",
+            "receiver": "pool",
+            "resolution": "initializer",
+            "result_used": false
+          },
+          "from_entity": "eval/entity-review/cases/ExportWorker.java#ExportWorker::export(String)"
+        },
+        {
+          "leaf": "tp.use.exception",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.EXECUTE",
+          "evidence": "public void export(String id){pool.execute(()->sink.accept(id));}",
+          "line": 8,
+          "column": 35,
+          "confidence": "high",
+          "attributes": {
+            "method": "execute",
+            "receiver": "pool",
+            "resolution": "initializer",
+            "result_used": false
+          },
+          "from_entity": "eval/entity-review/cases/ExportWorker.java#ExportWorker::export(String)"
+        },
+        {
+          "leaf": "tp.use.context",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.THREAD_LOCAL",
+          "evidence": "public void audit(String trace){AUDIT.set(trace);try{System.out.println(trace);}finally{AUDIT.remove();}}",
+          "line": 9,
+          "column": 37,
+          "confidence": "high",
+          "attributes": {
+            "kind": "set",
+            "name": "AUDIT",
+            "in_finally": false
+          },
+          "from_entity": "eval/entity-review/cases/ExportWorker.java#ExportWorker::audit(String)"
+        },
+        {
+          "leaf": "tp.use.context",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.THREAD_LOCAL",
+          "evidence": "public void audit(String trace){AUDIT.set(trace);try{System.out.println(trace);}finally{AUDIT.remove();}}",
+          "line": 9,
+          "column": 93,
+          "confidence": "high",
+          "attributes": {
+            "kind": "remove",
+            "name": "AUDIT",
+            "in_finally": true
+          },
+          "from_entity": "eval/entity-review/cases/ExportWorker.java#ExportWorker::audit(String)"
+        },
+        {
+          "leaf": "tp.create.workload",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.CREATE",
+          "evidence": "private final ThreadPoolExecutor pool=new ThreadPoolExecutor(1,8,30,TimeUnit.SECONDS,new LinkedBlockingQueue<>(),new ThreadPoolExecutor.AbortPolicy());",
+          "line": 5,
+          "column": 43,
+          "confidence": "high",
+          "attributes": {
+            "kind": "thread_pool_executor",
+            "scope": "field"
+          },
+          "from_entity": "eval/entity-review/cases/ExportWorker.java#ExportWorker::field:pool"
+        },
+        {
+          "leaf": "tp.create.explicit",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.CREATE",
+          "evidence": "private final ThreadPoolExecutor pool=new ThreadPoolExecutor(1,8,30,TimeUnit.SECONDS,new LinkedBlockingQueue<>(),new ThreadPoolExecutor.AbortPolicy());",
+          "line": 5,
+          "column": 43,
+          "confidence": "high",
+          "attributes": {
+            "kind": "thread_pool_executor",
+            "scope": "field"
+          },
+          "from_entity": "eval/entity-review/cases/ExportWorker.java#ExportWorker::field:pool"
+        },
+        {
+          "leaf": "tp.create.sizing",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.CONFIG.CORE_SIZE",
+          "evidence": "private final ThreadPoolExecutor pool=new ThreadPoolExecutor(1,8,30,TimeUnit.SECONDS,new LinkedBlockingQueue<>(),new ThreadPoolExecutor.AbortPolicy());",
+          "line": 5,
+          "column": 43,
+          "confidence": "high",
+          "attributes": {
+            "value": "1"
+          },
+          "from_entity": "eval/entity-review/cases/ExportWorker.java#ExportWorker::field:pool"
+        },
+        {
+          "leaf": "tp.create.sizing",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.CONFIG.MAX_SIZE",
+          "evidence": "private final ThreadPoolExecutor pool=new ThreadPoolExecutor(1,8,30,TimeUnit.SECONDS,new LinkedBlockingQueue<>(),new ThreadPoolExecutor.AbortPolicy());",
+          "line": 5,
+          "column": 43,
+          "confidence": "high",
+          "attributes": {
+            "value": "8"
+          },
+          "from_entity": "eval/entity-review/cases/ExportWorker.java#ExportWorker::field:pool"
+        },
+        {
+          "leaf": "tp.create.sizing",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.CONFIG.KEEP_ALIVE",
+          "evidence": "private final ThreadPoolExecutor pool=new ThreadPoolExecutor(1,8,30,TimeUnit.SECONDS,new LinkedBlockingQueue<>(),new ThreadPoolExecutor.AbortPolicy());",
+          "line": 5,
+          "column": 43,
+          "confidence": "high",
+          "attributes": {
+            "value": "30",
+            "unit": "TimeUnit.SECONDS"
+          },
+          "from_entity": "eval/entity-review/cases/ExportWorker.java#ExportWorker::field:pool"
+        },
+        {
+          "leaf": "tp.create.queue",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.CONFIG.QUEUE",
+          "evidence": "private final ThreadPoolExecutor pool=new ThreadPoolExecutor(1,8,30,TimeUnit.SECONDS,new LinkedBlockingQueue<>(),new ThreadPoolExecutor.AbortPolicy());",
+          "line": 5,
+          "column": 90,
+          "confidence": "high",
+          "attributes": {
+            "queue": "LinkedBlockingQueue",
+            "bounded": false,
+            "capacity": "unset"
+          },
+          "from_entity": "eval/entity-review/cases/ExportWorker.java#ExportWorker::field:pool"
+        },
+        {
+          "leaf": "tp.create.rejection",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.CONFIG.REJECTION",
+          "evidence": "private final ThreadPoolExecutor pool=new ThreadPoolExecutor(1,8,30,TimeUnit.SECONDS,new LinkedBlockingQueue<>(),new ThreadPoolExecutor.AbortPolicy());",
+          "line": 5,
+          "column": 118,
+          "confidence": "high",
+          "attributes": {
+            "policy": "AbortPolicy",
+            "kind": "abort"
+          },
+          "from_entity": "eval/entity-review/cases/ExportWorker.java#ExportWorker::field:pool"
+        },
+        {
+          "leaf": "tp.use.shutdown",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.SHUTDOWN",
+          "evidence": "public void stop()throws InterruptedException{pool.shutdown();if(!pool.awaitTermination(1,TimeUnit.SECONDS))throw new IllegalStateException(\"not stopped\");}",
+          "line": 10,
+          "column": 51,
+          "confidence": "high",
+          "attributes": {
+            "method": "shutdown",
+            "receiver": "pool"
+          },
+          "from_entity": "eval/entity-review/cases/ExportWorker.java#ExportWorker::stop()"
+        },
+        {
+          "leaf": "tp.use.shutdown",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.AWAIT_TERMINATION",
+          "evidence": "public void stop()throws InterruptedException{pool.shutdown();if(!pool.awaitTermination(1,TimeUnit.SECONDS))throw new IllegalStateException(\"not stopped\");}",
+          "line": 10,
+          "column": 71,
+          "confidence": "high",
+          "attributes": {
+            "method": "awaitTermination",
+            "receiver": "pool",
+            "timeout_args": 2
+          },
+          "from_entity": "eval/entity-review/cases/ExportWorker.java#ExportWorker::stop()"
+        }
+      ]
+    },
+    {
+      "id": "eval/entity-review/cases/ExportWorker.java#ExportWorker::field:sink",
+      "kind": "field",
+      "name": "sink",
+      "signature": "field:sink",
+      "start": 130,
+      "end": 134,
+      "line": 4,
+      "endLine": 4,
+      "tags": [],
+      "parent": "eval/entity-review/cases/ExportWorker.java#ExportWorker"
+    },
+    {
+      "id": "eval/entity-review/cases/ExportWorker.java#ExportWorker::field:pool",
+      "kind": "field",
+      "name": "pool",
+      "signature": "field:pool",
+      "start": 173,
+      "end": 290,
+      "line": 5,
+      "endLine": 5,
+      "tags": [
+        {
+          "leaf": "tp.create.workload",
+          "origin": "ast",
+          "feature": "THREAD_POOL.CREATE",
+          "evidence": "private final ThreadPoolExecutor pool=new ThreadPoolExecutor(1,8,30,TimeUnit.SECONDS,new LinkedBlockingQueue<>(),new ThreadPoolExecutor.AbortPolicy());",
+          "line": 5,
+          "column": 43,
+          "confidence": "high",
+          "attributes": {
+            "kind": "thread_pool_executor",
+            "scope": "field"
+          }
+        },
+        {
+          "leaf": "tp.create.explicit",
+          "origin": "ast",
+          "feature": "THREAD_POOL.CREATE",
+          "evidence": "private final ThreadPoolExecutor pool=new ThreadPoolExecutor(1,8,30,TimeUnit.SECONDS,new LinkedBlockingQueue<>(),new ThreadPoolExecutor.AbortPolicy());",
+          "line": 5,
+          "column": 43,
+          "confidence": "high",
+          "attributes": {
+            "kind": "thread_pool_executor",
+            "scope": "field"
+          }
+        },
+        {
+          "leaf": "tp.create.sizing",
+          "origin": "ast",
+          "feature": "THREAD_POOL.CONFIG.CORE_SIZE",
+          "evidence": "private final ThreadPoolExecutor pool=new ThreadPoolExecutor(1,8,30,TimeUnit.SECONDS,new LinkedBlockingQueue<>(),new ThreadPoolExecutor.AbortPolicy());",
+          "line": 5,
+          "column": 43,
+          "confidence": "high",
+          "attributes": {
+            "value": "1"
+          }
+        },
+        {
+          "leaf": "tp.create.sizing",
+          "origin": "ast",
+          "feature": "THREAD_POOL.CONFIG.MAX_SIZE",
+          "evidence": "private final ThreadPoolExecutor pool=new ThreadPoolExecutor(1,8,30,TimeUnit.SECONDS,new LinkedBlockingQueue<>(),new ThreadPoolExecutor.AbortPolicy());",
+          "line": 5,
+          "column": 43,
+          "confidence": "high",
+          "attributes": {
+            "value": "8"
+          }
+        },
+        {
+          "leaf": "tp.create.sizing",
+          "origin": "ast",
+          "feature": "THREAD_POOL.CONFIG.KEEP_ALIVE",
+          "evidence": "private final ThreadPoolExecutor pool=new ThreadPoolExecutor(1,8,30,TimeUnit.SECONDS,new LinkedBlockingQueue<>(),new ThreadPoolExecutor.AbortPolicy());",
+          "line": 5,
+          "column": 43,
+          "confidence": "high",
+          "attributes": {
+            "value": "30",
+            "unit": "TimeUnit.SECONDS"
+          }
+        },
+        {
+          "leaf": "tp.create.queue",
+          "origin": "ast",
+          "feature": "THREAD_POOL.CONFIG.QUEUE",
+          "evidence": "private final ThreadPoolExecutor pool=new ThreadPoolExecutor(1,8,30,TimeUnit.SECONDS,new LinkedBlockingQueue<>(),new ThreadPoolExecutor.AbortPolicy());",
+          "line": 5,
+          "column": 90,
+          "confidence": "high",
+          "attributes": {
+            "queue": "LinkedBlockingQueue",
+            "bounded": false,
+            "capacity": "unset"
+          }
+        },
+        {
+          "leaf": "tp.create.rejection",
+          "origin": "ast",
+          "feature": "THREAD_POOL.CONFIG.REJECTION",
+          "evidence": "private final ThreadPoolExecutor pool=new ThreadPoolExecutor(1,8,30,TimeUnit.SECONDS,new LinkedBlockingQueue<>(),new ThreadPoolExecutor.AbortPolicy());",
+          "line": 5,
+          "column": 118,
+          "confidence": "high",
+          "attributes": {
+            "policy": "AbortPolicy",
+            "kind": "abort"
+          }
+        }
+      ],
+      "parent": "eval/entity-review/cases/ExportWorker.java#ExportWorker"
+    },
+    {
+      "id": "eval/entity-review/cases/ExportWorker.java#ExportWorker::field:AUDIT",
+      "kind": "field",
+      "name": "AUDIT",
+      "signature": "field:AUDIT",
+      "start": 337,
+      "end": 362,
+      "line": 6,
+      "endLine": 6,
+      "tags": [],
+      "parent": "eval/entity-review/cases/ExportWorker.java#ExportWorker"
+    },
+    {
+      "id": "eval/entity-review/cases/ExportWorker.java#ExportWorker::<init>(Consumer<String>)",
+      "kind": "constructor",
+      "name": "ExportWorker",
+      "signature": "<init>(Consumer<String>)",
+      "start": 368,
+      "end": 461,
+      "line": 7,
+      "endLine": 7,
+      "tags": [],
+      "parent": "eval/entity-review/cases/ExportWorker.java#ExportWorker"
+    },
+    {
+      "id": "eval/entity-review/cases/ExportWorker.java#ExportWorker::export(String)",
+      "kind": "method",
+      "name": "export",
+      "signature": "export(String)",
+      "start": 466,
+      "end": 531,
+      "line": 8,
+      "endLine": 8,
+      "tags": [
+        {
+          "leaf": "tp.use.result",
+          "origin": "ast",
+          "feature": "THREAD_POOL.SUBMIT",
+          "evidence": "public void export(String id){pool.execute(()->sink.accept(id));}",
+          "line": 8,
+          "column": 35,
+          "confidence": "high",
+          "attributes": {
+            "method": "execute",
+            "receiver": "pool",
+            "resolution": "initializer",
+            "result_used": false
+          }
+        },
+        {
+          "leaf": "tp.use.exception",
+          "origin": "ast",
+          "feature": "THREAD_POOL.EXECUTE",
+          "evidence": "public void export(String id){pool.execute(()->sink.accept(id));}",
+          "line": 8,
+          "column": 35,
+          "confidence": "high",
+          "attributes": {
+            "method": "execute",
+            "receiver": "pool",
+            "resolution": "initializer",
+            "result_used": false
+          }
+        }
+      ],
+      "parent": "eval/entity-review/cases/ExportWorker.java#ExportWorker"
+    },
+    {
+      "id": "eval/entity-review/cases/ExportWorker.java#ExportWorker::audit(String)",
+      "kind": "method",
+      "name": "audit",
+      "signature": "audit(String)",
+      "start": 536,
+      "end": 641,
+      "line": 9,
+      "endLine": 9,
+      "tags": [
+        {
+          "leaf": "tp.use.context",
+          "origin": "ast",
+          "feature": "THREAD_POOL.THREAD_LOCAL",
+          "evidence": "public void audit(String trace){AUDIT.set(trace);try{System.out.println(trace);}finally{AUDIT.remove();}}",
+          "line": 9,
+          "column": 37,
+          "confidence": "high",
+          "attributes": {
+            "kind": "set",
+            "name": "AUDIT",
+            "in_finally": false
+          }
+        },
+        {
+          "leaf": "tp.use.context",
+          "origin": "ast",
+          "feature": "THREAD_POOL.THREAD_LOCAL",
+          "evidence": "public void audit(String trace){AUDIT.set(trace);try{System.out.println(trace);}finally{AUDIT.remove();}}",
+          "line": 9,
+          "column": 93,
+          "confidence": "high",
+          "attributes": {
+            "kind": "remove",
+            "name": "AUDIT",
+            "in_finally": true
+          }
+        }
+      ],
+      "parent": "eval/entity-review/cases/ExportWorker.java#ExportWorker"
+    },
+    {
+      "id": "eval/entity-review/cases/ExportWorker.java#ExportWorker::stop()",
+      "kind": "method",
+      "name": "stop",
+      "signature": "stop()",
+      "start": 646,
+      "end": 802,
+      "line": 10,
+      "endLine": 10,
+      "tags": [
+        {
+          "leaf": "tp.use.shutdown",
+          "origin": "ast",
+          "feature": "THREAD_POOL.SHUTDOWN",
+          "evidence": "public void stop()throws InterruptedException{pool.shutdown();if(!pool.awaitTermination(1,TimeUnit.SECONDS))throw new IllegalStateException(\"not stopped\");}",
+          "line": 10,
+          "column": 51,
+          "confidence": "high",
+          "attributes": {
+            "method": "shutdown",
+            "receiver": "pool"
+          }
+        },
+        {
+          "leaf": "tp.use.shutdown",
+          "origin": "ast",
+          "feature": "THREAD_POOL.AWAIT_TERMINATION",
+          "evidence": "public void stop()throws InterruptedException{pool.shutdown();if(!pool.awaitTermination(1,TimeUnit.SECONDS))throw new IllegalStateException(\"not stopped\");}",
+          "line": 10,
+          "column": 71,
+          "confidence": "high",
+          "attributes": {
+            "method": "awaitTermination",
+            "receiver": "pool",
+            "timeout_args": 2
+          }
+        }
+      ],
+      "parent": "eval/entity-review/cases/ExportWorker.java#ExportWorker"
+    }
+  ],
+  "edges": [
+    {
+      "from": "eval/entity-review/cases/ExportWorker.java#ExportWorker",
+      "to": "eval/entity-review/cases/ExportWorker.java#ExportWorker::field:sink",
+      "kind": "contains"
+    },
+    {
+      "from": "eval/entity-review/cases/ExportWorker.java#ExportWorker",
+      "to": "eval/entity-review/cases/ExportWorker.java#ExportWorker::field:pool",
+      "kind": "contains"
+    },
+    {
+      "from": "eval/entity-review/cases/ExportWorker.java#ExportWorker",
+      "to": "eval/entity-review/cases/ExportWorker.java#ExportWorker::field:AUDIT",
+      "kind": "contains"
+    },
+    {
+      "from": "eval/entity-review/cases/ExportWorker.java#ExportWorker",
+      "to": "eval/entity-review/cases/ExportWorker.java#ExportWorker::<init>(Consumer<String>)",
+      "kind": "contains"
+    },
+    {
+      "from": "eval/entity-review/cases/ExportWorker.java#ExportWorker::<init>(Consumer<String>)",
+      "to": "eval/entity-review/cases/ExportWorker.java#ExportWorker::field:sink",
+      "kind": "uses"
+    },
+    {
+      "from": "eval/entity-review/cases/ExportWorker.java#ExportWorker",
+      "to": "eval/entity-review/cases/ExportWorker.java#ExportWorker::export(String)",
+      "kind": "contains"
+    },
+    {
+      "from": "eval/entity-review/cases/ExportWorker.java#ExportWorker::export(String)",
+      "to": "eval/entity-review/cases/ExportWorker.java#ExportWorker::field:pool",
+      "kind": "uses"
+    },
+    {
+      "from": "eval/entity-review/cases/ExportWorker.java#ExportWorker::export(String)",
+      "to": "eval/entity-review/cases/ExportWorker.java#ExportWorker::field:sink",
+      "kind": "uses"
+    },
+    {
+      "from": "eval/entity-review/cases/ExportWorker.java#ExportWorker",
+      "to": "eval/entity-review/cases/ExportWorker.java#ExportWorker::audit(String)",
+      "kind": "contains"
+    },
+    {
+      "from": "eval/entity-review/cases/ExportWorker.java#ExportWorker::audit(String)",
+      "to": "eval/entity-review/cases/ExportWorker.java#ExportWorker::field:AUDIT",
+      "kind": "uses"
+    },
+    {
+      "from": "eval/entity-review/cases/ExportWorker.java#ExportWorker",
+      "to": "eval/entity-review/cases/ExportWorker.java#ExportWorker::stop()",
+      "kind": "contains"
+    },
+    {
+      "from": "eval/entity-review/cases/ExportWorker.java#ExportWorker::stop()",
+      "to": "eval/entity-review/cases/ExportWorker.java#ExportWorker::field:pool",
+      "kind": "uses"
+    }
+  ]
+}

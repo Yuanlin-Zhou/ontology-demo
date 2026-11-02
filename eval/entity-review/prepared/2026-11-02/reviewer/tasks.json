@@ -1,0 +1,227 @@
+[
+  {
+    "id": "REVIEW-CAPACITY",
+    "source_file": "inputs/REVIEW-CAPACITY/ExportWorker.java",
+    "source_hash": "608f7bf6261828496ea147f6b2970f4b1d1117ce86e5f9774f7b6760f7c61ce3",
+    "task": "报表突发提交会造成堆积。根据已知资源限制调整现有执行资源，保留构造器、export、audit 和 stop 接口、实际异步回调及正常关闭排空；过载由调用方接收 RejectedExecutionException，不能在调用线程处理导出，也不能静默丢弃。请在代码注释中说明参数选择依据。",
+    "facts": "下游最多同时处理 2 项；每个排队作业约占 256 KiB，队列内存预算 4 MiB；产品要求至少暂存 4 项等待作业；允许突发超出预算时显式拒绝。没有唯一要求的线程数和队列实现。",
+    "target": "eval/entity-review/cases/ExportWorker.java#ExportWorker::export(String)",
+    "policy": "拒绝传播是本任务明确合同，不能仅以没有局部 catch 判定任务失败。",
+    "assessment": "容量、资源上限与异步回调；接受多种合理配置",
+    "entities": [
+      {
+        "id": "eval/entity-review/cases/ExportWorker.java#ExportWorker",
+        "kind": "class",
+        "signature": "ExportWorker",
+        "line": 3,
+        "endLine": 11
+      },
+      {
+        "id": "eval/entity-review/cases/ExportWorker.java#ExportWorker::field:sink",
+        "kind": "field",
+        "signature": "field:sink",
+        "line": 4,
+        "endLine": 4
+      },
+      {
+        "id": "eval/entity-review/cases/ExportWorker.java#ExportWorker::field:pool",
+        "kind": "field",
+        "signature": "field:pool",
+        "line": 5,
+        "endLine": 5
+      },
+      {
+        "id": "eval/entity-review/cases/ExportWorker.java#ExportWorker::field:AUDIT",
+        "kind": "field",
+        "signature": "field:AUDIT",
+        "line": 6,
+        "endLine": 6
+      },
+      {
+        "id": "eval/entity-review/cases/ExportWorker.java#ExportWorker::<init>(Consumer<String>)",
+        "kind": "constructor",
+        "signature": "<init>(Consumer<String>)",
+        "line": 7,
+        "endLine": 7
+      },
+      {
+        "id": "eval/entity-review/cases/ExportWorker.java#ExportWorker::export(String)",
+        "kind": "method",
+        "signature": "export(String)",
+        "line": 8,
+        "endLine": 8
+      },
+      {
+        "id": "eval/entity-review/cases/ExportWorker.java#ExportWorker::audit(String)",
+        "kind": "method",
+        "signature": "audit(String)",
+        "line": 9,
+        "endLine": 9
+      },
+      {
+        "id": "eval/entity-review/cases/ExportWorker.java#ExportWorker::stop()",
+        "kind": "method",
+        "signature": "stop()",
+        "line": 10,
+        "endLine": 10
+      }
+    ]
+  },
+  {
+    "id": "REVIEW-TENANT",
+    "source_file": "inputs/REVIEW-TENANT/TenantBatchService.java",
+    "source_hash": "324fe37c4d0cb001685f545d359f5828b0e6655d48af79d8542a52cd18675700",
+    "task": "同一服务实例被多个租户复用，偶发出现调用方或后续作业读取到上次租户。修复此问题并保留 TenantProcessor 契约、正常返回 tenant:结果、已有等待时限、执行资源和审计调度行为；回调异常应保留原始原因。",
+    "facts": "调用方和后台线程可能已有自己的租户，也可能原来没有值；失败后还会继续接收其他租户的作业。",
+    "target": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::process(String,String)",
+    "policy": "本任务不要求改变原提交拒绝策略；既有规范风险单列，不归因成此次新增缺陷。",
+    "assessment": "成功、异常、原无值、实际工作线程复用和接口契约",
+    "entities": [
+      {
+        "id": "eval/entity-review/cases/TenantBatchService.java#TenantProcessor",
+        "kind": "interface",
+        "signature": "TenantProcessor",
+        "line": 3,
+        "endLine": 3
+      },
+      {
+        "id": "eval/entity-review/cases/TenantBatchService.java#TenantProcessor::process(String,String)",
+        "kind": "method",
+        "signature": "process(String,String)",
+        "line": 3,
+        "endLine": 3
+      },
+      {
+        "id": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService",
+        "kind": "class",
+        "signature": "TenantBatchService",
+        "line": 4,
+        "endLine": 20
+      },
+      {
+        "id": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::field:TENANT",
+        "kind": "field",
+        "signature": "field:TENANT",
+        "line": 5,
+        "endLine": 5
+      },
+      {
+        "id": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::field:downstream",
+        "kind": "field",
+        "signature": "field:downstream",
+        "line": 6,
+        "endLine": 6
+      },
+      {
+        "id": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::field:workers",
+        "kind": "field",
+        "signature": "field:workers",
+        "line": 7,
+        "endLine": 7
+      },
+      {
+        "id": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::field:auditScheduler",
+        "kind": "field",
+        "signature": "field:auditScheduler",
+        "line": 8,
+        "endLine": 8
+      },
+      {
+        "id": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::<init>(Function<String,String>)",
+        "kind": "constructor",
+        "signature": "<init>(Function<String,String>)",
+        "line": 9,
+        "endLine": 9
+      },
+      {
+        "id": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::process(String,String)",
+        "kind": "method",
+        "signature": "process(String,String)",
+        "line": 10,
+        "endLine": 13
+      },
+      {
+        "id": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::submitWork(String,String)",
+        "kind": "method",
+        "signature": "submitWork(String,String)",
+        "line": 14,
+        "endLine": 14
+      },
+      {
+        "id": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::scheduleAudit(Runnable)",
+        "kind": "method",
+        "signature": "scheduleAudit(Runnable)",
+        "line": 15,
+        "endLine": 15
+      },
+      {
+        "id": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::stop()",
+        "kind": "method",
+        "signature": "stop()",
+        "line": 16,
+        "endLine": 19
+      }
+    ]
+  },
+  {
+    "id": "REVIEW-FAILURE",
+    "source_file": "inputs/REVIEW-FAILURE/ExceptionWorker.java",
+    "source_hash": "1f96c797b4ddcb7de8d4daae9989e1a7653a474a7255419ebc054bba0c70225d",
+    "task": "现有投递服务有后台失败却找不到原因记录。修复可观察性，确保原始失败原因有记录，失败后仍能投递后续消息；保持公开接口、异步执行、现有容量和 delivery-worker 线程命名，过载仍向调用方抛 RejectedExecutionException。",
+    "facts": "下游 Consumer 可能抛 RuntimeException；日志或错误输出应可观察原始异常原因，不能只注释掉异常。",
+    "target": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker::deliver(String)",
+    "policy": "允许拒绝直接传播；日志验收观察真实回调失败，不能只看后续任务仍运行。",
+    "assessment": "实际失败记录、后续回调、调用方隔离与命名",
+    "entities": [
+      {
+        "id": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker",
+        "kind": "class",
+        "signature": "ExceptionWorker",
+        "line": 3,
+        "endLine": 10
+      },
+      {
+        "id": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker::field:callback",
+        "kind": "field",
+        "signature": "field:callback",
+        "line": 4,
+        "endLine": 4
+      },
+      {
+        "id": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker::field:worker",
+        "kind": "field",
+        "signature": "field:worker",
+        "line": 5,
+        "endLine": 5
+      },
+      {
+        "id": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker::<init>(Consumer<String>)",
+        "kind": "constructor",
+        "signature": "<init>(Consumer<String>)",
+        "line": 6,
+        "endLine": 6
+      },
+      {
+        "id": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker::deliver(String)",
+        "kind": "method",
+        "signature": "deliver(String)",
+        "line": 7,
+        "endLine": 7
+      },
+      {
+        "id": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker::completed()",
+        "kind": "method",
+        "signature": "completed()",
+        "line": 8,
+        "endLine": 8
+      },
+      {
+        "id": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker::stop()",
+        "kind": "method",
+        "signature": "stop()",
+        "line": 9,
+        "endLine": 9
+      }
+    ]
+  }
+]

@@ -1,0 +1,511 @@
+{
+  "schema": 1,
+  "tagger": 1,
+  "tree_hash": "6500fa00cab4e2278f9d34dcac2d39825728c88948eabe207ba20ac78966449d",
+  "file": "eval/entity-review/cases/ExceptionWorker.java",
+  "source_hash": "1f96c797b4ddcb7de8d4daae9989e1a7653a474a7255419ebc054bba0c70225d",
+  "entities": [
+    {
+      "id": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker",
+      "kind": "class",
+      "name": "ExceptionWorker",
+      "signature": "ExceptionWorker",
+      "start": 67,
+      "end": 805,
+      "line": 3,
+      "endLine": 10,
+      "tags": [
+        {
+          "leaf": "tp.use.monitor",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.MONITOR",
+          "evidence": "public long completed(){return worker.getCompletedTaskCount();}",
+          "line": 8,
+          "column": 36,
+          "confidence": "high",
+          "attributes": {
+            "method": "getCompletedTaskCount",
+            "receiver": "worker"
+          },
+          "from_entity": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker::completed()"
+        },
+        {
+          "leaf": "tp.use.result",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.SUBMIT",
+          "evidence": "public void deliver(String value){worker.execute(()->{try{callback.accept(value);}catch(RuntimeException error){}});}",
+          "line": 7,
+          "column": 39,
+          "confidence": "high",
+          "attributes": {
+            "method": "execute",
+            "receiver": "worker",
+            "resolution": "initializer",
+            "result_used": false
+          },
+          "from_entity": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker::deliver(String)"
+        },
+        {
+          "leaf": "tp.use.exception",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.EXECUTE",
+          "evidence": "public void deliver(String value){worker.execute(()->{try{callback.accept(value);}catch(RuntimeException error){}});}",
+          "line": 7,
+          "column": 39,
+          "confidence": "high",
+          "attributes": {
+            "method": "execute",
+            "receiver": "worker",
+            "resolution": "initializer",
+            "result_used": false
+          },
+          "from_entity": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker::deliver(String)"
+        },
+        {
+          "leaf": "tp.create.workload",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.CREATE",
+          "evidence": "private final ThreadPoolExecutor worker=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(8),r->new Thread(r,\"delivery-worker\"),new ThreadPoolExecutor.AbortPolicy());",
+          "line": 5,
+          "column": 45,
+          "confidence": "high",
+          "attributes": {
+            "kind": "thread_pool_executor",
+            "scope": "field"
+          },
+          "from_entity": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker::field:worker"
+        },
+        {
+          "leaf": "tp.create.explicit",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.CREATE",
+          "evidence": "private final ThreadPoolExecutor worker=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(8),r->new Thread(r,\"delivery-worker\"),new ThreadPoolExecutor.AbortPolicy());",
+          "line": 5,
+          "column": 45,
+          "confidence": "high",
+          "attributes": {
+            "kind": "thread_pool_executor",
+            "scope": "field"
+          },
+          "from_entity": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker::field:worker"
+        },
+        {
+          "leaf": "tp.create.sizing",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.CONFIG.CORE_SIZE",
+          "evidence": "private final ThreadPoolExecutor worker=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(8),r->new Thread(r,\"delivery-worker\"),new ThreadPoolExecutor.AbortPolicy());",
+          "line": 5,
+          "column": 45,
+          "confidence": "high",
+          "attributes": {
+            "value": "1"
+          },
+          "from_entity": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker::field:worker"
+        },
+        {
+          "leaf": "tp.create.sizing",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.CONFIG.MAX_SIZE",
+          "evidence": "private final ThreadPoolExecutor worker=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(8),r->new Thread(r,\"delivery-worker\"),new ThreadPoolExecutor.AbortPolicy());",
+          "line": 5,
+          "column": 45,
+          "confidence": "high",
+          "attributes": {
+            "value": "1"
+          },
+          "from_entity": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker::field:worker"
+        },
+        {
+          "leaf": "tp.create.sizing",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.CONFIG.KEEP_ALIVE",
+          "evidence": "private final ThreadPoolExecutor worker=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(8),r->new Thread(r,\"delivery-worker\"),new ThreadPoolExecutor.AbortPolicy());",
+          "line": 5,
+          "column": 45,
+          "confidence": "high",
+          "attributes": {
+            "value": "30",
+            "unit": "TimeUnit.SECONDS"
+          },
+          "from_entity": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker::field:worker"
+        },
+        {
+          "leaf": "tp.create.queue",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.CONFIG.QUEUE",
+          "evidence": "private final ThreadPoolExecutor worker=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(8),r->new Thread(r,\"delivery-worker\"),new ThreadPoolExecutor.AbortPolicy());",
+          "line": 5,
+          "column": 92,
+          "confidence": "high",
+          "attributes": {
+            "queue": "ArrayBlockingQueue",
+            "bounded": true,
+            "capacity": "8"
+          },
+          "from_entity": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker::field:worker"
+        },
+        {
+          "leaf": "tp.create.rejection",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.CONFIG.REJECTION",
+          "evidence": "private final ThreadPoolExecutor worker=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(8),r->new Thread(r,\"delivery-worker\"),new ThreadPoolExecutor.AbortPolicy());",
+          "line": 5,
+          "column": 155,
+          "confidence": "high",
+          "attributes": {
+            "policy": "AbortPolicy",
+            "kind": "abort"
+          },
+          "from_entity": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker::field:worker"
+        },
+        {
+          "leaf": "tp.create.naming",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.CONFIG.THREAD_FACTORY",
+          "evidence": "private final ThreadPoolExecutor worker=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(8),r->new Thread(r,\"delivery-worker\"),new ThreadPoolExecutor.AbortPolicy());",
+          "line": 5,
+          "column": 120,
+          "confidence": "high",
+          "attributes": {
+            "factory": "<lambda>"
+          },
+          "from_entity": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker::field:worker"
+        },
+        {
+          "leaf": "tp.use.shutdown",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.SHUTDOWN",
+          "evidence": "public void stop()throws InterruptedException{worker.shutdown();if(!worker.awaitTermination(1,TimeUnit.SECONDS))throw new IllegalStateException(\"not stopped\");}",
+          "line": 9,
+          "column": 51,
+          "confidence": "high",
+          "attributes": {
+            "method": "shutdown",
+            "receiver": "worker"
+          },
+          "from_entity": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker::stop()"
+        },
+        {
+          "leaf": "tp.use.shutdown",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.AWAIT_TERMINATION",
+          "evidence": "public void stop()throws InterruptedException{worker.shutdown();if(!worker.awaitTermination(1,TimeUnit.SECONDS))throw new IllegalStateException(\"not stopped\");}",
+          "line": 9,
+          "column": 73,
+          "confidence": "high",
+          "attributes": {
+            "method": "awaitTermination",
+            "receiver": "worker",
+            "timeout_args": 2
+          },
+          "from_entity": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker::stop()"
+        }
+      ]
+    },
+    {
+      "id": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker::field:callback",
+      "kind": "field",
+      "name": "callback",
+      "signature": "field:callback",
+      "start": 133,
+      "end": 141,
+      "line": 4,
+      "endLine": 4,
+      "tags": [],
+      "parent": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker"
+    },
+    {
+      "id": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker::field:worker",
+      "kind": "field",
+      "name": "worker",
+      "signature": "field:worker",
+      "start": 180,
+      "end": 334,
+      "line": 5,
+      "endLine": 5,
+      "tags": [
+        {
+          "leaf": "tp.create.workload",
+          "origin": "ast",
+          "feature": "THREAD_POOL.CREATE",
+          "evidence": "private final ThreadPoolExecutor worker=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(8),r->new Thread(r,\"delivery-worker\"),new ThreadPoolExecutor.AbortPolicy());",
+          "line": 5,
+          "column": 45,
+          "confidence": "high",
+          "attributes": {
+            "kind": "thread_pool_executor",
+            "scope": "field"
+          }
+        },
+        {
+          "leaf": "tp.create.explicit",
+          "origin": "ast",
+          "feature": "THREAD_POOL.CREATE",
+          "evidence": "private final ThreadPoolExecutor worker=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(8),r->new Thread(r,\"delivery-worker\"),new ThreadPoolExecutor.AbortPolicy());",
+          "line": 5,
+          "column": 45,
+          "confidence": "high",
+          "attributes": {
+            "kind": "thread_pool_executor",
+            "scope": "field"
+          }
+        },
+        {
+          "leaf": "tp.create.sizing",
+          "origin": "ast",
+          "feature": "THREAD_POOL.CONFIG.CORE_SIZE",
+          "evidence": "private final ThreadPoolExecutor worker=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(8),r->new Thread(r,\"delivery-worker\"),new ThreadPoolExecutor.AbortPolicy());",
+          "line": 5,
+          "column": 45,
+          "confidence": "high",
+          "attributes": {
+            "value": "1"
+          }
+        },
+        {
+          "leaf": "tp.create.sizing",
+          "origin": "ast",
+          "feature": "THREAD_POOL.CONFIG.MAX_SIZE",
+          "evidence": "private final ThreadPoolExecutor worker=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(8),r->new Thread(r,\"delivery-worker\"),new ThreadPoolExecutor.AbortPolicy());",
+          "line": 5,
+          "column": 45,
+          "confidence": "high",
+          "attributes": {
+            "value": "1"
+          }
+        },
+        {
+          "leaf": "tp.create.sizing",
+          "origin": "ast",
+          "feature": "THREAD_POOL.CONFIG.KEEP_ALIVE",
+          "evidence": "private final ThreadPoolExecutor worker=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(8),r->new Thread(r,\"delivery-worker\"),new ThreadPoolExecutor.AbortPolicy());",
+          "line": 5,
+          "column": 45,
+          "confidence": "high",
+          "attributes": {
+            "value": "30",
+            "unit": "TimeUnit.SECONDS"
+          }
+        },
+        {
+          "leaf": "tp.create.queue",
+          "origin": "ast",
+          "feature": "THREAD_POOL.CONFIG.QUEUE",
+          "evidence": "private final ThreadPoolExecutor worker=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(8),r->new Thread(r,\"delivery-worker\"),new ThreadPoolExecutor.AbortPolicy());",
+          "line": 5,
+          "column": 92,
+          "confidence": "high",
+          "attributes": {
+            "queue": "ArrayBlockingQueue",
+            "bounded": true,
+            "capacity": "8"
+          }
+        },
+        {
+          "leaf": "tp.create.rejection",
+          "origin": "ast",
+          "feature": "THREAD_POOL.CONFIG.REJECTION",
+          "evidence": "private final ThreadPoolExecutor worker=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(8),r->new Thread(r,\"delivery-worker\"),new ThreadPoolExecutor.AbortPolicy());",
+          "line": 5,
+          "column": 155,
+          "confidence": "high",
+          "attributes": {
+            "policy": "AbortPolicy",
+            "kind": "abort"
+          }
+        },
+        {
+          "leaf": "tp.create.naming",
+          "origin": "ast",
+          "feature": "THREAD_POOL.CONFIG.THREAD_FACTORY",
+          "evidence": "private final ThreadPoolExecutor worker=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(8),r->new Thread(r,\"delivery-worker\"),new ThreadPoolExecutor.AbortPolicy());",
+          "line": 5,
+          "column": 120,
+          "confidence": "high",
+          "attributes": {
+            "factory": "<lambda>"
+          }
+        }
+      ],
+      "parent": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker"
+    },
+    {
+      "id": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker::<init>(Consumer<String>)",
+      "kind": "constructor",
+      "name": "ExceptionWorker",
+      "signature": "<init>(Consumer<String>)",
+      "start": 340,
+      "end": 448,
+      "line": 6,
+      "endLine": 6,
+      "tags": [],
+      "parent": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker"
+    },
+    {
+      "id": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker::deliver(String)",
+      "kind": "method",
+      "name": "deliver",
+      "signature": "deliver(String)",
+      "start": 453,
+      "end": 570,
+      "line": 7,
+      "endLine": 7,
+      "tags": [
+        {
+          "leaf": "tp.use.result",
+          "origin": "ast",
+          "feature": "THREAD_POOL.SUBMIT",
+          "evidence": "public void deliver(String value){worker.execute(()->{try{callback.accept(value);}catch(RuntimeException error){}});}",
+          "line": 7,
+          "column": 39,
+          "confidence": "high",
+          "attributes": {
+            "method": "execute",
+            "receiver": "worker",
+            "resolution": "initializer",
+            "result_used": false
+          }
+        },
+        {
+          "leaf": "tp.use.exception",
+          "origin": "ast",
+          "feature": "THREAD_POOL.EXECUTE",
+          "evidence": "public void deliver(String value){worker.execute(()->{try{callback.accept(value);}catch(RuntimeException error){}});}",
+          "line": 7,
+          "column": 39,
+          "confidence": "high",
+          "attributes": {
+            "method": "execute",
+            "receiver": "worker",
+            "resolution": "initializer",
+            "result_used": false
+          }
+        }
+      ],
+      "parent": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker"
+    },
+    {
+      "id": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker::completed()",
+      "kind": "method",
+      "name": "completed",
+      "signature": "completed()",
+      "start": 575,
+      "end": 638,
+      "line": 8,
+      "endLine": 8,
+      "tags": [
+        {
+          "leaf": "tp.use.monitor",
+          "origin": "ast",
+          "feature": "THREAD_POOL.MONITOR",
+          "evidence": "public long completed(){return worker.getCompletedTaskCount();}",
+          "line": 8,
+          "column": 36,
+          "confidence": "high",
+          "attributes": {
+            "method": "getCompletedTaskCount",
+            "receiver": "worker"
+          }
+        }
+      ],
+      "parent": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker"
+    },
+    {
+      "id": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker::stop()",
+      "kind": "method",
+      "name": "stop",
+      "signature": "stop()",
+      "start": 643,
+      "end": 803,
+      "line": 9,
+      "endLine": 9,
+      "tags": [
+        {
+          "leaf": "tp.use.shutdown",
+          "origin": "ast",
+          "feature": "THREAD_POOL.SHUTDOWN",
+          "evidence": "public void stop()throws InterruptedException{worker.shutdown();if(!worker.awaitTermination(1,TimeUnit.SECONDS))throw new IllegalStateException(\"not stopped\");}",
+          "line": 9,
+          "column": 51,
+          "confidence": "high",
+          "attributes": {
+            "method": "shutdown",
+            "receiver": "worker"
+          }
+        },
+        {
+          "leaf": "tp.use.shutdown",
+          "origin": "ast",
+          "feature": "THREAD_POOL.AWAIT_TERMINATION",
+          "evidence": "public void stop()throws InterruptedException{worker.shutdown();if(!worker.awaitTermination(1,TimeUnit.SECONDS))throw new IllegalStateException(\"not stopped\");}",
+          "line": 9,
+          "column": 73,
+          "confidence": "high",
+          "attributes": {
+            "method": "awaitTermination",
+            "receiver": "worker",
+            "timeout_args": 2
+          }
+        }
+      ],
+      "parent": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker"
+    }
+  ],
+  "edges": [
+    {
+      "from": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker",
+      "to": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker::field:callback",
+      "kind": "contains"
+    },
+    {
+      "from": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker",
+      "to": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker::field:worker",
+      "kind": "contains"
+    },
+    {
+      "from": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker",
+      "to": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker::<init>(Consumer<String>)",
+      "kind": "contains"
+    },
+    {
+      "from": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker::<init>(Consumer<String>)",
+      "to": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker::field:callback",
+      "kind": "uses"
+    },
+    {
+      "from": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker",
+      "to": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker::deliver(String)",
+      "kind": "contains"
+    },
+    {
+      "from": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker::deliver(String)",
+      "to": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker::field:worker",
+      "kind": "uses"
+    },
+    {
+      "from": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker::deliver(String)",
+      "to": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker::field:callback",
+      "kind": "uses"
+    },
+    {
+      "from": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker",
+      "to": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker::completed()",
+      "kind": "contains"
+    },
+    {
+      "from": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker::completed()",
+      "to": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker::field:worker",
+      "kind": "uses"
+    },
+    {
+      "from": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker",
+      "to": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker::stop()",
+      "kind": "contains"
+    },
+    {
+      "from": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker::stop()",
+      "to": "eval/entity-review/cases/ExceptionWorker.java#ExceptionWorker::field:worker",
+      "kind": "uses"
+    }
+  ]
+}

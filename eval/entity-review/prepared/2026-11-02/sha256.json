@@ -1,0 +1,22 @@
+{
+  "README.md": "51724a548941360fadfeeeed2f71515cf2bdc0aa72b459f24ccb8892ce570e8c",
+  "engine/correspondence.md": "e06d28dd1718fecc137450b2ee2330c99d08e8ccb1b3b0756931346fbc6ab5c8",
+  "engine/graphs/REVIEW-CAPACITY.json": "c4c47a4d277a835db7d0adb5cb2dc80c7e40cbc67efe73e13a58a8a15a1c3327",
+  "engine/graphs/REVIEW-FAILURE.json": "05b1df0f574a26f5faeeb768bbe91adab31f76912bf211297035df34bacc153f",
+  "engine/graphs/REVIEW-TENANT.json": "670de4add24029cd826c9c8640fae8c3f77c91db792562f0de12a2e53d351c4e",
+  "engine/implementation.json": "6c1b90fa23e4dbd362f8476ee4b32c22699171d02affbdf30134a6c0f022efac",
+  "engine/predictions.json": "90ea3df38e79062cf953099009f6640d1a497798897e8432ba37cef993e8def6",
+  "engine/reference-category-audit.json": "fa166bb57ba398d6b40be577c75726000a28c89f16ddcc5521fd2d1a5771ef6e",
+  "review-state.json": "0a6fc9055c688f8d3d02abe25af7a5beb208302017d4ee092fe83359557eed9b",
+  "reviewer/README.md": "b6e7e7d736c2ed4da975a7f18c831e544b9b0beecebe073f69a3656faad4005e",
+  "reviewer/annotations.template.json": "097de9464b94992e52fae37a9e047c4b7877f2a7939596d1cc089e71d8528a0a",
+  "reviewer/inputs/REVIEW-CAPACITY/ExportWorker.java": "608f7bf6261828496ea147f6b2970f4b1d1117ce86e5f9774f7b6760f7c61ce3",
+  "reviewer/inputs/REVIEW-FAILURE/ExceptionWorker.java": "1f96c797b4ddcb7de8d4daae9989e1a7653a474a7255419ebc054bba0c70225d",
+  "reviewer/inputs/REVIEW-TENANT/TenantBatchService.java": "324fe37c4d0cb001685f545d359f5828b0e6655d48af79d8542a52cd18675700",
+  "reviewer/leaf-catalog.json": "5e5f8c29f94884361896de95bcd931c6c5c4d2ed41f084addb3cf787429bd313",
+  "reviewer/packet-manifest.json": "35f320abb9a9e10239bbe8373609618e74c85beaa9208f77c7d1141663362e6f",
+  "reviewer/sources/java-thread-pool-best-practices.md": "ee317638a98fadaeb94372e17291938e9643213a5ab746442aa7b1a4e29e69c7",
+  "reviewer/sources/java-thread-pool-summary.md": "d4e76cfe948b2484db0321d7231080725a9e180d27397d842965358f61420953",
+  "reviewer/tasks.json": "750fa243905f0638efddbe3d2900175ccb680ccafb89fc2a826b327e72025fc6",
+  "reviewer-package.zip": "056699e0af01ac9ce40daf9553d248c720b0673d837a6c876b3535048caec9c6"
+}

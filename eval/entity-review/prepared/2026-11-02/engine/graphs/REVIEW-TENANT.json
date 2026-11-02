@@ -1,0 +1,887 @@
+{
+  "schema": 1,
+  "tagger": 1,
+  "tree_hash": "6500fa00cab4e2278f9d34dcac2d39825728c88948eabe207ba20ac78966449d",
+  "file": "eval/entity-review/cases/TenantBatchService.java",
+  "source_hash": "324fe37c4d0cb001685f545d359f5828b0e6655d48af79d8542a52cd18675700",
+  "entities": [
+    {
+      "id": "eval/entity-review/cases/TenantBatchService.java#TenantProcessor",
+      "kind": "interface",
+      "name": "TenantProcessor",
+      "signature": "TenantProcessor",
+      "start": 67,
+      "end": 151,
+      "line": 3,
+      "endLine": 3,
+      "tags": []
+    },
+    {
+      "id": "eval/entity-review/cases/TenantBatchService.java#TenantProcessor::process(String,String)",
+      "kind": "method",
+      "name": "process",
+      "signature": "process(String,String)",
+      "start": 94,
+      "end": 150,
+      "line": 3,
+      "endLine": 3,
+      "tags": [],
+      "parent": "eval/entity-review/cases/TenantBatchService.java#TenantProcessor"
+    },
+    {
+      "id": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService",
+      "kind": "class",
+      "name": "TenantBatchService",
+      "signature": "TenantBatchService",
+      "start": 152,
+      "end": 1384,
+      "line": 4,
+      "endLine": 20,
+      "tags": [
+        {
+          "leaf": "tp.use.context",
+          "origin": "ast",
+          "feature": "THREAD_POOL.THREAD_LOCAL",
+          "evidence": "public static final ThreadLocal<String> TENANT=new ThreadLocal<>();",
+          "line": 5,
+          "column": 5,
+          "confidence": "high",
+          "attributes": {
+            "kind": "declare",
+            "name": "TENANT",
+            "in_finally": false
+          }
+        },
+        {
+          "leaf": "tp.create.workload",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.CREATE",
+          "evidence": "private final ScheduledExecutorService auditScheduler=Executors.newSingleThreadScheduledExecutor();",
+          "line": 8,
+          "column": 59,
+          "confidence": "high",
+          "attributes": {
+            "kind": "executors_factory",
+            "scope": "field",
+            "factory": "newSingleThreadScheduledExecutor"
+          },
+          "from_entity": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::field:auditScheduler"
+        },
+        {
+          "leaf": "tp.create.explicit",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.CREATE",
+          "evidence": "private final ScheduledExecutorService auditScheduler=Executors.newSingleThreadScheduledExecutor();",
+          "line": 8,
+          "column": 59,
+          "confidence": "high",
+          "attributes": {
+            "kind": "executors_factory",
+            "scope": "field",
+            "factory": "newSingleThreadScheduledExecutor"
+          },
+          "from_entity": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::field:auditScheduler"
+        },
+        {
+          "leaf": "tp.create.sizing",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.CONFIG.CORE_SIZE",
+          "evidence": "private final ScheduledExecutorService auditScheduler=Executors.newSingleThreadScheduledExecutor();",
+          "line": 8,
+          "column": 59,
+          "confidence": "high",
+          "attributes": {
+            "value": "1"
+          },
+          "from_entity": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::field:auditScheduler"
+        },
+        {
+          "leaf": "tp.create.sizing",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.CONFIG.MAX_SIZE",
+          "evidence": "private final ScheduledExecutorService auditScheduler=Executors.newSingleThreadScheduledExecutor();",
+          "line": 8,
+          "column": 59,
+          "confidence": "high",
+          "attributes": {
+            "value": "1"
+          },
+          "from_entity": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::field:auditScheduler"
+        },
+        {
+          "leaf": "tp.create.queue",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.CONFIG.QUEUE",
+          "evidence": "private final ScheduledExecutorService auditScheduler=Executors.newSingleThreadScheduledExecutor();",
+          "line": 8,
+          "column": 59,
+          "confidence": "medium",
+          "attributes": {
+            "queue": "DelayedWorkQueue",
+            "bounded": false,
+            "implicit": true
+          },
+          "from_entity": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::field:auditScheduler"
+        },
+        {
+          "leaf": "tp.use.exception",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.SCHEDULED",
+          "evidence": "private final ScheduledExecutorService auditScheduler=Executors.newSingleThreadScheduledExecutor();",
+          "line": 8,
+          "column": 59,
+          "confidence": "high",
+          "attributes": {
+            "kind": "executors_factory",
+            "scope": "field",
+            "factory": "newSingleThreadScheduledExecutor"
+          },
+          "from_entity": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::field:auditScheduler"
+        },
+        {
+          "leaf": "tp.create.workload",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.CREATE",
+          "evidence": "private final ThreadPoolExecutor workers=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(8));",
+          "line": 7,
+          "column": 46,
+          "confidence": "high",
+          "attributes": {
+            "kind": "thread_pool_executor",
+            "scope": "field"
+          },
+          "from_entity": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::field:workers"
+        },
+        {
+          "leaf": "tp.create.explicit",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.CREATE",
+          "evidence": "private final ThreadPoolExecutor workers=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(8));",
+          "line": 7,
+          "column": 46,
+          "confidence": "high",
+          "attributes": {
+            "kind": "thread_pool_executor",
+            "scope": "field"
+          },
+          "from_entity": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::field:workers"
+        },
+        {
+          "leaf": "tp.create.sizing",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.CONFIG.CORE_SIZE",
+          "evidence": "private final ThreadPoolExecutor workers=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(8));",
+          "line": 7,
+          "column": 46,
+          "confidence": "high",
+          "attributes": {
+            "value": "1"
+          },
+          "from_entity": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::field:workers"
+        },
+        {
+          "leaf": "tp.create.sizing",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.CONFIG.MAX_SIZE",
+          "evidence": "private final ThreadPoolExecutor workers=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(8));",
+          "line": 7,
+          "column": 46,
+          "confidence": "high",
+          "attributes": {
+            "value": "1"
+          },
+          "from_entity": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::field:workers"
+        },
+        {
+          "leaf": "tp.create.sizing",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.CONFIG.KEEP_ALIVE",
+          "evidence": "private final ThreadPoolExecutor workers=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(8));",
+          "line": 7,
+          "column": 46,
+          "confidence": "high",
+          "attributes": {
+            "value": "30",
+            "unit": "TimeUnit.SECONDS"
+          },
+          "from_entity": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::field:workers"
+        },
+        {
+          "leaf": "tp.create.queue",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.CONFIG.QUEUE",
+          "evidence": "private final ThreadPoolExecutor workers=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(8));",
+          "line": 7,
+          "column": 93,
+          "confidence": "high",
+          "attributes": {
+            "queue": "ArrayBlockingQueue",
+            "bounded": true,
+            "capacity": "8"
+          },
+          "from_entity": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::field:workers"
+        },
+        {
+          "leaf": "tp.use.result",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.SUBMIT",
+          "evidence": "public void scheduleAudit(Runnable task){auditScheduler.schedule(task,1,TimeUnit.SECONDS);}",
+          "line": 15,
+          "column": 46,
+          "confidence": "high",
+          "attributes": {
+            "method": "schedule",
+            "receiver": "auditScheduler",
+            "resolution": "initializer",
+            "result_used": false
+          },
+          "from_entity": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::scheduleAudit(Runnable)"
+        },
+        {
+          "leaf": "tp.use.exception",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.SCHEDULED",
+          "evidence": "public void scheduleAudit(Runnable task){auditScheduler.schedule(task,1,TimeUnit.SECONDS);}",
+          "line": 15,
+          "column": 46,
+          "confidence": "high",
+          "attributes": {
+            "method": "schedule",
+            "receiver": "auditScheduler",
+            "resolution": "initializer",
+            "result_used": false
+          },
+          "from_entity": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::scheduleAudit(Runnable)"
+        },
+        {
+          "leaf": "tp.use.result",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.SUBMIT",
+          "evidence": "private Future<String> submitWork(String tenant,String id){return workers.submit(()->{TENANT.set(tenant);return TENANT.get()+\":\"+downstream.apply(id);});}",
+          "line": 14,
+          "column": 71,
+          "confidence": "high",
+          "attributes": {
+            "method": "submit",
+            "receiver": "workers",
+            "resolution": "initializer",
+            "result_used": true
+          },
+          "from_entity": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::submitWork(String,String)"
+        },
+        {
+          "leaf": "tp.use.context",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.THREAD_LOCAL",
+          "evidence": "private Future<String> submitWork(String tenant,String id){return workers.submit(()->{TENANT.set(tenant);return TENANT.get()+\":\"+downstream.apply(id);});}",
+          "line": 14,
+          "column": 91,
+          "confidence": "high",
+          "attributes": {
+            "kind": "set",
+            "name": "TENANT",
+            "in_finally": false
+          },
+          "from_entity": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::submitWork(String,String)"
+        },
+        {
+          "leaf": "tp.use.context",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.THREAD_LOCAL",
+          "evidence": "private Future<String> submitWork(String tenant,String id){return workers.submit(()->{TENANT.set(tenant);return TENANT.get()+\":\"+downstream.apply(id);});}",
+          "line": 14,
+          "column": 117,
+          "confidence": "high",
+          "attributes": {
+            "kind": "get",
+            "name": "TENANT",
+            "in_finally": false
+          },
+          "from_entity": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::submitWork(String,String)"
+        },
+        {
+          "leaf": "tp.use.context",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.THREAD_LOCAL",
+          "evidence": "TENANT.set(tenant);",
+          "line": 11,
+          "column": 9,
+          "confidence": "high",
+          "attributes": {
+            "kind": "set",
+            "name": "TENANT",
+            "in_finally": false
+          },
+          "from_entity": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::process(String,String)"
+        },
+        {
+          "leaf": "tp.use.shutdown",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.SHUTDOWN",
+          "evidence": "workers.shutdown();auditScheduler.shutdown();",
+          "line": 17,
+          "column": 9,
+          "confidence": "high",
+          "attributes": {
+            "method": "shutdown",
+            "receiver": "workers"
+          },
+          "from_entity": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::stop()"
+        },
+        {
+          "leaf": "tp.use.shutdown",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.SHUTDOWN",
+          "evidence": "workers.shutdown();auditScheduler.shutdown();",
+          "line": 17,
+          "column": 28,
+          "confidence": "high",
+          "attributes": {
+            "method": "shutdown",
+            "receiver": "auditScheduler"
+          },
+          "from_entity": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::stop()"
+        },
+        {
+          "leaf": "tp.use.shutdown",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.AWAIT_TERMINATION",
+          "evidence": "if(!workers.awaitTermination(1,TimeUnit.SECONDS)||!auditScheduler.awaitTermination(1,TimeUnit.SECONDS))throw new IllegalStateException(\"not stopped\");",
+          "line": 18,
+          "column": 13,
+          "confidence": "high",
+          "attributes": {
+            "method": "awaitTermination",
+            "receiver": "workers",
+            "timeout_args": 2
+          },
+          "from_entity": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::stop()"
+        },
+        {
+          "leaf": "tp.use.shutdown",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.AWAIT_TERMINATION",
+          "evidence": "if(!workers.awaitTermination(1,TimeUnit.SECONDS)||!auditScheduler.awaitTermination(1,TimeUnit.SECONDS))throw new IllegalStateException(\"not stopped\");",
+          "line": 18,
+          "column": 60,
+          "confidence": "high",
+          "attributes": {
+            "method": "awaitTermination",
+            "receiver": "auditScheduler",
+            "timeout_args": 2
+          },
+          "from_entity": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::stop()"
+        }
+      ]
+    },
+    {
+      "id": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::field:TENANT",
+      "kind": "field",
+      "name": "TENANT",
+      "signature": "field:TENANT",
+      "start": 257,
+      "end": 283,
+      "line": 5,
+      "endLine": 5,
+      "tags": [],
+      "parent": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService"
+    },
+    {
+      "id": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::field:downstream",
+      "kind": "field",
+      "name": "downstream",
+      "signature": "field:downstream",
+      "start": 327,
+      "end": 337,
+      "line": 6,
+      "endLine": 6,
+      "tags": [],
+      "parent": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService"
+    },
+    {
+      "id": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::field:workers",
+      "kind": "field",
+      "name": "workers",
+      "signature": "field:workers",
+      "start": 376,
+      "end": 459,
+      "line": 7,
+      "endLine": 7,
+      "tags": [
+        {
+          "leaf": "tp.create.workload",
+          "origin": "ast",
+          "feature": "THREAD_POOL.CREATE",
+          "evidence": "private final ThreadPoolExecutor workers=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(8));",
+          "line": 7,
+          "column": 46,
+          "confidence": "high",
+          "attributes": {
+            "kind": "thread_pool_executor",
+            "scope": "field"
+          }
+        },
+        {
+          "leaf": "tp.create.explicit",
+          "origin": "ast",
+          "feature": "THREAD_POOL.CREATE",
+          "evidence": "private final ThreadPoolExecutor workers=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(8));",
+          "line": 7,
+          "column": 46,
+          "confidence": "high",
+          "attributes": {
+            "kind": "thread_pool_executor",
+            "scope": "field"
+          }
+        },
+        {
+          "leaf": "tp.create.sizing",
+          "origin": "ast",
+          "feature": "THREAD_POOL.CONFIG.CORE_SIZE",
+          "evidence": "private final ThreadPoolExecutor workers=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(8));",
+          "line": 7,
+          "column": 46,
+          "confidence": "high",
+          "attributes": {
+            "value": "1"
+          }
+        },
+        {
+          "leaf": "tp.create.sizing",
+          "origin": "ast",
+          "feature": "THREAD_POOL.CONFIG.MAX_SIZE",
+          "evidence": "private final ThreadPoolExecutor workers=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(8));",
+          "line": 7,
+          "column": 46,
+          "confidence": "high",
+          "attributes": {
+            "value": "1"
+          }
+        },
+        {
+          "leaf": "tp.create.sizing",
+          "origin": "ast",
+          "feature": "THREAD_POOL.CONFIG.KEEP_ALIVE",
+          "evidence": "private final ThreadPoolExecutor workers=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(8));",
+          "line": 7,
+          "column": 46,
+          "confidence": "high",
+          "attributes": {
+            "value": "30",
+            "unit": "TimeUnit.SECONDS"
+          }
+        },
+        {
+          "leaf": "tp.create.queue",
+          "origin": "ast",
+          "feature": "THREAD_POOL.CONFIG.QUEUE",
+          "evidence": "private final ThreadPoolExecutor workers=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(8));",
+          "line": 7,
+          "column": 93,
+          "confidence": "high",
+          "attributes": {
+            "queue": "ArrayBlockingQueue",
+            "bounded": true,
+            "capacity": "8"
+          }
+        }
+      ],
+      "parent": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService"
+    },
+    {
+      "id": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::field:auditScheduler",
+      "kind": "field",
+      "name": "auditScheduler",
+      "signature": "field:auditScheduler",
+      "start": 504,
+      "end": 563,
+      "line": 8,
+      "endLine": 8,
+      "tags": [
+        {
+          "leaf": "tp.create.workload",
+          "origin": "ast",
+          "feature": "THREAD_POOL.CREATE",
+          "evidence": "private final ScheduledExecutorService auditScheduler=Executors.newSingleThreadScheduledExecutor();",
+          "line": 8,
+          "column": 59,
+          "confidence": "high",
+          "attributes": {
+            "kind": "executors_factory",
+            "scope": "field",
+            "factory": "newSingleThreadScheduledExecutor"
+          }
+        },
+        {
+          "leaf": "tp.create.explicit",
+          "origin": "ast",
+          "feature": "THREAD_POOL.CREATE",
+          "evidence": "private final ScheduledExecutorService auditScheduler=Executors.newSingleThreadScheduledExecutor();",
+          "line": 8,
+          "column": 59,
+          "confidence": "high",
+          "attributes": {
+            "kind": "executors_factory",
+            "scope": "field",
+            "factory": "newSingleThreadScheduledExecutor"
+          }
+        },
+        {
+          "leaf": "tp.create.sizing",
+          "origin": "ast",
+          "feature": "THREAD_POOL.CONFIG.CORE_SIZE",
+          "evidence": "private final ScheduledExecutorService auditScheduler=Executors.newSingleThreadScheduledExecutor();",
+          "line": 8,
+          "column": 59,
+          "confidence": "high",
+          "attributes": {
+            "value": "1"
+          }
+        },
+        {
+          "leaf": "tp.create.sizing",
+          "origin": "ast",
+          "feature": "THREAD_POOL.CONFIG.MAX_SIZE",
+          "evidence": "private final ScheduledExecutorService auditScheduler=Executors.newSingleThreadScheduledExecutor();",
+          "line": 8,
+          "column": 59,
+          "confidence": "high",
+          "attributes": {
+            "value": "1"
+          }
+        },
+        {
+          "leaf": "tp.create.queue",
+          "origin": "ast",
+          "feature": "THREAD_POOL.CONFIG.QUEUE",
+          "evidence": "private final ScheduledExecutorService auditScheduler=Executors.newSingleThreadScheduledExecutor();",
+          "line": 8,
+          "column": 59,
+          "confidence": "medium",
+          "attributes": {
+            "queue": "DelayedWorkQueue",
+            "bounded": false,
+            "implicit": true
+          }
+        },
+        {
+          "leaf": "tp.use.exception",
+          "origin": "ast",
+          "feature": "THREAD_POOL.SCHEDULED",
+          "evidence": "private final ScheduledExecutorService auditScheduler=Executors.newSingleThreadScheduledExecutor();",
+          "line": 8,
+          "column": 59,
+          "confidence": "high",
+          "attributes": {
+            "kind": "executors_factory",
+            "scope": "field",
+            "factory": "newSingleThreadScheduledExecutor"
+          }
+        }
+      ],
+      "parent": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService"
+    },
+    {
+      "id": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::<init>(Function<String,String>)",
+      "kind": "constructor",
+      "name": "TenantBatchService",
+      "signature": "<init>(Function<String,String>)",
+      "start": 569,
+      "end": 693,
+      "line": 9,
+      "endLine": 9,
+      "tags": [],
+      "parent": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService"
+    },
+    {
+      "id": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::process(String,String)",
+      "kind": "method",
+      "name": "process",
+      "signature": "process(String,String)",
+      "start": 698,
+      "end": 857,
+      "line": 10,
+      "endLine": 13,
+      "tags": [
+        {
+          "leaf": "tp.use.context",
+          "origin": "ast",
+          "feature": "THREAD_POOL.THREAD_LOCAL",
+          "evidence": "TENANT.set(tenant);",
+          "line": 11,
+          "column": 9,
+          "confidence": "high",
+          "attributes": {
+            "kind": "set",
+            "name": "TENANT",
+            "in_finally": false
+          }
+        }
+      ],
+      "parent": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService"
+    },
+    {
+      "id": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::submitWork(String,String)",
+      "kind": "method",
+      "name": "submitWork",
+      "signature": "submitWork(String,String)",
+      "start": 862,
+      "end": 1016,
+      "line": 14,
+      "endLine": 14,
+      "tags": [
+        {
+          "leaf": "tp.use.result",
+          "origin": "ast",
+          "feature": "THREAD_POOL.SUBMIT",
+          "evidence": "private Future<String> submitWork(String tenant,String id){return workers.submit(()->{TENANT.set(tenant);return TENANT.get()+\":\"+downstream.apply(id);});}",
+          "line": 14,
+          "column": 71,
+          "confidence": "high",
+          "attributes": {
+            "method": "submit",
+            "receiver": "workers",
+            "resolution": "initializer",
+            "result_used": true
+          }
+        },
+        {
+          "leaf": "tp.use.context",
+          "origin": "ast",
+          "feature": "THREAD_POOL.THREAD_LOCAL",
+          "evidence": "private Future<String> submitWork(String tenant,String id){return workers.submit(()->{TENANT.set(tenant);return TENANT.get()+\":\"+downstream.apply(id);});}",
+          "line": 14,
+          "column": 91,
+          "confidence": "high",
+          "attributes": {
+            "kind": "set",
+            "name": "TENANT",
+            "in_finally": false
+          }
+        },
+        {
+          "leaf": "tp.use.context",
+          "origin": "ast",
+          "feature": "THREAD_POOL.THREAD_LOCAL",
+          "evidence": "private Future<String> submitWork(String tenant,String id){return workers.submit(()->{TENANT.set(tenant);return TENANT.get()+\":\"+downstream.apply(id);});}",
+          "line": 14,
+          "column": 117,
+          "confidence": "high",
+          "attributes": {
+            "kind": "get",
+            "name": "TENANT",
+            "in_finally": false
+          }
+        }
+      ],
+      "parent": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService"
+    },
+    {
+      "id": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::scheduleAudit(Runnable)",
+      "kind": "method",
+      "name": "scheduleAudit",
+      "signature": "scheduleAudit(Runnable)",
+      "start": 1021,
+      "end": 1112,
+      "line": 15,
+      "endLine": 15,
+      "tags": [
+        {
+          "leaf": "tp.use.result",
+          "origin": "ast",
+          "feature": "THREAD_POOL.SUBMIT",
+          "evidence": "public void scheduleAudit(Runnable task){auditScheduler.schedule(task,1,TimeUnit.SECONDS);}",
+          "line": 15,
+          "column": 46,
+          "confidence": "high",
+          "attributes": {
+            "method": "schedule",
+            "receiver": "auditScheduler",
+            "resolution": "initializer",
+            "result_used": false
+          }
+        },
+        {
+          "leaf": "tp.use.exception",
+          "origin": "ast",
+          "feature": "THREAD_POOL.SCHEDULED",
+          "evidence": "public void scheduleAudit(Runnable task){auditScheduler.schedule(task,1,TimeUnit.SECONDS);}",
+          "line": 15,
+          "column": 46,
+          "confidence": "high",
+          "attributes": {
+            "method": "schedule",
+            "receiver": "auditScheduler",
+            "resolution": "initializer",
+            "result_used": false
+          }
+        }
+      ],
+      "parent": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService"
+    },
+    {
+      "id": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::stop()",
+      "kind": "method",
+      "name": "stop",
+      "signature": "stop()",
+      "start": 1117,
+      "end": 1382,
+      "line": 16,
+      "endLine": 19,
+      "tags": [
+        {
+          "leaf": "tp.use.shutdown",
+          "origin": "ast",
+          "feature": "THREAD_POOL.SHUTDOWN",
+          "evidence": "workers.shutdown();auditScheduler.shutdown();",
+          "line": 17,
+          "column": 9,
+          "confidence": "high",
+          "attributes": {
+            "method": "shutdown",
+            "receiver": "workers"
+          }
+        },
+        {
+          "leaf": "tp.use.shutdown",
+          "origin": "ast",
+          "feature": "THREAD_POOL.SHUTDOWN",
+          "evidence": "workers.shutdown();auditScheduler.shutdown();",
+          "line": 17,
+          "column": 28,
+          "confidence": "high",
+          "attributes": {
+            "method": "shutdown",
+            "receiver": "auditScheduler"
+          }
+        },
+        {
+          "leaf": "tp.use.shutdown",
+          "origin": "ast",
+          "feature": "THREAD_POOL.AWAIT_TERMINATION",
+          "evidence": "if(!workers.awaitTermination(1,TimeUnit.SECONDS)||!auditScheduler.awaitTermination(1,TimeUnit.SECONDS))throw new IllegalStateException(\"not stopped\");",
+          "line": 18,
+          "column": 13,
+          "confidence": "high",
+          "attributes": {
+            "method": "awaitTermination",
+            "receiver": "workers",
+            "timeout_args": 2
+          }
+        },
+        {
+          "leaf": "tp.use.shutdown",
+          "origin": "ast",
+          "feature": "THREAD_POOL.AWAIT_TERMINATION",
+          "evidence": "if(!workers.awaitTermination(1,TimeUnit.SECONDS)||!auditScheduler.awaitTermination(1,TimeUnit.SECONDS))throw new IllegalStateException(\"not stopped\");",
+          "line": 18,
+          "column": 60,
+          "confidence": "high",
+          "attributes": {
+            "method": "awaitTermination",
+            "receiver": "auditScheduler",
+            "timeout_args": 2
+          }
+        }
+      ],
+      "parent": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService"
+    }
+  ],
+  "edges": [
+    {
+      "from": "eval/entity-review/cases/TenantBatchService.java#TenantProcessor",
+      "to": "eval/entity-review/cases/TenantBatchService.java#TenantProcessor::process(String,String)",
+      "kind": "contains"
+    },
+    {
+      "from": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService",
+      "to": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::field:TENANT",
+      "kind": "contains"
+    },
+    {
+      "from": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService",
+      "to": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::field:downstream",
+      "kind": "contains"
+    },
+    {
+      "from": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService",
+      "to": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::field:workers",
+      "kind": "contains"
+    },
+    {
+      "from": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService",
+      "to": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::field:auditScheduler",
+      "kind": "contains"
+    },
+    {
+      "from": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService",
+      "to": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::<init>(Function<String,String>)",
+      "kind": "contains"
+    },
+    {
+      "from": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::<init>(Function<String,String>)",
+      "to": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::field:downstream",
+      "kind": "uses"
+    },
+    {
+      "from": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService",
+      "to": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::process(String,String)",
+      "kind": "contains"
+    },
+    {
+      "from": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::process(String,String)",
+      "to": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::field:TENANT",
+      "kind": "uses"
+    },
+    {
+      "from": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::process(String,String)",
+      "to": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::submitWork(String,String)",
+      "kind": "calls"
+    },
+    {
+      "from": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService",
+      "to": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::submitWork(String,String)",
+      "kind": "contains"
+    },
+    {
+      "from": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::submitWork(String,String)",
+      "to": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::field:workers",
+      "kind": "uses"
+    },
+    {
+      "from": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::submitWork(String,String)",
+      "to": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::field:TENANT",
+      "kind": "uses"
+    },
+    {
+      "from": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::submitWork(String,String)",
+      "to": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::field:downstream",
+      "kind": "uses"
+    },
+    {
+      "from": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService",
+      "to": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::scheduleAudit(Runnable)",
+      "kind": "contains"
+    },
+    {
+      "from": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::scheduleAudit(Runnable)",
+      "to": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::field:auditScheduler",
+      "kind": "uses"
+    },
+    {
+      "from": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService",
+      "to": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::stop()",
+      "kind": "contains"
+    },
+    {
+      "from": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::stop()",
+      "to": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::field:workers",
+      "kind": "uses"
+    },
+    {
+      "from": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::stop()",
+      "to": "eval/entity-review/cases/TenantBatchService.java#TenantBatchService::field:auditScheduler",
+      "kind": "uses"
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "real_supplier_requests": 0,
+  "candidate_origin": "agent_authored_development_candidates",
+  "independent_holdout_verified": false,
+  "external_review_status": "pending",
+  "gold_label_count_filled": 0,
+  "gold_labels_waiting": 45,
+  "retrieval_quality_metrics": null,
+  "typecheck": "passed",
+  "jdk": "21.0.12.1; pinned dependencies verified",
+  "initial_targeted": {
+    "tests": 9,
+    "passed": 9,
+    "failed": 0,
+    "skipped": 0
+  },
+  "final_full": {
+    "tests": 183,
+    "passed": 183,
+    "failed": 0,
+    "skipped": 0
+  },
+  "behavior_contracts": "Three references and a distinct capacity configuration accepted; original bugs and excess-memory/worker-only leakage variants rejected.",
+  "notes": [
+    "Synthetic reviewer identities and labels occur only in temporary unit-test fixtures.",
+    "Reviewer independence is self-declared, not authenticated.",
+    "Prepared packet contains no predictions or reference outputs.",
+    "No formal model experiment is started from this candidate suite."
+  ]
+}

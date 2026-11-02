@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "origin": "agent_authored_development_candidates",
+  "declared_independent_holdout": false,
+  "tree_hash": "6500fa00cab4e2278f9d34dcac2d39825728c88948eabe207ba20ac78966449d",
+  "tokenBudget": 1200,
+  "files": {
+    "README.md": "b6e7e7d736c2ed4da975a7f18c831e544b9b0beecebe073f69a3656faad4005e",
+    "inputs/REVIEW-CAPACITY/ExportWorker.java": "608f7bf6261828496ea147f6b2970f4b1d1117ce86e5f9774f7b6760f7c61ce3",
+    "inputs/REVIEW-FAILURE/ExceptionWorker.java": "1f96c797b4ddcb7de8d4daae9989e1a7653a474a7255419ebc054bba0c70225d",
+    "inputs/REVIEW-TENANT/TenantBatchService.java": "324fe37c4d0cb001685f545d359f5828b0e6655d48af79d8542a52cd18675700",
+    "leaf-catalog.json": "5e5f8c29f94884361896de95bcd931c6c5c4d2ed41f084addb3cf787429bd313",
+    "sources/java-thread-pool-best-practices.md": "ee317638a98fadaeb94372e17291938e9643213a5ab746442aa7b1a4e29e69c7",
+    "sources/java-thread-pool-summary.md": "d4e76cfe948b2484db0321d7231080725a9e180d27397d842965358f61420953",
+    "tasks.json": "750fa243905f0638efddbe3d2900175ccb680ccafb89fc2a826b327e72025fc6"
+  },
+  "independent_holdout_verified": false,
+  "package_hash": "76657445ed655507e3b696c6910d4b9ebf57b76183f0f024a3c10e8ce80d8914",
+  "model_requests": 0
+}

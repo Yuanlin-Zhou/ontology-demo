@@ -1,0 +1,21 @@
+▶ external task-relevance review workflow
+  ✔ separates a prediction-free reviewer packet from engine correspondence and leaves all gold blank (133.234452ms)
+  ✔ rejects planned knowledge and ambiguous interface/implementation selectors (123.859575ms)
+  ✔ requires complete source-bound labels, entity evidence and independent-review declarations (167.054784ms)
+  ✔ separates tagging misses from budget omissions without turning empty retrieval into perfect precision (99.400267ms)
+  ✔ excludes uncertain labels and does not invent recall when reviewers mark no required knowledge (99.368459ms)
+  ✔ refuses source, budget and sealed-label changes (89.987164ms)
+✔ external task-relevance review workflow (714.091708ms)
+▶ candidate edit behavior contracts
+  ✔ keeps raw policy findings while describing changed categories, rather than calling them new defects (51.095183ms)
+  ✔ compiles every input and accepts distinct capacity solutions while rejecting the original defects (10491.411153ms)
+  ✔ detects excess memory and worker-only context leakage without relying on caller leakage (2701.952987ms)
+✔ candidate edit behavior contracts (13244.964373ms)
+ℹ tests 9
+ℹ suites 2
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 14115.844764

@@ -1,0 +1,231 @@
+{
+  "version": 1,
+  "authorship": "agent_draft_not_independent_labels",
+  "entries": [
+    {
+      "leaf": "tp.create.workload",
+      "kind": "decision",
+      "question": "本次是否需要选择或改变执行模型？",
+      "include_when": [
+        "任务改变执行资源或负载模型"
+      ],
+      "exclude_or_review": [
+        "只修复局部返回值且不涉及执行资源"
+      ],
+      "needed_facts": [
+        "CPU/阻塞比例、吞吐和下游并发限制"
+      ],
+      "status": "agent_draft_requires_domain_review"
+    },
+    {
+      "leaf": "tp.create.sizing",
+      "kind": "decision",
+      "question": "线程数和回收策略是否满足资源约束？",
+      "include_when": [
+        "需要调整执行容量、并发或回收"
+      ],
+      "exclude_or_review": [
+        "只因同类其他方法有线程池而联想"
+      ],
+      "needed_facts": [
+        "下游上限、任务耗时、可用资源、突发情况"
+      ],
+      "status": "agent_draft_requires_domain_review"
+    },
+    {
+      "leaf": "tp.create.queue",
+      "kind": "decision",
+      "question": "缓冲方式和容量是否适合当前修改？",
+      "include_when": [
+        "目标路径使用或改变缓冲/准入"
+      ],
+      "exclude_or_review": [
+        "无关成员队列不在修改或调用路径上"
+      ],
+      "needed_facts": [
+        "单任务内存、缓冲预算、延迟、优先级"
+      ],
+      "status": "agent_draft_requires_domain_review"
+    },
+    {
+      "leaf": "tp.create.rejection",
+      "kind": "decision",
+      "question": "过载时由谁处理拒绝？",
+      "include_when": [
+        "修改涉及准入、队列或拒绝责任"
+      ],
+      "exclude_or_review": [
+        "先看任务传播与组织记录责任；没有局部 catch 不能直接证明任务失败，局部 catch/记录/再抛也可能同时满足两者。"
+      ],
+      "needed_facts": [
+        "能否丢失、能否阻塞调用方、拒绝传播约定"
+      ],
+      "status": "agent_draft_requires_domain_review"
+    },
+    {
+      "leaf": "tp.create.explicit",
+      "kind": "norm",
+      "question": "是否需要改变池的显式配置及生命周期归属？",
+      "include_when": [
+        "新增/重复创建或资源归属改变"
+      ],
+      "exclude_or_review": [
+        "只有抽象接口名或无关字段不足以判断"
+      ],
+      "needed_facts": [
+        "实例/请求/容器生命周期及关闭责任方"
+      ],
+      "status": "agent_draft_requires_domain_review"
+    },
+    {
+      "leaf": "tp.create.naming",
+      "kind": "norm",
+      "question": "工作线程命名是否是本次需要保持的约定？",
+      "include_when": [
+        "新池或线程工厂、命名行为改变"
+      ],
+      "exclude_or_review": [
+        "只有其他线程工厂的声明不能证明本路径需要该知识"
+      ],
+      "needed_facts": [
+        "现有业务前缀、诊断需求"
+      ],
+      "status": "agent_draft_requires_domain_review"
+    },
+    {
+      "leaf": "tp.use.result",
+      "kind": "norm",
+      "question": "提交结果或异常责任归谁？",
+      "include_when": [
+        "目标路径涉及 execute/submit 或结果交付"
+      ],
+      "exclude_or_review": [
+        "无关方法提交任务不应自动污染当前目标"
+      ],
+      "needed_facts": [
+        "返回结果、异常消费与转交约定"
+      ],
+      "status": "agent_draft_requires_domain_review"
+    },
+    {
+      "leaf": "tp.use.timeout",
+      "kind": "norm",
+      "question": "是否改变阻塞等待、取消或队列释放？",
+      "include_when": [
+        "目标等待/取消路径或任务明确要求超时"
+      ],
+      "exclude_or_review": [
+        "仅因为类内有 Future 字段就认定必需"
+      ],
+      "needed_facts": [
+        "等待期限、实际工作句柄与取消合作方式"
+      ],
+      "status": "agent_draft_requires_domain_review"
+    },
+    {
+      "leaf": "tp.use.async",
+      "kind": "norm",
+      "question": "编排是否使用正确执行器？",
+      "include_when": [
+        "目标路径有 CompletableFuture 编排或新增异步编排"
+      ],
+      "exclude_or_review": [
+        "普通同步纯业务或未调用的编排方法"
+      ],
+      "needed_facts": [
+        "执行隔离要求与真实下游调用"
+      ],
+      "status": "agent_draft_requires_domain_review"
+    },
+    {
+      "leaf": "tp.use.context",
+      "kind": "norm",
+      "question": "修改会否改变当前或复用线程上下文？",
+      "include_when": [
+        "任务写入、传递或恢复租户/trace 等上下文"
+      ],
+      "exclude_or_review": [
+        "仅同类无关审计方法使用 ThreadLocal"
+      ],
+      "needed_facts": [
+        "调用方和工作线程原值、异常与清理约定"
+      ],
+      "status": "agent_draft_requires_domain_review"
+    },
+    {
+      "leaf": "tp.use.exception",
+      "kind": "norm",
+      "question": "实际后台失败是否可见并维持后续执行？",
+      "include_when": [
+        "目标执行回调或异常/周期语义改变"
+      ],
+      "exclude_or_review": [
+        "空 catch 不等于已经记录；不要仅凭 catch 结构判断"
+      ],
+      "needed_facts": [
+        "需记录的原因、失败隔离、周期语义"
+      ],
+      "status": "agent_draft_requires_domain_review"
+    },
+    {
+      "leaf": "tp.use.priority",
+      "kind": "norm",
+      "question": "优先级准入和淘汰顺序是否受影响？",
+      "include_when": [
+        "目标确有优先级队列或淘汰业务"
+      ],
+      "exclude_or_review": [
+        "普通 FIFO 有界队列不等于优先级队列"
+      ],
+      "needed_facts": [
+        "优先级关系、同级新旧顺序与饥饿风险"
+      ],
+      "status": "agent_draft_requires_domain_review"
+    },
+    {
+      "leaf": "tp.use.shutdown",
+      "kind": "norm",
+      "question": "关闭时的等待及失败语义是否受影响？",
+      "include_when": [
+        "修改生命周期或要求保持排空/中断语义"
+      ],
+      "exclude_or_review": [
+        "无关资源关闭不应自动变成目标方法必需知识"
+      ],
+      "needed_facts": [
+        "正常/超时/中断/重复关闭的业务要求"
+      ],
+      "status": "agent_draft_requires_domain_review"
+    },
+    {
+      "leaf": "tp.use.pending",
+      "kind": "norm",
+      "question": "强制关闭排出的任务如何处置？",
+      "include_when": [
+        "目标强制关闭或未开始任务/Future 完成性改变"
+      ],
+      "exclude_or_review": [
+        "不能仅凭存在 shutdown 就假设一定强制关闭"
+      ],
+      "needed_facts": [
+        "不可丢业务、补偿及等待方完成规则"
+      ],
+      "status": "agent_draft_requires_domain_review"
+    },
+    {
+      "leaf": "tp.use.monitor",
+      "kind": "norm",
+      "question": "修改需要怎样的实际可观测证据？",
+      "include_when": [
+        "目标监控、过载或失败观测需求变化"
+      ],
+      "exclude_or_review": [
+        "仅声明计数器不能证明真实业务统计正确"
+      ],
+      "needed_facts": [
+        "指标对象、实际回调/拒绝与告警目标"
+      ],
+      "status": "agent_draft_requires_domain_review"
+    }
+  ]
+}

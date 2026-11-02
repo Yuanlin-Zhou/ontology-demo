@@ -123,6 +123,8 @@ node eval/tagged-edit/prepare.ts eval/tagged-edit/suite.json .eval-cache/edit-ru
 
 修改实验协议、已编译输入、Java 行为验收和参考实现说明见 [实验协议](../eval/tagged-edit/PROTOCOL.md)。
 
+后续已实现 [对应表与领域评审包](ENTITY-REVIEW-MATRIX.md)：用已有实体标签的修改任务作主队列，禁止 planned 混入；独立标注和引擎预测分开，预算前后覆盖分别计量。新自编候选只用于验证流程，尚未成为独立保留集，真实标注未填写时不打分。参数任务接受多个满足约束的配置，日志任务检查实际错误记录。
+
 本轮本地验证：类型检查通过，JDK 21 与固定依赖校验通过，定向 9/9、完整回归 167/167，均无失败、无跳过；日志见 `eval/tagged-edit/validation/`。这些是实现与验收器的本地验证，不是三组模型效果成绩。
 
 执行器补充验证：完整回归 174/174，0 失败、0 跳过，类型检查通过；参考适配器 9/9 输出均通过编译及配置行为验收，真实供应商请求 0。新日志见 `eval/tagged-edit/execution-validation/`；不构成标签路线的模型效果结论。
