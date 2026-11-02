@@ -1,0 +1,26 @@
+{
+  "model_requests": 0,
+  "quality_results": null,
+  "knowledge_leaves": 15,
+  "linked_rules": 26,
+  "prepared_edit_cases": 3,
+  "prepared_slots": 9,
+  "tagged_route_effectiveness": "not_evaluated",
+  "targeted": {
+    "tests": 9,
+    "passed": 9,
+    "failed": 0,
+    "skipped": 0
+  },
+  "full": {
+    "tests": 167,
+    "passed": 167,
+    "failed": 0,
+    "skipped": 0
+  },
+  "typecheck": "passed",
+  "java": "21.0.12.1; pinned dependencies verified",
+  "scope": "single-file lightweight entity graph; explicit planned capabilities; no Cline integration",
+  "reference_sources": "agent-authored acceptance fixtures; not model outputs",
+  "initial_failure": "Workspace provenance guard correctly rejected mid-run untracked artifact changes; final full run used frozen files."
+}

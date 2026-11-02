@@ -1,0 +1,21 @@
+▶ hierarchical knowledge and persistent entity tagging
+  ✔ loads decision and norm leaves, maps all existing rules and rejects malformed trees (1.639688ms)
+  ✔ identifies overloads and fields; retrieves referenced field tags without unrelated method tags (14.107615ms)
+  ✔ distinguishes interfaces and nested types; abstract methods require explicit knowledge evidence (3.497264ms)
+  ✔ invalidates stale code and tree snapshots and replaces removed AST tags on re-index (10.461116ms)
+  ✔ retrieves planned new capabilities without pretending they already exist in code (3.540139ms)
+  ✔ persists tag evidence and enforces the full serialized knowledge budget (8.565524ms)
+✔ hierarchical knowledge and persistent entity tagging (42.911662ms)
+▶ tagged code edit experiment preparation
+  ✔ prepares paired prompts with identical edit inputs, budgets and facts, without model requests (83.092164ms)
+  ✔ starts from complete compilable Java code rather than generation scaffolds (1547.518329ms)
+  ✔ checks reference edits and detects unchanged code and broken worker restoration with real Java (9093.264881ms)
+✔ tagged code edit experiment preparation (10724.300243ms)
+ℹ tests 9
+ℹ suites 2
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 10965.988701

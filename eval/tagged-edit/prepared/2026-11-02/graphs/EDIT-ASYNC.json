@@ -1,0 +1,100 @@
+{
+  "schema": 1,
+  "tagger": 1,
+  "tree_hash": "6500fa00cab4e2278f9d34dcac2d39825728c88948eabe207ba20ac78966449d",
+  "file": "eval/tagged-edit/cases/EventPublisher.java",
+  "source_hash": "01633da2543f48fb14e2486410d3b5188453c16b236f924fc507392fd1cfcddf",
+  "entities": [
+    {
+      "id": "eval/tagged-edit/cases/EventPublisher.java#EventPublisher",
+      "kind": "class",
+      "name": "EventPublisher",
+      "signature": "EventPublisher",
+      "start": 36,
+      "end": 312,
+      "line": 2,
+      "endLine": 7,
+      "tags": []
+    },
+    {
+      "id": "eval/tagged-edit/cases/EventPublisher.java#EventPublisher::field:receiver",
+      "kind": "field",
+      "name": "receiver",
+      "signature": "field:receiver",
+      "start": 101,
+      "end": 109,
+      "line": 3,
+      "endLine": 3,
+      "tags": [],
+      "parent": "eval/tagged-edit/cases/EventPublisher.java#EventPublisher"
+    },
+    {
+      "id": "eval/tagged-edit/cases/EventPublisher.java#EventPublisher::<init>(Consumer<String>)",
+      "kind": "constructor",
+      "name": "EventPublisher",
+      "signature": "<init>(Consumer<String>)",
+      "start": 115,
+      "end": 222,
+      "line": 4,
+      "endLine": 4,
+      "tags": [],
+      "parent": "eval/tagged-edit/cases/EventPublisher.java#EventPublisher"
+    },
+    {
+      "id": "eval/tagged-edit/cases/EventPublisher.java#EventPublisher::publish(String)",
+      "kind": "method",
+      "name": "publish",
+      "signature": "publish(String)",
+      "start": 227,
+      "end": 285,
+      "line": 5,
+      "endLine": 5,
+      "tags": [],
+      "parent": "eval/tagged-edit/cases/EventPublisher.java#EventPublisher"
+    },
+    {
+      "id": "eval/tagged-edit/cases/EventPublisher.java#EventPublisher::stop()",
+      "kind": "method",
+      "name": "stop",
+      "signature": "stop()",
+      "start": 290,
+      "end": 310,
+      "line": 6,
+      "endLine": 6,
+      "tags": [],
+      "parent": "eval/tagged-edit/cases/EventPublisher.java#EventPublisher"
+    }
+  ],
+  "edges": [
+    {
+      "from": "eval/tagged-edit/cases/EventPublisher.java#EventPublisher",
+      "to": "eval/tagged-edit/cases/EventPublisher.java#EventPublisher::field:receiver",
+      "kind": "contains"
+    },
+    {
+      "from": "eval/tagged-edit/cases/EventPublisher.java#EventPublisher",
+      "to": "eval/tagged-edit/cases/EventPublisher.java#EventPublisher::<init>(Consumer<String>)",
+      "kind": "contains"
+    },
+    {
+      "from": "eval/tagged-edit/cases/EventPublisher.java#EventPublisher::<init>(Consumer<String>)",
+      "to": "eval/tagged-edit/cases/EventPublisher.java#EventPublisher::field:receiver",
+      "kind": "uses"
+    },
+    {
+      "from": "eval/tagged-edit/cases/EventPublisher.java#EventPublisher",
+      "to": "eval/tagged-edit/cases/EventPublisher.java#EventPublisher::publish(String)",
+      "kind": "contains"
+    },
+    {
+      "from": "eval/tagged-edit/cases/EventPublisher.java#EventPublisher::publish(String)",
+      "to": "eval/tagged-edit/cases/EventPublisher.java#EventPublisher::field:receiver",
+      "kind": "uses"
+    },
+    {
+      "from": "eval/tagged-edit/cases/EventPublisher.java#EventPublisher",
+      "to": "eval/tagged-edit/cases/EventPublisher.java#EventPublisher::stop()",
+      "kind": "contains"
+    }
+  ]
+}

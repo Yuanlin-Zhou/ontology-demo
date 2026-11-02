@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "model": "deepseek-flash",
+  "temperature": 0,
+  "maxOutputTokens": 8192,
+  "tokenBudget": 1200,
+  "topK": 5,
+  "repetitions": 1,
+  "cases": [
+    {
+      "id": "EDIT-QUEUE",
+      "file": "eval/tagged-edit/cases/BufferedNotifier.java",
+      "target": "send(String)",
+      "task": "保持构造器、send 和 stop 公开接口，把通知服务的任务缓冲限制为最多 2 个排队任务；处理不过来时同步抛 RejectedExecutionException，不能在提交线程降级运行或静默丢弃。保留实际 sink 调用和正常关闭排空行为。",
+      "facts": "下游为阻塞 I/O；本次保持单工作线程，允许两项等待任务；调用方能处理显式拒绝。",
+      "planned": []
+    },
+    {
+      "id": "EDIT-ASYNC",
+      "file": "eval/tagged-edit/cases/EventPublisher.java",
+      "target": "publish(String)",
+      "task": "保持 Consumer 构造器、publish 和 stop 公开接口，把同步事件发布改为实例线程池异步发布。固定 1 个工作线程、最多 2 项排队；饱和或关闭后同步抛 RejectedExecutionException。回调失败记录并隔离，不阻止后续事件，stop 等待已接受任务完成，不能静默丢弃。",
+      "facts": "下游为阻塞 I/O，不允许在提交线程执行；期望继续复用同一实例线程池。",
+      "planned": [
+        {
+          "leaf": "tp.create.queue",
+          "reason": "本次新增有界异步缓冲，需要选择队列"
+        },
+        {
+          "leaf": "tp.create.rejection",
+          "reason": "本次新增异步提交，需明确过载拒绝"
+        },
+        {
+          "leaf": "tp.use.exception",
+          "reason": "本次新增后台回调，需隔离异常"
+        },
+        {
+          "leaf": "tp.use.shutdown",
+          "reason": "本次新增线程池，stop 必须等待排空"
+        }
+      ]
+    },
+    {
+      "id": "EDIT-CONTEXT",
+      "file": "eval/tagged-edit/cases/TenantJob.java",
+      "target": "run(String,String)",
+      "task": "保持构造器、run、stop 和 TENANT 公开接口及正常返回 tenant:工作结果，修复 run 调用方和复用工作线程的租户上下文泄漏；成功和回调异常后都在对应 finally 恢复原值，原无值时 remove。保留现有线程池容量、等待超时和正常关闭行为。",
+      "facts": "同一实例服务多个租户；调用方和工作线程均可能已有不同租户上下文。",
+      "planned": []
+    }
+  ]
+}

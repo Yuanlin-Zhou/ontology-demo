@@ -1,0 +1,528 @@
+{
+  "schema": 1,
+  "tagger": 1,
+  "tree_hash": "6500fa00cab4e2278f9d34dcac2d39825728c88948eabe207ba20ac78966449d",
+  "file": "eval/tagged-edit/cases/TenantJob.java",
+  "source_hash": "7696a9fb6d0063cc4f291fa5b28b9f219490eb6dc7efb89f61d37e4924d42c5c",
+  "entities": [
+    {
+      "id": "eval/tagged-edit/cases/TenantJob.java#TenantJob",
+      "kind": "class",
+      "name": "TenantJob",
+      "signature": "TenantJob",
+      "start": 67,
+      "end": 859,
+      "line": 3,
+      "endLine": 14,
+      "tags": [
+        {
+          "leaf": "tp.use.context",
+          "origin": "ast",
+          "feature": "THREAD_POOL.THREAD_LOCAL",
+          "evidence": "public static final ThreadLocal<String> TENANT=new ThreadLocal<>();",
+          "line": 4,
+          "column": 5,
+          "confidence": "high",
+          "attributes": {
+            "kind": "declare",
+            "name": "TENANT",
+            "in_finally": false
+          }
+        },
+        {
+          "leaf": "tp.create.workload",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.CREATE",
+          "evidence": "private final ThreadPoolExecutor pool=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(2));",
+          "line": 6,
+          "column": 43,
+          "confidence": "high",
+          "attributes": {
+            "kind": "thread_pool_executor",
+            "scope": "field"
+          },
+          "from_entity": "eval/tagged-edit/cases/TenantJob.java#TenantJob::field:pool"
+        },
+        {
+          "leaf": "tp.create.explicit",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.CREATE",
+          "evidence": "private final ThreadPoolExecutor pool=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(2));",
+          "line": 6,
+          "column": 43,
+          "confidence": "high",
+          "attributes": {
+            "kind": "thread_pool_executor",
+            "scope": "field"
+          },
+          "from_entity": "eval/tagged-edit/cases/TenantJob.java#TenantJob::field:pool"
+        },
+        {
+          "leaf": "tp.create.sizing",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.CONFIG.CORE_SIZE",
+          "evidence": "private final ThreadPoolExecutor pool=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(2));",
+          "line": 6,
+          "column": 43,
+          "confidence": "high",
+          "attributes": {
+            "value": "1"
+          },
+          "from_entity": "eval/tagged-edit/cases/TenantJob.java#TenantJob::field:pool"
+        },
+        {
+          "leaf": "tp.create.sizing",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.CONFIG.MAX_SIZE",
+          "evidence": "private final ThreadPoolExecutor pool=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(2));",
+          "line": 6,
+          "column": 43,
+          "confidence": "high",
+          "attributes": {
+            "value": "1"
+          },
+          "from_entity": "eval/tagged-edit/cases/TenantJob.java#TenantJob::field:pool"
+        },
+        {
+          "leaf": "tp.create.sizing",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.CONFIG.KEEP_ALIVE",
+          "evidence": "private final ThreadPoolExecutor pool=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(2));",
+          "line": 6,
+          "column": 43,
+          "confidence": "high",
+          "attributes": {
+            "value": "30",
+            "unit": "TimeUnit.SECONDS"
+          },
+          "from_entity": "eval/tagged-edit/cases/TenantJob.java#TenantJob::field:pool"
+        },
+        {
+          "leaf": "tp.create.queue",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.CONFIG.QUEUE",
+          "evidence": "private final ThreadPoolExecutor pool=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(2));",
+          "line": 6,
+          "column": 90,
+          "confidence": "high",
+          "attributes": {
+            "queue": "ArrayBlockingQueue",
+            "bounded": true,
+            "capacity": "2"
+          },
+          "from_entity": "eval/tagged-edit/cases/TenantJob.java#TenantJob::field:pool"
+        },
+        {
+          "leaf": "tp.use.shutdown",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.SHUTDOWN",
+          "evidence": "public void stop()throws InterruptedException{pool.shutdown();if(!pool.awaitTermination(1,TimeUnit.SECONDS))throw new IllegalStateException(\"not stopped\");}",
+          "line": 13,
+          "column": 51,
+          "confidence": "high",
+          "attributes": {
+            "method": "shutdown",
+            "receiver": "pool"
+          },
+          "from_entity": "eval/tagged-edit/cases/TenantJob.java#TenantJob::stop()"
+        },
+        {
+          "leaf": "tp.use.shutdown",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.AWAIT_TERMINATION",
+          "evidence": "public void stop()throws InterruptedException{pool.shutdown();if(!pool.awaitTermination(1,TimeUnit.SECONDS))throw new IllegalStateException(\"not stopped\");}",
+          "line": 13,
+          "column": 71,
+          "confidence": "high",
+          "attributes": {
+            "method": "awaitTermination",
+            "receiver": "pool",
+            "timeout_args": 2
+          },
+          "from_entity": "eval/tagged-edit/cases/TenantJob.java#TenantJob::stop()"
+        },
+        {
+          "leaf": "tp.use.context",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.THREAD_LOCAL",
+          "evidence": "TENANT.set(tenant);",
+          "line": 9,
+          "column": 9,
+          "confidence": "high",
+          "attributes": {
+            "kind": "set",
+            "name": "TENANT",
+            "in_finally": false
+          },
+          "from_entity": "eval/tagged-edit/cases/TenantJob.java#TenantJob::run(String,String)"
+        },
+        {
+          "leaf": "tp.use.result",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.SUBMIT",
+          "evidence": "Future<String> result=pool.submit(()->{TENANT.set(tenant);return TENANT.get()+\":\"+work.apply(payload);});",
+          "line": 10,
+          "column": 31,
+          "confidence": "high",
+          "attributes": {
+            "method": "submit",
+            "receiver": "pool",
+            "resolution": "initializer",
+            "result_used": true
+          },
+          "from_entity": "eval/tagged-edit/cases/TenantJob.java#TenantJob::run(String,String)"
+        },
+        {
+          "leaf": "tp.use.context",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.THREAD_LOCAL",
+          "evidence": "Future<String> result=pool.submit(()->{TENANT.set(tenant);return TENANT.get()+\":\"+work.apply(payload);});",
+          "line": 10,
+          "column": 48,
+          "confidence": "high",
+          "attributes": {
+            "kind": "set",
+            "name": "TENANT",
+            "in_finally": false
+          },
+          "from_entity": "eval/tagged-edit/cases/TenantJob.java#TenantJob::run(String,String)"
+        },
+        {
+          "leaf": "tp.use.context",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.THREAD_LOCAL",
+          "evidence": "Future<String> result=pool.submit(()->{TENANT.set(tenant);return TENANT.get()+\":\"+work.apply(payload);});",
+          "line": 10,
+          "column": 74,
+          "confidence": "high",
+          "attributes": {
+            "kind": "get",
+            "name": "TENANT",
+            "in_finally": false
+          },
+          "from_entity": "eval/tagged-edit/cases/TenantJob.java#TenantJob::run(String,String)"
+        },
+        {
+          "leaf": "tp.use.timeout",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.FUTURE.GET",
+          "evidence": "return result.get(2,TimeUnit.SECONDS);",
+          "line": 11,
+          "column": 16,
+          "confidence": "high",
+          "attributes": {
+            "receiver": "result",
+            "timeout": true
+          },
+          "from_entity": "eval/tagged-edit/cases/TenantJob.java#TenantJob::run(String,String)"
+        }
+      ]
+    },
+    {
+      "id": "eval/tagged-edit/cases/TenantJob.java#TenantJob::field:TENANT",
+      "kind": "field",
+      "name": "TENANT",
+      "signature": "field:TENANT",
+      "start": 136,
+      "end": 162,
+      "line": 4,
+      "endLine": 4,
+      "tags": [],
+      "parent": "eval/tagged-edit/cases/TenantJob.java#TenantJob"
+    },
+    {
+      "id": "eval/tagged-edit/cases/TenantJob.java#TenantJob::field:work",
+      "kind": "field",
+      "name": "work",
+      "signature": "field:work",
+      "start": 206,
+      "end": 210,
+      "line": 5,
+      "endLine": 5,
+      "tags": [],
+      "parent": "eval/tagged-edit/cases/TenantJob.java#TenantJob"
+    },
+    {
+      "id": "eval/tagged-edit/cases/TenantJob.java#TenantJob::field:pool",
+      "kind": "field",
+      "name": "pool",
+      "signature": "field:pool",
+      "start": 249,
+      "end": 329,
+      "line": 6,
+      "endLine": 6,
+      "tags": [
+        {
+          "leaf": "tp.create.workload",
+          "origin": "ast",
+          "feature": "THREAD_POOL.CREATE",
+          "evidence": "private final ThreadPoolExecutor pool=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(2));",
+          "line": 6,
+          "column": 43,
+          "confidence": "high",
+          "attributes": {
+            "kind": "thread_pool_executor",
+            "scope": "field"
+          }
+        },
+        {
+          "leaf": "tp.create.explicit",
+          "origin": "ast",
+          "feature": "THREAD_POOL.CREATE",
+          "evidence": "private final ThreadPoolExecutor pool=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(2));",
+          "line": 6,
+          "column": 43,
+          "confidence": "high",
+          "attributes": {
+            "kind": "thread_pool_executor",
+            "scope": "field"
+          }
+        },
+        {
+          "leaf": "tp.create.sizing",
+          "origin": "ast",
+          "feature": "THREAD_POOL.CONFIG.CORE_SIZE",
+          "evidence": "private final ThreadPoolExecutor pool=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(2));",
+          "line": 6,
+          "column": 43,
+          "confidence": "high",
+          "attributes": {
+            "value": "1"
+          }
+        },
+        {
+          "leaf": "tp.create.sizing",
+          "origin": "ast",
+          "feature": "THREAD_POOL.CONFIG.MAX_SIZE",
+          "evidence": "private final ThreadPoolExecutor pool=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(2));",
+          "line": 6,
+          "column": 43,
+          "confidence": "high",
+          "attributes": {
+            "value": "1"
+          }
+        },
+        {
+          "leaf": "tp.create.sizing",
+          "origin": "ast",
+          "feature": "THREAD_POOL.CONFIG.KEEP_ALIVE",
+          "evidence": "private final ThreadPoolExecutor pool=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(2));",
+          "line": 6,
+          "column": 43,
+          "confidence": "high",
+          "attributes": {
+            "value": "30",
+            "unit": "TimeUnit.SECONDS"
+          }
+        },
+        {
+          "leaf": "tp.create.queue",
+          "origin": "ast",
+          "feature": "THREAD_POOL.CONFIG.QUEUE",
+          "evidence": "private final ThreadPoolExecutor pool=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(2));",
+          "line": 6,
+          "column": 90,
+          "confidence": "high",
+          "attributes": {
+            "queue": "ArrayBlockingQueue",
+            "bounded": true,
+            "capacity": "2"
+          }
+        }
+      ],
+      "parent": "eval/tagged-edit/cases/TenantJob.java#TenantJob"
+    },
+    {
+      "id": "eval/tagged-edit/cases/TenantJob.java#TenantJob::<init>(Function<String,String>)",
+      "kind": "constructor",
+      "name": "TenantJob",
+      "signature": "<init>(Function<String,String>)",
+      "start": 335,
+      "end": 432,
+      "line": 7,
+      "endLine": 7,
+      "tags": [],
+      "parent": "eval/tagged-edit/cases/TenantJob.java#TenantJob"
+    },
+    {
+      "id": "eval/tagged-edit/cases/TenantJob.java#TenantJob::run(String,String)",
+      "kind": "method",
+      "name": "run",
+      "signature": "run(String,String)",
+      "start": 437,
+      "end": 696,
+      "line": 8,
+      "endLine": 12,
+      "tags": [
+        {
+          "leaf": "tp.use.context",
+          "origin": "ast",
+          "feature": "THREAD_POOL.THREAD_LOCAL",
+          "evidence": "TENANT.set(tenant);",
+          "line": 9,
+          "column": 9,
+          "confidence": "high",
+          "attributes": {
+            "kind": "set",
+            "name": "TENANT",
+            "in_finally": false
+          }
+        },
+        {
+          "leaf": "tp.use.result",
+          "origin": "ast",
+          "feature": "THREAD_POOL.SUBMIT",
+          "evidence": "Future<String> result=pool.submit(()->{TENANT.set(tenant);return TENANT.get()+\":\"+work.apply(payload);});",
+          "line": 10,
+          "column": 31,
+          "confidence": "high",
+          "attributes": {
+            "method": "submit",
+            "receiver": "pool",
+            "resolution": "initializer",
+            "result_used": true
+          }
+        },
+        {
+          "leaf": "tp.use.context",
+          "origin": "ast",
+          "feature": "THREAD_POOL.THREAD_LOCAL",
+          "evidence": "Future<String> result=pool.submit(()->{TENANT.set(tenant);return TENANT.get()+\":\"+work.apply(payload);});",
+          "line": 10,
+          "column": 48,
+          "confidence": "high",
+          "attributes": {
+            "kind": "set",
+            "name": "TENANT",
+            "in_finally": false
+          }
+        },
+        {
+          "leaf": "tp.use.context",
+          "origin": "ast",
+          "feature": "THREAD_POOL.THREAD_LOCAL",
+          "evidence": "Future<String> result=pool.submit(()->{TENANT.set(tenant);return TENANT.get()+\":\"+work.apply(payload);});",
+          "line": 10,
+          "column": 74,
+          "confidence": "high",
+          "attributes": {
+            "kind": "get",
+            "name": "TENANT",
+            "in_finally": false
+          }
+        },
+        {
+          "leaf": "tp.use.timeout",
+          "origin": "ast",
+          "feature": "THREAD_POOL.FUTURE.GET",
+          "evidence": "return result.get(2,TimeUnit.SECONDS);",
+          "line": 11,
+          "column": 16,
+          "confidence": "high",
+          "attributes": {
+            "receiver": "result",
+            "timeout": true
+          }
+        }
+      ],
+      "parent": "eval/tagged-edit/cases/TenantJob.java#TenantJob"
+    },
+    {
+      "id": "eval/tagged-edit/cases/TenantJob.java#TenantJob::stop()",
+      "kind": "method",
+      "name": "stop",
+      "signature": "stop()",
+      "start": 701,
+      "end": 857,
+      "line": 13,
+      "endLine": 13,
+      "tags": [
+        {
+          "leaf": "tp.use.shutdown",
+          "origin": "ast",
+          "feature": "THREAD_POOL.SHUTDOWN",
+          "evidence": "public void stop()throws InterruptedException{pool.shutdown();if(!pool.awaitTermination(1,TimeUnit.SECONDS))throw new IllegalStateException(\"not stopped\");}",
+          "line": 13,
+          "column": 51,
+          "confidence": "high",
+          "attributes": {
+            "method": "shutdown",
+            "receiver": "pool"
+          }
+        },
+        {
+          "leaf": "tp.use.shutdown",
+          "origin": "ast",
+          "feature": "THREAD_POOL.AWAIT_TERMINATION",
+          "evidence": "public void stop()throws InterruptedException{pool.shutdown();if(!pool.awaitTermination(1,TimeUnit.SECONDS))throw new IllegalStateException(\"not stopped\");}",
+          "line": 13,
+          "column": 71,
+          "confidence": "high",
+          "attributes": {
+            "method": "awaitTermination",
+            "receiver": "pool",
+            "timeout_args": 2
+          }
+        }
+      ],
+      "parent": "eval/tagged-edit/cases/TenantJob.java#TenantJob"
+    }
+  ],
+  "edges": [
+    {
+      "from": "eval/tagged-edit/cases/TenantJob.java#TenantJob",
+      "to": "eval/tagged-edit/cases/TenantJob.java#TenantJob::field:TENANT",
+      "kind": "contains"
+    },
+    {
+      "from": "eval/tagged-edit/cases/TenantJob.java#TenantJob",
+      "to": "eval/tagged-edit/cases/TenantJob.java#TenantJob::field:work",
+      "kind": "contains"
+    },
+    {
+      "from": "eval/tagged-edit/cases/TenantJob.java#TenantJob",
+      "to": "eval/tagged-edit/cases/TenantJob.java#TenantJob::field:pool",
+      "kind": "contains"
+    },
+    {
+      "from": "eval/tagged-edit/cases/TenantJob.java#TenantJob",
+      "to": "eval/tagged-edit/cases/TenantJob.java#TenantJob::<init>(Function<String,String>)",
+      "kind": "contains"
+    },
+    {
+      "from": "eval/tagged-edit/cases/TenantJob.java#TenantJob::<init>(Function<String,String>)",
+      "to": "eval/tagged-edit/cases/TenantJob.java#TenantJob::field:work",
+      "kind": "uses"
+    },
+    {
+      "from": "eval/tagged-edit/cases/TenantJob.java#TenantJob",
+      "to": "eval/tagged-edit/cases/TenantJob.java#TenantJob::run(String,String)",
+      "kind": "contains"
+    },
+    {
+      "from": "eval/tagged-edit/cases/TenantJob.java#TenantJob::run(String,String)",
+      "to": "eval/tagged-edit/cases/TenantJob.java#TenantJob::field:TENANT",
+      "kind": "uses"
+    },
+    {
+      "from": "eval/tagged-edit/cases/TenantJob.java#TenantJob::run(String,String)",
+      "to": "eval/tagged-edit/cases/TenantJob.java#TenantJob::field:pool",
+      "kind": "uses"
+    },
+    {
+      "from": "eval/tagged-edit/cases/TenantJob.java#TenantJob::run(String,String)",
+      "to": "eval/tagged-edit/cases/TenantJob.java#TenantJob::field:work",
+      "kind": "uses"
+    },
+    {
+      "from": "eval/tagged-edit/cases/TenantJob.java#TenantJob",
+      "to": "eval/tagged-edit/cases/TenantJob.java#TenantJob::stop()",
+      "kind": "contains"
+    },
+    {
+      "from": "eval/tagged-edit/cases/TenantJob.java#TenantJob::stop()",
+      "to": "eval/tagged-edit/cases/TenantJob.java#TenantJob::field:pool",
+      "kind": "uses"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "src/knowledge/tree.ts": "e50dde0cf3c9ddaac04ed1d1bb59e51af6417789adad24762324d4dbb4f11197",
+  "src/codegraph/cli.ts": "335e8a38c8920f5830d836b23208d53d75b23aeb763db990f95949eb189d886f",
+  "src/codegraph/graph.ts": "6300b81601f12f14f6417ecea2457ffe59101f1ef2fe70a8c712594d60a48d51",
+  "src/tag-retrieval/retrieve.ts": "85398fe99696248e23d469cfd99668682168d438a218c81f1233758d9cb55cc8",
+  "knowledge-tree/thread-pool.json": "55dd13bc24dabd9e6a4a9687f1005a76ab238d05bca8fcf0f6493331845ea158",
+  "eval/tagged-edit/AcceptanceTest.java": "4ef96e878d110193754969e90154fe1f8287c204aebcbb6b0147f34067b74bad",
+  "eval/tagged-edit/PROTOCOL.md": "9d346aa933f45eb155d5690e4d04cf7372b0bd1e3fd2ae6003eb6ab84302700f",
+  "eval/tagged-edit/cases/BufferedNotifier.java": "456e62be8a55214d257d95a33744a8c84cda5095f18318f05ccc608d4248def6",
+  "eval/tagged-edit/cases/EventPublisher.java": "01633da2543f48fb14e2486410d3b5188453c16b236f924fc507392fd1cfcddf",
+  "eval/tagged-edit/cases/TenantJob.java": "7696a9fb6d0063cc4f291fa5b28b9f219490eb6dc7efb89f61d37e4924d42c5c",
+  "eval/tagged-edit/evaluate.ts": "65430d5af950993f5afbc80f036d12fe1c9baf6bff736fc3dea0f95dc134c94e",
+  "eval/tagged-edit/prepare.ts": "270d1559ea452ab32a735d3bbba3fbbec52599ce5559198df0f3d91b68aa80cc",
+  "eval/tagged-edit/references/BufferedNotifier.java": "5389a7f45282b16fc6c89fcf72e79ec5732ec12e862ab60a88036bb282351c8d",
+  "eval/tagged-edit/references/EventPublisher.java": "0000de16d32589438dc1b3ce25aadebb186d6d136bcf219e913228079955f8db",
+  "eval/tagged-edit/references/README.md": "fb0c83a0c2e6566b875c189718e0726dabe3b04b6b9201488a2b17fb9e0aaae3",
+  "eval/tagged-edit/references/TenantJob.java": "2be87229b437f5ec0c7533551ba4db03a77ec24113164856792c3add54c37c25",
+  "eval/tagged-edit/suite.json": "eee33a538d346172754b58f99c073fd24bc9e89ddaeab24189dd6716a39fa871"
+}

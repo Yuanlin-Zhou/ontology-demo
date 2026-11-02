@@ -1,0 +1,100 @@
+{
+  "protocol": "entity-tag-edit-v1",
+  "model_requests": 0,
+  "controlled_model_comparison": false,
+  "provenance": "Imported outputs: no authenticated provider call records or measured usage; do not rank model quality/cost from this report.",
+  "planned": 9,
+  "present": 0,
+  "records": [
+    {
+      "case_id": "EDIT-QUEUE",
+      "strategy": "baseline",
+      "repetition": 1,
+      "output": "missing",
+      "compile": "not_run",
+      "behavior": "not_run",
+      "task": "not_assessed",
+      "usage": null
+    },
+    {
+      "case_id": "EDIT-QUEUE",
+      "strategy": "rag",
+      "repetition": 1,
+      "output": "missing",
+      "compile": "not_run",
+      "behavior": "not_run",
+      "task": "not_assessed",
+      "usage": null
+    },
+    {
+      "case_id": "EDIT-QUEUE",
+      "strategy": "tagged",
+      "repetition": 1,
+      "output": "missing",
+      "compile": "not_run",
+      "behavior": "not_run",
+      "task": "not_assessed",
+      "usage": null
+    },
+    {
+      "case_id": "EDIT-ASYNC",
+      "strategy": "baseline",
+      "repetition": 1,
+      "output": "missing",
+      "compile": "not_run",
+      "behavior": "not_run",
+      "task": "not_assessed",
+      "usage": null
+    },
+    {
+      "case_id": "EDIT-ASYNC",
+      "strategy": "rag",
+      "repetition": 1,
+      "output": "missing",
+      "compile": "not_run",
+      "behavior": "not_run",
+      "task": "not_assessed",
+      "usage": null
+    },
+    {
+      "case_id": "EDIT-ASYNC",
+      "strategy": "tagged",
+      "repetition": 1,
+      "output": "missing",
+      "compile": "not_run",
+      "behavior": "not_run",
+      "task": "not_assessed",
+      "usage": null
+    },
+    {
+      "case_id": "EDIT-CONTEXT",
+      "strategy": "baseline",
+      "repetition": 1,
+      "output": "missing",
+      "compile": "not_run",
+      "behavior": "not_run",
+      "task": "not_assessed",
+      "usage": null
+    },
+    {
+      "case_id": "EDIT-CONTEXT",
+      "strategy": "rag",
+      "repetition": 1,
+      "output": "missing",
+      "compile": "not_run",
+      "behavior": "not_run",
+      "task": "not_assessed",
+      "usage": null
+    },
+    {
+      "case_id": "EDIT-CONTEXT",
+      "strategy": "tagged",
+      "repetition": 1,
+      "output": "missing",
+      "compile": "not_run",
+      "behavior": "not_run",
+      "task": "not_assessed",
+      "usage": null
+    }
+  ]
+}

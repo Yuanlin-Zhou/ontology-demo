@@ -1,9 +1,11 @@
 # Knowledge Rule Engine (Phase 1 PoC)
 
+项目原始目标是“分层知识库 → 代码实体标签 → 修改时局部知识召回 → 验证 Agent 规范遵循”。现已补齐线程池知识树（15 个叶子）、文件内轻量 CodeGraph 标签与失效更新，以及三组代码修改实验准备。见 [完整流程与使用](docs/TAGGED-KNOWLEDGE.md)、[修改实验协议](eval/tagged-edit/PROTOCOL.md) 和 [领导汇报材料](docs/PROPOSAL-BRIEFING.md)。本轮新增模型请求为 0，尚无标签路线的模型效果结论；下文的规则校验能力是该目标的组件。
+
 把研发规范从"文档"转成**可计算的原子规则**，再根据当前代码的**语义特征**精准召回少量真正适用的规则，
 并在代码生成后做**确定性校验**。对应 `00-overview.md` 的 Phase 1 与 `01-phase1-rule-engine-poc.md`。
 
-实际可检查范围及人工边界见 [26 条规则能力清单](docs/CAPABILITIES.md)，已有缺陷、误报漏报和本次零模型调用修复见 [规则覆盖复盘](docs/RULE-COVERAGE-REVIEW.md)。当前定位为规范与风险诊断辅助工具，暂不接入 Cline 自动修改或作为独立交付门控。
+实际可检查范围及人工边界见 [26 条规则能力清单](docs/CAPABILITIES.md)，已有缺陷、误报漏报和零模型调用修复见 [规则覆盖复盘](docs/RULE-COVERAGE-REVIEW.md)。校验组件用于规范与风险诊断辅助，暂不接入 Cline 自动修改或作为独立交付门控。
 
 ```text
 Java Code → tree-sitter AST → Semantic Feature → Rule Matcher → Applicable Rules → (Agent) → Validator → Violations

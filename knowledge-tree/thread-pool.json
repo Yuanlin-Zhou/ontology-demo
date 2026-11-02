@@ -1,0 +1,300 @@
+{
+  "version": 1,
+  "nodes": [
+    {
+      "id": "tp",
+      "title": "线程池",
+      "parent": null,
+      "kind": "group"
+    },
+    {
+      "id": "tp.create",
+      "title": "创建与参数决策",
+      "parent": "tp",
+      "kind": "group"
+    },
+    {
+      "id": "tp.use",
+      "title": "使用代码方式",
+      "parent": "tp",
+      "kind": "group"
+    },
+    {
+      "id": "tp.create.workload",
+      "parent": "tp.create",
+      "title": "任务类型与线程模型",
+      "kind": "decision",
+      "any_features": [
+        "THREAD_POOL.CREATE",
+        "VIRTUAL_THREAD"
+      ],
+      "rule_ids": [],
+      "content": "先区分 CPU 密集、阻塞 I/O、周期任务与下游并发限制。CPU 工作从可用核数起步并压测；阻塞 I/O 根据等待比例及下游容量评估；虚拟线程仍要限制下游并发，不能把线程轻量等同无限资源。",
+      "sources": [
+        "java-thread-pool-summary.md",
+        "java-thread-pool-best-practices.md"
+      ]
+    },
+    {
+      "id": "tp.create.sizing",
+      "parent": "tp.create",
+      "title": "线程数与空闲回收决策",
+      "kind": "decision",
+      "any_features": [
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE"
+      ],
+      "rule_ids": [
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-003"
+      ],
+      "content": "先确定吞吐、任务耗时、突发流量及下游并发上限，再选择核心数和最大数。队列未满时通常不会扩到最大线程数；空闲回收要结合 keepAlive 与核心线程超时配置，用实际负载观察而非套固定公式。",
+      "sources": [
+        "java-thread-pool-summary.md",
+        "java-thread-pool-best-practices.md"
+      ]
+    },
+    {
+      "id": "tp.create.queue",
+      "parent": "tp.create",
+      "title": "任务队列选择决策",
+      "kind": "decision",
+      "any_features": [
+        "THREAD_POOL.CONFIG.QUEUE"
+      ],
+      "rule_ids": [
+        "TP-CONFIG-004",
+        "TP-CONFIG-005"
+      ],
+      "content": "需要有限缓冲时考虑有界 ArrayBlockingQueue 或显式容量 LinkedBlockingQueue；不希望排队时评估 SynchronousQueue 与线程上限、拒绝联动；有优先级需求时评估排序及饥饿风险。PriorityBlockingQueue 的构造容量只是初始容量。根据可接受排队延迟、任务内存、突发量和拒绝行为选容量；未知工作负载先询问或测量，不臆造唯一最佳参数。",
+      "sources": [
+        "java-thread-pool-summary.md",
+        "java-thread-pool-best-practices.md"
+      ]
+    },
+    {
+      "id": "tp.create.rejection",
+      "parent": "tp.create",
+      "title": "过载与拒绝策略决策",
+      "kind": "decision",
+      "any_features": [
+        "THREAD_POOL.CONFIG.REJECTION"
+      ],
+      "rule_ids": [
+        "TP-REJECT-001",
+        "TP-REJECT-002",
+        "TP-REJECT-003",
+        "TP-REJECT-004",
+        "TP-REJECT-005"
+      ],
+      "content": "必须明确任务能否丢失、提交线程能否阻塞、是否需要补偿。AbortPolicy 显式失败并由调用方处理；CallerRunsPolicy 会占用提交线程，Web、锁和事务路径需评估；不能丢的任务应有可观察拒绝和持久补偿方案，禁止用静默丢弃掩盖过载。",
+      "sources": [
+        "java-thread-pool-summary.md",
+        "java-thread-pool-best-practices.md"
+      ]
+    },
+    {
+      "id": "tp.create.explicit",
+      "parent": "tp.create",
+      "title": "显式配置与生命周期归属",
+      "kind": "norm",
+      "any_features": [
+        "THREAD_POOL.CREATE"
+      ],
+      "rule_ids": [
+        "TP-CREATE-001",
+        "TP-CREATE-002",
+        "TP-CREATE-005"
+      ],
+      "content": "显式配置池、队列与拒绝行为，避免请求内重复建池。明确实例或容器的唯一生命周期责任方；标准快捷工厂可能隐藏无界资源。",
+      "sources": [
+        "java-thread-pool-summary.md",
+        "java-thread-pool-best-practices.md"
+      ]
+    },
+    {
+      "id": "tp.create.naming",
+      "parent": "tp.create",
+      "title": "线程工厂与业务命名",
+      "kind": "norm",
+      "any_features": [
+        "THREAD_POOL.CONFIG.THREAD_FACTORY",
+        "THREAD_POOL.THREAD_FACTORY.CUSTOM_IMPL"
+      ],
+      "rule_ids": [
+        "TP-CREATE-003",
+        "TP-CREATE-004"
+      ],
+      "content": "线程工厂应给实际工作线程可识别业务名；异常处理器设置在线程上，而非不存在的线程池 setter。",
+      "sources": [
+        "java-thread-pool-summary.md",
+        "java-thread-pool-best-practices.md"
+      ]
+    },
+    {
+      "id": "tp.use.result",
+      "parent": "tp.use",
+      "title": "提交方式与结果消费",
+      "kind": "norm",
+      "any_features": [
+        "THREAD_POOL.SUBMIT"
+      ],
+      "rule_ids": [
+        "TP-SUBMIT-001"
+      ],
+      "content": "无需结果时 execute 并处理任务异常；submit 会封装异常，必须消费结果或明确转交结果责任，局部赋值不等于结果被处理。",
+      "sources": [
+        "java-thread-pool-summary.md",
+        "java-thread-pool-best-practices.md"
+      ]
+    },
+    {
+      "id": "tp.use.timeout",
+      "parent": "tp.use",
+      "title": "等待超时与实际任务取消",
+      "kind": "norm",
+      "any_features": [
+        "THREAD_POOL.FUTURE.GET"
+      ],
+      "rule_ids": [
+        "TP-SUBMIT-002"
+      ],
+      "content": "等待应有超时。超时不代表任务停止，保留实际执行句柄并验证中断响应；取消排队任务时移除实际入队 Runnable，不能用内部 FutureTask 移除外层包装器；关闭还要完成等待结果。",
+      "sources": [
+        "java-thread-pool-summary.md",
+        "java-thread-pool-best-practices.md"
+      ]
+    },
+    {
+      "id": "tp.use.async",
+      "parent": "tp.use",
+      "title": "异步编排与执行器隔离",
+      "kind": "norm",
+      "any_features": [
+        "THREAD_POOL.COMPLETABLE_FUTURE"
+      ],
+      "rule_ids": [
+        "TP-SUBMIT-003"
+      ],
+      "content": "CompletableFuture 的 Async 方法显式选择业务执行器；完成状态与实际工作执行是不同责任，cancel(true) 不保证中断执行线程。",
+      "sources": [
+        "java-thread-pool-summary.md",
+        "java-thread-pool-best-practices.md"
+      ]
+    },
+    {
+      "id": "tp.use.context",
+      "parent": "tp.use",
+      "title": "调用方与工作线程上下文恢复",
+      "kind": "norm",
+      "any_features": [
+        "THREAD_POOL.THREAD_LOCAL"
+      ],
+      "rule_ids": [
+        "TP-SUBMIT-004"
+      ],
+      "content": "捕获原上下文，在当前执行路径的 finally 中恢复旧值或 remove；同时检查调用方与工作线程，延迟 lambda 中的 remove 不是已经清理。",
+      "sources": [
+        "java-thread-pool-summary.md",
+        "java-thread-pool-best-practices.md"
+      ]
+    },
+    {
+      "id": "tp.use.exception",
+      "parent": "tp.use",
+      "title": "任务异常与周期执行",
+      "kind": "norm",
+      "any_features": [
+        "THREAD_POOL.EXECUTE",
+        "THREAD_POOL.EXCEPTION",
+        "THREAD_POOL.SCHEDULED"
+      ],
+      "rule_ids": [
+        "TP-SUBMIT-005"
+      ],
+      "content": "异常必须可观察；周期回调需在整体任务内保护 RuntimeException，提交外层 catch 不会阻止后续周期被抑制。",
+      "sources": [
+        "java-thread-pool-summary.md",
+        "java-thread-pool-best-practices.md"
+      ]
+    },
+    {
+      "id": "tp.use.priority",
+      "parent": "tp.use",
+      "title": "优先级与淘汰顺序",
+      "kind": "norm",
+      "any_features": [
+        "THREAD_POOL.CONFIG.QUEUE"
+      ],
+      "rule_ids": [
+        "TP-CONFIG-006"
+      ],
+      "content": "优先级队列不能搭配会淘汰队首的 DiscardOldestPolicy。自定义淘汰必须定义优先级、同级新旧和准入顺序；不能依赖未排序迭代顺序，需要独立业务测试。",
+      "sources": [
+        "java-thread-pool-summary.md",
+        "java-thread-pool-best-practices.md"
+      ],
+      "attributes": {
+        "queue": [
+          "PriorityBlockingQueue"
+        ]
+      }
+    },
+    {
+      "id": "tp.use.shutdown",
+      "parent": "tp.use",
+      "title": "关闭、重复关闭与等待终止",
+      "kind": "norm",
+      "any_features": [
+        "THREAD_POOL.SHUTDOWN",
+        "THREAD_POOL.AWAIT_TERMINATION"
+      ],
+      "rule_ids": [
+        "TP-SHUTDOWN-001",
+        "TP-SHUTDOWN-002",
+        "TP-SHUTDOWN-003"
+      ],
+      "content": "停止准入后等待已接受任务；超时强制关闭后再次有界等待，未终止须明确失败。重复或并发关闭也要等待同一结果；处理中断后恢复标志。Java 21 close 本身等待终止。",
+      "sources": [
+        "java-thread-pool-summary.md",
+        "java-thread-pool-best-practices.md"
+      ]
+    },
+    {
+      "id": "tp.use.pending",
+      "parent": "tp.use",
+      "title": "强制关闭未执行任务处置",
+      "kind": "norm",
+      "any_features": [
+        "THREAD_POOL.SHUTDOWN_NOW"
+      ],
+      "rule_ids": [
+        "TP-SHUTDOWN-004"
+      ],
+      "content": "shutdownNow 返回尚未启动的任务，必须记录并按业务约定补偿或转交；仅接收但不读取列表不算处置；若调用方等待 Future，还须完成或取消关联结果。",
+      "sources": [
+        "java-thread-pool-summary.md",
+        "java-thread-pool-best-practices.md"
+      ]
+    },
+    {
+      "id": "tp.use.monitor",
+      "parent": "tp.use",
+      "title": "池与业务任务可观测性",
+      "kind": "norm",
+      "any_features": [
+        "THREAD_POOL.MONITOR"
+      ],
+      "rule_ids": [
+        "TP-MONITOR-001"
+      ],
+      "content": "观察队列、活跃度、完成与拒绝并建立业务关联；计数须与实际回调相符。虚拟线程 ExecutorService 不具备 ThreadPoolExecutor 的监控 getter。",
+      "sources": [
+        "java-thread-pool-summary.md",
+        "java-thread-pool-best-practices.md"
+      ]
+    }
+  ]
+}

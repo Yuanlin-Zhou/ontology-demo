@@ -1,0 +1,22 @@
+{
+  "AcceptanceTest.java": "4ef96e878d110193754969e90154fe1f8287c204aebcbb6b0147f34067b74bad",
+  "README.md": "0fb5434f0f6248609bfb6fd5808595259173d5f32bf0fb0c43d583a61629610b",
+  "graphs/EDIT-ASYNC.json": "4c0d2312398d4d33ab0761fc72c42ddc8c6c424e859b8604c17a30c7b62e2ebe",
+  "graphs/EDIT-CONTEXT.json": "2dd41c1557431c0bd71e71fa8f7243460612cb750762565cdd95be16942367e7",
+  "graphs/EDIT-QUEUE.json": "2d2d40230316bfed8a1baaa37993b6dccb3505fad76418d3e7e0b9749eccc75f",
+  "inputs/EDIT-ASYNC.java": "01633da2543f48fb14e2486410d3b5188453c16b236f924fc507392fd1cfcddf",
+  "inputs/EDIT-CONTEXT.java": "7696a9fb6d0063cc4f291fa5b28b9f219490eb6dc7efb89f61d37e4924d42c5c",
+  "inputs/EDIT-QUEUE.java": "456e62be8a55214d257d95a33744a8c84cda5095f18318f05ccc608d4248def6",
+  "manifest.json": "4c3f772f435f7034e65d43ab79e3a1886c1def404f79f04395dd9681465b1ede",
+  "prompts/baseline/EDIT-ASYNC-1.md": "9d8ea792dcf0e581bfc1e7c5ec887ef1bd4b01ba889a35a13a24765c73ff532a",
+  "prompts/baseline/EDIT-CONTEXT-1.md": "c9331feb57100efea1d228469ffb3412d7eafda3f1049679bcd06dc7ee199b2d",
+  "prompts/baseline/EDIT-QUEUE-1.md": "9a46053281900ff29ed4179dd1c20d6846c241d7232799e4c9734d039617c130",
+  "prompts/rag/EDIT-ASYNC-1.md": "12ef73e628979eb3f88da26197b0413e8aa7335075cb2b56e571352e6ae5e781",
+  "prompts/rag/EDIT-CONTEXT-1.md": "ab24b46f79b480554002ec790da48cc83b268706edcb8a64d76663787522cffa",
+  "prompts/rag/EDIT-QUEUE-1.md": "612548127f627829faf0120b68cf78adc9a3d71244eeadf1877f69e92f96eabb",
+  "prompts/tagged/EDIT-ASYNC-1.md": "26aaa786cbc533449cadc32d2ed85882482df4d3dcb0ab75f500e95ff02d5427",
+  "prompts/tagged/EDIT-CONTEXT-1.md": "875262e5919a17a74e5d02ae02ceb8e50100c135300eb6eaa10b715e43b55735",
+  "prompts/tagged/EDIT-QUEUE-1.md": "979e43bd519531cfa63c1d0c105054c0bfa2ad6be42974b85be2560d994e5516",
+  "suite.json": "eee33a538d346172754b58f99c073fd24bc9e89ddaeab24189dd6716a39fa871",
+  "unrun-report.json": "e051688c54c8c3cde4955b947cd9d26cac0798f18190d430aa0abfbd8c293761"
+}

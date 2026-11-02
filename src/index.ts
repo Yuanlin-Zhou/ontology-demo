@@ -5,6 +5,10 @@
  * `RuleEngine.validate` as the `knowledge_retrieve` / `knowledge_validate` tools.
  */
 export { RuleEngine, REPOSITORY_ROOT, DEFAULT_KNOWLEDGE_DIR } from './api/engine.ts';
+export { KnowledgeTree } from './knowledge/tree.ts';
+export { buildGraph, assertFresh, saveGraph, loadGraph } from './codegraph/graph.ts';
+export type { CodeGraph, CodeEntity, EntityTag, ManualTag } from './codegraph/graph.ts';
+export { retrieveByTags } from './tag-retrieval/retrieve.ts';
 export type { RetrieveInput, AnalysisResult, PromptBuildInput } from './api/engine.ts';
 export { RuleRepository, RuleValidationError } from './matcher/rule-repository.ts';
 export { matchRules, isApplicable } from './matcher/rule-matcher.ts';
