@@ -1,0 +1,28 @@
+{
+  "id": "26afa786-5cf5-4d86-a7dc-e19c0744870a",
+  "object": "chat.completion",
+  "created": 1793588224,
+  "model": "deepseek-flash",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```java\npackage com.example.report.service;\n\nimport java.util.Map;\nimport java.util.Objects;\nimport java.util.concurrent.ConcurrentHashMap;\nimport java.util.concurrent.LinkedBlockingQueue;\nimport java.util.concurrent.RejectedExecutionException;\nimport java.util.concurrent.ThreadPoolExecutor;\nimport java.util.concurrent.TimeUnit;\nimport java.util.concurrent.atomic.AtomicLong;\nimport java.util.function.Consumer;\n\nimport org.slf4j.Logger;\nimport org.slf4j.LoggerFactory;\n\n/**\n * 报表导出线程池，使用有界队列承接导出请求，过载时拒绝而不是压垮内存。\n */\npublic class ReportExportService {\n\n    private static final Logger log = LoggerFactory.getLogger(ReportExportService.class);\n\n    private static final int CORE_POOL_SIZE = 4;\n    private static final int MAX_POOL_SIZE = 8;\n    private static final long KEEP_ALIVE_SECONDS = 60L;\n    private static final int QUEUE_CAPACITY = 256;\n    private static final long STOP_GRACE_MILLIS = 200L;\n    private static final long STOP_FORCE_WAIT_MILLIS = 1000L;\n\n    private final ThreadPoolExecutor exporter;\n\n    private final Consumer<String> exportCallback;\n\n    private final AtomicLong submitted = new AtomicLong();\n    private final AtomicLong completed = new AtomicLong();\n    private final AtomicLong failed = new AtomicLong();\n    private final AtomicLong rejected = new AtomicLong();\n\n    public ReportExportService() {\n        this(null);\n    }\n\n    public ReportExportService(Consumer<String> exporter) {\n        this.exportCallback = exporter;\n        this.exporter = new ThreadPoolExecutor(\n                CORE_POOL_SIZE,\n                MAX_POOL_SIZE,\n                KEEP_ALIVE_SECONDS,\n                TimeUnit.SECONDS,\n                new LinkedBlockingQueue<>(QUEUE_CAPACITY),\n                new ThreadPoolExecutor.AbortPolicy());\n    }\n\n    public void export(String reportId) {\n        if (exportCallback == null) {\n            throw new IllegalStateException(\"export callback not configured\");\n        }\n        try {\n            exporter.execute(() -> runExport(reportId));\n        } catch (RejectedExecutionException ex) {\n            rejected.incrementAndGet();\n            log.error(\"export rejected, report={}\", reportId, ex);\n            throw ex;\n        }\n        submitted.incrementAndGet();\n    }\n\n    private void runExport(String reportId) {\n        try {\n            exportCallback.accept(reportId);\n            completed.incrementAndGet();\n        } catch (RuntimeException ex) {\n            failed.incrementAndGet();\n            log.error(\"export failed, report={}\", reportId, ex);\n        }\n    }\n\n    public Map<String, Long> stats() {\n        Map<String, Long> result = new ConcurrentHashMap<>();\n        result.put(\"submitted\", submitted.get());\n        result.put(\"completed\", completed.get());\n        result.put(\"failed\", failed.get());\n        result.put(\"rejected\", rejected.get());\n        return result;\n    }\n\n    public void stop() {\n        exporter.shutdown();\n        boolean interrupted = false;\n        try {\n            if (!exporter.awaitTermination(STOP_GRACE_MILLIS, TimeUnit.MILLISECONDS)) {\n                exporter.shutdownNow();\n                if (!exporter.awaitTermination(STOP_FORCE_WAIT_MILLIS, TimeUnit.MILLISECONDS)) {\n                    throw new IllegalStateException(\"report export executor did not terminate\");\n                }\n            }\n        } catch (InterruptedException ex) {\n            interrupted = true;\n            exporter.shutdownNow();\n            try {\n                exporter.awaitTermination(STOP_FORCE_WAIT_MILLIS, TimeUnit.MILLISECONDS);\n            } catch (InterruptedException ignored) {\n                interrupted = true;\n            }\n        } finally {\n            if (interrupted) {\n                Thread.currentThread().interrupt();\n            }\n        }\n    }\n}\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 860,
+    "completion_tokens": 817,
+    "total_tokens": 1677,
+    "prompt_tokens_details": {
+      "cached_tokens": 384
+    },
+    "prompt_cache_hit_tokens": 384,
+    "prompt_cache_miss_tokens": 476
+  },
+  "system_fingerprint": "bc19ba97cbe016479903222bb1578db6"
+}

@@ -1,0 +1,28 @@
+{
+  "id": "d6d5cf2d-4283-487e-b433-e73196a25191",
+  "object": "chat.completion",
+  "created": 1793588228,
+  "model": "deepseek-flash",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```java\npackage com.example.report.service;\n\nimport java.util.Map;\nimport java.util.Objects;\nimport java.util.concurrent.ArrayBlockingQueue;\nimport java.util.concurrent.ConcurrentHashMap;\nimport java.util.concurrent.RejectedExecutionException;\nimport java.util.concurrent.ThreadFactory;\nimport java.util.concurrent.ThreadPoolExecutor;\nimport java.util.concurrent.TimeUnit;\nimport java.util.concurrent.atomic.AtomicLong;\nimport java.util.function.Consumer;\n\nimport org.slf4j.Logger;\nimport org.slf4j.LoggerFactory;\n\n/**\n * 报表导出线程池：使用有界队列承接导出请求，过载时快速拒绝，避免压垮内存。\n */\npublic class ReportExportService {\n\n    private static final Logger log = LoggerFactory.getLogger(ReportExportService.class);\n\n    private static final int CORE_POOL_SIZE = 4;\n    private static final int MAX_POOL_SIZE = 8;\n    private static final long KEEP_ALIVE_SECONDS = 60L;\n    private static final int QUEUE_CAPACITY = 200;\n    private static final long STOP_GRACE_MILLIS = 200L;\n    private static final long STOP_FORCE_WAIT_MILLIS = 1000L;\n\n    private final Consumer<String> exporterCallback;\n\n    private final ThreadPoolExecutor exporter;\n\n    private final AtomicLong submitted = new AtomicLong();\n    private final AtomicLong completed = new AtomicLong();\n    private final AtomicLong failed = new AtomicLong();\n    private final AtomicLong rejected = new AtomicLong();\n\n    public ReportExportService() {\n        this.exporterCallback = null;\n        this.exporter = createExecutor();\n    }\n\n    public ReportExportService(Consumer<String> exporter) {\n        this.exporterCallback = Objects.requireNonNull(exporter, \"exporter must not be null\");\n        this.exporter = createExecutor();\n    }\n\n    private static ThreadPoolExecutor createExecutor() {\n        ThreadFactory threadFactory = runnable -> {\n            Thread thread = new Thread(runnable, \"report-export\");\n            thread.setDaemon(false);\n            return thread;\n        };\n        return new ThreadPoolExecutor(\n                CORE_POOL_SIZE,\n                MAX_POOL_SIZE,\n                KEEP_ALIVE_SECONDS,\n                TimeUnit.SECONDS,\n                new ArrayBlockingQueue<>(QUEUE_CAPACITY),\n                threadFactory,\n                new ThreadPoolExecutor.AbortPolicy());\n    }\n\n    public void export(String reportId) {\n        if (exporterCallback == null) {\n            throw new IllegalStateException(\"report exporter callback is not configured\");\n        }\n        try {\n            exporter.execute(() -> runExport(reportId));\n            submitted.incrementAndGet();\n        } catch (RejectedExecutionException ex) {\n            rejected.incrementAndGet();\n            log.error(\"export rejected, report={}\", reportId, ex);\n            throw ex;\n        }\n    }\n\n    private void runExport(String reportId) {\n        try {\n            exporterCallback.accept(reportId);\n            completed.incrementAndGet();\n        } catch (RuntimeException ex) {\n            failed.incrementAndGet();\n            log.error(\"export failed, report={}\", reportId, ex);\n        }\n    }\n\n    public Map<String, Long> stats() {\n        Map<String, Long> snapshot = new ConcurrentHashMap<>();\n        snapshot.put(\"submitted\", submitted.get());\n        snapshot.put(\"completed\", completed.get());\n        snapshot.put(\"failed\", failed.get());\n        snapshot.put(\"rejected\", rejected.get());\n        return snapshot;\n    }\n\n    public void stop() {\n        exporter.shutdown();\n        boolean terminated = false;\n        try {\n            terminated = exporter.awaitTermination(STOP_GRACE_MILLIS, TimeUnit.MILLISECONDS);\n            if (!terminated) {\n                exporter.shutdownNow();\n                terminated = exporter.awaitTermination(STOP_FORCE_WAIT_MILLIS, TimeUnit.MILLISECONDS);\n            }\n        } catch (InterruptedException ex) {\n            exporter.shutdownNow();\n            Thread.currentThread().interrupt();\n            throw new IllegalStateException(\"interrupted while stopping report export executor\", ex);\n        }\n        if (!terminated) {\n            throw new IllegalStateException(\"report export executor did not terminate in time\");\n        }\n    }\n}\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1557,
+    "completion_tokens": 879,
+    "total_tokens": 2436,
+    "prompt_tokens_details": {
+      "cached_tokens": 1024
+    },
+    "prompt_cache_hit_tokens": 1024,
+    "prompt_cache_miss_tokens": 533
+  },
+  "system_fingerprint": "bc19ba97cbe016479903222bb1578db6"
+}

@@ -1,0 +1,28 @@
+{
+  "id": "3eb8c124-bb20-4fca-9fb9-937a358ce9db",
+  "object": "chat.completion",
+  "created": 1793588277,
+  "model": "deepseek-flash",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```java\npackage com.example.inventory.service;\n\nimport java.util.Collection;\nimport java.util.Map;\nimport java.util.Objects;\nimport java.util.concurrent.ArrayBlockingQueue;\nimport java.util.concurrent.ConcurrentHashMap;\nimport java.util.concurrent.ConcurrentLinkedQueue;\nimport java.util.concurrent.RejectedExecutionException;\nimport java.util.concurrent.ThreadFactory;\nimport java.util.concurrent.ThreadPoolExecutor;\nimport java.util.concurrent.TimeUnit;\nimport java.util.concurrent.atomic.AtomicLong;\nimport java.util.function.Consumer;\n\nimport org.slf4j.Logger;\nimport org.slf4j.LoggerFactory;\n\n/** Inventory sync service with a dedicated bounded thread pool and compensation queue. */\npublic class InventorySyncService {\n\n    private static final Logger LOGGER = LoggerFactory.getLogger(InventorySyncService.class);\n\n    private static final long STOP_GRACE_MILLIS = 200L;\n    private static final long STOP_FORCE_WAIT_MILLIS = 2000L;\n\n    private final ThreadPoolExecutor syncExecutor;\n\n    private final Consumer<String> synchronizer;\n\n    private final Collection<String> retryQueue = new ConcurrentLinkedQueue<>();\n\n    private final AtomicLong submitted = new AtomicLong();\n    private final AtomicLong completed = new AtomicLong();\n    private final AtomicLong failed = new AtomicLong();\n    private final AtomicLong rejected = new AtomicLong();\n\n    private volatile boolean stopped;\n\n    public InventorySyncService() {\n        this(null);\n    }\n\n    public InventorySyncService(Consumer<String> synchronizer) {\n        this.synchronizer = synchronizer;\n        ThreadFactory threadFactory = runnable -> {\n            Thread thread = new Thread(runnable, \"inventory-sync-worker\");\n            thread.setDaemon(false);\n            return thread;\n        };\n        this.syncExecutor = new ThreadPoolExecutor(\n                4,\n                8,\n                60L,\n                TimeUnit.SECONDS,\n                new ArrayBlockingQueue<>(100),\n                threadFactory,\n                new ThreadPoolExecutor.AbortPolicy());\n    }\n\n    public void sync(String sku) {\n        Objects.requireNonNull(sku, \"sku\");\n        if (stopped) {\n            rejected.incrementAndGet();\n            retryQueue.add(sku);\n            LOGGER.warn(\"Inventory sync rejected because service is stopped, sku={}\", sku);\n            throw new RejectedExecutionException(\"Inventory sync service is stopped\");\n        }\n        Consumer<String> target = this.synchronizer;\n        if (target == null) {\n            throw new IllegalStateException(\"Inventory sync synchronizer is not configured\");\n        }\n        try {\n            syncExecutor.execute(() -> {\n                try {\n                    target.accept(sku);\n                    completed.incrementAndGet();\n                } catch (RuntimeException ex) {\n                    failed.incrementAndGet();\n                    LOGGER.error(\"Inventory sync failed for sku={}\", sku, ex);\n                }\n            });\n            submitted.incrementAndGet();\n        } catch (RejectedExecutionException ex) {\n            rejected.incrementAndGet();\n            retryQueue.add(sku);\n            LOGGER.warn(\"Inventory sync rejected due to saturation, sku={}\", sku);\n            throw ex;\n        }\n    }\n\n    public Map<String, Long> stats() {\n        Map<String, Long> snapshot = new ConcurrentHashMap<>();\n        snapshot.put(\"submitted\", submitted.get());\n        snapshot.put(\"completed\", completed.get());\n        snapshot.put(\"failed\", failed.get());\n        snapshot.put(\"rejected\", rejected.get());\n        return snapshot;\n    }\n\n    public void stop() {\n        stopped = true;\n        syncExecutor.shutdown();\n        boolean terminated = false;\n        try {\n            terminated = syncExecutor.awaitTermination(STOP_GRACE_MILLIS, TimeUnit.MILLISECONDS);\n            if (!terminated) {\n                syncExecutor.shutdownNow();\n                terminated = syncExecutor.awaitTermination(STOP_FORCE_WAIT_MILLIS, TimeUnit.MILLISECONDS);\n            }\n        } catch (InterruptedException ex) {\n            syncExecutor.shutdownNow();\n            Thread.currentThread().interrupt();\n            throw new IllegalStateException(\"Interrupted while stopping inventory sync service\", ex);\n        }\n        if (!terminated) {\n            throw new IllegalStateException(\"Inventory sync service did not terminate in time\");\n        }\n    }\n}\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1586,
+    "completion_tokens": 881,
+    "total_tokens": 2467,
+    "prompt_tokens_details": {
+      "cached_tokens": 1024
+    },
+    "prompt_cache_hit_tokens": 1024,
+    "prompt_cache_miss_tokens": 562
+  },
+  "system_fingerprint": "bc19ba97cbe016479903222bb1578db6"
+}

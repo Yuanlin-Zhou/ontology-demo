@@ -1,0 +1,28 @@
+{
+  "id": "c1de23c9-5cfa-436a-907c-fbe27b3c546f",
+  "object": "chat.completion",
+  "created": 1793588286,
+  "model": "deepseek-flash",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```java\npackage com.example.file.service;\n\nimport java.util.Map;\nimport java.util.Objects;\nimport java.util.concurrent.ArrayBlockingQueue;\nimport java.util.concurrent.ConcurrentHashMap;\nimport java.util.concurrent.RejectedExecutionException;\nimport java.util.concurrent.ThreadFactory;\nimport java.util.concurrent.ThreadPoolExecutor;\nimport java.util.concurrent.TimeUnit;\nimport java.util.concurrent.atomic.AtomicLong;\nimport java.util.function.Consumer;\n\nimport org.slf4j.Logger;\nimport org.slf4j.LoggerFactory;\n\n/** before.java: 自定义 ThreadFactory 没有给线程命名。 */\npublic class FileProcessService {\n\n    private static final Logger LOGGER = LoggerFactory.getLogger(FileProcessService.class);\n\n    private static final String THREAD_NAME_PREFIX = \"file-process-\";\n\n    private final ThreadPoolExecutor processor;\n\n    private final Consumer<String> handler;\n\n    private final AtomicLong submitted = new AtomicLong();\n    private final AtomicLong completed = new AtomicLong();\n    private final AtomicLong failed = new AtomicLong();\n    private final AtomicLong rejected = new AtomicLong();\n\n    public FileProcessService() {\n        this(null);\n    }\n\n    public FileProcessService(Consumer<String> handler) {\n        this.handler = handler;\n        this.processor = new ThreadPoolExecutor(\n                4, 8, 60L, TimeUnit.SECONDS,\n                new ArrayBlockingQueue<>(100),\n                new NamedThreadFactory(),\n                new ThreadPoolExecutor.AbortPolicy());\n    }\n\n    public void process(String fileId) {\n        if (handler == null) {\n            throw new IllegalStateException(\"FileProcessService handler is not configured\");\n        }\n        try {\n            processor.execute(() -> {\n                try {\n                    handler.accept(fileId);\n                    completed.incrementAndGet();\n                } catch (RuntimeException ex) {\n                    failed.incrementAndGet();\n                    LOGGER.error(\"File process failed for fileId={}\", fileId, ex);\n                }\n            });\n            submitted.incrementAndGet();\n        } catch (RejectedExecutionException ex) {\n            rejected.incrementAndGet();\n            LOGGER.warn(\"File process rejected for fileId={}\", fileId, ex);\n            throw ex;\n        }\n    }\n\n    public Map<String, Long> stats() {\n        Map<String, Long> result = new ConcurrentHashMap<>();\n        result.put(\"submitted\", submitted.get());\n        result.put(\"completed\", completed.get());\n        result.put(\"failed\", failed.get());\n        result.put(\"rejected\", rejected.get());\n        return result;\n    }\n\n    public void stop() {\n        processor.shutdown();\n        boolean terminated = false;\n        try {\n            terminated = processor.awaitTermination(200L, TimeUnit.MILLISECONDS);\n        } catch (InterruptedException ex) {\n            Thread.currentThread().interrupt();\n            processor.shutdownNow();\n            return;\n        }\n        if (!terminated) {\n            processor.shutdownNow();\n            try {\n                terminated = processor.awaitTermination(200L, TimeUnit.MILLISECONDS);\n            } catch (InterruptedException ex) {\n                Thread.currentThread().interrupt();\n                return;\n            }\n            if (!terminated) {\n                throw new IllegalStateException(\"FileProcessService did not terminate in time\");\n            }\n        }\n    }\n\n    static class NamedThreadFactory implements ThreadFactory {\n        private final AtomicLong counter = new AtomicLong();\n\n        @Override\n        public Thread newThread(Runnable task) {\n            Thread thread = new Thread(task, THREAD_NAME_PREFIX + counter.incrementAndGet());\n            thread.setDaemon(false);\n            return thread;\n        }\n    }\n}\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 854,
+    "completion_tokens": 744,
+    "total_tokens": 1598,
+    "prompt_tokens_details": {
+      "cached_tokens": 384
+    },
+    "prompt_cache_hit_tokens": 384,
+    "prompt_cache_miss_tokens": 470
+  },
+  "system_fingerprint": "bc19ba97cbe016479903222bb1578db6"
+}

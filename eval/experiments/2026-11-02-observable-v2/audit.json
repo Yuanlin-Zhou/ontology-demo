@@ -1,0 +1,242 @@
+{
+  "date": "2026-11-02",
+  "model": "deepseek-flash",
+  "business_contract_version": 2,
+  "provider_requests": 27,
+  "repair_requests": 0,
+  "provenance": {
+    "controlled_experiment": true,
+    "model": "deepseek-flash",
+    "issues": []
+  },
+  "strategies": [
+    {
+      "strategy": "baseline",
+      "calls": 9,
+      "compile_passed": 9,
+      "behavior_passed": 2,
+      "task_failed": 7,
+      "task_unreviewed": 2,
+      "compliance": 0.8472222222222222,
+      "error_instances": 6,
+      "all_diagnostic_instances": 33,
+      "usage": {
+        "prompt_tokens": 8424,
+        "completion_tokens": 9137,
+        "total_tokens": 17561
+      }
+    },
+    {
+      "strategy": "rag",
+      "calls": 9,
+      "compile_passed": 9,
+      "behavior_passed": 3,
+      "task_failed": 6,
+      "task_unreviewed": 3,
+      "compliance": 0.8674444444444445,
+      "error_instances": 6,
+      "all_diagnostic_instances": 29,
+      "usage": {
+        "prompt_tokens": 15469,
+        "completion_tokens": 9932,
+        "total_tokens": 25401
+      }
+    },
+    {
+      "strategy": "rules",
+      "calls": 9,
+      "compile_passed": 8,
+      "behavior_passed": 3,
+      "task_failed": 6,
+      "task_unreviewed": 3,
+      "compliance": 0.8843333333333333,
+      "error_instances": 4,
+      "all_diagnostic_instances": 26,
+      "usage": {
+        "prompt_tokens": 15105,
+        "completion_tokens": 11602,
+        "total_tokens": 26707
+      }
+    }
+  ],
+  "failures": [
+    {
+      "strategy": "baseline",
+      "case_id": "CASE-002",
+      "compile": "ok",
+      "test": "failed",
+      "failure_lines": [
+        "Caused by: java.lang.NullPointerException: synchronizer and loader must not be null"
+      ]
+    },
+    {
+      "strategy": "baseline",
+      "case_id": "CASE-003",
+      "compile": "ok",
+      "test": "failed",
+      "failure_lines": [
+        "Exception in thread \"main\" java.lang.AssertionError: Configured constructor accepted null callback"
+      ]
+    },
+    {
+      "strategy": "baseline",
+      "case_id": "CASE-006",
+      "compile": "ok",
+      "test": "failed",
+      "failure_lines": [
+        "Exception in thread \"main\" java.lang.AssertionError: Priority queue must have a finite testable capacity (2..10000)"
+      ]
+    },
+    {
+      "strategy": "baseline",
+      "case_id": "CASE-007",
+      "compile": "ok",
+      "test": "failed",
+      "failure_lines": [
+        "Exception in thread \"main\" java.lang.AssertionError: Configured constructor accepted null callback"
+      ]
+    },
+    {
+      "strategy": "baseline",
+      "case_id": "CASE-008",
+      "compile": "ok",
+      "test": "failed",
+      "failure_lines": [
+        "Exception in thread \"main\" java.lang.AssertionError: Configured constructor accepted null callback"
+      ]
+    },
+    {
+      "strategy": "baseline",
+      "case_id": "CASE-010",
+      "compile": "ok",
+      "test": "failed",
+      "failure_lines": [
+        "Exception in thread \"main\" java.lang.AssertionError: Configured constructor accepted null callback"
+      ]
+    },
+    {
+      "strategy": "baseline",
+      "case_id": "CASE-020",
+      "compile": "ok",
+      "test": "failed",
+      "failure_lines": [
+        "Exception in thread \"main\" java.lang.AssertionError: Empty caller context leaked after export"
+      ]
+    },
+    {
+      "strategy": "rag",
+      "case_id": "CASE-002",
+      "compile": "ok",
+      "test": "failed",
+      "failure_lines": [
+        "Exception in thread \"main\" java.lang.AssertionError: Configured constructor accepted null callback"
+      ]
+    },
+    {
+      "strategy": "rag",
+      "case_id": "CASE-006",
+      "compile": "ok",
+      "test": "failed",
+      "failure_lines": [
+        "Exception in thread \"main\" java.lang.AssertionError: Priority queue must have a finite testable capacity (2..10000)"
+      ]
+    },
+    {
+      "strategy": "rag",
+      "case_id": "CASE-007",
+      "compile": "ok",
+      "test": "failed",
+      "failure_lines": [
+        "Exception in thread \"main\" java.lang.AssertionError: Configured constructor accepted null callback"
+      ]
+    },
+    {
+      "strategy": "rag",
+      "case_id": "CASE-008",
+      "compile": "ok",
+      "test": "failed",
+      "failure_lines": [
+        "Exception in thread \"main\" java.lang.AssertionError: Configured constructor accepted null callback"
+      ]
+    },
+    {
+      "strategy": "rag",
+      "case_id": "CASE-010",
+      "compile": "ok",
+      "test": "failed",
+      "failure_lines": [
+        "Exception in thread \"main\" java.lang.AssertionError: Configured constructor accepted null callback"
+      ]
+    },
+    {
+      "strategy": "rag",
+      "case_id": "CASE-020",
+      "compile": "ok",
+      "test": "failed",
+      "failure_lines": [
+        "Exception in thread \"main\" java.lang.AssertionError: Empty caller context leaked after export"
+      ]
+    },
+    {
+      "strategy": "rules",
+      "case_id": "CASE-001",
+      "compile": "ok",
+      "test": "failed",
+      "failure_lines": [
+        "Exception in thread \"main\" java.lang.AssertionError: Configured constructor accepted null callback"
+      ]
+    },
+    {
+      "strategy": "rules",
+      "case_id": "CASE-002",
+      "compile": "ok",
+      "test": "failed",
+      "failure_lines": [
+        "Exception in thread \"main\" java.lang.AssertionError: Configured constructor accepted null callback"
+      ]
+    },
+    {
+      "strategy": "rules",
+      "case_id": "CASE-006",
+      "compile": "failed",
+      "test": "not_run",
+      "failure_lines": [
+        "/tmp/rule-engine-java-5PI1r9/UrgentTaskDispatcher.java:153: error: UrgentTaskDispatcher.BoundedPriorityQueue is not abstract and does not override abstract method peek() in Queue"
+      ]
+    },
+    {
+      "strategy": "rules",
+      "case_id": "CASE-008",
+      "compile": "ok",
+      "test": "failed",
+      "failure_lines": [
+        "Exception in thread \"main\" java.lang.AssertionError: Configured constructor accepted null callback"
+      ]
+    },
+    {
+      "strategy": "rules",
+      "case_id": "CASE-010",
+      "compile": "ok",
+      "test": "failed",
+      "failure_lines": [
+        "Exception in thread \"main\" java.lang.AssertionError: Configured constructor accepted null callback"
+      ]
+    },
+    {
+      "strategy": "rules",
+      "case_id": "CASE-020",
+      "compile": "ok",
+      "test": "failed",
+      "failure_lines": [
+        "Exception in thread \"main\" java.lang.AssertionError: Cancelled queued export still consumes capacity; remove the actual queued Runnable, which may differ from an inner FutureTask"
+      ]
+    }
+  ],
+  "limitations": [
+    "Single repetition on a development subset; no held-out generalization claim.",
+    "Task reviews pending for eight automatic passes; report task completion zero is not a measured zero success rate.",
+    "Static diagnostics are unadjudicated; compliance does not establish absence of violations.",
+    "First failing assertion masks subsequent scenarios; failures are not exhaustive.",
+    "No currency cost calculated; reported provider usage only."
+  ]
+}

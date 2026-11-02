@@ -1,0 +1,28 @@
+{
+  "id": "f011e408-a6a0-4ae0-88a3-0724ff581fef",
+  "object": "chat.completion",
+  "created": 1793588304,
+  "model": "deepseek-flash",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```java\npackage com.example.realtime.service;\n\nimport java.util.Map;\nimport java.util.Objects;\nimport java.util.concurrent.ArrayBlockingQueue;\nimport java.util.concurrent.ConcurrentHashMap;\nimport java.util.concurrent.RejectedExecutionException;\nimport java.util.concurrent.ThreadFactory;\nimport java.util.concurrent.ThreadPoolExecutor;\nimport java.util.concurrent.TimeUnit;\nimport java.util.concurrent.atomic.AtomicInteger;\nimport java.util.concurrent.atomic.AtomicLong;\nimport java.util.function.Consumer;\n\nimport org.slf4j.Logger;\nimport org.slf4j.LoggerFactory;\n\n/**\n * RealtimePushHandler: 复用实例级线程池处理实时事件推送。\n */\npublic class RealtimePushHandler {\n\n    private static final Logger log = LoggerFactory.getLogger(RealtimePushHandler.class);\n\n    private static final long STOP_GRACE_MILLIS = 200L;\n    private static final long STOP_FORCE_WAIT_MILLIS = 1000L;\n\n    private final Consumer<String> receiver;\n\n    private final ThreadPoolExecutor executor;\n\n    private final AtomicLong submitted = new AtomicLong();\n    private final AtomicLong completed = new AtomicLong();\n    private final AtomicLong failed = new AtomicLong();\n    private final AtomicLong rejected = new AtomicLong();\n\n    private volatile boolean stopped = false;\n\n    public RealtimePushHandler() {\n        this.receiver = null;\n        this.executor = createExecutor();\n    }\n\n    public RealtimePushHandler(Consumer<String> receiver) {\n        this.receiver = Objects.requireNonNull(receiver, \"receiver\");\n        this.executor = createExecutor();\n    }\n\n    private static ThreadPoolExecutor createExecutor() {\n        return new ThreadPoolExecutor(\n                2, 4, 60L, TimeUnit.SECONDS,\n                new ArrayBlockingQueue<>(50),\n                namedFactory(\"realtime-push\"),\n                new ThreadPoolExecutor.AbortPolicy());\n    }\n\n    private static ThreadFactory namedFactory(String prefix) {\n        AtomicInteger sequence = new AtomicInteger();\n        return task -> {\n            Thread thread = new Thread(task);\n            thread.setName(prefix + \"-\" + sequence.incrementAndGet());\n            thread.setDaemon(false);\n            return thread;\n        };\n    }\n\n    public void onEvent(String eventId) {\n        if (stopped) {\n            rejected.incrementAndGet();\n            log.warn(\"push rejected (stopped), event={}\", eventId);\n            throw new RejectedExecutionException(\"handler stopped\");\n        }\n        if (receiver == null) {\n            throw new IllegalStateException(\"receiver not configured\");\n        }\n        try {\n            executor.execute(() -> runTask(eventId));\n        } catch (RejectedExecutionException ex) {\n            rejected.incrementAndGet();\n            log.warn(\"push rejected, event={}\", eventId, ex);\n            throw ex;\n        }\n        submitted.incrementAndGet();\n    }\n\n    private void runTask(String eventId) {\n        try {\n            receiver.accept(eventId);\n            completed.incrementAndGet();\n        } catch (RuntimeException ex) {\n            failed.incrementAndGet();\n            log.error(\"push failed, event={}\", eventId, ex);\n        }\n    }\n\n    public Map<String, Long> stats() {\n        Map<String, Long> result = new ConcurrentHashMap<>();\n        result.put(\"submitted\", submitted.get());\n        result.put(\"completed\", completed.get());\n        result.put(\"failed\", failed.get());\n        result.put(\"rejected\", rejected.get());\n        return result;\n    }\n\n    public void stop() {\n        stopped = true;\n        executor.shutdown();\n        boolean terminated = false;\n        try {\n            terminated = executor.awaitTermination(STOP_GRACE_MILLIS, TimeUnit.MILLISECONDS);\n        } catch (InterruptedException ex) {\n            Thread.currentThread().interrupt();\n            throw new IllegalStateException(\"interrupted while stopping realtime push handler\", ex);\n        }\n        if (!terminated) {\n            executor.shutdownNow();\n            try {\n                terminated = executor.awaitTermination(STOP_FORCE_WAIT_MILLIS, TimeUnit.MILLISECONDS);\n            } catch (InterruptedException ex) {\n                Thread.currentThread().interrupt();\n                throw new IllegalStateException(\"interrupted while force stopping realtime push handler\", ex);\n            }\n        }\n        if (!terminated) {\n            throw new IllegalStateException(\"realtime push handler did not terminate\");\n        }\n    }\n}\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1727,
+    "completion_tokens": 919,
+    "total_tokens": 2646,
+    "prompt_tokens_details": {
+      "cached_tokens": 1152
+    },
+    "prompt_cache_hit_tokens": 1152,
+    "prompt_cache_miss_tokens": 575
+  },
+  "system_fingerprint": "bc19ba97cbe016479903222bb1578db6"
+}

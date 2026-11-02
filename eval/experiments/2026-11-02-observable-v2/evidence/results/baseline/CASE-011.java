@@ -1,0 +1,136 @@
+package com.example.realtime.service;
+
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Consumer;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/** RealtimePushHandler: 复用实例线程池进行实时事件推送。 */
+public class RealtimePushHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(RealtimePushHandler.class);
+
+    private static final int CORE_POOL_SIZE = 2;
+    private static final int MAX_POOL_SIZE = 4;
+    private static final long KEEP_ALIVE_SECONDS = 60L;
+    private static final int QUEUE_CAPACITY = 50;
+    private static final long STOP_GRACE_MILLIS = 200L;
+    private static final long STOP_FORCE_WAIT_MILLIS = 1000L;
+
+    private final Consumer<String> receiver;
+
+    private final ThreadPoolExecutor executor;
+
+    private final AtomicLong submitted = new AtomicLong();
+    private final AtomicLong completed = new AtomicLong();
+    private final AtomicLong failed = new AtomicLong();
+    private final AtomicLong rejected = new AtomicLong();
+
+    private volatile boolean stopped;
+
+    public RealtimePushHandler() {
+        this.receiver = null;
+        this.executor = createExecutor();
+    }
+
+    public RealtimePushHandler(Consumer<String> receiver) {
+        this.receiver = Objects.requireNonNull(receiver, "receiver");
+        this.executor = createExecutor();
+    }
+
+    private static ThreadPoolExecutor createExecutor() {
+        return new ThreadPoolExecutor(
+                CORE_POOL_SIZE, MAX_POOL_SIZE, KEEP_ALIVE_SECONDS, TimeUnit.SECONDS,
+                new ArrayBlockingQueue<>(QUEUE_CAPACITY),
+                namedFactory("realtime-push"),
+                new ThreadPoolExecutor.AbortPolicy());
+    }
+
+    public void onEvent(String eventId) {
+        if (stopped) {
+            rejected.incrementAndGet();
+            log.warn("push rejected, handler stopped, event={}", eventId);
+            throw new RejectedExecutionException("handler stopped");
+        }
+        if (receiver == null) {
+            throw new IllegalStateException("receiver not configured");
+        }
+        try {
+            executor.execute(() -> runTask(eventId));
+            submitted.incrementAndGet();
+        } catch (RejectedExecutionException ex) {
+            rejected.incrementAndGet();
+            log.warn("push rejected, event={}", eventId, ex);
+            throw ex;
+        }
+    }
+
+    private void runTask(String eventId) {
+        try {
+            receiver.accept(eventId);
+            completed.incrementAndGet();
+        } catch (RuntimeException ex) {
+            failed.incrementAndGet();
+            log.error("push failed, event={}", eventId, ex);
+        }
+    }
+
+    public Map<String, Long> stats() {
+        Map<String, Long> result = new ConcurrentHashMap<>();
+        result.put("submitted", submitted.get());
+        result.put("completed", completed.get());
+        result.put("failed", failed.get());
+        result.put("rejected", rejected.get());
+        return result;
+    }
+
+    public void stop() {
+        stopped = true;
+        executor.shutdown();
+        boolean interrupted = false;
+        try {
+            if (!executor.awaitTermination(STOP_GRACE_MILLIS, TimeUnit.MILLISECONDS)) {
+                executor.shutdownNow();
+                if (!executor.awaitTermination(STOP_FORCE_WAIT_MILLIS, TimeUnit.MILLISECONDS)) {
+                    throw new IllegalStateException("realtime push executor did not terminate");
+                }
+            }
+        } catch (InterruptedException ex) {
+            interrupted = true;
+            executor.shutdownNow();
+            try {
+                if (!executor.awaitTermination(STOP_FORCE_WAIT_MILLIS, TimeUnit.MILLISECONDS)) {
+                    throw new IllegalStateException("realtime push executor did not terminate");
+                }
+            } catch (InterruptedException ex2) {
+                interrupted = true;
+            }
+        } finally {
+            if (interrupted) {
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+
+    private static ThreadFactory namedFactory(String prefix) {
+        AtomicInteger sequence = new AtomicInteger();
+        return task -> {
+            Thread thread = new Thread(task);
+            thread.setName(prefix + "-" + sequence.incrementAndGet());
+            return thread;
+        };
+    }
+
+    private void push(String eventId) {
+    }
+}

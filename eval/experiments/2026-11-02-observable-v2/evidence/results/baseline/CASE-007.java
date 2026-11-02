@@ -1,0 +1,111 @@
+package com.example.log.service;
+
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Consumer;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * 日志异步写入线程池。
+ * 过载或关闭时同步抛出 RejectedExecutionException 并计数、记录日志，不静默丢弃。
+ */
+public class AsyncLogWriter {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AsyncLogWriter.class);
+
+    private static final long SHUTDOWN_GRACE_MILLIS = 200L;
+    private static final long FORCE_WAIT_MILLIS = 200L;
+
+    private final ThreadPoolExecutor writer;
+
+    private final Consumer<String> sink;
+
+    private final AtomicLong submitted = new AtomicLong();
+    private final AtomicLong completed = new AtomicLong();
+    private final AtomicLong failed = new AtomicLong();
+    private final AtomicLong rejected = new AtomicLong();
+
+    public AsyncLogWriter() {
+        this(null);
+    }
+
+    public AsyncLogWriter(Consumer<String> sink) {
+        this.sink = sink;
+        this.writer = new ThreadPoolExecutor(
+                4, 8, 60L, TimeUnit.SECONDS,
+                new ArrayBlockingQueue<>(1000),
+                namedFactory("async-log"),
+                new ThreadPoolExecutor.AbortPolicy());
+    }
+
+    public void write(String message) {
+        if (sink == null) {
+            throw new IllegalStateException("AsyncLogWriter sink is not configured");
+        }
+        try {
+            writer.execute(() -> runTask(message));
+        } catch (RejectedExecutionException e) {
+            rejected.incrementAndGet();
+            LOGGER.warn("Async log task rejected, message dropped after counting", e);
+            throw e;
+        }
+        submitted.incrementAndGet();
+    }
+
+    private void runTask(String message) {
+        try {
+            sink.accept(message);
+            completed.incrementAndGet();
+        } catch (RuntimeException e) {
+            failed.incrementAndGet();
+            LOGGER.error("Async log sink callback failed", e);
+        }
+    }
+
+    public Map<String, Long> stats() {
+        Map<String, Long> result = new ConcurrentHashMap<>();
+        result.put("submitted", submitted.get());
+        result.put("completed", completed.get());
+        result.put("failed", failed.get());
+        result.put("rejected", rejected.get());
+        return result;
+    }
+
+    public void stop() {
+        writer.shutdown();
+        boolean terminated = false;
+        try {
+            terminated = writer.awaitTermination(SHUTDOWN_GRACE_MILLIS, TimeUnit.MILLISECONDS);
+            if (!terminated) {
+                writer.shutdownNow();
+                terminated = writer.awaitTermination(FORCE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            writer.shutdownNow();
+            throw new IllegalStateException("Interrupted while stopping AsyncLogWriter", e);
+        }
+        if (!terminated) {
+            throw new IllegalStateException("AsyncLogWriter did not terminate within the allowed time");
+        }
+    }
+
+    private static ThreadFactory namedFactory(String prefix) {
+        AtomicInteger sequence = new AtomicInteger();
+        return task -> {
+            Thread thread = new Thread(task);
+            thread.setName(prefix + "-" + sequence.incrementAndGet());
+            return thread;
+        };
+    }
+}

@@ -1,0 +1,35 @@
+{
+  "case_id": "CASE-020",
+  "strategy": "rag",
+  "model": "deepseek-flash",
+  "prompt_sha256": "8108775c763004b8c96d1ed31d5e1a2425daf4d8c683998a4f742fbd77e5de9f",
+  "elapsed_ms": 5586,
+  "status": "ok",
+  "usage": {
+    "prompt_tokens": 2318,
+    "completion_tokens": 1437,
+    "total_tokens": 3755,
+    "prompt_tokens_details": {
+      "cached_tokens": 2176
+    },
+    "prompt_cache_hit_tokens": 2176,
+    "prompt_cache_miss_tokens": 142
+  },
+  "applied_parameters": {
+    "temperature": 0,
+    "max_tokens": 8192,
+    "seed": null,
+    "thinking": {
+      "type": "disabled"
+    },
+    "endpoint": "https://api.deepseek.com/chat/completions",
+    "api_key_env": "EVAL_API_KEY"
+  },
+  "extraction": {
+    "format": "single_fenced_block",
+    "raw_sha256": "73af8e11069571a0cceb48bf8fda536648313243ab1dea78ec0b531f493dbe06",
+    "source_sha256": "ebd6573de1d7d5ec30808a88d7dc75bbedea3ee6e0b792b953d7b385eafb7434"
+  },
+  "raw_sha256": "73af8e11069571a0cceb48bf8fda536648313243ab1dea78ec0b531f493dbe06",
+  "source_sha256": "ebd6573de1d7d5ec30808a88d7dc75bbedea3ee6e0b792b953d7b385eafb7434"
+}

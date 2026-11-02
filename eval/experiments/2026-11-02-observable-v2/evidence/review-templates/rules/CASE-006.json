@@ -1,0 +1,16 @@
+{
+  "source_sha256": "",
+  "reviewer": "",
+  "criteria": [
+    {
+      "criterion": "高优先级任务先于低优先级任务执行",
+      "passed": null,
+      "evidence": ""
+    },
+    {
+      "criterion": "过载淘汰最旧任务且不误删最高优先级任务",
+      "passed": null,
+      "evidence": ""
+    }
+  ]
+}

@@ -1,0 +1,122 @@
+```java
+package com.example.file.service;
+
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Consumer;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/** before.java: 自定义 ThreadFactory 没有给线程命名。 */
+public class FileProcessService {
+
+    private static final Logger log = LoggerFactory.getLogger(FileProcessService.class);
+
+    private static final int CORE_POOL_SIZE = 4;
+    private static final int MAX_POOL_SIZE = 8;
+    private static final long KEEP_ALIVE_SECONDS = 60L;
+    private static final int QUEUE_CAPACITY = 100;
+    private static final long STOP_GRACE_MILLIS = 200L;
+    private static final long STOP_FORCE_WAIT_MILLIS = 1000L;
+
+    private final Consumer<String> handler;
+
+    private final AtomicLong submitted = new AtomicLong();
+    private final AtomicLong completed = new AtomicLong();
+    private final AtomicLong failed = new AtomicLong();
+    private final AtomicLong rejected = new AtomicLong();
+
+    private final ThreadPoolExecutor processor;
+
+    public FileProcessService() {
+        this(null);
+    }
+
+    public FileProcessService(Consumer<String> handler) {
+        this.handler = handler;
+        this.processor = new ThreadPoolExecutor(
+                CORE_POOL_SIZE, MAX_POOL_SIZE, KEEP_ALIVE_SECONDS, TimeUnit.SECONDS,
+                new ArrayBlockingQueue<>(QUEUE_CAPACITY),
+                new NamedThreadFactory("file-process"),
+                new ThreadPoolExecutor.AbortPolicy());
+    }
+
+    public void process(String fileId) {
+        if (handler == null) {
+            throw new IllegalStateException("FileProcessService handler is not configured");
+        }
+        try {
+            processor.execute(() -> runTask(fileId));
+        } catch (RejectedExecutionException e) {
+            rejected.incrementAndGet();
+            log.warn("file-process task rejected, fileId={}", fileId, e);
+            throw e;
+        }
+        submitted.incrementAndGet();
+    }
+
+    private void runTask(String fileId) {
+        try {
+            handler.accept(fileId);
+            completed.incrementAndGet();
+        } catch (RuntimeException e) {
+            failed.incrementAndGet();
+            log.error("file-process task failed, fileId={}", fileId, e);
+        }
+    }
+
+    public Map<String, Long> stats() {
+        Map<String, Long> result = new ConcurrentHashMap<>();
+        result.put("submitted", submitted.get());
+        result.put("completed", completed.get());
+        result.put("failed", failed.get());
+        result.put("rejected", rejected.get());
+        return result;
+    }
+
+    public void stop() {
+        processor.shutdown();
+        boolean terminated = false;
+        try {
+            terminated = processor.awaitTermination(STOP_GRACE_MILLIS, TimeUnit.MILLISECONDS);
+            if (!terminated) {
+                processor.shutdownNow();
+                terminated = processor.awaitTermination(STOP_FORCE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            processor.shutdownNow();
+            throw new IllegalStateException("Interrupted while stopping file-process executor", e);
+        }
+        if (!terminated) {
+            throw new IllegalStateException("file-process executor did not terminate in time");
+        }
+    }
+
+    static class NamedThreadFactory implements ThreadFactory {
+        private final String prefix;
+        private final AtomicInteger sequence = new AtomicInteger();
+
+        NamedThreadFactory(String prefix) {
+            this.prefix = Objects.requireNonNull(prefix, "prefix");
+        }
+
+        @Override
+        public Thread newThread(Runnable task) {
+            Thread thread = new Thread(task);
+            thread.setName(prefix + "-" + sequence.incrementAndGet());
+            thread.setDaemon(false);
+            return thread;
+        }
+    }
+}
+```

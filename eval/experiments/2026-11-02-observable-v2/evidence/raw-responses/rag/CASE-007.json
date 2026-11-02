@@ -1,0 +1,28 @@
+{
+  "id": "8e671dac-a3f2-4d4f-9eb3-a72dae3fd22d",
+  "object": "chat.completion",
+  "created": 1793588263,
+  "model": "deepseek-flash",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```java\npackage com.example.log.service;\n\nimport java.util.Map;\nimport java.util.Objects;\nimport java.util.concurrent.ArrayBlockingQueue;\nimport java.util.concurrent.ConcurrentHashMap;\nimport java.util.concurrent.RejectedExecutionException;\nimport java.util.concurrent.ThreadFactory;\nimport java.util.concurrent.ThreadPoolExecutor;\nimport java.util.concurrent.TimeUnit;\nimport java.util.concurrent.atomic.AtomicInteger;\nimport java.util.concurrent.atomic.AtomicLong;\nimport java.util.function.Consumer;\n\nimport org.slf4j.Logger;\nimport org.slf4j.LoggerFactory;\n\n/** 日志异步写入线程池：过载时计数并告警，不静默丢弃。 */\npublic class AsyncLogWriter {\n\n    private static final Logger LOGGER = LoggerFactory.getLogger(AsyncLogWriter.class);\n\n    private static final long SHUTDOWN_GRACE_MILLIS = 200L;\n    private static final long FORCE_WAIT_MILLIS = 1000L;\n\n    private final Consumer<String> sink;\n\n    private final AtomicLong submitted = new AtomicLong();\n    private final AtomicLong completed = new AtomicLong();\n    private final AtomicLong failed = new AtomicLong();\n    private final AtomicLong rejected = new AtomicLong();\n\n    private final ThreadPoolExecutor writer;\n\n    public AsyncLogWriter() {\n        this(null);\n    }\n\n    public AsyncLogWriter(Consumer<String> sink) {\n        this.sink = sink;\n        this.writer = new ThreadPoolExecutor(\n                4, 8, 60L, TimeUnit.SECONDS,\n                new ArrayBlockingQueue<>(1000),\n                namedFactory(\"async-log\"),\n                new CountingRejectedHandler());\n    }\n\n    public void write(String message) {\n        if (sink == null) {\n            throw new IllegalStateException(\"AsyncLogWriter sink is not configured\");\n        }\n        try {\n            writer.execute(() -> runTask(message));\n        } catch (RejectedExecutionException e) {\n            rejected.incrementAndGet();\n            LOGGER.warn(\"Async log task rejected, message dropped after counting: {}\", abbreviate(message), e);\n            throw e;\n        }\n        submitted.incrementAndGet();\n    }\n\n    private void runTask(String message) {\n        try {\n            sink.accept(message);\n            completed.incrementAndGet();\n        } catch (RuntimeException e) {\n            failed.incrementAndGet();\n            LOGGER.error(\"Async log sink failed for message: {}\", abbreviate(message), e);\n        }\n    }\n\n    public Map<String, Long> stats() {\n        Map<String, Long> result = new ConcurrentHashMap<>();\n        result.put(\"submitted\", submitted.get());\n        result.put(\"completed\", completed.get());\n        result.put(\"failed\", failed.get());\n        result.put(\"rejected\", rejected.get());\n        return result;\n    }\n\n    public void stop() {\n        writer.shutdown();\n        boolean interrupted = false;\n        try {\n            if (!writer.awaitTermination(SHUTDOWN_GRACE_MILLIS, TimeUnit.MILLISECONDS)) {\n                writer.shutdownNow();\n                if (!writer.awaitTermination(FORCE_WAIT_MILLIS, TimeUnit.MILLISECONDS)) {\n                    throw new IllegalStateException(\"AsyncLogWriter did not terminate in time\");\n                }\n            }\n        } catch (InterruptedException e) {\n            interrupted = true;\n            writer.shutdownNow();\n            try {\n                writer.awaitTermination(FORCE_WAIT_MILLIS, TimeUnit.MILLISECONDS);\n            } catch (InterruptedException ignored) {\n                interrupted = true;\n            }\n        } finally {\n            if (interrupted) {\n                Thread.currentThread().interrupt();\n            }\n        }\n    }\n\n    private static String abbreviate(String message) {\n        if (message == null) {\n            return \"null\";\n        }\n        return message.length() <= 200 ? message : message.substring(0, 200) + \"...\";\n    }\n\n    private static ThreadFactory namedFactory(String prefix) {\n        AtomicInteger sequence = new AtomicInteger();\n        return task -> {\n            Thread thread = new Thread(task);\n            thread.setName(prefix + \"-\" + sequence.incrementAndGet());\n            thread.setDaemon(false);\n            return thread;\n        };\n    }\n\n    private final class CountingRejectedHandler implements java.util.concurrent.RejectedExecutionHandler {\n        @Override\n        public void rejectedExecution(Runnable r, ThreadPoolExecutor e) {\n            throw new RejectedExecutionException(\"Async log writer saturated or shut down\");\n        }\n    }\n}\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1750,
+    "completion_tokens": 932,
+    "total_tokens": 2682,
+    "prompt_tokens_details": {
+      "cached_tokens": 1280
+    },
+    "prompt_cache_hit_tokens": 1280,
+    "prompt_cache_miss_tokens": 470
+  },
+  "system_fingerprint": "bc19ba97cbe016479903222bb1578db6"
+}

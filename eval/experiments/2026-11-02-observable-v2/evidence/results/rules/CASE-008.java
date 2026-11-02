@@ -1,0 +1,149 @@
+package com.example.inventory.service;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Consumer;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * Inventory sync service.
+ *
+ * <p>Uses a dedicated, bounded {@link ThreadPoolExecutor} with an explicit
+ * {@link ThreadPoolExecutor.AbortPolicy}. Rejected submissions are compensated
+ * by recording the SKU in {@link #retryQueue} and rethrowing
+ * {@link RejectedExecutionException} to the caller.</p>
+ */
+public class InventorySyncService {
+
+    private static final Logger LOG = LoggerFactory.getLogger(InventorySyncService.class);
+
+    private static final int CORE_POOL_SIZE = 4;
+    private static final int MAX_POOL_SIZE = 8;
+    private static final long KEEP_ALIVE_SECONDS = 60L;
+    private static final int QUEUE_CAPACITY = 100;
+    private static final long STOP_GRACE_MILLIS = 200L;
+    private static final long STOP_FORCE_WAIT_MILLIS = 2000L;
+
+    /** Visible for tests: rejected SKUs are recorded here for compensation. */
+    final Collection<String> retryQueue = new ConcurrentLinkedQueue<>();
+
+    private final Consumer<String> synchronizer;
+
+    private final AtomicLong submitted = new AtomicLong();
+    private final AtomicLong completed = new AtomicLong();
+    private final AtomicLong failed = new AtomicLong();
+    private final AtomicLong rejected = new AtomicLong();
+
+    private final ThreadPoolExecutor syncExecutor;
+
+    public InventorySyncService() {
+        this(null);
+    }
+
+    public InventorySyncService(Consumer<String> synchronizer) {
+        this.synchronizer = synchronizer;
+        ThreadFactory threadFactory = runnable -> {
+            Thread t = new Thread(runnable, "inventory-sync-" + System.nanoTime());
+            t.setDaemon(false);
+            return t;
+        };
+        this.syncExecutor = new ThreadPoolExecutor(
+                CORE_POOL_SIZE,
+                MAX_POOL_SIZE,
+                KEEP_ALIVE_SECONDS,
+                TimeUnit.SECONDS,
+                new ArrayBlockingQueue<>(QUEUE_CAPACITY),
+                threadFactory,
+                new ThreadPoolExecutor.AbortPolicy());
+    }
+
+    public void sync(String sku) {
+        Objects.requireNonNull(sku, "sku");
+        if (synchronizer == null) {
+            throw new IllegalStateException("InventorySyncService has no synchronizer configured");
+        }
+        try {
+            syncExecutor.execute(() -> runSync(sku));
+            submitted.incrementAndGet();
+        } catch (RejectedExecutionException ex) {
+            rejected.incrementAndGet();
+            retryQueue.add(sku);
+            LOG.warn("Inventory sync rejected for sku={}, queued for compensation", sku);
+            throw ex;
+        }
+    }
+
+    private void runSync(String sku) {
+        try {
+            synchronizer.accept(sku);
+            completed.incrementAndGet();
+        } catch (RuntimeException ex) {
+            failed.incrementAndGet();
+            LOG.error("Inventory sync failed for sku={}", sku, ex);
+        }
+    }
+
+    public Map<String, Long> stats() {
+        Map<String, Long> snapshot = new LinkedHashMap<>();
+        snapshot.put("submitted", submitted.get());
+        snapshot.put("completed", completed.get());
+        snapshot.put("failed", failed.get());
+        snapshot.put("rejected", rejected.get());
+        return Collections.unmodifiableMap(snapshot);
+    }
+
+    public void stop() {
+        syncExecutor.shutdown();
+        boolean interrupted = false;
+        try {
+            if (!syncExecutor.awaitTermination(STOP_GRACE_MILLIS, TimeUnit.MILLISECONDS)) {
+                List<Runnable> pending = syncExecutor.shutdownNow();
+                if (!pending.isEmpty()) {
+                    LOG.warn("Inventory sync stop: {} pending tasks were not executed", pending.size());
+                }
+                if (!syncExecutor.awaitTermination(STOP_FORCE_WAIT_MILLIS, TimeUnit.MILLISECONDS)) {
+                    throw new IllegalStateException("Inventory sync executor did not terminate");
+                }
+            }
+        } catch (InterruptedException ex) {
+            interrupted = true;
+            syncExecutor.shutdownNow();
+            try {
+                if (!syncExecutor.awaitTermination(STOP_FORCE_WAIT_MILLIS, TimeUnit.MILLISECONDS)) {
+                    throw new IllegalStateException("Inventory sync executor did not terminate after interrupt");
+                }
+            } catch (InterruptedException inner) {
+                interrupted = true;
+                Thread.currentThread().interrupt();
+                throw new IllegalStateException("Inventory sync executor did not terminate after interrupt", inner);
+            }
+        } finally {
+            if (interrupted) {
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+
+    // Visible for tests / diagnostics.
+    ThreadPoolExecutor executor() {
+        return syncExecutor;
+    }
+
+    List<String> snapshotRetryQueue() {
+        return new ArrayList<>(retryQueue);
+    }
+}

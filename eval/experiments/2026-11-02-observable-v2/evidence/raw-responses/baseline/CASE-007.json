@@ -1,0 +1,28 @@
+{
+  "id": "34302fb0-62d4-42fa-ae7c-aa0f988f8610",
+  "object": "chat.completion",
+  "created": 1793588259,
+  "model": "deepseek-flash",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```java\npackage com.example.log.service;\n\nimport java.util.Map;\nimport java.util.Objects;\nimport java.util.concurrent.ArrayBlockingQueue;\nimport java.util.concurrent.ConcurrentHashMap;\nimport java.util.concurrent.RejectedExecutionException;\nimport java.util.concurrent.ThreadFactory;\nimport java.util.concurrent.ThreadPoolExecutor;\nimport java.util.concurrent.TimeUnit;\nimport java.util.concurrent.atomic.AtomicInteger;\nimport java.util.concurrent.atomic.AtomicLong;\nimport java.util.function.Consumer;\n\nimport org.slf4j.Logger;\nimport org.slf4j.LoggerFactory;\n\n/**\n * 日志异步写入线程池。\n * 过载或关闭时同步抛出 RejectedExecutionException 并计数、记录日志，不静默丢弃。\n */\npublic class AsyncLogWriter {\n\n    private static final Logger LOGGER = LoggerFactory.getLogger(AsyncLogWriter.class);\n\n    private static final long SHUTDOWN_GRACE_MILLIS = 200L;\n    private static final long FORCE_WAIT_MILLIS = 200L;\n\n    private final ThreadPoolExecutor writer;\n\n    private final Consumer<String> sink;\n\n    private final AtomicLong submitted = new AtomicLong();\n    private final AtomicLong completed = new AtomicLong();\n    private final AtomicLong failed = new AtomicLong();\n    private final AtomicLong rejected = new AtomicLong();\n\n    public AsyncLogWriter() {\n        this(null);\n    }\n\n    public AsyncLogWriter(Consumer<String> sink) {\n        this.sink = sink;\n        this.writer = new ThreadPoolExecutor(\n                4, 8, 60L, TimeUnit.SECONDS,\n                new ArrayBlockingQueue<>(1000),\n                namedFactory(\"async-log\"),\n                new ThreadPoolExecutor.AbortPolicy());\n    }\n\n    public void write(String message) {\n        if (sink == null) {\n            throw new IllegalStateException(\"AsyncLogWriter sink is not configured\");\n        }\n        try {\n            writer.execute(() -> runTask(message));\n        } catch (RejectedExecutionException e) {\n            rejected.incrementAndGet();\n            LOGGER.warn(\"Async log task rejected, message dropped after counting\", e);\n            throw e;\n        }\n        submitted.incrementAndGet();\n    }\n\n    private void runTask(String message) {\n        try {\n            sink.accept(message);\n            completed.incrementAndGet();\n        } catch (RuntimeException e) {\n            failed.incrementAndGet();\n            LOGGER.error(\"Async log sink callback failed\", e);\n        }\n    }\n\n    public Map<String, Long> stats() {\n        Map<String, Long> result = new ConcurrentHashMap<>();\n        result.put(\"submitted\", submitted.get());\n        result.put(\"completed\", completed.get());\n        result.put(\"failed\", failed.get());\n        result.put(\"rejected\", rejected.get());\n        return result;\n    }\n\n    public void stop() {\n        writer.shutdown();\n        boolean terminated = false;\n        try {\n            terminated = writer.awaitTermination(SHUTDOWN_GRACE_MILLIS, TimeUnit.MILLISECONDS);\n            if (!terminated) {\n                writer.shutdownNow();\n                terminated = writer.awaitTermination(FORCE_WAIT_MILLIS, TimeUnit.MILLISECONDS);\n            }\n        } catch (InterruptedException e) {\n            Thread.currentThread().interrupt();\n            writer.shutdownNow();\n            throw new IllegalStateException(\"Interrupted while stopping AsyncLogWriter\", e);\n        }\n        if (!terminated) {\n            throw new IllegalStateException(\"AsyncLogWriter did not terminate within the allowed time\");\n        }\n    }\n\n    private static ThreadFactory namedFactory(String prefix) {\n        AtomicInteger sequence = new AtomicInteger();\n        return task -> {\n            Thread thread = new Thread(task);\n            thread.setName(prefix + \"-\" + sequence.incrementAndGet());\n            return thread;\n        };\n    }\n}\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 905,
+    "completion_tokens": 793,
+    "total_tokens": 1698,
+    "prompt_tokens_details": {
+      "cached_tokens": 384
+    },
+    "prompt_cache_hit_tokens": 384,
+    "prompt_cache_miss_tokens": 521
+  },
+  "system_fingerprint": "bc19ba97cbe016479903222bb1578db6"
+}

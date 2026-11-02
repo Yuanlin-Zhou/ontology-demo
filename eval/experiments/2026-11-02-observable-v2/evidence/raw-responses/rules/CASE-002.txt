@@ -1,0 +1,199 @@
+```java
+package com.example.order.service;
+
+import com.example.order.domain.Order;
+
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
+import java.util.function.Function;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * OrderSyncService: 订单数据同步。
+ *
+ * <p>使用显式有界线程池，ThreadLocal 在 finally 中恢复，异常可见且不传播到提交线程。</p>
+ */
+public class OrderSyncService {
+
+    private static final Logger LOG = LoggerFactory.getLogger(OrderSyncService.class);
+
+    private static final ThreadLocal<String> TENANT = new ThreadLocal<>();
+
+    private static final int CORE_POOL_SIZE = 8;
+    private static final int MAX_POOL_SIZE = 8;
+    private static final int QUEUE_CAPACITY = 256;
+    private static final long KEEP_ALIVE_SECONDS = 60L;
+    private static final long RELOAD_TIMEOUT_MILLIS = 5_000L;
+    private static final long SHUTDOWN_GRACE_MILLIS = 200L;
+    private static final long SHUTDOWN_FORCE_WAIT_MILLIS = 1_000L;
+
+    private final Consumer<Order> synchronizer;
+    private final Function<String, Order> loader;
+
+    private final ThreadPoolExecutor syncExecutor;
+
+    private final AtomicInteger submitted = new AtomicInteger();
+    private final AtomicInteger completed = new AtomicInteger();
+    private final AtomicInteger failed = new AtomicInteger();
+    private final AtomicInteger rejected = new AtomicInteger();
+
+    private volatile boolean accepting = true;
+
+    public OrderSyncService() {
+        this(null, null);
+    }
+
+    public OrderSyncService(Consumer<Order> synchronizer, Function<String, Order> loader) {
+        this.synchronizer = synchronizer;
+        this.loader = loader;
+        this.syncExecutor = new ThreadPoolExecutor(
+                CORE_POOL_SIZE,
+                MAX_POOL_SIZE,
+                KEEP_ALIVE_SECONDS,
+                TimeUnit.SECONDS,
+                new ArrayBlockingQueue<>(QUEUE_CAPACITY),
+                new NamedThreadFactory("order-sync-"),
+                new ThreadPoolExecutor.AbortPolicy());
+    }
+
+    public void syncCreated(Order order) {
+        Objects.requireNonNull(order, "order");
+        if (!accepting) {
+            rejected.incrementAndGet();
+            LOG.warn("syncCreated rejected: service is shutting down, orderId={}", order.id());
+            throw new RejectedExecutionException("OrderSyncService is shutting down");
+        }
+        Consumer<Order> sync = this.synchronizer;
+        if (sync == null) {
+            throw new IllegalStateException("synchronizer is not configured");
+        }
+        try {
+            syncExecutor.execute(() -> runSync(order, sync));
+            submitted.incrementAndGet();
+        } catch (RejectedExecutionException e) {
+            rejected.incrementAndGet();
+            LOG.warn("syncCreated rejected: executor saturated, orderId={}", order.id(), e);
+            throw e;
+        }
+    }
+
+    private void runSync(Order order, Consumer<Order> sync) {
+        String previous = TENANT.get();
+        TENANT.set(order.tenantId());
+        try {
+            sync.accept(order);
+            completed.incrementAndGet();
+        } catch (RuntimeException e) {
+            failed.incrementAndGet();
+            LOG.error("syncCreated callback failed, orderId={}", order.id(), e);
+        } finally {
+            if (previous == null) {
+                TENANT.remove();
+            } else {
+                TENANT.set(previous);
+            }
+        }
+    }
+
+    public Order reload(String id) throws Exception {
+        Function<String, Order> load = this.loader;
+        if (load == null) {
+            throw new IllegalStateException("loader is not configured");
+        }
+        if (!accepting) {
+            throw new RejectedExecutionException("OrderSyncService is shutting down");
+        }
+        Future<Order> future;
+        try {
+            future = syncExecutor.submit(() -> load.apply(id));
+        } catch (RejectedExecutionException e) {
+            LOG.warn("reload rejected: executor saturated, id={}", id, e);
+            throw e;
+        }
+        try {
+            return future.get(RELOAD_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+        } catch (TimeoutException e) {
+            future.cancel(true);
+            throw e;
+        } catch (InterruptedException e) {
+            future.cancel(true);
+            Thread.currentThread().interrupt();
+            throw e;
+        } catch (ExecutionException e) {
+            Throwable cause = e.getCause();
+            if (cause instanceof Exception ex) {
+                throw ex;
+            }
+            if (cause instanceof Error err) {
+                throw err;
+            }
+            throw e;
+        }
+    }
+
+    public Map<String, Long> stats() {
+        Map<String, Long> result = new ConcurrentHashMap<>();
+        result.put("submitted", (long) submitted.get());
+        result.put("completed", (long) completed.get());
+        result.put("failed", (long) failed.get());
+        result.put("rejected", (long) rejected.get());
+        return result;
+    }
+
+    public void stop() {
+        accepting = false;
+        syncExecutor.shutdown();
+        boolean interrupted = false;
+        try {
+            if (!syncExecutor.awaitTermination(SHUTDOWN_GRACE_MILLIS, TimeUnit.MILLISECONDS)) {
+                syncExecutor.shutdownNow();
+                if (!syncExecutor.awaitTermination(SHUTDOWN_FORCE_WAIT_MILLIS, TimeUnit.MILLISECONDS)) {
+                    throw new IllegalStateException("OrderSyncService executor did not terminate");
+                }
+            }
+        } catch (InterruptedException e) {
+            interrupted = true;
+            syncExecutor.shutdownNow();
+            try {
+                syncExecutor.awaitTermination(SHUTDOWN_FORCE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException ignored) {
+                interrupted = true;
+            }
+        } finally {
+            if (interrupted) {
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+
+    private static final class NamedThreadFactory implements ThreadFactory {
+        private final String prefix;
+        private final AtomicInteger counter = new AtomicInteger();
+
+        NamedThreadFactory(String prefix) {
+            this.prefix = prefix;
+        }
+
+        @Override
+        public Thread newThread(Runnable r) {
+            Thread t = new Thread(r, prefix + counter.incrementAndGet());
+            t.setDaemon(false);
+            return t;
+        }
+    }
+}
+```

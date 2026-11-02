@@ -1,0 +1,28 @@
+{
+  "id": "786cd3da-aaf3-4775-bf67-3ecdb8cc02f6",
+  "object": "chat.completion",
+  "created": 1793588291,
+  "model": "deepseek-flash",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```java\npackage com.example.file.service;\n\nimport java.util.Map;\nimport java.util.Objects;\nimport java.util.concurrent.ArrayBlockingQueue;\nimport java.util.concurrent.ConcurrentHashMap;\nimport java.util.concurrent.RejectedExecutionException;\nimport java.util.concurrent.ThreadFactory;\nimport java.util.concurrent.ThreadPoolExecutor;\nimport java.util.concurrent.TimeUnit;\nimport java.util.concurrent.atomic.AtomicInteger;\nimport java.util.concurrent.atomic.AtomicLong;\nimport java.util.function.Consumer;\n\nimport org.slf4j.Logger;\nimport org.slf4j.LoggerFactory;\n\n/** before.java: 自定义 ThreadFactory 没有给线程命名。 */\npublic class FileProcessService {\n\n    private static final Logger logger = LoggerFactory.getLogger(FileProcessService.class);\n\n    private static final String THREAD_PREFIX = \"file-process\";\n\n    private final ThreadPoolExecutor processor;\n\n    private final Consumer<String> handler;\n\n    private final AtomicLong submitted = new AtomicLong();\n    private final AtomicLong completed = new AtomicLong();\n    private final AtomicLong failed = new AtomicLong();\n    private final AtomicLong rejected = new AtomicLong();\n\n    public FileProcessService() {\n        this(null);\n    }\n\n    public FileProcessService(Consumer<String> handler) {\n        this.handler = handler;\n        this.processor = new ThreadPoolExecutor(\n                4, 8, 60L, TimeUnit.SECONDS,\n                new ArrayBlockingQueue<>(100),\n                new NamingThreadFactory(THREAD_PREFIX),\n                new ThreadPoolExecutor.AbortPolicy());\n    }\n\n    public void process(String fileId) {\n        if (handler == null) {\n            throw new IllegalStateException(\"FileProcessService handler is not configured\");\n        }\n        try {\n            processor.execute(() -> runTask(fileId));\n        } catch (RejectedExecutionException e) {\n            rejected.incrementAndGet();\n            logger.warn(\"file-process task rejected, fileId={}\", fileId, e);\n            throw e;\n        }\n        submitted.incrementAndGet();\n    }\n\n    private void runTask(String fileId) {\n        try {\n            handler.accept(fileId);\n            completed.incrementAndGet();\n        } catch (RuntimeException e) {\n            failed.incrementAndGet();\n            logger.error(\"file-process task failed, fileId={}\", fileId, e);\n        }\n    }\n\n    public Map<String, Long> stats() {\n        Map<String, Long> result = new ConcurrentHashMap<>();\n        result.put(\"submitted\", submitted.get());\n        result.put(\"completed\", completed.get());\n        result.put(\"failed\", failed.get());\n        result.put(\"rejected\", rejected.get());\n        return result;\n    }\n\n    public void stop() {\n        processor.shutdown();\n        boolean interrupted = false;\n        try {\n            if (!processor.awaitTermination(200L, TimeUnit.MILLISECONDS)) {\n                processor.shutdownNow();\n                if (!processor.awaitTermination(200L, TimeUnit.MILLISECONDS)) {\n                    throw new IllegalStateException(\"file-process executor did not terminate\");\n                }\n            }\n        } catch (InterruptedException e) {\n            interrupted = true;\n            processor.shutdownNow();\n            try {\n                processor.awaitTermination(200L, TimeUnit.MILLISECONDS);\n            } catch (InterruptedException ignored) {\n                interrupted = true;\n            }\n        } finally {\n            if (interrupted) {\n                Thread.currentThread().interrupt();\n            }\n        }\n    }\n\n    static class NamingThreadFactory implements ThreadFactory {\n\n        private final AtomicInteger sequence = new AtomicInteger();\n        private final String prefix;\n\n        NamingThreadFactory(String prefix) {\n            this.prefix = Objects.requireNonNull(prefix, \"prefix\");\n        }\n\n        @Override\n        public Thread newThread(Runnable task) {\n            Thread thread = new Thread(task);\n            thread.setName(prefix + \"-\" + sequence.incrementAndGet());\n            thread.setDaemon(false);\n            return thread;\n        }\n    }\n}\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1637,
+    "completion_tokens": 822,
+    "total_tokens": 2459,
+    "prompt_tokens_details": {
+      "cached_tokens": 1152
+    },
+    "prompt_cache_hit_tokens": 1152,
+    "prompt_cache_miss_tokens": 485
+  },
+  "system_fingerprint": "bc19ba97cbe016479903222bb1578db6"
+}

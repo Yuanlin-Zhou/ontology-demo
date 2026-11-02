@@ -1,0 +1,165 @@
+```java
+package com.example.order.service;
+
+import com.example.order.domain.Order;
+
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * OrderAsyncService: 订单创建后的异步通知。
+ *
+ * <p>使用有界队列的 {@link ThreadPoolExecutor}，避免无界队列导致的 OOM；
+ * 通知失败不影响下单主流程，回调异常被捕获并计数。</p>
+ */
+public class OrderAsyncService {
+
+    private static final Logger log = LoggerFactory.getLogger(OrderAsyncService.class);
+
+    private static final int CORE_POOL_SIZE = 8;
+    private static final int MAX_POOL_SIZE = 16;
+    private static final int QUEUE_CAPACITY = 256;
+    private static final long KEEP_ALIVE_SECONDS = 60L;
+    private static final long STOP_GRACE_MILLIS = 200L;
+    private static final long STOP_FORCE_WAIT_MILLIS = 1000L;
+
+    private final Consumer<Order> sender;
+
+    private final ThreadPoolExecutor notifier;
+
+    private final AtomicInteger submitted = new AtomicInteger();
+    private final AtomicInteger completed = new AtomicInteger();
+    private final AtomicInteger failed = new AtomicInteger();
+    private final AtomicInteger rejected = new AtomicInteger();
+
+    private volatile boolean stopped = false;
+
+    /**
+     * 无参构造：未配置下游，业务入口同步抛 IllegalStateException。
+     */
+    public OrderAsyncService() {
+        this.sender = null;
+        this.notifier = createExecutor();
+    }
+
+    /**
+     * 配置构造：注入通知发送回调。
+     *
+     * @param sender 通知发送回调，不能为 null
+     */
+    public OrderAsyncService(Consumer<Order> sender) {
+        this.sender = Objects.requireNonNull(sender, "sender must not be null");
+        this.notifier = createExecutor();
+    }
+
+    private static ThreadPoolExecutor createExecutor() {
+        ThreadFactory threadFactory = new ThreadFactory() {
+            private final AtomicInteger index = new AtomicInteger();
+
+            @Override
+            public Thread newThread(Runnable r) {
+                Thread t = new Thread(r, "order-notifier-" + index.incrementAndGet());
+                t.setDaemon(false);
+                return t;
+            }
+        };
+        return new ThreadPoolExecutor(
+                CORE_POOL_SIZE,
+                MAX_POOL_SIZE,
+                KEEP_ALIVE_SECONDS,
+                TimeUnit.SECONDS,
+                new ArrayBlockingQueue<>(QUEUE_CAPACITY),
+                threadFactory,
+                new ThreadPoolExecutor.AbortPolicy());
+    }
+
+    /**
+     * 订单创建后异步通知。通知失败不影响主流程。
+     *
+     * @param order 订单
+     */
+    public void notifyCreated(Order order) {
+        Objects.requireNonNull(order, "order must not be null");
+        if (sender == null) {
+            throw new IllegalStateException("OrderAsyncService sender is not configured");
+        }
+        if (stopped) {
+            rejected.incrementAndGet();
+            log.warn("OrderAsyncService is stopped, reject order notification: {}", order.id());
+            throw new RejectedExecutionException("OrderAsyncService is stopped");
+        }
+        try {
+            notifier.execute(() -> runNotify(order));
+            submitted.incrementAndGet();
+        } catch (RejectedExecutionException e) {
+            rejected.incrementAndGet();
+            log.warn("Order notification rejected for order: {}", order.id(), e);
+            throw e;
+        }
+    }
+
+    private void runNotify(Order order) {
+        try {
+            sender.accept(order);
+            completed.incrementAndGet();
+        } catch (RuntimeException e) {
+            failed.incrementAndGet();
+            log.error("Order notification failed for order: {}", order.id(), e);
+        }
+    }
+
+    /**
+     * 统计信息。
+     *
+     * @return 包含 submitted/completed/failed/rejected 的 Map
+     */
+    public Map<String, Long> stats() {
+        Map<String, Long> result = new ConcurrentHashMap<>();
+        result.put("submitted", (long) submitted.get());
+        result.put("completed", (long) completed.get());
+        result.put("failed", (long) failed.get());
+        result.put("rejected", (long) rejected.get());
+        return result;
+    }
+
+    /**
+     * 停止服务：停止准入，等待已接受任务完成；200ms 宽限后强制关闭。
+     */
+    public void stop() {
+        stopped = true;
+        notifier.shutdown();
+        boolean interrupted = false;
+        try {
+            if (!notifier.awaitTermination(STOP_GRACE_MILLIS, TimeUnit.MILLISECONDS)) {
+                notifier.shutdownNow();
+                if (!notifier.awaitTermination(STOP_FORCE_WAIT_MILLIS, TimeUnit.MILLISECONDS)) {
+                    throw new IllegalStateException("OrderAsyncService did not terminate in time");
+                }
+            }
+        } catch (InterruptedException e) {
+            interrupted = true;
+            notifier.shutdownNow();
+            try {
+                notifier.awaitTermination(STOP_FORCE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException ignored) {
+                interrupted = true;
+            }
+        } finally {
+            if (interrupted) {
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+}
+```

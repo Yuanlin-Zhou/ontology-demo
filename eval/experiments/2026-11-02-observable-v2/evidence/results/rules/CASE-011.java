@@ -1,0 +1,146 @@
+package com.example.realtime.service;
+
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Consumer;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * RealtimePushHandler: 应用级线程池复用，异步推送事件。
+ */
+public class RealtimePushHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(RealtimePushHandler.class);
+
+    private static final int CORE_POOL_SIZE = 2;
+    private static final int MAX_POOL_SIZE = 4;
+    private static final long KEEP_ALIVE_SECONDS = 60L;
+    private static final int QUEUE_CAPACITY = 50;
+    private static final long STOP_GRACE_MILLIS = 200L;
+    private static final long STOP_FORCE_WAIT_MILLIS = 1000L;
+
+    private final Consumer<String> receiver;
+
+    /** 可反射观察的实例线程池字段。 */
+    private final ThreadPoolExecutor executor;
+
+    private final AtomicLong submitted = new AtomicLong();
+    private final AtomicLong completed = new AtomicLong();
+    private final AtomicLong failed = new AtomicLong();
+    private final AtomicLong rejected = new AtomicLong();
+
+    private final Object stopLock = new Object();
+    private volatile boolean stopping = false;
+    private volatile boolean stopped = false;
+
+    public RealtimePushHandler() {
+        this.receiver = null;
+        this.executor = createExecutor();
+    }
+
+    public RealtimePushHandler(Consumer<String> receiver) {
+        this.receiver = Objects.requireNonNull(receiver, "receiver must not be null");
+        this.executor = createExecutor();
+    }
+
+    private static ThreadPoolExecutor createExecutor() {
+        ThreadFactory factory = namedFactory("realtime-push");
+        ThreadPoolExecutor pool = new ThreadPoolExecutor(
+                CORE_POOL_SIZE,
+                MAX_POOL_SIZE,
+                KEEP_ALIVE_SECONDS,
+                TimeUnit.SECONDS,
+                new ArrayBlockingQueue<>(QUEUE_CAPACITY),
+                factory,
+                new ThreadPoolExecutor.AbortPolicy());
+        pool.allowCoreThreadTimeOut(false);
+        return pool;
+    }
+
+    private static ThreadFactory namedFactory(String prefix) {
+        AtomicInteger sequence = new AtomicInteger();
+        return task -> {
+            Thread thread = new Thread(task);
+            thread.setName(prefix + "-" + sequence.incrementAndGet());
+            return thread;
+        };
+    }
+
+    public void onEvent(String eventId) {
+        if (receiver == null) {
+            throw new IllegalStateException("receiver not configured");
+        }
+        if (stopping || stopped) {
+            rejected.incrementAndGet();
+            log.warn("push rejected (stopping), event={}", eventId);
+            throw new RejectedExecutionException("handler is stopping or stopped");
+        }
+        try {
+            executor.execute(() -> runPush(eventId));
+            submitted.incrementAndGet();
+        } catch (RejectedExecutionException ex) {
+            rejected.incrementAndGet();
+            log.warn("push rejected, event={}", eventId, ex);
+            throw ex;
+        }
+    }
+
+    private void runPush(String eventId) {
+        try {
+            receiver.accept(eventId);
+            completed.incrementAndGet();
+        } catch (RuntimeException ex) {
+            failed.incrementAndGet();
+            log.error("push failed, event={}", eventId, ex);
+        }
+    }
+
+    public Map<String, Long> stats() {
+        Map<String, Long> result = new ConcurrentHashMap<>();
+        result.put("submitted", submitted.get());
+        result.put("completed", completed.get());
+        result.put("failed", failed.get());
+        result.put("rejected", rejected.get());
+        return result;
+    }
+
+    public void stop() {
+        synchronized (stopLock) {
+            if (stopped) {
+                return;
+            }
+            stopping = true;
+            if (stopped) {
+                return;
+            }
+            executor.shutdown();
+            boolean terminated = false;
+            try {
+                terminated = executor.awaitTermination(STOP_GRACE_MILLIS, TimeUnit.MILLISECONDS);
+                if (!terminated) {
+                    executor.shutdownNow();
+                    terminated = executor.awaitTermination(STOP_FORCE_WAIT_MILLIS, TimeUnit.MILLISECONDS);
+                }
+            } catch (InterruptedException ie) {
+                executor.shutdownNow();
+                Thread.currentThread().interrupt();
+                stopped = true;
+                throw new IllegalStateException("interrupted while stopping realtime push handler", ie);
+            }
+            stopped = true;
+            if (!terminated) {
+                throw new IllegalStateException("realtime push handler did not terminate in time");
+            }
+        }
+    }
+}

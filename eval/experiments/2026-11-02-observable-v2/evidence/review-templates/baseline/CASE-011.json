@@ -1,0 +1,16 @@
+{
+  "source_sha256": "",
+  "reviewer": "",
+  "criteria": [
+    {
+      "criterion": "连续事件都能被推送",
+      "passed": null,
+      "evidence": ""
+    },
+    {
+      "criterion": "多次调用复用同一个业务线程池",
+      "passed": null,
+      "evidence": ""
+    }
+  ]
+}

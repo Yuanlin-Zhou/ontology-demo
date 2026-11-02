@@ -1,0 +1,28 @@
+{
+  "id": "ebe21a4a-85d8-4a62-87e5-819dcb839bd2",
+  "object": "chat.completion",
+  "created": 1793588199,
+  "model": "deepseek-flash",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "```java\npackage com.example.order.service;\n\nimport com.example.order.domain.Order;\n\nimport java.util.Map;\nimport java.util.Objects;\nimport java.util.concurrent.ArrayBlockingQueue;\nimport java.util.concurrent.BlockingQueue;\nimport java.util.concurrent.ConcurrentHashMap;\nimport java.util.concurrent.RejectedExecutionException;\nimport java.util.concurrent.ThreadFactory;\nimport java.util.concurrent.ThreadPoolExecutor;\nimport java.util.concurrent.TimeUnit;\nimport java.util.concurrent.atomic.AtomicInteger;\nimport java.util.function.Consumer;\n\nimport org.slf4j.Logger;\nimport org.slf4j.LoggerFactory;\n\n/**\n * 订单异步通知服务。\n *\n * <p>使用显式创建的有界线程池执行通知回调；通知失败不影响下单主流程。\n */\npublic class OrderAsyncService {\n\n    private static final Logger LOGGER = LoggerFactory.getLogger(OrderAsyncService.class);\n\n    private static final int QUEUE_CAPACITY = 1024;\n    private static final int CORE_POOL_SIZE = 4;\n    private static final int MAX_POOL_SIZE = 16;\n    private static final long KEEP_ALIVE_SECONDS = 60L;\n    private static final long STOP_GRACE_MILLIS = 200L;\n    private static final long STOP_FORCE_WAIT_MILLIS = 1000L;\n\n    private final Consumer<Order> sender;\n\n    private final ThreadPoolExecutor notifier;\n\n    private final AtomicInteger submitted = new AtomicInteger();\n    private final AtomicInteger completed = new AtomicInteger();\n    private final AtomicInteger failed = new AtomicInteger();\n    private final AtomicInteger rejected = new AtomicInteger();\n\n    private volatile boolean accepting = true;\n\n    public OrderAsyncService() {\n        this(null);\n    }\n\n    public OrderAsyncService(Consumer<Order> sender) {\n        this.sender = sender;\n        BlockingQueue<Runnable> queue = new ArrayBlockingQueue<>(QUEUE_CAPACITY);\n        ThreadFactory threadFactory = new ThreadFactory() {\n            private final AtomicInteger seq = new AtomicInteger();\n\n            @Override\n            public Thread newThread(Runnable r) {\n                Thread t = new Thread(r, \"order-notify-\" + seq.incrementAndGet());\n                t.setDaemon(false);\n                return t;\n            }\n        };\n        this.notifier = new ThreadPoolExecutor(\n                CORE_POOL_SIZE,\n                MAX_POOL_SIZE,\n                KEEP_ALIVE_SECONDS,\n                TimeUnit.SECONDS,\n                queue,\n                threadFactory,\n                new ThreadPoolExecutor.AbortPolicy());\n    }\n\n    public void notifyCreated(Order order) {\n        Objects.requireNonNull(order, \"order\");\n        if (!accepting) {\n            rejected.incrementAndGet();\n            LOGGER.warn(\"Order notification rejected because service is stopping, orderId={}\", order.id());\n            throw new RejectedExecutionException(\"OrderAsyncService is stopped\");\n        }\n        Consumer<Order> target = this.sender;\n        if (target == null) {\n            throw new IllegalStateException(\"OrderAsyncService sender is not configured\");\n        }\n        try {\n            notifier.execute(() -> runTask(target, order));\n            submitted.incrementAndGet();\n        } catch (RejectedExecutionException e) {\n            rejected.incrementAndGet();\n            LOGGER.warn(\"Order notification rejected, orderId={}\", order.id(), e);\n            throw e;\n        }\n    }\n\n    private void runTask(Consumer<Order> target, Order order) {\n        try {\n            target.accept(order);\n            completed.incrementAndGet();\n        } catch (RuntimeException e) {\n            failed.incrementAndGet();\n            LOGGER.error(\"Order notification failed, orderId={}\", order.id(), e);\n        }\n    }\n\n    public Map<String, Long> stats() {\n        Map<String, Long> result = new ConcurrentHashMap<>();\n        result.put(\"submitted\", (long) submitted.get());\n        result.put(\"completed\", (long) completed.get());\n        result.put(\"failed\", (long) failed.get());\n        result.put(\"rejected\", (long) rejected.get());\n        return result;\n    }\n\n    public void stop() {\n        accepting = false;\n        notifier.shutdown();\n        boolean interrupted = false;\n        try {\n            if (!notifier.awaitTermination(STOP_GRACE_MILLIS, TimeUnit.MILLISECONDS)) {\n                notifier.shutdownNow();\n                if (!notifier.awaitTermination(STOP_FORCE_WAIT_MILLIS, TimeUnit.MILLISECONDS)) {\n                    throw new IllegalStateException(\"OrderAsyncService did not terminate in time\");\n                }\n            }\n        } catch (InterruptedException e) {\n            interrupted = true;\n            notifier.shutdownNow();\n        } finally {\n            if (interrupted) {\n                Thread.currentThread().interrupt();\n            }\n        }\n    }\n}\n```"
+      },
+      "logprobs": null,
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 1560,
+    "completion_tokens": 1005,
+    "total_tokens": 2565,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 1560
+  },
+  "system_fingerprint": "bc19ba97cbe016479903222bb1578db6"
+}

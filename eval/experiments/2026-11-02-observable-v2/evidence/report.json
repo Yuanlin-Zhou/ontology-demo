@@ -1,0 +1,3055 @@
+{
+  "generated_at": "2026-11-02T03:00:16.282Z",
+  "rule_count": 26,
+  "case_count": 9,
+  "token_budget": 1200,
+  "strategies": [
+    {
+      "strategy": "baseline",
+      "cases": 9,
+      "rule_retrieval_applicable": false,
+      "rule_precision": 0,
+      "rule_recall": 0,
+      "rule_f1": 0,
+      "feature_precision": 0,
+      "feature_recall": 0,
+      "feature_f1": 0,
+      "avg_context_tokens": 0,
+      "avg_context_tokens_budgeted": 0,
+      "avg_retrieved_rules": 0,
+      "context_tokens_total": 0
+    },
+    {
+      "strategy": "rag",
+      "cases": 9,
+      "rule_retrieval_applicable": false,
+      "rule_precision": 0,
+      "rule_recall": 0,
+      "rule_f1": 0,
+      "feature_precision": 0,
+      "feature_recall": 0,
+      "feature_f1": 0,
+      "avg_context_tokens": 1164,
+      "avg_context_tokens_budgeted": 1164,
+      "avg_retrieved_rules": 0,
+      "context_tokens_total": 10477,
+      "reference_recall": 0.189
+    },
+    {
+      "strategy": "rules",
+      "cases": 9,
+      "rule_retrieval_applicable": true,
+      "rule_precision": 1,
+      "rule_recall": 1,
+      "rule_f1": 1,
+      "feature_precision": 1,
+      "feature_recall": 1,
+      "feature_f1": 1,
+      "avg_context_tokens": 2850,
+      "avg_context_tokens_budgeted": 1167,
+      "avg_retrieved_rules": 16.3,
+      "context_tokens_total": 25651
+    }
+  ],
+  "retrieval": [
+    {
+      "case_id": "CASE-001",
+      "strategy": "baseline",
+      "expected_rules": [
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-004",
+        "TP-CONFIG-005",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-003",
+        "TP-SHUTDOWN-001",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005"
+      ],
+      "retrieved_rules": [],
+      "expected_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CREATE.EXECUTORS_FACTORY",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE"
+      ],
+      "retrieved_features": [],
+      "rule_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 12
+      },
+      "feature_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 7
+      },
+      "context_tokens": 0,
+      "context_tokens_budgeted": 0,
+      "prompt_tokens": 438
+    },
+    {
+      "case_id": "CASE-002",
+      "strategy": "baseline",
+      "expected_rules": [
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-004",
+        "TP-CONFIG-005",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-003",
+        "TP-SHUTDOWN-001",
+        "TP-SHUTDOWN-003",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-002",
+        "TP-SUBMIT-004"
+      ],
+      "retrieved_rules": [],
+      "expected_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CREATE.EXECUTORS_FACTORY",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.FUTURE.GET",
+        "THREAD_POOL.THREAD_LOCAL"
+      ],
+      "retrieved_features": [],
+      "rule_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 14
+      },
+      "feature_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 8
+      },
+      "context_tokens": 0,
+      "context_tokens_budgeted": 0,
+      "prompt_tokens": 539
+    },
+    {
+      "case_id": "CASE-003",
+      "strategy": "baseline",
+      "expected_rules": [
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-003",
+        "TP-CONFIG-004",
+        "TP-CONFIG-005",
+        "TP-CONFIG-006",
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-002",
+        "TP-REJECT-003",
+        "TP-REJECT-004",
+        "TP-SHUTDOWN-001",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005"
+      ],
+      "retrieved_rules": [],
+      "expected_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.CONFIG.REJECTION",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE",
+        "THREAD_POOL.EXCEPTION"
+      ],
+      "retrieved_features": [],
+      "rule_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 16
+      },
+      "feature_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 9
+      },
+      "context_tokens": 0,
+      "context_tokens_budgeted": 0,
+      "prompt_tokens": 527
+    },
+    {
+      "case_id": "CASE-006",
+      "strategy": "baseline",
+      "expected_rules": [
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-003",
+        "TP-CONFIG-004",
+        "TP-CONFIG-005",
+        "TP-CONFIG-006",
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-CREATE-004",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-002",
+        "TP-REJECT-003",
+        "TP-REJECT-004",
+        "TP-SHUTDOWN-001",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005"
+      ],
+      "retrieved_rules": [],
+      "expected_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.CONFIG.REJECTION",
+        "THREAD_POOL.CONFIG.THREAD_FACTORY",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE"
+      ],
+      "retrieved_features": [],
+      "rule_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 17
+      },
+      "feature_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 9
+      },
+      "context_tokens": 0,
+      "context_tokens_budgeted": 0,
+      "prompt_tokens": 582
+    },
+    {
+      "case_id": "CASE-007",
+      "strategy": "baseline",
+      "expected_rules": [
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-003",
+        "TP-CONFIG-004",
+        "TP-CONFIG-005",
+        "TP-CONFIG-006",
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-CREATE-004",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-002",
+        "TP-REJECT-003",
+        "TP-REJECT-004",
+        "TP-SHUTDOWN-001",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005"
+      ],
+      "retrieved_rules": [],
+      "expected_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.CONFIG.REJECTION",
+        "THREAD_POOL.CONFIG.THREAD_FACTORY",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE"
+      ],
+      "retrieved_features": [],
+      "rule_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 17
+      },
+      "feature_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 9
+      },
+      "context_tokens": 0,
+      "context_tokens_budgeted": 0,
+      "prompt_tokens": 552
+    },
+    {
+      "case_id": "CASE-008",
+      "strategy": "baseline",
+      "expected_rules": [
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-003",
+        "TP-CONFIG-004",
+        "TP-CONFIG-005",
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-003",
+        "TP-SHUTDOWN-001",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005"
+      ],
+      "retrieved_rules": [],
+      "expected_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE"
+      ],
+      "retrieved_features": [],
+      "rule_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 13
+      },
+      "feature_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 7
+      },
+      "context_tokens": 0,
+      "context_tokens_budgeted": 0,
+      "prompt_tokens": 440
+    },
+    {
+      "case_id": "CASE-010",
+      "strategy": "baseline",
+      "expected_rules": [
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-003",
+        "TP-CONFIG-004",
+        "TP-CONFIG-005",
+        "TP-CONFIG-006",
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-CREATE-004",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-002",
+        "TP-REJECT-003",
+        "TP-REJECT-004",
+        "TP-SHUTDOWN-001",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005"
+      ],
+      "retrieved_rules": [],
+      "expected_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.CONFIG.REJECTION",
+        "THREAD_POOL.CONFIG.THREAD_FACTORY",
+        "THREAD_POOL.THREAD_FACTORY.CUSTOM_IMPL",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE"
+      ],
+      "retrieved_features": [],
+      "rule_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 17
+      },
+      "feature_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 10
+      },
+      "context_tokens": 0,
+      "context_tokens_budgeted": 0,
+      "prompt_tokens": 502
+    },
+    {
+      "case_id": "CASE-011",
+      "strategy": "baseline",
+      "expected_rules": [
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-003",
+        "TP-CONFIG-004",
+        "TP-CONFIG-005",
+        "TP-CONFIG-006",
+        "TP-CREATE-001",
+        "TP-CREATE-002",
+        "TP-CREATE-003",
+        "TP-CREATE-004",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-002",
+        "TP-REJECT-003",
+        "TP-REJECT-004",
+        "TP-SHUTDOWN-001",
+        "TP-SHUTDOWN-002",
+        "TP-SHUTDOWN-003",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005"
+      ],
+      "retrieved_rules": [],
+      "expected_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CREATE.PER_REQUEST",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.CONFIG.REJECTION",
+        "THREAD_POOL.CONFIG.THREAD_FACTORY",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE",
+        "THREAD_POOL.EXCEPTION",
+        "THREAD_POOL.SHUTDOWN"
+      ],
+      "retrieved_features": [],
+      "rule_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 20
+      },
+      "feature_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 12
+      },
+      "context_tokens": 0,
+      "context_tokens_budgeted": 0,
+      "prompt_tokens": 625
+    },
+    {
+      "case_id": "CASE-020",
+      "strategy": "baseline",
+      "expected_rules": [
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-003",
+        "TP-CONFIG-004",
+        "TP-CONFIG-005",
+        "TP-CONFIG-006",
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-CREATE-004",
+        "TP-CREATE-005",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-002",
+        "TP-REJECT-004",
+        "TP-SHUTDOWN-001",
+        "TP-SHUTDOWN-002",
+        "TP-SHUTDOWN-003",
+        "TP-SHUTDOWN-004",
+        "TP-SUBMIT-002",
+        "TP-SUBMIT-003",
+        "TP-SUBMIT-004"
+      ],
+      "retrieved_rules": [],
+      "expected_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.CONFIG.REJECTION",
+        "THREAD_POOL.CONFIG.THREAD_FACTORY",
+        "THREAD_POOL.THREAD_LOCAL",
+        "THREAD_POOL.COMPLETABLE_FUTURE",
+        "THREAD_POOL.FUTURE.GET",
+        "THREAD_POOL.MONITOR",
+        "THREAD_POOL.SHUTDOWN",
+        "THREAD_POOL.SHUTDOWN_NOW",
+        "THREAD_POOL.AWAIT_TERMINATION",
+        "SPRING.PRE_DESTROY"
+      ],
+      "retrieved_features": [],
+      "rule_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 21
+      },
+      "feature_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 15
+      },
+      "context_tokens": 0,
+      "context_tokens_budgeted": 0,
+      "prompt_tokens": 1289
+    },
+    {
+      "case_id": "CASE-001",
+      "strategy": "rag",
+      "expected_rules": [
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-004",
+        "TP-CONFIG-005",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-003",
+        "TP-SHUTDOWN-001",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005"
+      ],
+      "retrieved_rules": [],
+      "expected_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CREATE.EXECUTORS_FACTORY",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE"
+      ],
+      "retrieved_features": [],
+      "rule_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 12
+      },
+      "feature_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 7
+      },
+      "context_tokens": 1194,
+      "context_tokens_budgeted": 1194,
+      "prompt_tokens": 1643,
+      "reference_recall": 0.667
+    },
+    {
+      "case_id": "CASE-002",
+      "strategy": "rag",
+      "expected_rules": [
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-004",
+        "TP-CONFIG-005",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-003",
+        "TP-SHUTDOWN-001",
+        "TP-SHUTDOWN-003",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-002",
+        "TP-SUBMIT-004"
+      ],
+      "retrieved_rules": [],
+      "expected_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CREATE.EXECUTORS_FACTORY",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.FUTURE.GET",
+        "THREAD_POOL.THREAD_LOCAL"
+      ],
+      "retrieved_features": [],
+      "rule_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 14
+      },
+      "feature_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 8
+      },
+      "context_tokens": 1192,
+      "context_tokens_budgeted": 1192,
+      "prompt_tokens": 1733,
+      "reference_recall": 0.1
+    },
+    {
+      "case_id": "CASE-003",
+      "strategy": "rag",
+      "expected_rules": [
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-003",
+        "TP-CONFIG-004",
+        "TP-CONFIG-005",
+        "TP-CONFIG-006",
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-002",
+        "TP-REJECT-003",
+        "TP-REJECT-004",
+        "TP-SHUTDOWN-001",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005"
+      ],
+      "retrieved_rules": [],
+      "expected_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.CONFIG.REJECTION",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE",
+        "THREAD_POOL.EXCEPTION"
+      ],
+      "retrieved_features": [],
+      "rule_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 16
+      },
+      "feature_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 9
+      },
+      "context_tokens": 1147,
+      "context_tokens_budgeted": 1147,
+      "prompt_tokens": 1689,
+      "reference_recall": 0.111
+    },
+    {
+      "case_id": "CASE-006",
+      "strategy": "rag",
+      "expected_rules": [
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-003",
+        "TP-CONFIG-004",
+        "TP-CONFIG-005",
+        "TP-CONFIG-006",
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-CREATE-004",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-002",
+        "TP-REJECT-003",
+        "TP-REJECT-004",
+        "TP-SHUTDOWN-001",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005"
+      ],
+      "retrieved_rules": [],
+      "expected_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.CONFIG.REJECTION",
+        "THREAD_POOL.CONFIG.THREAD_FACTORY",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE"
+      ],
+      "retrieved_features": [],
+      "rule_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 17
+      },
+      "feature_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 9
+      },
+      "context_tokens": 1139,
+      "context_tokens_budgeted": 1139,
+      "prompt_tokens": 1737,
+      "reference_recall": 0.111
+    },
+    {
+      "case_id": "CASE-007",
+      "strategy": "rag",
+      "expected_rules": [
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-003",
+        "TP-CONFIG-004",
+        "TP-CONFIG-005",
+        "TP-CONFIG-006",
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-CREATE-004",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-002",
+        "TP-REJECT-003",
+        "TP-REJECT-004",
+        "TP-SHUTDOWN-001",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005"
+      ],
+      "retrieved_rules": [],
+      "expected_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.CONFIG.REJECTION",
+        "THREAD_POOL.CONFIG.THREAD_FACTORY",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE"
+      ],
+      "retrieved_features": [],
+      "rule_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 17
+      },
+      "feature_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 9
+      },
+      "context_tokens": 1158,
+      "context_tokens_budgeted": 1158,
+      "prompt_tokens": 1710,
+      "reference_recall": 0.111
+    },
+    {
+      "case_id": "CASE-008",
+      "strategy": "rag",
+      "expected_rules": [
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-003",
+        "TP-CONFIG-004",
+        "TP-CONFIG-005",
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-003",
+        "TP-SHUTDOWN-001",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005"
+      ],
+      "retrieved_rules": [],
+      "expected_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE"
+      ],
+      "retrieved_features": [],
+      "rule_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 13
+      },
+      "feature_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 7
+      },
+      "context_tokens": 1143,
+      "context_tokens_budgeted": 1143,
+      "prompt_tokens": 1583,
+      "reference_recall": 0.111
+    },
+    {
+      "case_id": "CASE-010",
+      "strategy": "rag",
+      "expected_rules": [
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-003",
+        "TP-CONFIG-004",
+        "TP-CONFIG-005",
+        "TP-CONFIG-006",
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-CREATE-004",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-002",
+        "TP-REJECT-003",
+        "TP-REJECT-004",
+        "TP-SHUTDOWN-001",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005"
+      ],
+      "retrieved_rules": [],
+      "expected_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.CONFIG.REJECTION",
+        "THREAD_POOL.CONFIG.THREAD_FACTORY",
+        "THREAD_POOL.THREAD_FACTORY.CUSTOM_IMPL",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE"
+      ],
+      "retrieved_features": [],
+      "rule_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 17
+      },
+      "feature_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 10
+      },
+      "context_tokens": 1181,
+      "context_tokens_budgeted": 1181,
+      "prompt_tokens": 1688,
+      "reference_recall": 0.111
+    },
+    {
+      "case_id": "CASE-011",
+      "strategy": "rag",
+      "expected_rules": [
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-003",
+        "TP-CONFIG-004",
+        "TP-CONFIG-005",
+        "TP-CONFIG-006",
+        "TP-CREATE-001",
+        "TP-CREATE-002",
+        "TP-CREATE-003",
+        "TP-CREATE-004",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-002",
+        "TP-REJECT-003",
+        "TP-REJECT-004",
+        "TP-SHUTDOWN-001",
+        "TP-SHUTDOWN-002",
+        "TP-SHUTDOWN-003",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005"
+      ],
+      "retrieved_rules": [],
+      "expected_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CREATE.PER_REQUEST",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.CONFIG.REJECTION",
+        "THREAD_POOL.CONFIG.THREAD_FACTORY",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE",
+        "THREAD_POOL.EXCEPTION",
+        "THREAD_POOL.SHUTDOWN"
+      ],
+      "retrieved_features": [],
+      "rule_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 20
+      },
+      "feature_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 12
+      },
+      "context_tokens": 1130,
+      "context_tokens_budgeted": 1130,
+      "prompt_tokens": 1770,
+      "reference_recall": 0.2
+    },
+    {
+      "case_id": "CASE-020",
+      "strategy": "rag",
+      "expected_rules": [
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-003",
+        "TP-CONFIG-004",
+        "TP-CONFIG-005",
+        "TP-CONFIG-006",
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-CREATE-004",
+        "TP-CREATE-005",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-002",
+        "TP-REJECT-004",
+        "TP-SHUTDOWN-001",
+        "TP-SHUTDOWN-002",
+        "TP-SHUTDOWN-003",
+        "TP-SHUTDOWN-004",
+        "TP-SUBMIT-002",
+        "TP-SUBMIT-003",
+        "TP-SUBMIT-004"
+      ],
+      "retrieved_rules": [],
+      "expected_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.CONFIG.REJECTION",
+        "THREAD_POOL.CONFIG.THREAD_FACTORY",
+        "THREAD_POOL.THREAD_LOCAL",
+        "THREAD_POOL.COMPLETABLE_FUTURE",
+        "THREAD_POOL.FUTURE.GET",
+        "THREAD_POOL.MONITOR",
+        "THREAD_POOL.SHUTDOWN",
+        "THREAD_POOL.SHUTDOWN_NOW",
+        "THREAD_POOL.AWAIT_TERMINATION",
+        "SPRING.PRE_DESTROY"
+      ],
+      "retrieved_features": [],
+      "rule_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 21
+      },
+      "feature_metrics": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 15
+      },
+      "context_tokens": 1193,
+      "context_tokens_budgeted": 1193,
+      "prompt_tokens": 2484,
+      "reference_recall": 0.182
+    },
+    {
+      "case_id": "CASE-001",
+      "strategy": "rules",
+      "expected_rules": [
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-004",
+        "TP-CONFIG-005",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-003",
+        "TP-SHUTDOWN-001",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005"
+      ],
+      "retrieved_rules": [
+        "TP-CONFIG-004",
+        "TP-CREATE-001",
+        "TP-SHUTDOWN-001",
+        "TP-REJECT-003",
+        "TP-CREATE-003",
+        "TP-MONITOR-001",
+        "TP-CONFIG-002",
+        "TP-REJECT-001",
+        "TP-CONFIG-001",
+        "TP-CONFIG-005",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005"
+      ],
+      "expected_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CREATE.EXECUTORS_FACTORY",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE"
+      ],
+      "retrieved_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CREATE.EXECUTORS_FACTORY",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE"
+      ],
+      "rule_metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 12,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "feature_metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 7,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "context_tokens": 2244,
+      "context_tokens_budgeted": 1167,
+      "prompt_tokens": 1608
+    },
+    {
+      "case_id": "CASE-002",
+      "strategy": "rules",
+      "expected_rules": [
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-004",
+        "TP-CONFIG-005",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-003",
+        "TP-SHUTDOWN-001",
+        "TP-SHUTDOWN-003",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-002",
+        "TP-SUBMIT-004"
+      ],
+      "retrieved_rules": [
+        "TP-CONFIG-004",
+        "TP-CREATE-001",
+        "TP-SHUTDOWN-001",
+        "TP-SUBMIT-004",
+        "TP-REJECT-003",
+        "TP-CREATE-003",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-002",
+        "TP-MONITOR-001",
+        "TP-CONFIG-002",
+        "TP-REJECT-001",
+        "TP-CONFIG-001",
+        "TP-CONFIG-005",
+        "TP-SHUTDOWN-003"
+      ],
+      "expected_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CREATE.EXECUTORS_FACTORY",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.FUTURE.GET",
+        "THREAD_POOL.THREAD_LOCAL"
+      ],
+      "retrieved_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CREATE.EXECUTORS_FACTORY",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.FUTURE.GET",
+        "THREAD_POOL.THREAD_LOCAL"
+      ],
+      "rule_metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 14,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "feature_metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 8,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "context_tokens": 2488,
+      "context_tokens_budgeted": 1182,
+      "prompt_tokens": 1721
+    },
+    {
+      "case_id": "CASE-003",
+      "strategy": "rules",
+      "expected_rules": [
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-003",
+        "TP-CONFIG-004",
+        "TP-CONFIG-005",
+        "TP-CONFIG-006",
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-002",
+        "TP-REJECT-003",
+        "TP-REJECT-004",
+        "TP-SHUTDOWN-001",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005"
+      ],
+      "retrieved_rules": [
+        "TP-CONFIG-004",
+        "TP-SHUTDOWN-001",
+        "TP-CREATE-003",
+        "TP-MONITOR-001",
+        "TP-CONFIG-002",
+        "TP-CREATE-001",
+        "TP-REJECT-001",
+        "TP-CONFIG-001",
+        "TP-CONFIG-005",
+        "TP-REJECT-002",
+        "TP-REJECT-003",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005",
+        "TP-CONFIG-003",
+        "TP-CONFIG-006",
+        "TP-REJECT-004"
+      ],
+      "expected_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.CONFIG.REJECTION",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE",
+        "THREAD_POOL.EXCEPTION"
+      ],
+      "retrieved_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.CONFIG.REJECTION",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE",
+        "THREAD_POOL.EXCEPTION"
+      ],
+      "rule_metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 16,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "feature_metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 9,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "context_tokens": 2839,
+      "context_tokens_budgeted": 1199,
+      "prompt_tokens": 1740
+    },
+    {
+      "case_id": "CASE-006",
+      "strategy": "rules",
+      "expected_rules": [
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-003",
+        "TP-CONFIG-004",
+        "TP-CONFIG-005",
+        "TP-CONFIG-006",
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-CREATE-004",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-002",
+        "TP-REJECT-003",
+        "TP-REJECT-004",
+        "TP-SHUTDOWN-001",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005"
+      ],
+      "retrieved_rules": [
+        "TP-CONFIG-004",
+        "TP-SHUTDOWN-001",
+        "TP-CONFIG-006",
+        "TP-MONITOR-001",
+        "TP-CONFIG-002",
+        "TP-CREATE-001",
+        "TP-REJECT-001",
+        "TP-CONFIG-001",
+        "TP-CONFIG-005",
+        "TP-CREATE-003",
+        "TP-REJECT-002",
+        "TP-REJECT-003",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005",
+        "TP-CONFIG-003",
+        "TP-CREATE-004",
+        "TP-REJECT-004"
+      ],
+      "expected_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.CONFIG.REJECTION",
+        "THREAD_POOL.CONFIG.THREAD_FACTORY",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE"
+      ],
+      "retrieved_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.CONFIG.REJECTION",
+        "THREAD_POOL.CONFIG.THREAD_FACTORY",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE"
+      ],
+      "rule_metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 17,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "feature_metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 9,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "context_tokens": 2930,
+      "context_tokens_budgeted": 1142,
+      "prompt_tokens": 1728
+    },
+    {
+      "case_id": "CASE-007",
+      "strategy": "rules",
+      "expected_rules": [
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-003",
+        "TP-CONFIG-004",
+        "TP-CONFIG-005",
+        "TP-CONFIG-006",
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-CREATE-004",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-002",
+        "TP-REJECT-003",
+        "TP-REJECT-004",
+        "TP-SHUTDOWN-001",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005"
+      ],
+      "retrieved_rules": [
+        "TP-SHUTDOWN-001",
+        "TP-REJECT-002",
+        "TP-MONITOR-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-004",
+        "TP-CREATE-001",
+        "TP-REJECT-001",
+        "TP-CONFIG-001",
+        "TP-CONFIG-005",
+        "TP-CREATE-003",
+        "TP-REJECT-003",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005",
+        "TP-CONFIG-003",
+        "TP-CONFIG-006",
+        "TP-CREATE-004",
+        "TP-REJECT-004"
+      ],
+      "expected_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.CONFIG.REJECTION",
+        "THREAD_POOL.CONFIG.THREAD_FACTORY",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE"
+      ],
+      "retrieved_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.CONFIG.REJECTION",
+        "THREAD_POOL.CONFIG.THREAD_FACTORY",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE"
+      ],
+      "rule_metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 17,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "feature_metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 9,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "context_tokens": 2930,
+      "context_tokens_budgeted": 1118,
+      "prompt_tokens": 1673
+    },
+    {
+      "case_id": "CASE-008",
+      "strategy": "rules",
+      "expected_rules": [
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-003",
+        "TP-CONFIG-004",
+        "TP-CONFIG-005",
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-003",
+        "TP-SHUTDOWN-001",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005"
+      ],
+      "retrieved_rules": [
+        "TP-REJECT-001",
+        "TP-SHUTDOWN-001",
+        "TP-REJECT-003",
+        "TP-CREATE-003",
+        "TP-MONITOR-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-004",
+        "TP-CREATE-001",
+        "TP-CONFIG-001",
+        "TP-CONFIG-005",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005",
+        "TP-CONFIG-003"
+      ],
+      "expected_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE"
+      ],
+      "retrieved_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE"
+      ],
+      "rule_metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 13,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "feature_metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 7,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "context_tokens": 2356,
+      "context_tokens_budgeted": 1124,
+      "prompt_tokens": 1571
+    },
+    {
+      "case_id": "CASE-010",
+      "strategy": "rules",
+      "expected_rules": [
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-003",
+        "TP-CONFIG-004",
+        "TP-CONFIG-005",
+        "TP-CONFIG-006",
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-CREATE-004",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-002",
+        "TP-REJECT-003",
+        "TP-REJECT-004",
+        "TP-SHUTDOWN-001",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005"
+      ],
+      "retrieved_rules": [
+        "TP-SHUTDOWN-001",
+        "TP-REJECT-003",
+        "TP-CREATE-004",
+        "TP-MONITOR-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-004",
+        "TP-CREATE-001",
+        "TP-REJECT-001",
+        "TP-CONFIG-001",
+        "TP-CONFIG-005",
+        "TP-CREATE-003",
+        "TP-REJECT-002",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005",
+        "TP-CONFIG-003",
+        "TP-CONFIG-006",
+        "TP-REJECT-004"
+      ],
+      "expected_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.CONFIG.REJECTION",
+        "THREAD_POOL.CONFIG.THREAD_FACTORY",
+        "THREAD_POOL.THREAD_FACTORY.CUSTOM_IMPL",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE"
+      ],
+      "retrieved_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.CONFIG.REJECTION",
+        "THREAD_POOL.CONFIG.THREAD_FACTORY",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE",
+        "THREAD_POOL.THREAD_FACTORY.CUSTOM_IMPL"
+      ],
+      "rule_metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 17,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "feature_metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 10,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "context_tokens": 2930,
+      "context_tokens_budgeted": 1182,
+      "prompt_tokens": 1685
+    },
+    {
+      "case_id": "CASE-011",
+      "strategy": "rules",
+      "expected_rules": [
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-003",
+        "TP-CONFIG-004",
+        "TP-CONFIG-005",
+        "TP-CONFIG-006",
+        "TP-CREATE-001",
+        "TP-CREATE-002",
+        "TP-CREATE-003",
+        "TP-CREATE-004",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-002",
+        "TP-REJECT-003",
+        "TP-REJECT-004",
+        "TP-SHUTDOWN-001",
+        "TP-SHUTDOWN-002",
+        "TP-SHUTDOWN-003",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005"
+      ],
+      "retrieved_rules": [
+        "TP-CREATE-002",
+        "TP-SHUTDOWN-002",
+        "TP-CONFIG-002",
+        "TP-CONFIG-004",
+        "TP-CREATE-001",
+        "TP-REJECT-001",
+        "TP-SHUTDOWN-001",
+        "TP-CONFIG-001",
+        "TP-CONFIG-005",
+        "TP-CREATE-003",
+        "TP-REJECT-002",
+        "TP-REJECT-003",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-005",
+        "TP-CONFIG-003",
+        "TP-CONFIG-006",
+        "TP-CREATE-004",
+        "TP-MONITOR-001",
+        "TP-REJECT-004",
+        "TP-SHUTDOWN-003"
+      ],
+      "expected_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CREATE.PER_REQUEST",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.CONFIG.REJECTION",
+        "THREAD_POOL.CONFIG.THREAD_FACTORY",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE",
+        "THREAD_POOL.EXCEPTION",
+        "THREAD_POOL.SHUTDOWN"
+      ],
+      "retrieved_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CREATE.PER_REQUEST",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.CONFIG.REJECTION",
+        "THREAD_POOL.CONFIG.THREAD_FACTORY",
+        "THREAD_POOL.SUBMIT",
+        "THREAD_POOL.EXECUTE",
+        "THREAD_POOL.EXCEPTION",
+        "THREAD_POOL.SHUTDOWN"
+      ],
+      "rule_metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 20,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "feature_metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 12,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "context_tokens": 3420,
+      "context_tokens_budgeted": 1195,
+      "prompt_tokens": 1828
+    },
+    {
+      "case_id": "CASE-020",
+      "strategy": "rules",
+      "expected_rules": [
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CONFIG-003",
+        "TP-CONFIG-004",
+        "TP-CONFIG-005",
+        "TP-CONFIG-006",
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-CREATE-004",
+        "TP-CREATE-005",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-002",
+        "TP-REJECT-004",
+        "TP-SHUTDOWN-001",
+        "TP-SHUTDOWN-002",
+        "TP-SHUTDOWN-003",
+        "TP-SHUTDOWN-004",
+        "TP-SUBMIT-002",
+        "TP-SUBMIT-003",
+        "TP-SUBMIT-004"
+      ],
+      "retrieved_rules": [
+        "TP-SUBMIT-004",
+        "TP-CONFIG-002",
+        "TP-CONFIG-004",
+        "TP-CREATE-001",
+        "TP-REJECT-001",
+        "TP-SHUTDOWN-001",
+        "TP-CONFIG-001",
+        "TP-CONFIG-005",
+        "TP-CREATE-003",
+        "TP-REJECT-002",
+        "TP-SHUTDOWN-002",
+        "TP-SUBMIT-002",
+        "TP-SUBMIT-003",
+        "TP-CONFIG-003",
+        "TP-CONFIG-006",
+        "TP-CREATE-004",
+        "TP-CREATE-005",
+        "TP-MONITOR-001",
+        "TP-REJECT-004",
+        "TP-SHUTDOWN-003",
+        "TP-SHUTDOWN-004"
+      ],
+      "expected_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.CONFIG.REJECTION",
+        "THREAD_POOL.CONFIG.THREAD_FACTORY",
+        "THREAD_POOL.THREAD_LOCAL",
+        "THREAD_POOL.COMPLETABLE_FUTURE",
+        "THREAD_POOL.FUTURE.GET",
+        "THREAD_POOL.MONITOR",
+        "THREAD_POOL.SHUTDOWN",
+        "THREAD_POOL.SHUTDOWN_NOW",
+        "THREAD_POOL.AWAIT_TERMINATION",
+        "SPRING.PRE_DESTROY"
+      ],
+      "retrieved_features": [
+        "THREAD_POOL.CREATE",
+        "THREAD_POOL.CONFIG.CORE_SIZE",
+        "THREAD_POOL.CONFIG.MAX_SIZE",
+        "THREAD_POOL.CONFIG.KEEP_ALIVE",
+        "THREAD_POOL.CONFIG.QUEUE",
+        "THREAD_POOL.CONFIG.REJECTION",
+        "THREAD_POOL.CONFIG.THREAD_FACTORY",
+        "THREAD_POOL.SHUTDOWN",
+        "THREAD_POOL.SHUTDOWN_NOW",
+        "THREAD_POOL.AWAIT_TERMINATION",
+        "THREAD_POOL.FUTURE.GET",
+        "THREAD_POOL.COMPLETABLE_FUTURE",
+        "THREAD_POOL.THREAD_LOCAL",
+        "THREAD_POOL.MONITOR",
+        "SPRING.PRE_DESTROY"
+      ],
+      "rule_metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 21,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "feature_metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 15,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "context_tokens": 3514,
+      "context_tokens_budgeted": 1196,
+      "prompt_tokens": 2492
+    }
+  ],
+  "validation": [
+    {
+      "case_id": "CASE-001",
+      "target": "bad",
+      "reported_violations": [
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-MONITOR-001",
+        "TP-SHUTDOWN-001",
+        "TP-REJECT-003"
+      ],
+      "expected_violations": [
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-CONFIG-001",
+        "TP-CONFIG-002",
+        "TP-MONITOR-001",
+        "TP-REJECT-003",
+        "TP-SHUTDOWN-001"
+      ],
+      "metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 7,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "errors": 5,
+      "warnings": 2,
+      "infos": 0,
+      "checked_rules": 12
+    },
+    {
+      "case_id": "CASE-001",
+      "target": "good",
+      "reported_violations": [
+        "TP-REJECT-004"
+      ],
+      "expected_violations": [
+        "TP-REJECT-004"
+      ],
+      "metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 1,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "errors": 0,
+      "warnings": 0,
+      "infos": 1,
+      "checked_rules": 21
+    },
+    {
+      "case_id": "CASE-002",
+      "target": "bad",
+      "reported_violations": [
+        "TP-CONFIG-004",
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-MONITOR-001",
+        "TP-SHUTDOWN-001",
+        "TP-REJECT-003",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-004",
+        "TP-REJECT-003",
+        "TP-SUBMIT-002"
+      ],
+      "expected_violations": [
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-CONFIG-004",
+        "TP-MONITOR-001",
+        "TP-REJECT-003",
+        "TP-SHUTDOWN-001",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-002",
+        "TP-SUBMIT-004"
+      ],
+      "metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 9,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "errors": 6,
+      "warnings": 4,
+      "infos": 0,
+      "checked_rules": 14
+    },
+    {
+      "case_id": "CASE-002",
+      "target": "good",
+      "reported_violations": [
+        "TP-REJECT-004"
+      ],
+      "expected_violations": [
+        "TP-REJECT-004"
+      ],
+      "metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 1,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "errors": 0,
+      "warnings": 0,
+      "infos": 1,
+      "checked_rules": 23
+    },
+    {
+      "case_id": "CASE-003",
+      "target": "bad",
+      "reported_violations": [
+        "TP-CONFIG-005",
+        "TP-CREATE-003",
+        "TP-MONITOR-001",
+        "TP-SHUTDOWN-001",
+        "TP-REJECT-003",
+        "TP-SUBMIT-001"
+      ],
+      "expected_violations": [
+        "TP-CONFIG-005",
+        "TP-CREATE-003",
+        "TP-MONITOR-001",
+        "TP-REJECT-003",
+        "TP-SHUTDOWN-001",
+        "TP-SUBMIT-001"
+      ],
+      "metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 6,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "errors": 2,
+      "warnings": 4,
+      "infos": 0,
+      "checked_rules": 15
+    },
+    {
+      "case_id": "CASE-003",
+      "target": "good",
+      "reported_violations": [],
+      "expected_violations": [],
+      "metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "errors": 0,
+      "warnings": 0,
+      "infos": 0,
+      "checked_rules": 21
+    },
+    {
+      "case_id": "CASE-006",
+      "target": "bad",
+      "reported_violations": [
+        "TP-CONFIG-004",
+        "TP-CONFIG-006",
+        "TP-MONITOR-001",
+        "TP-SHUTDOWN-001"
+      ],
+      "expected_violations": [
+        "TP-CONFIG-004",
+        "TP-CONFIG-006",
+        "TP-MONITOR-001",
+        "TP-SHUTDOWN-001"
+      ],
+      "metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 4,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "errors": 3,
+      "warnings": 1,
+      "infos": 0,
+      "checked_rules": 17
+    },
+    {
+      "case_id": "CASE-006",
+      "target": "good",
+      "reported_violations": [],
+      "expected_violations": [],
+      "metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "errors": 0,
+      "warnings": 0,
+      "infos": 0,
+      "checked_rules": 17
+    },
+    {
+      "case_id": "CASE-007",
+      "target": "bad",
+      "reported_violations": [
+        "TP-MONITOR-001",
+        "TP-REJECT-002",
+        "TP-SHUTDOWN-001"
+      ],
+      "expected_violations": [
+        "TP-MONITOR-001",
+        "TP-REJECT-002",
+        "TP-SHUTDOWN-001"
+      ],
+      "metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 3,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "errors": 2,
+      "warnings": 1,
+      "infos": 0,
+      "checked_rules": 17
+    },
+    {
+      "case_id": "CASE-007",
+      "target": "good",
+      "reported_violations": [],
+      "expected_violations": [],
+      "metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "errors": 0,
+      "warnings": 0,
+      "infos": 0,
+      "checked_rules": 21
+    },
+    {
+      "case_id": "CASE-008",
+      "target": "bad",
+      "reported_violations": [
+        "TP-CREATE-003",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-SHUTDOWN-001",
+        "TP-REJECT-003"
+      ],
+      "expected_violations": [
+        "TP-CREATE-003",
+        "TP-MONITOR-001",
+        "TP-REJECT-001",
+        "TP-REJECT-003",
+        "TP-SHUTDOWN-001"
+      ],
+      "metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 5,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "errors": 3,
+      "warnings": 2,
+      "infos": 0,
+      "checked_rules": 13
+    },
+    {
+      "case_id": "CASE-008",
+      "target": "good",
+      "reported_violations": [],
+      "expected_violations": [],
+      "metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "errors": 0,
+      "warnings": 0,
+      "infos": 0,
+      "checked_rules": 21
+    },
+    {
+      "case_id": "CASE-010",
+      "target": "bad",
+      "reported_violations": [
+        "TP-CREATE-004",
+        "TP-MONITOR-001",
+        "TP-SHUTDOWN-001",
+        "TP-REJECT-003",
+        "TP-CREATE-004"
+      ],
+      "expected_violations": [
+        "TP-CREATE-004",
+        "TP-MONITOR-001",
+        "TP-REJECT-003",
+        "TP-SHUTDOWN-001"
+      ],
+      "metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 4,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "errors": 2,
+      "warnings": 3,
+      "infos": 0,
+      "checked_rules": 17
+    },
+    {
+      "case_id": "CASE-010",
+      "target": "good",
+      "reported_violations": [],
+      "expected_violations": [],
+      "metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "errors": 0,
+      "warnings": 0,
+      "infos": 0,
+      "checked_rules": 21
+    },
+    {
+      "case_id": "CASE-011",
+      "target": "bad",
+      "reported_violations": [
+        "TP-CREATE-002",
+        "TP-REJECT-003",
+        "TP-SHUTDOWN-002"
+      ],
+      "expected_violations": [
+        "TP-CREATE-002",
+        "TP-REJECT-003",
+        "TP-SHUTDOWN-002"
+      ],
+      "metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 3,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "errors": 3,
+      "warnings": 0,
+      "infos": 0,
+      "checked_rules": 20
+    },
+    {
+      "case_id": "CASE-011",
+      "target": "good",
+      "reported_violations": [],
+      "expected_violations": [],
+      "metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "errors": 0,
+      "warnings": 0,
+      "infos": 0,
+      "checked_rules": 21
+    },
+    {
+      "case_id": "CASE-020",
+      "target": "bad",
+      "reported_violations": [
+        "TP-CONFIG-004",
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-MONITOR-001",
+        "TP-SHUTDOWN-001",
+        "TP-SUBMIT-004",
+        "TP-REJECT-003",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-003",
+        "TP-SUBMIT-004"
+      ],
+      "expected_violations": [
+        "TP-CONFIG-004",
+        "TP-CREATE-001",
+        "TP-CREATE-003",
+        "TP-MONITOR-001",
+        "TP-REJECT-003",
+        "TP-SHUTDOWN-001",
+        "TP-SUBMIT-001",
+        "TP-SUBMIT-003",
+        "TP-SUBMIT-004"
+      ],
+      "metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 9,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "errors": 7,
+      "warnings": 3,
+      "infos": 0,
+      "checked_rules": 13
+    },
+    {
+      "case_id": "CASE-020",
+      "target": "good",
+      "reported_violations": [],
+      "expected_violations": [],
+      "metrics": {
+        "precision": 1,
+        "recall": 1,
+        "f1": 1,
+        "truePositives": 0,
+        "falsePositives": 0,
+        "falseNegatives": 0
+      },
+      "errors": 0,
+      "warnings": 0,
+      "infos": 0,
+      "checked_rules": 24
+    }
+  ],
+  "agent": [
+    {
+      "case_id": "CASE-001",
+      "strategy": "baseline",
+      "file": "/workspace/ontology-demo/.eval-cache/deepseek-v2-20261102/results/baseline/CASE-001.java",
+      "source_sha256": "06c1613222c282eb62c1b2f9112f32d349f0eef94fd5a96de04d82c80d1a38a9",
+      "output": "present",
+      "violations": 3,
+      "errors": 0,
+      "compliance": 0.895,
+      "violated_rules": 2,
+      "compile": "ok",
+      "compile_check": {
+        "status": "ok",
+        "detail": ""
+      },
+      "test_check": {
+        "status": "ok",
+        "detail": "[order-async-notifier] ERROR com.example.order.service.OrderAsyncService - Order notification failed for orderId=fail\njava.lang.IllegalStateException: Injected observable downstream failure\n\tat BusinessAcceptance$Fixture.lambda$new$0(BusinessAcceptance.java:35)\n\tat com.example.order.service.OrderAsyncService.runTask(OrderAsyncService.java:93)\n\tat com.example.order.service.OrderAsyncService.lambda$notifyCreated$1(OrderAsyncService.java:82)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n[business-api-caller] WARN com.example.order.service.OrderAsyncService - OrderAsyncService rejected order notification for orderId=overflow\njava.util.concurrent.RejectedExecutionException: Task com.example.order.service.OrderAsyncService$$Lambda/0x00007ff20400c668@3a511d64 rejected from java.util.concurrent.ThreadPoolExecutor@6193b845[Running, pool size = 1, active threads = 1, queued tasks = 256, completed tasks = 7]\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$AbortPolicy.rejectedExecution(ThreadPoolExecutor.java:2081)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.reject(ThreadPoolExecutor.java:841)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.execute(ThreadPoolExecutor.java:1376)\n\tat com.example.order.service.OrderAsyncService.notifyCreated(OrderAsyncService.java:82)\n\tat java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)\n\tat java.base/java.lang.reflect.Method.invoke(Method.java:580)\n\tat BusinessAcceptance$Fixture.call(BusinessAcceptance.java:54)\n\tat BusinessAcceptance$Fixture.lambda$asyncCall$4(BusinessAcceptance.java:59)\n\tat java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n[business-api-caller] WARN com.example.order.service.OrderAsyncService - OrderAsyncService is stopped, rejecting order notification for orderId=closed\n"
+      },
+      "task_check": {
+        "status": "not_run",
+        "detail": "Task review is missing."
+      },
+      "violation_rules": [
+        "TP-MONITOR-001",
+        "TP-SHUTDOWN-004",
+        "TP-SHUTDOWN-004"
+      ]
+    },
+    {
+      "case_id": "CASE-002",
+      "strategy": "baseline",
+      "file": "/workspace/ontology-demo/.eval-cache/deepseek-v2-20261102/results/baseline/CASE-002.java",
+      "source_sha256": "3fbc2c0b3888ab67f6ab8d87998b01cf13df2676869c792a5fef787be4afd6c1",
+      "output": "present",
+      "violations": 6,
+      "errors": 1,
+      "compliance": 0.75,
+      "violated_rules": 5,
+      "compile": "ok",
+      "compile_check": {
+        "status": "ok",
+        "detail": ""
+      },
+      "test_check": {
+        "status": "failed",
+        "detail": "[pool-1-thread-1] ERROR com.example.order.service.OrderSyncService - syncRemote failed for orderId=fail\njava.lang.IllegalStateException: Injected observable downstream failure\n\tat BusinessAcceptance$Fixture.lambda$new$0(BusinessAcceptance.java:35)\n\tat com.example.order.service.OrderSyncService.runSync(OrderSyncService.java:93)\n\tat com.example.order.service.OrderSyncService.lambda$syncCreated$0(OrderSyncService.java:80)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n[business-api-caller] WARN com.example.order.service.OrderSyncService - syncCreated rejected: executor saturated or shutdown, orderId=overflow\n[business-api-caller] WARN com.example.order.service.OrderSyncService - syncCreated rejected: service stopped, orderId=closed\nException in thread \"main\" java.lang.reflect.InvocationTargetException\n\tat java.base/jdk.internal.reflect.DirectConstructorHandleAccessor.newInstance(DirectConstructorHandleAccessor.java:72)\n\tat java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:502)\n\tat java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:486)\n\tat BusinessAcceptance.main(BusinessAcceptance.java:113)\nCaused by: java.lang.NullPointerException: synchronizer and loader must not be null\n\tat com.example.order.service.OrderSyncService.<init>(OrderSyncService.java:61)\n\tat com.example.order.service.OrderSyncService.<init>(OrderSyncService.java:56)\n\tat java.base/jdk.internal.reflect.DirectConstructorHandleAccessor.newInstance(DirectConstructorHandleAccessor.java:62)\n\t... 3 more\n"
+      },
+      "task_check": {
+        "status": "failed",
+        "detail": "Required syntax, compilation or functional checks failed."
+      },
+      "violation_rules": [
+        "TP-CREATE-003",
+        "TP-MONITOR-001",
+        "TP-SUBMIT-001",
+        "TP-SHUTDOWN-004",
+        "TP-SHUTDOWN-004",
+        "TP-SHUTDOWN-003"
+      ]
+    },
+    {
+      "case_id": "CASE-003",
+      "strategy": "baseline",
+      "file": "/workspace/ontology-demo/.eval-cache/deepseek-v2-20261102/results/baseline/CASE-003.java",
+      "source_sha256": "a51d72690b6da9c05fb3e7b3672af09c5026886f5a3d82d664303e37057e90ee",
+      "output": "present",
+      "violations": 5,
+      "errors": 1,
+      "compliance": 0.778,
+      "violated_rules": 4,
+      "compile": "ok",
+      "compile_check": {
+        "status": "ok",
+        "detail": ""
+      },
+      "test_check": {
+        "status": "failed",
+        "detail": "[pool-1-thread-1] ERROR com.example.report.service.ReportExportService - export failed, report=fail\njava.lang.IllegalStateException: Injected observable downstream failure\n\tat BusinessAcceptance$Fixture.lambda$new$0(BusinessAcceptance.java:35)\n\tat com.example.report.service.ReportExportService.runExport(ReportExportService.java:70)\n\tat com.example.report.service.ReportExportService.lambda$export$0(ReportExportService.java:59)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n[business-api-caller] ERROR com.example.report.service.ReportExportService - export rejected, report=overflow\njava.util.concurrent.RejectedExecutionException: Task com.example.report.service.ReportExportService$$Lambda/0x00007fa13400c228@35fc7732 rejected from java.util.concurrent.ThreadPoolExecutor@7c3df479[Running, pool size = 1, active threads = 1, queued tasks = 256, completed tasks = 7]\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$AbortPolicy.rejectedExecution(ThreadPoolExecutor.java:2081)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.reject(ThreadPoolExecutor.java:841)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.execute(ThreadPoolExecutor.java:1376)\n\tat com.example.report.service.ReportExportService.export(ReportExportService.java:59)\n\tat java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)\n\tat java.base/java.lang.reflect.Method.invoke(Method.java:580)\n\tat BusinessAcceptance$Fixture.call(BusinessAcceptance.java:54)\n\tat BusinessAcceptance$Fixture.lambda$asyncCall$4(BusinessAcceptance.java:59)\n\tat java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n[business-api-caller] ERROR com.example.report.service.ReportExportService - export rejected, report=closed\njava.util.concurrent.RejectedExecutionException: Task com.example.report.service.ReportExportService$$Lambda/0x00007fa13400c228@3b3aa780 rejected from java.util.concurrent.ThreadPoolExecutor@7c3df479[Terminated, pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 266]\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$AbortPolicy.rejectedExecution(ThreadPoolExecutor.java:2081)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.reject(ThreadPoolExecutor.java:841)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.execute(ThreadPoolExecutor.java:1376)\n\tat com.example.report.service.ReportExportService.export(ReportExportService.java:59)\n\tat java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)\n\tat java.base/java.lang.reflect.Method.invoke(Method.java:580)\n\tat BusinessAcceptance$Fixture.call(BusinessAcceptance.java:54)\n\tat BusinessAcceptance$Fixture.lambda$asyncCall$4(BusinessAcceptance.java:59)\n\tat java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\nException in thread \"main\" java.lang.AssertionError: Configured constructor accepted null callback\n\tat BusinessAcceptance.main(BusinessAcceptance.java:124)\n"
+      },
+      "task_check": {
+        "status": "failed",
+        "detail": "Required syntax, compilation or functional checks failed."
+      },
+      "violation_rules": [
+        "TP-CREATE-003",
+        "TP-MONITOR-001",
+        "TP-SHUTDOWN-004",
+        "TP-SHUTDOWN-004",
+        "TP-SHUTDOWN-003"
+      ]
+    },
+    {
+      "case_id": "CASE-006",
+      "strategy": "baseline",
+      "file": "/workspace/ontology-demo/.eval-cache/deepseek-v2-20261102/results/baseline/CASE-006.java",
+      "source_sha256": "27cb7dc00e8e82ed8f812eb3695d1643a1af96be9c7ee6c0c3cf73423f8886b4",
+      "output": "present",
+      "violations": 3,
+      "errors": 2,
+      "compliance": 0.824,
+      "violated_rules": 3,
+      "compile": "ok",
+      "compile_check": {
+        "status": "ok",
+        "detail": ""
+      },
+      "test_check": {
+        "status": "failed",
+        "detail": "Exception in thread \"main\" java.lang.AssertionError: Priority queue must have a finite testable capacity (2..10000)\n\tat AcceptanceTest.require(AcceptanceTest.java:8)\n\tat AcceptanceTest$Fixture.capacity(AcceptanceTest.java:48)\n\tat AcceptanceTest.main(AcceptanceTest.java:70)\n"
+      },
+      "task_check": {
+        "status": "failed",
+        "detail": "Required syntax, compilation or functional checks failed."
+      },
+      "violation_rules": [
+        "TP-CONFIG-004",
+        "TP-MONITOR-001",
+        "TP-SHUTDOWN-001"
+      ]
+    },
+    {
+      "case_id": "CASE-007",
+      "strategy": "baseline",
+      "file": "/workspace/ontology-demo/.eval-cache/deepseek-v2-20261102/results/baseline/CASE-007.java",
+      "source_sha256": "464abd77851ab4222fc7bf6557e5322719b5c047eccf68db946448a0161599e0",
+      "output": "present",
+      "violations": 3,
+      "errors": 0,
+      "compliance": 0.895,
+      "violated_rules": 2,
+      "compile": "ok",
+      "compile_check": {
+        "status": "ok",
+        "detail": ""
+      },
+      "test_check": {
+        "status": "failed",
+        "detail": "[async-log-1] ERROR com.example.log.service.AsyncLogWriter - Async log sink callback failed\njava.lang.IllegalStateException: Injected observable downstream failure\n\tat BusinessAcceptance$Fixture.lambda$new$0(BusinessAcceptance.java:35)\n\tat com.example.log.service.AsyncLogWriter.runTask(AsyncLogWriter.java:67)\n\tat com.example.log.service.AsyncLogWriter.lambda$write$0(AsyncLogWriter.java:56)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n[business-api-caller] WARN com.example.log.service.AsyncLogWriter - Async log task rejected, message dropped after counting\njava.util.concurrent.RejectedExecutionException: Task com.example.log.service.AsyncLogWriter$$Lambda/0x00007f4d2000c448@4618d31b rejected from java.util.concurrent.ThreadPoolExecutor@76fb509a[Running, pool size = 1, active threads = 1, queued tasks = 1000, completed tasks = 7]\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$AbortPolicy.rejectedExecution(ThreadPoolExecutor.java:2081)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.reject(ThreadPoolExecutor.java:841)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.execute(ThreadPoolExecutor.java:1376)\n\tat com.example.log.service.AsyncLogWriter.write(AsyncLogWriter.java:56)\n\tat java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)\n\tat java.base/java.lang.reflect.Method.invoke(Method.java:580)\n\tat BusinessAcceptance$Fixture.call(BusinessAcceptance.java:54)\n\tat BusinessAcceptance$Fixture.lambda$asyncCall$4(BusinessAcceptance.java:59)\n\tat java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n[business-api-caller] WARN com.example.log.service.AsyncLogWriter - Async log task rejected, message dropped after counting\njava.util.concurrent.RejectedExecutionException: Task com.example.log.service.AsyncLogWriter$$Lambda/0x00007f4d2000c448@405b79e7 rejected from java.util.concurrent.ThreadPoolExecutor@76fb509a[Terminated, pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 1010]\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$AbortPolicy.rejectedExecution(ThreadPoolExecutor.java:2081)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.reject(ThreadPoolExecutor.java:841)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.execute(ThreadPoolExecutor.java:1376)\n\tat com.example.log.service.AsyncLogWriter.write(AsyncLogWriter.java:56)\n\tat java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)\n\tat java.base/java.lang.reflect.Method.invoke(Method.java:580)\n\tat BusinessAcceptance$Fixture.call(BusinessAcceptance.java:54)\n\tat BusinessAcceptance$Fixture.lambda$asyncCall$4(BusinessAcceptance.java:59)\n\tat java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\nException in thread \"main\" java.lang.AssertionError: Configured constructor accepted null callback\n\tat BusinessAcceptance.main(BusinessAcceptance.java:124)\n"
+      },
+      "task_check": {
+        "status": "failed",
+        "detail": "Required syntax, compilation or functional checks failed."
+      },
+      "violation_rules": [
+        "TP-MONITOR-001",
+        "TP-SHUTDOWN-004",
+        "TP-SHUTDOWN-004"
+      ]
+    },
+    {
+      "case_id": "CASE-008",
+      "strategy": "baseline",
+      "file": "/workspace/ontology-demo/.eval-cache/deepseek-v2-20261102/results/baseline/CASE-008.java",
+      "source_sha256": "6d4cfd54cd35260606df2bed22e141210e0a782a6db881cb1a0fcdb14bc68cf7",
+      "output": "present",
+      "violations": 4,
+      "errors": 0,
+      "compliance": 0.842,
+      "violated_rules": 3,
+      "compile": "ok",
+      "compile_check": {
+        "status": "ok",
+        "detail": ""
+      },
+      "test_check": {
+        "status": "failed",
+        "detail": "[inventory-sync-1] ERROR com.example.inventory.service.InventorySyncService - Inventory sync failed for sku=fail\njava.lang.IllegalStateException: Injected observable downstream failure\n\tat BusinessAcceptance$Fixture.lambda$new$0(BusinessAcceptance.java:35)\n\tat com.example.inventory.service.InventorySyncService.runSync(InventorySyncService.java:76)\n\tat com.example.inventory.service.InventorySyncService.lambda$sync$0(InventorySyncService.java:64)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n[business-api-caller] WARN com.example.inventory.service.InventorySyncService - Inventory sync rejected for sku=overflow, queued for compensation\njava.util.concurrent.RejectedExecutionException: Task com.example.inventory.service.InventorySyncService$$Lambda/0x00007fcf7800c448@1f6227d9 rejected from java.util.concurrent.ThreadPoolExecutor@7eda2dbb[Running, pool size = 1, active threads = 1, queued tasks = 100, completed tasks = 7]\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$AbortPolicy.rejectedExecution(ThreadPoolExecutor.java:2081)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.reject(ThreadPoolExecutor.java:841)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.execute(ThreadPoolExecutor.java:1376)\n\tat com.example.inventory.service.InventorySyncService.sync(InventorySyncService.java:64)\n\tat java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)\n\tat java.base/java.lang.reflect.Method.invoke(Method.java:580)\n\tat BusinessAcceptance$Fixture.call(BusinessAcceptance.java:54)\n\tat BusinessAcceptance$Fixture.lambda$asyncCall$4(BusinessAcceptance.java:59)\n\tat java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n[business-api-caller] WARN com.example.inventory.service.InventorySyncService - Inventory sync rejected for sku=closed, queued for compensation\njava.util.concurrent.RejectedExecutionException: Task com.example.inventory.service.InventorySyncService$$Lambda/0x00007fcf7800c448@60cd4ac0 rejected from java.util.concurrent.ThreadPoolExecutor@7eda2dbb[Terminated, pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 110]\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$AbortPolicy.rejectedExecution(ThreadPoolExecutor.java:2081)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.reject(ThreadPoolExecutor.java:841)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.execute(ThreadPoolExecutor.java:1376)\n\tat com.example.inventory.service.InventorySyncService.sync(InventorySyncService.java:64)\n\tat java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)\n\tat java.base/java.lang.reflect.Method.invoke(Method.java:580)\n\tat BusinessAcceptance$Fixture.call(BusinessAcceptance.java:54)\n\tat BusinessAcceptance$Fixture.lambda$asyncCall$4(BusinessAcceptance.java:59)\n\tat java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\nException in thread \"main\" java.lang.AssertionError: Configured constructor accepted null callback\n\tat BusinessAcceptance.main(BusinessAcceptance.java:124)\n"
+      },
+      "task_check": {
+        "status": "failed",
+        "detail": "Required syntax, compilation or functional checks failed."
+      },
+      "violation_rules": [
+        "TP-MONITOR-001",
+        "TP-SHUTDOWN-004",
+        "TP-SHUTDOWN-004",
+        "TP-CREATE-004"
+      ]
+    },
+    {
+      "case_id": "CASE-010",
+      "strategy": "baseline",
+      "file": "/workspace/ontology-demo/.eval-cache/deepseek-v2-20261102/results/baseline/CASE-010.java",
+      "source_sha256": "0f03e4365ab8d066645ba1767cc4f315a6e243c50c8b50f32142c61b07a11e43",
+      "output": "present",
+      "violations": 4,
+      "errors": 0,
+      "compliance": 0.842,
+      "violated_rules": 3,
+      "compile": "ok",
+      "compile_check": {
+        "status": "ok",
+        "detail": ""
+      },
+      "test_check": {
+        "status": "failed",
+        "detail": "[file-process-1] ERROR com.example.file.service.FileProcessService - File process failed for fileId=fail\njava.lang.IllegalStateException: Injected observable downstream failure\n\tat BusinessAcceptance$Fixture.lambda$new$0(BusinessAcceptance.java:35)\n\tat com.example.file.service.FileProcessService.lambda$process$0(FileProcessService.java:53)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n[business-api-caller] WARN com.example.file.service.FileProcessService - File process rejected for fileId=overflow\njava.util.concurrent.RejectedExecutionException: Task com.example.file.service.FileProcessService$$Lambda/0x00007f6bec00c448@532ada5e rejected from java.util.concurrent.ThreadPoolExecutor@7c3df479[Running, pool size = 1, active threads = 1, queued tasks = 100, completed tasks = 7]\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$AbortPolicy.rejectedExecution(ThreadPoolExecutor.java:2081)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.reject(ThreadPoolExecutor.java:841)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.execute(ThreadPoolExecutor.java:1376)\n\tat com.example.file.service.FileProcessService.process(FileProcessService.java:51)\n\tat java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)\n\tat java.base/java.lang.reflect.Method.invoke(Method.java:580)\n\tat BusinessAcceptance$Fixture.call(BusinessAcceptance.java:54)\n\tat BusinessAcceptance$Fixture.lambda$asyncCall$4(BusinessAcceptance.java:59)\n\tat java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n[business-api-caller] WARN com.example.file.service.FileProcessService - File process rejected for fileId=closed\njava.util.concurrent.RejectedExecutionException: Task com.example.file.service.FileProcessService$$Lambda/0x00007f6bec00c448@1ac80e36 rejected from java.util.concurrent.ThreadPoolExecutor@7c3df479[Terminated, pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 110]\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$AbortPolicy.rejectedExecution(ThreadPoolExecutor.java:2081)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.reject(ThreadPoolExecutor.java:841)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.execute(ThreadPoolExecutor.java:1376)\n\tat com.example.file.service.FileProcessService.process(FileProcessService.java:51)\n\tat java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)\n\tat java.base/java.lang.reflect.Method.invoke(Method.java:580)\n\tat BusinessAcceptance$Fixture.call(BusinessAcceptance.java:54)\n\tat BusinessAcceptance$Fixture.lambda$asyncCall$4(BusinessAcceptance.java:59)\n\tat java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\nException in thread \"main\" java.lang.AssertionError: Configured constructor accepted null callback\n\tat BusinessAcceptance.main(BusinessAcceptance.java:124)\n"
+      },
+      "task_check": {
+        "status": "failed",
+        "detail": "Required syntax, compilation or functional checks failed."
+      },
+      "violation_rules": [
+        "TP-MONITOR-001",
+        "TP-SHUTDOWN-004",
+        "TP-SHUTDOWN-004",
+        "TP-CREATE-004"
+      ]
+    },
+    {
+      "case_id": "CASE-011",
+      "strategy": "baseline",
+      "file": "/workspace/ontology-demo/.eval-cache/deepseek-v2-20261102/results/baseline/CASE-011.java",
+      "source_sha256": "03022b7a6fbdd3da3fff80a7bc02f50dbdc4db3cc5e37872f634dcbc319b47d9",
+      "output": "present",
+      "violations": 4,
+      "errors": 1,
+      "compliance": 0.842,
+      "violated_rules": 3,
+      "compile": "ok",
+      "compile_check": {
+        "status": "ok",
+        "detail": ""
+      },
+      "test_check": {
+        "status": "ok",
+        "detail": "[realtime-push-1] ERROR com.example.realtime.service.RealtimePushHandler - push failed, event=fail\njava.lang.IllegalStateException: Injected observable downstream failure\n\tat BusinessAcceptance$Fixture.lambda$new$0(BusinessAcceptance.java:35)\n\tat com.example.realtime.service.RealtimePushHandler.runTask(RealtimePushHandler.java:80)\n\tat com.example.realtime.service.RealtimePushHandler.lambda$onEvent$0(RealtimePushHandler.java:69)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n[business-api-caller] WARN com.example.realtime.service.RealtimePushHandler - push rejected, event=overflow\njava.util.concurrent.RejectedExecutionException: Task com.example.realtime.service.RealtimePushHandler$$Lambda/0x00007f99b400e448@11bbd551 rejected from java.util.concurrent.ThreadPoolExecutor@76fb509a[Running, pool size = 1, active threads = 1, queued tasks = 50, completed tasks = 7]\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$AbortPolicy.rejectedExecution(ThreadPoolExecutor.java:2081)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.reject(ThreadPoolExecutor.java:841)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.execute(ThreadPoolExecutor.java:1376)\n\tat com.example.realtime.service.RealtimePushHandler.onEvent(RealtimePushHandler.java:69)\n\tat java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)\n\tat java.base/java.lang.reflect.Method.invoke(Method.java:580)\n\tat BusinessAcceptance$Fixture.call(BusinessAcceptance.java:54)\n\tat BusinessAcceptance$Fixture.lambda$asyncCall$4(BusinessAcceptance.java:59)\n\tat java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n[business-api-caller] WARN com.example.realtime.service.RealtimePushHandler - push rejected, handler stopped, event=closed\n"
+      },
+      "task_check": {
+        "status": "not_run",
+        "detail": "Task review is missing."
+      },
+      "violation_rules": [
+        "TP-MONITOR-001",
+        "TP-SHUTDOWN-004",
+        "TP-SHUTDOWN-004",
+        "TP-SHUTDOWN-003"
+      ]
+    },
+    {
+      "case_id": "CASE-020",
+      "strategy": "baseline",
+      "file": "/workspace/ontology-demo/.eval-cache/deepseek-v2-20261102/results/baseline/CASE-020.java",
+      "source_sha256": "5e011711f9a15beb7b323fdf998625e7600eefd483e9a2572260c4bb69558287",
+      "output": "present",
+      "violations": 1,
+      "errors": 1,
+      "compliance": 0.957,
+      "violated_rules": 1,
+      "compile": "ok",
+      "compile_check": {
+        "status": "ok",
+        "detail": ""
+      },
+      "test_check": {
+        "status": "failed",
+        "detail": "Exception in thread \"main\" java.lang.AssertionError: Empty caller context leaked after export\n\tat AcceptanceTest.require(AcceptanceTest.java:9)\n\tat AcceptanceTest.main(AcceptanceTest.java:112)\n"
+      },
+      "task_check": {
+        "status": "failed",
+        "detail": "Required syntax, compilation or functional checks failed."
+      },
+      "violation_rules": [
+        "TP-SUBMIT-004"
+      ]
+    },
+    {
+      "case_id": "CASE-001",
+      "strategy": "rag",
+      "file": "/workspace/ontology-demo/.eval-cache/deepseek-v2-20261102/results/rag/CASE-001.java",
+      "source_sha256": "ce7010c049c8b5c8446e4a88ed17c1138bc1798103d89a95458609a0c0efac81",
+      "output": "present",
+      "violations": 4,
+      "errors": 1,
+      "compliance": 0.842,
+      "violated_rules": 3,
+      "compile": "ok",
+      "compile_check": {
+        "status": "ok",
+        "detail": ""
+      },
+      "test_check": {
+        "status": "ok",
+        "detail": "[order-notifier-1] ERROR com.example.order.service.OrderAsyncService - Order notification failed for order: fail\njava.lang.IllegalStateException: Injected observable downstream failure\n\tat BusinessAcceptance$Fixture.lambda$new$0(BusinessAcceptance.java:35)\n\tat com.example.order.service.OrderAsyncService.runNotify(OrderAsyncService.java:113)\n\tat com.example.order.service.OrderAsyncService.lambda$notifyCreated$0(OrderAsyncService.java:102)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n[business-api-caller] WARN com.example.order.service.OrderAsyncService - Order notification rejected for order: overflow\njava.util.concurrent.RejectedExecutionException: Task com.example.order.service.OrderAsyncService$$Lambda/0x00007f571800c678@7fc38b52 rejected from java.util.concurrent.ThreadPoolExecutor@300ffa5d[Running, pool size = 1, active threads = 1, queued tasks = 256, completed tasks = 7]\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$AbortPolicy.rejectedExecution(ThreadPoolExecutor.java:2081)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.reject(ThreadPoolExecutor.java:841)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.execute(ThreadPoolExecutor.java:1376)\n\tat com.example.order.service.OrderAsyncService.notifyCreated(OrderAsyncService.java:102)\n\tat java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)\n\tat java.base/java.lang.reflect.Method.invoke(Method.java:580)\n\tat BusinessAcceptance$Fixture.call(BusinessAcceptance.java:54)\n\tat BusinessAcceptance$Fixture.lambda$asyncCall$4(BusinessAcceptance.java:59)\n\tat java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n[business-api-caller] WARN com.example.order.service.OrderAsyncService - OrderAsyncService is stopped, reject order notification: closed\n"
+      },
+      "task_check": {
+        "status": "not_run",
+        "detail": "Task review is missing."
+      },
+      "violation_rules": [
+        "TP-MONITOR-001",
+        "TP-SHUTDOWN-004",
+        "TP-SHUTDOWN-004",
+        "TP-SHUTDOWN-003"
+      ]
+    },
+    {
+      "case_id": "CASE-002",
+      "strategy": "rag",
+      "file": "/workspace/ontology-demo/.eval-cache/deepseek-v2-20261102/results/rag/CASE-002.java",
+      "source_sha256": "0188e6ac1559912133621f6c1706a3065b48b1704d0917b7dfecf99a96d81771",
+      "output": "present",
+      "violations": 4,
+      "errors": 0,
+      "compliance": 0.857,
+      "violated_rules": 3,
+      "compile": "ok",
+      "compile_check": {
+        "status": "ok",
+        "detail": ""
+      },
+      "test_check": {
+        "status": "failed",
+        "detail": "[order-sync-worker] ERROR com.example.order.service.OrderSyncService - Order sync callback failed, orderId=fail, tenantId=tenant-fail\njava.lang.IllegalStateException: Injected observable downstream failure\n\tat BusinessAcceptance$Fixture.lambda$new$0(BusinessAcceptance.java:35)\n\tat com.example.order.service.OrderSyncService.runSyncTask(OrderSyncService.java:167)\n\tat com.example.order.service.OrderSyncService.lambda$syncCreated$1(OrderSyncService.java:87)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n[business-api-caller] WARN com.example.order.service.OrderSyncService - Order sync task rejected, orderId=overflow, tenantId=tenant-overflow\njava.util.concurrent.RejectedExecutionException: Task com.example.order.service.OrderSyncService$$Lambda/0x00007f8ac400cad8@3f8e9f2f rejected from java.util.concurrent.ThreadPoolExecutor@37bba400[Running, pool size = 1, active threads = 1, queued tasks = 256, completed tasks = 12]\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$AbortPolicy.rejectedExecution(ThreadPoolExecutor.java:2081)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.reject(ThreadPoolExecutor.java:841)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.execute(ThreadPoolExecutor.java:1376)\n\tat com.example.order.service.OrderSyncService.syncCreated(OrderSyncService.java:87)\n\tat java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)\n\tat java.base/java.lang.reflect.Method.invoke(Method.java:580)\n\tat BusinessAcceptance$Fixture.call(BusinessAcceptance.java:54)\n\tat BusinessAcceptance$Fixture.lambda$asyncCall$4(BusinessAcceptance.java:59)\n\tat java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n[business-api-caller] WARN com.example.order.service.OrderSyncService - Order sync task rejected, orderId=closed, tenantId=tenant-closed\njava.util.concurrent.RejectedExecutionException: Task com.example.order.service.OrderSyncService$$Lambda/0x00007f8ac400cad8@334dcdc9 rejected from java.util.concurrent.ThreadPoolExecutor@37bba400[Terminated, pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 272]\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$AbortPolicy.rejectedExecution(ThreadPoolExecutor.java:2081)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.reject(ThreadPoolExecutor.java:841)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.execute(ThreadPoolExecutor.java:1376)\n\tat com.example.order.service.OrderSyncService.syncCreated(OrderSyncService.java:87)\n\tat java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)\n\tat java.base/java.lang.reflect.Method.invoke(Method.java:580)\n\tat BusinessAcceptance$Fixture.call(BusinessAcceptance.java:54)\n\tat BusinessAcceptance$Fixture.lambda$asyncCall$4(BusinessAcceptance.java:59)\n\tat java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\nException in thread \"main\" java.lang.AssertionError: Configured constructor accepted null callback\n\tat BusinessAcceptance.main(BusinessAcceptance.java:124)\n"
+      },
+      "task_check": {
+        "status": "failed",
+        "detail": "Required syntax, compilation or functional checks failed."
+      },
+      "violation_rules": [
+        "TP-MONITOR-001",
+        "TP-SUBMIT-001",
+        "TP-SHUTDOWN-004",
+        "TP-SHUTDOWN-004"
+      ]
+    },
+    {
+      "case_id": "CASE-003",
+      "strategy": "rag",
+      "file": "/workspace/ontology-demo/.eval-cache/deepseek-v2-20261102/results/rag/CASE-003.java",
+      "source_sha256": "4887f5e783ded1cf54f24d275611c35737ee9cd5f427b0a90cc5617e050eb7dc",
+      "output": "present",
+      "violations": 3,
+      "errors": 0,
+      "compliance": 0.895,
+      "violated_rules": 2,
+      "compile": "ok",
+      "compile_check": {
+        "status": "ok",
+        "detail": ""
+      },
+      "test_check": {
+        "status": "ok",
+        "detail": "[report-export] ERROR com.example.report.service.ReportExportService - export failed, report=fail\njava.lang.IllegalStateException: Injected observable downstream failure\n\tat BusinessAcceptance$Fixture.lambda$new$0(BusinessAcceptance.java:35)\n\tat com.example.report.service.ReportExportService.runExport(ReportExportService.java:82)\n\tat com.example.report.service.ReportExportService.lambda$export$1(ReportExportService.java:71)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n[business-api-caller] ERROR com.example.report.service.ReportExportService - export rejected, report=overflow\njava.util.concurrent.RejectedExecutionException: Task com.example.report.service.ReportExportService$$Lambda/0x00007f1e7800c448@6c652178 rejected from java.util.concurrent.ThreadPoolExecutor@6576fe71[Running, pool size = 1, active threads = 1, queued tasks = 200, completed tasks = 7]\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$AbortPolicy.rejectedExecution(ThreadPoolExecutor.java:2081)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.reject(ThreadPoolExecutor.java:841)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.execute(ThreadPoolExecutor.java:1376)\n\tat com.example.report.service.ReportExportService.export(ReportExportService.java:71)\n\tat java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)\n\tat java.base/java.lang.reflect.Method.invoke(Method.java:580)\n\tat BusinessAcceptance$Fixture.call(BusinessAcceptance.java:54)\n\tat BusinessAcceptance$Fixture.lambda$asyncCall$4(BusinessAcceptance.java:59)\n\tat java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n[business-api-caller] ERROR com.example.report.service.ReportExportService - export rejected, report=closed\njava.util.concurrent.RejectedExecutionException: Task com.example.report.service.ReportExportService$$Lambda/0x00007f1e7800c448@2333a563 rejected from java.util.concurrent.ThreadPoolExecutor@6576fe71[Terminated, pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 210]\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$AbortPolicy.rejectedExecution(ThreadPoolExecutor.java:2081)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.reject(ThreadPoolExecutor.java:841)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.execute(ThreadPoolExecutor.java:1376)\n\tat com.example.report.service.ReportExportService.export(ReportExportService.java:71)\n\tat java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)\n\tat java.base/java.lang.reflect.Method.invoke(Method.java:580)\n\tat BusinessAcceptance$Fixture.call(BusinessAcceptance.java:54)\n\tat BusinessAcceptance$Fixture.lambda$asyncCall$4(BusinessAcceptance.java:59)\n\tat java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n"
+      },
+      "task_check": {
+        "status": "not_run",
+        "detail": "Task review is missing."
+      },
+      "violation_rules": [
+        "TP-MONITOR-001",
+        "TP-SHUTDOWN-004",
+        "TP-SHUTDOWN-004"
+      ]
+    },
+    {
+      "case_id": "CASE-006",
+      "strategy": "rag",
+      "file": "/workspace/ontology-demo/.eval-cache/deepseek-v2-20261102/results/rag/CASE-006.java",
+      "source_sha256": "6c4aeeefadf7e82e1ed9d6c2e3d94cd5605abe1c550469670fc351615c15a5e1",
+      "output": "present",
+      "violations": 3,
+      "errors": 2,
+      "compliance": 0.824,
+      "violated_rules": 3,
+      "compile": "ok",
+      "compile_check": {
+        "status": "ok",
+        "detail": ""
+      },
+      "test_check": {
+        "status": "failed",
+        "detail": "Exception in thread \"main\" java.lang.AssertionError: Priority queue must have a finite testable capacity (2..10000)\n\tat AcceptanceTest.require(AcceptanceTest.java:8)\n\tat AcceptanceTest$Fixture.capacity(AcceptanceTest.java:48)\n\tat AcceptanceTest.main(AcceptanceTest.java:70)\n"
+      },
+      "task_check": {
+        "status": "failed",
+        "detail": "Required syntax, compilation or functional checks failed."
+      },
+      "violation_rules": [
+        "TP-CONFIG-004",
+        "TP-MONITOR-001",
+        "TP-SHUTDOWN-001"
+      ]
+    },
+    {
+      "case_id": "CASE-007",
+      "strategy": "rag",
+      "file": "/workspace/ontology-demo/.eval-cache/deepseek-v2-20261102/results/rag/CASE-007.java",
+      "source_sha256": "7e255fa4622c922cdf8ed03527ad0727ccdc2a15dfde84ba0bf26467640d222c",
+      "output": "present",
+      "violations": 5,
+      "errors": 1,
+      "compliance": 0.8,
+      "violated_rules": 4,
+      "compile": "ok",
+      "compile_check": {
+        "status": "ok",
+        "detail": ""
+      },
+      "test_check": {
+        "status": "failed",
+        "detail": "[async-log-1] ERROR com.example.log.service.AsyncLogWriter - Async log sink failed for message: fail\njava.lang.IllegalStateException: Injected observable downstream failure\n\tat BusinessAcceptance$Fixture.lambda$new$0(BusinessAcceptance.java:35)\n\tat com.example.log.service.AsyncLogWriter.runTask(AsyncLogWriter.java:64)\n\tat com.example.log.service.AsyncLogWriter.lambda$write$0(AsyncLogWriter.java:53)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n[business-api-caller] WARN com.example.log.service.AsyncLogWriter - Async log task rejected, message dropped after counting: overflow\njava.util.concurrent.RejectedExecutionException: Async log writer saturated or shut down\n\tat com.example.log.service.AsyncLogWriter$CountingRejectedHandler.rejectedExecution(AsyncLogWriter.java:126)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.reject(ThreadPoolExecutor.java:841)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.execute(ThreadPoolExecutor.java:1376)\n\tat com.example.log.service.AsyncLogWriter.write(AsyncLogWriter.java:53)\n\tat java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)\n\tat java.base/java.lang.reflect.Method.invoke(Method.java:580)\n\tat BusinessAcceptance$Fixture.call(BusinessAcceptance.java:54)\n\tat BusinessAcceptance$Fixture.lambda$asyncCall$4(BusinessAcceptance.java:59)\n\tat java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n[business-api-caller] WARN com.example.log.service.AsyncLogWriter - Async log task rejected, message dropped after counting: closed\njava.util.concurrent.RejectedExecutionException: Async log writer saturated or shut down\n\tat com.example.log.service.AsyncLogWriter$CountingRejectedHandler.rejectedExecution(AsyncLogWriter.java:126)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.reject(ThreadPoolExecutor.java:841)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.execute(ThreadPoolExecutor.java:1376)\n\tat com.example.log.service.AsyncLogWriter.write(AsyncLogWriter.java:53)\n\tat java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)\n\tat java.base/java.lang.reflect.Method.invoke(Method.java:580)\n\tat BusinessAcceptance$Fixture.call(BusinessAcceptance.java:54)\n\tat BusinessAcceptance$Fixture.lambda$asyncCall$4(BusinessAcceptance.java:59)\n\tat java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\nException in thread \"main\" java.lang.AssertionError: Configured constructor accepted null callback\n\tat BusinessAcceptance.main(BusinessAcceptance.java:124)\n"
+      },
+      "task_check": {
+        "status": "failed",
+        "detail": "Required syntax, compilation or functional checks failed."
+      },
+      "violation_rules": [
+        "TP-MONITOR-001",
+        "TP-SHUTDOWN-004",
+        "TP-SHUTDOWN-004",
+        "TP-SHUTDOWN-003",
+        "TP-REJECT-005"
+      ]
+    },
+    {
+      "case_id": "CASE-008",
+      "strategy": "rag",
+      "file": "/workspace/ontology-demo/.eval-cache/deepseek-v2-20261102/results/rag/CASE-008.java",
+      "source_sha256": "e35a4093956a14f280a71d629b9c8ab731e345aac5ab097d4bb6a007b5486fee",
+      "output": "present",
+      "violations": 3,
+      "errors": 0,
+      "compliance": 0.895,
+      "violated_rules": 2,
+      "compile": "ok",
+      "compile_check": {
+        "status": "ok",
+        "detail": ""
+      },
+      "test_check": {
+        "status": "failed",
+        "detail": "[inventory-sync-worker] ERROR com.example.inventory.service.InventorySyncService - Inventory sync failed for sku=fail\njava.lang.IllegalStateException: Injected observable downstream failure\n\tat BusinessAcceptance$Fixture.lambda$new$0(BusinessAcceptance.java:35)\n\tat com.example.inventory.service.InventorySyncService.lambda$sync$1(InventorySyncService.java:76)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n[business-api-caller] WARN com.example.inventory.service.InventorySyncService - Inventory sync rejected due to saturation, sku=overflow\n[business-api-caller] WARN com.example.inventory.service.InventorySyncService - Inventory sync rejected because service is stopped, sku=closed\nException in thread \"main\" java.lang.AssertionError: Configured constructor accepted null callback\n\tat BusinessAcceptance.main(BusinessAcceptance.java:124)\n"
+      },
+      "task_check": {
+        "status": "failed",
+        "detail": "Required syntax, compilation or functional checks failed."
+      },
+      "violation_rules": [
+        "TP-MONITOR-001",
+        "TP-SHUTDOWN-004",
+        "TP-SHUTDOWN-004"
+      ]
+    },
+    {
+      "case_id": "CASE-010",
+      "strategy": "rag",
+      "file": "/workspace/ontology-demo/.eval-cache/deepseek-v2-20261102/results/rag/CASE-010.java",
+      "source_sha256": "7970554f4ed1255eb071602ddd3859d9de39c58a0307d37b665b80c952f76767",
+      "output": "present",
+      "violations": 4,
+      "errors": 1,
+      "compliance": 0.842,
+      "violated_rules": 3,
+      "compile": "ok",
+      "compile_check": {
+        "status": "ok",
+        "detail": ""
+      },
+      "test_check": {
+        "status": "failed",
+        "detail": "[file-process-1] ERROR com.example.file.service.FileProcessService - file-process task failed, fileId=fail\njava.lang.IllegalStateException: Injected observable downstream failure\n\tat BusinessAcceptance$Fixture.lambda$new$0(BusinessAcceptance.java:35)\n\tat com.example.file.service.FileProcessService.runTask(FileProcessService.java:63)\n\tat com.example.file.service.FileProcessService.lambda$process$0(FileProcessService.java:52)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n[business-api-caller] WARN com.example.file.service.FileProcessService - file-process task rejected, fileId=overflow\njava.util.concurrent.RejectedExecutionException: Task com.example.file.service.FileProcessService$$Lambda/0x00007fe07c00c448@1cda3da2 rejected from java.util.concurrent.ThreadPoolExecutor@7c3df479[Running, pool size = 1, active threads = 1, queued tasks = 100, completed tasks = 7]\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$AbortPolicy.rejectedExecution(ThreadPoolExecutor.java:2081)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.reject(ThreadPoolExecutor.java:841)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.execute(ThreadPoolExecutor.java:1376)\n\tat com.example.file.service.FileProcessService.process(FileProcessService.java:52)\n\tat java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)\n\tat java.base/java.lang.reflect.Method.invoke(Method.java:580)\n\tat BusinessAcceptance$Fixture.call(BusinessAcceptance.java:54)\n\tat BusinessAcceptance$Fixture.lambda$asyncCall$4(BusinessAcceptance.java:59)\n\tat java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n[business-api-caller] WARN com.example.file.service.FileProcessService - file-process task rejected, fileId=closed\njava.util.concurrent.RejectedExecutionException: Task com.example.file.service.FileProcessService$$Lambda/0x00007fe07c00c448@6ef58f67 rejected from java.util.concurrent.ThreadPoolExecutor@7c3df479[Terminated, pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 110]\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$AbortPolicy.rejectedExecution(ThreadPoolExecutor.java:2081)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.reject(ThreadPoolExecutor.java:841)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.execute(ThreadPoolExecutor.java:1376)\n\tat com.example.file.service.FileProcessService.process(FileProcessService.java:52)\n\tat java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)\n\tat java.base/java.lang.reflect.Method.invoke(Method.java:580)\n\tat BusinessAcceptance$Fixture.call(BusinessAcceptance.java:54)\n\tat BusinessAcceptance$Fixture.lambda$asyncCall$4(BusinessAcceptance.java:59)\n\tat java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\nException in thread \"main\" java.lang.AssertionError: Configured constructor accepted null callback\n\tat BusinessAcceptance.main(BusinessAcceptance.java:124)\n"
+      },
+      "task_check": {
+        "status": "failed",
+        "detail": "Required syntax, compilation or functional checks failed."
+      },
+      "violation_rules": [
+        "TP-MONITOR-001",
+        "TP-SHUTDOWN-004",
+        "TP-SHUTDOWN-004",
+        "TP-SHUTDOWN-003"
+      ]
+    },
+    {
+      "case_id": "CASE-011",
+      "strategy": "rag",
+      "file": "/workspace/ontology-demo/.eval-cache/deepseek-v2-20261102/results/rag/CASE-011.java",
+      "source_sha256": "8b6943663c9ecf06c3a50aa37b9e650ec8778ae936afcc23dc1f010d001ec617",
+      "output": "present",
+      "violations": 2,
+      "errors": 0,
+      "compliance": 0.895,
+      "violated_rules": 2,
+      "compile": "ok",
+      "compile_check": {
+        "status": "ok",
+        "detail": ""
+      },
+      "test_check": {
+        "status": "ok",
+        "detail": "[realtime-push-1] ERROR com.example.realtime.service.RealtimePushHandler - push failed, event=fail\njava.lang.IllegalStateException: Injected observable downstream failure\n\tat BusinessAcceptance$Fixture.lambda$new$0(BusinessAcceptance.java:35)\n\tat com.example.realtime.service.RealtimePushHandler.runTask(RealtimePushHandler.java:88)\n\tat com.example.realtime.service.RealtimePushHandler.lambda$onEvent$1(RealtimePushHandler.java:77)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n[business-api-caller] WARN com.example.realtime.service.RealtimePushHandler - push rejected, event=overflow\njava.util.concurrent.RejectedExecutionException: Task com.example.realtime.service.RealtimePushHandler$$Lambda/0x00007f3c4400e448@f519772 rejected from java.util.concurrent.ThreadPoolExecutor@76fb509a[Running, pool size = 1, active threads = 1, queued tasks = 50, completed tasks = 7]\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$AbortPolicy.rejectedExecution(ThreadPoolExecutor.java:2081)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.reject(ThreadPoolExecutor.java:841)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.execute(ThreadPoolExecutor.java:1376)\n\tat com.example.realtime.service.RealtimePushHandler.onEvent(RealtimePushHandler.java:77)\n\tat java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)\n\tat java.base/java.lang.reflect.Method.invoke(Method.java:580)\n\tat BusinessAcceptance$Fixture.call(BusinessAcceptance.java:54)\n\tat BusinessAcceptance$Fixture.lambda$asyncCall$4(BusinessAcceptance.java:59)\n\tat java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n[business-api-caller] WARN com.example.realtime.service.RealtimePushHandler - push rejected (stopped), event=closed\n"
+      },
+      "task_check": {
+        "status": "not_run",
+        "detail": "Task review is missing."
+      },
+      "violation_rules": [
+        "TP-MONITOR-001",
+        "TP-SHUTDOWN-004"
+      ]
+    },
+    {
+      "case_id": "CASE-020",
+      "strategy": "rag",
+      "file": "/workspace/ontology-demo/.eval-cache/deepseek-v2-20261102/results/rag/CASE-020.java",
+      "source_sha256": "ebd6573de1d7d5ec30808a88d7dc75bbedea3ee6e0b792b953d7b385eafb7434",
+      "output": "present",
+      "violations": 1,
+      "errors": 1,
+      "compliance": 0.957,
+      "violated_rules": 1,
+      "compile": "ok",
+      "compile_check": {
+        "status": "ok",
+        "detail": ""
+      },
+      "test_check": {
+        "status": "failed",
+        "detail": "Exception in thread \"main\" java.lang.AssertionError: Empty caller context leaked after export\n\tat AcceptanceTest.require(AcceptanceTest.java:9)\n\tat AcceptanceTest.main(AcceptanceTest.java:112)\n"
+      },
+      "task_check": {
+        "status": "failed",
+        "detail": "Required syntax, compilation or functional checks failed."
+      },
+      "violation_rules": [
+        "TP-SUBMIT-004"
+      ]
+    },
+    {
+      "case_id": "CASE-001",
+      "strategy": "rules",
+      "file": "/workspace/ontology-demo/.eval-cache/deepseek-v2-20261102/results/rules/CASE-001.java",
+      "source_sha256": "151d8a3a75d5bcf830b77c376729bba91ff78cf7a5aaa326a1b9a3c5e8d93401",
+      "output": "present",
+      "violations": 3,
+      "errors": 0,
+      "compliance": 0.895,
+      "violated_rules": 2,
+      "compile": "ok",
+      "compile_check": {
+        "status": "ok",
+        "detail": ""
+      },
+      "test_check": {
+        "status": "failed",
+        "detail": "[order-notify-1] ERROR com.example.order.service.OrderAsyncService - Order notification failed, orderId=fail\njava.lang.IllegalStateException: Injected observable downstream failure\n\tat BusinessAcceptance$Fixture.lambda$new$0(BusinessAcceptance.java:35)\n\tat com.example.order.service.OrderAsyncService.runTask(OrderAsyncService.java:97)\n\tat com.example.order.service.OrderAsyncService.lambda$notifyCreated$0(OrderAsyncService.java:86)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n[business-api-caller] WARN com.example.order.service.OrderAsyncService - Order notification rejected, orderId=overflow\njava.util.concurrent.RejectedExecutionException: Task com.example.order.service.OrderAsyncService$$Lambda/0x00007fdf4400c678@64525872 rejected from java.util.concurrent.ThreadPoolExecutor@300ffa5d[Running, pool size = 1, active threads = 1, queued tasks = 1024, completed tasks = 7]\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$AbortPolicy.rejectedExecution(ThreadPoolExecutor.java:2081)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.reject(ThreadPoolExecutor.java:841)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.execute(ThreadPoolExecutor.java:1376)\n\tat com.example.order.service.OrderAsyncService.notifyCreated(OrderAsyncService.java:86)\n\tat java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)\n\tat java.base/java.lang.reflect.Method.invoke(Method.java:580)\n\tat BusinessAcceptance$Fixture.call(BusinessAcceptance.java:54)\n\tat BusinessAcceptance$Fixture.lambda$asyncCall$4(BusinessAcceptance.java:59)\n\tat java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n[business-api-caller] WARN com.example.order.service.OrderAsyncService - Order notification rejected because service is stopping, orderId=closed\nException in thread \"main\" java.lang.AssertionError: Configured constructor accepted null callback\n\tat BusinessAcceptance.main(BusinessAcceptance.java:124)\n"
+      },
+      "task_check": {
+        "status": "failed",
+        "detail": "Required syntax, compilation or functional checks failed."
+      },
+      "violation_rules": [
+        "TP-MONITOR-001",
+        "TP-SHUTDOWN-004",
+        "TP-SHUTDOWN-004"
+      ]
+    },
+    {
+      "case_id": "CASE-002",
+      "strategy": "rules",
+      "file": "/workspace/ontology-demo/.eval-cache/deepseek-v2-20261102/results/rules/CASE-002.java",
+      "source_sha256": "9b44e2111d3f7f14487050facfc703d50dd60dde5e13accbf15767f0ef8faaa3",
+      "output": "present",
+      "violations": 6,
+      "errors": 1,
+      "compliance": 0.762,
+      "violated_rules": 5,
+      "compile": "ok",
+      "compile_check": {
+        "status": "ok",
+        "detail": ""
+      },
+      "test_check": {
+        "status": "failed",
+        "detail": "[order-sync-1] ERROR com.example.order.service.OrderSyncService - syncCreated callback failed, orderId=fail\njava.lang.IllegalStateException: Injected observable downstream failure\n\tat BusinessAcceptance$Fixture.lambda$new$0(BusinessAcceptance.java:35)\n\tat com.example.order.service.OrderSyncService.runSync(OrderSyncService.java:97)\n\tat com.example.order.service.OrderSyncService.lambda$syncCreated$0(OrderSyncService.java:84)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n[business-api-caller] WARN com.example.order.service.OrderSyncService - syncCreated rejected: executor saturated, orderId=overflow\njava.util.concurrent.RejectedExecutionException: Task com.example.order.service.OrderSyncService$$Lambda/0x00007f2ef800cae0@7b7bd3b9 rejected from java.util.concurrent.ThreadPoolExecutor@433c675d[Running, pool size = 1, active threads = 1, queued tasks = 256, completed tasks = 12]\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$AbortPolicy.rejectedExecution(ThreadPoolExecutor.java:2081)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.reject(ThreadPoolExecutor.java:841)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.execute(ThreadPoolExecutor.java:1376)\n\tat com.example.order.service.OrderSyncService.syncCreated(OrderSyncService.java:84)\n\tat java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)\n\tat java.base/java.lang.reflect.Method.invoke(Method.java:580)\n\tat BusinessAcceptance$Fixture.call(BusinessAcceptance.java:54)\n\tat BusinessAcceptance$Fixture.lambda$asyncCall$4(BusinessAcceptance.java:59)\n\tat java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n[business-api-caller] WARN com.example.order.service.OrderSyncService - syncCreated rejected: service is shutting down, orderId=closed\nException in thread \"main\" java.lang.AssertionError: Configured constructor accepted null callback\n\tat BusinessAcceptance.main(BusinessAcceptance.java:124)\n"
+      },
+      "task_check": {
+        "status": "failed",
+        "detail": "Required syntax, compilation or functional checks failed."
+      },
+      "violation_rules": [
+        "TP-MONITOR-001",
+        "TP-SUBMIT-001",
+        "TP-SHUTDOWN-004",
+        "TP-SHUTDOWN-004",
+        "TP-SHUTDOWN-003",
+        "TP-CREATE-004"
+      ]
+    },
+    {
+      "case_id": "CASE-003",
+      "strategy": "rules",
+      "file": "/workspace/ontology-demo/.eval-cache/deepseek-v2-20261102/results/rules/CASE-003.java",
+      "source_sha256": "3b7bea8d7eac97ed7d71900c66b9956064f7062bc74b701e47fc9aaa5dd890d3",
+      "output": "present",
+      "violations": 4,
+      "errors": 1,
+      "compliance": 0.842,
+      "violated_rules": 3,
+      "compile": "ok",
+      "compile_check": {
+        "status": "ok",
+        "detail": ""
+      },
+      "test_check": {
+        "status": "ok",
+        "detail": "[report-export-1] ERROR com.example.report.service.ReportExportService - export failed, report=fail\njava.lang.IllegalStateException: Injected observable downstream failure\n\tat BusinessAcceptance$Fixture.lambda$new$0(BusinessAcceptance.java:35)\n\tat com.example.report.service.ReportExportService.runExport(ReportExportService.java:88)\n\tat com.example.report.service.ReportExportService.lambda$export$0(ReportExportService.java:77)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n[business-api-caller] ERROR com.example.report.service.ReportExportService - export rejected, report=overflow\njava.util.concurrent.RejectedExecutionException: Task com.example.report.service.ReportExportService$$Lambda/0x00007f304400c448@75374f8c rejected from java.util.concurrent.ThreadPoolExecutor@7c3df479[Running, pool size = 1, active threads = 1, queued tasks = 256, completed tasks = 7]\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$AbortPolicy.rejectedExecution(ThreadPoolExecutor.java:2081)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.reject(ThreadPoolExecutor.java:841)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.execute(ThreadPoolExecutor.java:1376)\n\tat com.example.report.service.ReportExportService.export(ReportExportService.java:77)\n\tat java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)\n\tat java.base/java.lang.reflect.Method.invoke(Method.java:580)\n\tat BusinessAcceptance$Fixture.call(BusinessAcceptance.java:54)\n\tat BusinessAcceptance$Fixture.lambda$asyncCall$4(BusinessAcceptance.java:59)\n\tat java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n[business-api-caller] ERROR com.example.report.service.ReportExportService - export rejected, report=closed\njava.util.concurrent.RejectedExecutionException: Task com.example.report.service.ReportExportService$$Lambda/0x00007f304400c448@6e0b1b62 rejected from java.util.concurrent.ThreadPoolExecutor@7c3df479[Terminated, pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 266]\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$AbortPolicy.rejectedExecution(ThreadPoolExecutor.java:2081)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.reject(ThreadPoolExecutor.java:841)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.execute(ThreadPoolExecutor.java:1376)\n\tat com.example.report.service.ReportExportService.export(ReportExportService.java:77)\n\tat java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)\n\tat java.base/java.lang.reflect.Method.invoke(Method.java:580)\n\tat BusinessAcceptance$Fixture.call(BusinessAcceptance.java:54)\n\tat BusinessAcceptance$Fixture.lambda$asyncCall$4(BusinessAcceptance.java:59)\n\tat java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n"
+      },
+      "task_check": {
+        "status": "not_run",
+        "detail": "Task review is missing."
+      },
+      "violation_rules": [
+        "TP-MONITOR-001",
+        "TP-SHUTDOWN-004",
+        "TP-SHUTDOWN-004",
+        "TP-SHUTDOWN-003"
+      ]
+    },
+    {
+      "case_id": "CASE-006",
+      "strategy": "rules",
+      "file": "/workspace/ontology-demo/.eval-cache/deepseek-v2-20261102/results/rules/CASE-006.java",
+      "source_sha256": "e696c633a6d16a7396a24ea233dcb23fb194755ed6219cfe980922a7cdcfae1b",
+      "output": "present",
+      "violations": 1,
+      "errors": 1,
+      "compliance": 0.933,
+      "violated_rules": 1,
+      "compile": "failed",
+      "compile_check": {
+        "status": "failed",
+        "detail": "/tmp/rule-engine-java-5PI1r9/UrgentTaskDispatcher.java:153: error: UrgentTaskDispatcher.BoundedPriorityQueue is not abstract and does not override abstract method peek() in Queue\n    private final class BoundedPriorityQueue implements BlockingQueue<Runnable> {\n                  ^\n1 error\n"
+      },
+      "test_check": {
+        "status": "not_run",
+        "detail": "Skipped because compilation did not succeed."
+      },
+      "task_check": {
+        "status": "failed",
+        "detail": "Required syntax, compilation or functional checks failed."
+      },
+      "violation_rules": [
+        "TP-SHUTDOWN-002"
+      ]
+    },
+    {
+      "case_id": "CASE-007",
+      "strategy": "rules",
+      "file": "/workspace/ontology-demo/.eval-cache/deepseek-v2-20261102/results/rules/CASE-007.java",
+      "source_sha256": "9b8c0b763713695e3625aba94853d90797303477a842964365eebe04b6ea3491",
+      "output": "present",
+      "violations": 4,
+      "errors": 1,
+      "compliance": 0.842,
+      "violated_rules": 3,
+      "compile": "ok",
+      "compile_check": {
+        "status": "ok",
+        "detail": ""
+      },
+      "test_check": {
+        "status": "ok",
+        "detail": "[async-log-1] ERROR com.example.log.service.AsyncLogWriter - async-log sink failed for message\njava.lang.IllegalStateException: Injected observable downstream failure\n\tat BusinessAcceptance$Fixture.lambda$new$0(BusinessAcceptance.java:35)\n\tat com.example.log.service.AsyncLogWriter.runTask(AsyncLogWriter.java:83)\n\tat com.example.log.service.AsyncLogWriter.lambda$write$0(AsyncLogWriter.java:72)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n[business-api-caller] WARN com.example.log.service.AsyncLogWriter - async-log rejected: queue saturated or executor shut down, message dropped from async path\njava.util.concurrent.RejectedExecutionException: Task com.example.log.service.AsyncLogWriter$$Lambda/0x00007f742800c448@5542615e rejected from java.util.concurrent.ThreadPoolExecutor@76fb509a[Running, pool size = 1, active threads = 1, queued tasks = 1000, completed tasks = 7]\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$AbortPolicy.rejectedExecution(ThreadPoolExecutor.java:2081)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.reject(ThreadPoolExecutor.java:841)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.execute(ThreadPoolExecutor.java:1376)\n\tat com.example.log.service.AsyncLogWriter.write(AsyncLogWriter.java:72)\n\tat java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)\n\tat java.base/java.lang.reflect.Method.invoke(Method.java:580)\n\tat BusinessAcceptance$Fixture.call(BusinessAcceptance.java:54)\n\tat BusinessAcceptance$Fixture.lambda$asyncCall$4(BusinessAcceptance.java:59)\n\tat java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n[business-api-caller] WARN com.example.log.service.AsyncLogWriter - async-log rejected: queue saturated or executor shut down, message dropped from async path\njava.util.concurrent.RejectedExecutionException: Task com.example.log.service.AsyncLogWriter$$Lambda/0x00007f742800c448@64384836 rejected from java.util.concurrent.ThreadPoolExecutor@76fb509a[Terminated, pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 1010]\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$AbortPolicy.rejectedExecution(ThreadPoolExecutor.java:2081)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.reject(ThreadPoolExecutor.java:841)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.execute(ThreadPoolExecutor.java:1376)\n\tat com.example.log.service.AsyncLogWriter.write(AsyncLogWriter.java:72)\n\tat java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)\n\tat java.base/java.lang.reflect.Method.invoke(Method.java:580)\n\tat BusinessAcceptance$Fixture.call(BusinessAcceptance.java:54)\n\tat BusinessAcceptance$Fixture.lambda$asyncCall$4(BusinessAcceptance.java:59)\n\tat java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n"
+      },
+      "task_check": {
+        "status": "not_run",
+        "detail": "Task review is missing."
+      },
+      "violation_rules": [
+        "TP-MONITOR-001",
+        "TP-SHUTDOWN-004",
+        "TP-SHUTDOWN-004",
+        "TP-SHUTDOWN-003"
+      ]
+    },
+    {
+      "case_id": "CASE-008",
+      "strategy": "rules",
+      "file": "/workspace/ontology-demo/.eval-cache/deepseek-v2-20261102/results/rules/CASE-008.java",
+      "source_sha256": "e8b3dd455eb7a53d5c5fbdbb1f2090e92ef1a58de7313d9e3f275ccae343d161",
+      "output": "present",
+      "violations": 2,
+      "errors": 0,
+      "compliance": 0.895,
+      "violated_rules": 2,
+      "compile": "ok",
+      "compile_check": {
+        "status": "ok",
+        "detail": ""
+      },
+      "test_check": {
+        "status": "failed",
+        "detail": "[inventory-sync-354098530617] ERROR com.example.inventory.service.InventorySyncService - Inventory sync failed for sku=fail\njava.lang.IllegalStateException: Injected observable downstream failure\n\tat BusinessAcceptance$Fixture.lambda$new$0(BusinessAcceptance.java:35)\n\tat com.example.inventory.service.InventorySyncService.runSync(InventorySyncService.java:92)\n\tat com.example.inventory.service.InventorySyncService.lambda$sync$1(InventorySyncService.java:80)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n[business-api-caller] WARN com.example.inventory.service.InventorySyncService - Inventory sync rejected for sku=overflow, queued for compensation\n[business-api-caller] WARN com.example.inventory.service.InventorySyncService - Inventory sync rejected for sku=closed, queued for compensation\nException in thread \"main\" java.lang.AssertionError: Configured constructor accepted null callback\n\tat BusinessAcceptance.main(BusinessAcceptance.java:124)\n"
+      },
+      "task_check": {
+        "status": "failed",
+        "detail": "Required syntax, compilation or functional checks failed."
+      },
+      "violation_rules": [
+        "TP-MONITOR-001",
+        "TP-SHUTDOWN-004"
+      ]
+    },
+    {
+      "case_id": "CASE-010",
+      "strategy": "rules",
+      "file": "/workspace/ontology-demo/.eval-cache/deepseek-v2-20261102/results/rules/CASE-010.java",
+      "source_sha256": "5789f8212c3f36828e4f7914d99a4d8dbfd36c1175327999aa31ee58752ddc8c",
+      "output": "present",
+      "violations": 3,
+      "errors": 0,
+      "compliance": 0.895,
+      "violated_rules": 2,
+      "compile": "ok",
+      "compile_check": {
+        "status": "ok",
+        "detail": ""
+      },
+      "test_check": {
+        "status": "failed",
+        "detail": "[file-process-1] ERROR com.example.file.service.FileProcessService - file-process task failed, fileId=fail\njava.lang.IllegalStateException: Injected observable downstream failure\n\tat BusinessAcceptance$Fixture.lambda$new$0(BusinessAcceptance.java:35)\n\tat com.example.file.service.FileProcessService.runTask(FileProcessService.java:68)\n\tat com.example.file.service.FileProcessService.lambda$process$0(FileProcessService.java:57)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n[business-api-caller] WARN com.example.file.service.FileProcessService - file-process task rejected, fileId=overflow\njava.util.concurrent.RejectedExecutionException: Task com.example.file.service.FileProcessService$$Lambda/0x00007fd82000c448@293645ae rejected from java.util.concurrent.ThreadPoolExecutor@7c3df479[Running, pool size = 1, active threads = 1, queued tasks = 100, completed tasks = 7]\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$AbortPolicy.rejectedExecution(ThreadPoolExecutor.java:2081)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.reject(ThreadPoolExecutor.java:841)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.execute(ThreadPoolExecutor.java:1376)\n\tat com.example.file.service.FileProcessService.process(FileProcessService.java:57)\n\tat java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)\n\tat java.base/java.lang.reflect.Method.invoke(Method.java:580)\n\tat BusinessAcceptance$Fixture.call(BusinessAcceptance.java:54)\n\tat BusinessAcceptance$Fixture.lambda$asyncCall$4(BusinessAcceptance.java:59)\n\tat java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n[business-api-caller] WARN com.example.file.service.FileProcessService - file-process task rejected, fileId=closed\njava.util.concurrent.RejectedExecutionException: Task com.example.file.service.FileProcessService$$Lambda/0x00007fd82000c448@1ab68217 rejected from java.util.concurrent.ThreadPoolExecutor@7c3df479[Terminated, pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 110]\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$AbortPolicy.rejectedExecution(ThreadPoolExecutor.java:2081)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.reject(ThreadPoolExecutor.java:841)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.execute(ThreadPoolExecutor.java:1376)\n\tat com.example.file.service.FileProcessService.process(FileProcessService.java:57)\n\tat java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)\n\tat java.base/java.lang.reflect.Method.invoke(Method.java:580)\n\tat BusinessAcceptance$Fixture.call(BusinessAcceptance.java:54)\n\tat BusinessAcceptance$Fixture.lambda$asyncCall$4(BusinessAcceptance.java:59)\n\tat java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\nException in thread \"main\" java.lang.AssertionError: Configured constructor accepted null callback\n\tat BusinessAcceptance.main(BusinessAcceptance.java:124)\n"
+      },
+      "task_check": {
+        "status": "failed",
+        "detail": "Required syntax, compilation or functional checks failed."
+      },
+      "violation_rules": [
+        "TP-MONITOR-001",
+        "TP-SHUTDOWN-004",
+        "TP-SHUTDOWN-004"
+      ]
+    },
+    {
+      "case_id": "CASE-011",
+      "strategy": "rules",
+      "file": "/workspace/ontology-demo/.eval-cache/deepseek-v2-20261102/results/rules/CASE-011.java",
+      "source_sha256": "c63986f89a21b657c4faf0af38bde6c68ce6f2a6b29c46901b09b0ef4b9c5a1c",
+      "output": "present",
+      "violations": 3,
+      "errors": 0,
+      "compliance": 0.895,
+      "violated_rules": 2,
+      "compile": "ok",
+      "compile_check": {
+        "status": "ok",
+        "detail": ""
+      },
+      "test_check": {
+        "status": "ok",
+        "detail": "[realtime-push-1] ERROR com.example.realtime.service.RealtimePushHandler - push failed, event=fail\njava.lang.IllegalStateException: Injected observable downstream failure\n\tat BusinessAcceptance$Fixture.lambda$new$0(BusinessAcceptance.java:35)\n\tat com.example.realtime.service.RealtimePushHandler.runPush(RealtimePushHandler.java:100)\n\tat com.example.realtime.service.RealtimePushHandler.lambda$onEvent$1(RealtimePushHandler.java:89)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n[business-api-caller] WARN com.example.realtime.service.RealtimePushHandler - push rejected, event=overflow\njava.util.concurrent.RejectedExecutionException: Task com.example.realtime.service.RealtimePushHandler$$Lambda/0x00007f894800e448@37127d66 rejected from java.util.concurrent.ThreadPoolExecutor@76fb509a[Running, pool size = 1, active threads = 1, queued tasks = 50, completed tasks = 7]\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$AbortPolicy.rejectedExecution(ThreadPoolExecutor.java:2081)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.reject(ThreadPoolExecutor.java:841)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.execute(ThreadPoolExecutor.java:1376)\n\tat com.example.realtime.service.RealtimePushHandler.onEvent(RealtimePushHandler.java:89)\n\tat java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)\n\tat java.base/java.lang.reflect.Method.invoke(Method.java:580)\n\tat BusinessAcceptance$Fixture.call(BusinessAcceptance.java:54)\n\tat BusinessAcceptance$Fixture.lambda$asyncCall$4(BusinessAcceptance.java:59)\n\tat java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n[business-api-caller] WARN com.example.realtime.service.RealtimePushHandler - push rejected (stopping), event=closed\n"
+      },
+      "task_check": {
+        "status": "not_run",
+        "detail": "Task review is missing."
+      },
+      "violation_rules": [
+        "TP-MONITOR-001",
+        "TP-SHUTDOWN-004",
+        "TP-SHUTDOWN-004"
+      ]
+    },
+    {
+      "case_id": "CASE-020",
+      "strategy": "rules",
+      "file": "/workspace/ontology-demo/.eval-cache/deepseek-v2-20261102/results/rules/CASE-020.java",
+      "source_sha256": "766d29191be13651f55f9283b83268479dfb48186f536d02be24cdc5ebc53e73",
+      "output": "present",
+      "violations": 0,
+      "errors": 0,
+      "compliance": 1,
+      "violated_rules": 0,
+      "compile": "ok",
+      "compile_check": {
+        "status": "ok",
+        "detail": ""
+      },
+      "test_check": {
+        "status": "failed",
+        "detail": "Exception in thread \"main\" java.lang.AssertionError: Cancelled queued export still consumes capacity; remove the actual queued Runnable, which may differ from an inner FutureTask\n\tat AcceptanceTest.require(AcceptanceTest.java:9)\n\tat AcceptanceTest.main(AcceptanceTest.java:145)\n"
+      },
+      "task_check": {
+        "status": "failed",
+        "detail": "Required syntax, compilation or functional checks failed."
+      },
+      "violation_rules": []
+    }
+  ],
+  "notes": [
+    "Java 编译使用真实 javac（默认 --release 21），缺失工具、超时、编译失败分别记录；不自动补桩或改写产出。",
+    "合规率按非 info 的已检查规则去重；无适用规则或语法无效时为 n/a。100% 离线召回衡量未裁剪规则集，不能代表预算裁剪后的覆盖率。",
+    "Task not_run 包含尚未审查，以及已绑定源码完成审查但业务证据不足的情况；通过 task_check.detail 区分，均不算任务成功。",
+    "Compile/Test/Task Rate 分母为每种策略全部计划用例；缺失、不可用、未执行单独记录并报告覆盖率，不能视为通过。21 个用例均有功能/运行行为断言，但尚未覆盖全部业务和异常分支。完整任务验收均需依据清单审查，不从合规率推断。"
+  ],
+  "provenance": {
+    "controlled_experiment": true,
+    "model": "deepseek-flash",
+    "issues": []
+  }
+}

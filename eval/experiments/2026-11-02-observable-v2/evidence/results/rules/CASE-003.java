@@ -1,0 +1,130 @@
+package com.example.report.service;
+
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Consumer;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * 报表导出线程池：有界队列承接导出请求，过载时明确拒绝，避免压垮内存。
+ */
+public class ReportExportService {
+
+    private static final Logger log = LoggerFactory.getLogger(ReportExportService.class);
+
+    private static final int CORE_POOL_SIZE = 4;
+    private static final int MAX_POOL_SIZE = 8;
+    private static final long KEEP_ALIVE_SECONDS = 60L;
+    private static final int QUEUE_CAPACITY = 256;
+    private static final long STOP_GRACE_MILLIS = 200L;
+    private static final long STOP_FORCE_WAIT_MILLIS = 2000L;
+
+    private final Consumer<String> exporterCallback;
+
+    private final AtomicLong submitted = new AtomicLong();
+    private final AtomicLong completed = new AtomicLong();
+    private final AtomicLong failed = new AtomicLong();
+    private final AtomicLong rejected = new AtomicLong();
+
+    private final ThreadPoolExecutor exporter;
+
+    public ReportExportService() {
+        this.exporterCallback = null;
+        this.exporter = createExecutor();
+    }
+
+    public ReportExportService(Consumer<String> exporter) {
+        this.exporterCallback = Objects.requireNonNull(exporter, "exporter must not be null");
+        this.exporter = createExecutor();
+    }
+
+    private ThreadPoolExecutor createExecutor() {
+        ThreadFactory threadFactory = new ThreadFactory() {
+            private final AtomicLong seq = new AtomicLong();
+
+            @Override
+            public Thread newThread(Runnable r) {
+                Thread t = new Thread(r, "report-export-" + seq.incrementAndGet());
+                t.setDaemon(false);
+                return t;
+            }
+        };
+        BlockingQueue<Runnable> queue = new ArrayBlockingQueue<>(QUEUE_CAPACITY);
+        return new ThreadPoolExecutor(
+                CORE_POOL_SIZE,
+                MAX_POOL_SIZE,
+                KEEP_ALIVE_SECONDS,
+                TimeUnit.SECONDS,
+                queue,
+                threadFactory,
+                new ThreadPoolExecutor.AbortPolicy());
+    }
+
+    public void export(String reportId) {
+        if (exporterCallback == null) {
+            throw new IllegalStateException("report exporter callback is not configured");
+        }
+        try {
+            exporter.execute(() -> runExport(reportId));
+            submitted.incrementAndGet();
+        } catch (RejectedExecutionException ex) {
+            rejected.incrementAndGet();
+            log.error("export rejected, report={}", reportId, ex);
+            throw ex;
+        }
+    }
+
+    private void runExport(String reportId) {
+        try {
+            exporterCallback.accept(reportId);
+            completed.incrementAndGet();
+        } catch (RuntimeException ex) {
+            failed.incrementAndGet();
+            log.error("export failed, report={}", reportId, ex);
+        }
+    }
+
+    public Map<String, Long> stats() {
+        return Map.of(
+                "submitted", submitted.get(),
+                "completed", completed.get(),
+                "failed", failed.get(),
+                "rejected", rejected.get());
+    }
+
+    public void stop() {
+        exporter.shutdown();
+        boolean interrupted = false;
+        try {
+            if (!exporter.awaitTermination(STOP_GRACE_MILLIS, TimeUnit.MILLISECONDS)) {
+                exporter.shutdownNow();
+                if (!exporter.awaitTermination(STOP_FORCE_WAIT_MILLIS, TimeUnit.MILLISECONDS)) {
+                    throw new IllegalStateException("report export executor did not terminate in time");
+                }
+            }
+        } catch (InterruptedException ex) {
+            interrupted = true;
+            exporter.shutdownNow();
+            try {
+                if (!exporter.awaitTermination(STOP_FORCE_WAIT_MILLIS, TimeUnit.MILLISECONDS)) {
+                    throw new IllegalStateException("report export executor did not terminate in time");
+                }
+            } catch (InterruptedException ex2) {
+                interrupted = true;
+            }
+        } finally {
+            if (interrupted) {
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+}
