@@ -1,0 +1,53 @@
+{
+  "model": "deepseek-flash",
+  "code": "```java\nimport java.util.Objects;\nimport java.util.concurrent.ArrayBlockingQueue;\nimport java.util.concurrent.RejectedExecutionException;\nimport java.util.concurrent.ThreadPoolExecutor;\nimport java.util.concurrent.TimeUnit;\nimport java.util.function.Consumer;\n\npublic class EventPublisher {\n    private final Consumer<String> receiver;\n    private final ThreadPoolExecutor executor;\n\n    public EventPublisher(Consumer<String> receiver) {\n        this.receiver = Objects.requireNonNull(receiver);\n        this.executor = new ThreadPoolExecutor(\n                1,\n                1,\n                0L,\n                TimeUnit.MILLISECONDS,\n                new ArrayBlockingQueue<>(2),\n                r -> {\n                    Thread t = new Thread(r, \"event-publisher-worker\");\n                    t.setDaemon(false);\n                    return t;\n                },\n                new ThreadPoolExecutor.AbortPolicy()\n        );\n    }\n\n    public void publish(String event) {\n        executor.execute(() -> {\n            try {\n                receiver.accept(event);\n            } catch (Throwable t) {\n                // 隔离回调异常，不阻止后续事件\n            }\n        });\n    }\n\n    public void stop() {\n        executor.shutdown();\n        boolean interrupted = false;\n        while (true) {\n            try {\n                if (executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS)) {\n                    break;\n                }\n            } catch (InterruptedException e) {\n                interrupted = true;\n            }\n        }\n        if (interrupted) {\n            Thread.currentThread().interrupt();\n        }\n    }\n}\n```",
+  "usage": {
+    "prompt_tokens": 998,
+    "completion_tokens": 320,
+    "total_tokens": 1318,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 998
+  },
+  "finish_reason": "stop",
+  "raw_response": {
+    "id": "8750cb7f-619b-461b-ac38-591ae70c3d14",
+    "object": "chat.completion",
+    "created": 1793602022,
+    "model": "deepseek-flash",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "```java\nimport java.util.Objects;\nimport java.util.concurrent.ArrayBlockingQueue;\nimport java.util.concurrent.RejectedExecutionException;\nimport java.util.concurrent.ThreadPoolExecutor;\nimport java.util.concurrent.TimeUnit;\nimport java.util.function.Consumer;\n\npublic class EventPublisher {\n    private final Consumer<String> receiver;\n    private final ThreadPoolExecutor executor;\n\n    public EventPublisher(Consumer<String> receiver) {\n        this.receiver = Objects.requireNonNull(receiver);\n        this.executor = new ThreadPoolExecutor(\n                1,\n                1,\n                0L,\n                TimeUnit.MILLISECONDS,\n                new ArrayBlockingQueue<>(2),\n                r -> {\n                    Thread t = new Thread(r, \"event-publisher-worker\");\n                    t.setDaemon(false);\n                    return t;\n                },\n                new ThreadPoolExecutor.AbortPolicy()\n        );\n    }\n\n    public void publish(String event) {\n        executor.execute(() -> {\n            try {\n                receiver.accept(event);\n            } catch (Throwable t) {\n                // 隔离回调异常，不阻止后续事件\n            }\n        });\n    }\n\n    public void stop() {\n        executor.shutdown();\n        boolean interrupted = false;\n        while (true) {\n            try {\n                if (executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS)) {\n                    break;\n                }\n            } catch (InterruptedException e) {\n                interrupted = true;\n            }\n        }\n        if (interrupted) {\n            Thread.currentThread().interrupt();\n        }\n    }\n}\n```"
+        },
+        "logprobs": null,
+        "finish_reason": "stop"
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 998,
+      "completion_tokens": 320,
+      "total_tokens": 1318,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      },
+      "prompt_cache_hit_tokens": 0,
+      "prompt_cache_miss_tokens": 998
+    },
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6"
+  },
+  "applied_parameters": {
+    "temperature": 0,
+    "max_tokens": 8192,
+    "seed": null,
+    "thinking": {
+      "type": "disabled"
+    },
+    "endpoint": "https://api.deepseek.com/chat/completions",
+    "api_key_env": "EVAL_API_KEY"
+  }
+}

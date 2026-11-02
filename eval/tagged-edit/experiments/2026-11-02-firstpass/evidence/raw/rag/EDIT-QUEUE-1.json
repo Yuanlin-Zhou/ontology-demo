@@ -1,0 +1,53 @@
+{
+  "model": "deepseek-flash",
+  "code": "```java\nimport java.util.concurrent.*;\nimport java.util.function.Consumer;\n\npublic class BufferedNotifier {\n    private final Consumer<String> sink;\n    private final ThreadPoolExecutor pool = new ThreadPoolExecutor(\n            1, 1, 30, TimeUnit.SECONDS,\n            new ArrayBlockingQueue<>(2),\n            new ThreadPoolExecutor.AbortPolicy());\n\n    public BufferedNotifier(Consumer<String> sink) {\n        this.sink = java.util.Objects.requireNonNull(sink);\n    }\n\n    public void send(String message) {\n        pool.execute(() -> sink.accept(message));\n    }\n\n    public void stop() throws InterruptedException {\n        pool.shutdown();\n        if (!pool.awaitTermination(1, TimeUnit.SECONDS)) {\n            throw new IllegalStateException(\"not stopped\");\n        }\n    }\n}\n```",
+  "usage": {
+    "prompt_tokens": 1082,
+    "completion_tokens": 176,
+    "total_tokens": 1258,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 1082
+  },
+  "finish_reason": "stop",
+  "raw_response": {
+    "id": "9ca42c3f-6d62-45a9-adbe-39b3f32359be",
+    "object": "chat.completion",
+    "created": 1793602017,
+    "model": "deepseek-flash",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "```java\nimport java.util.concurrent.*;\nimport java.util.function.Consumer;\n\npublic class BufferedNotifier {\n    private final Consumer<String> sink;\n    private final ThreadPoolExecutor pool = new ThreadPoolExecutor(\n            1, 1, 30, TimeUnit.SECONDS,\n            new ArrayBlockingQueue<>(2),\n            new ThreadPoolExecutor.AbortPolicy());\n\n    public BufferedNotifier(Consumer<String> sink) {\n        this.sink = java.util.Objects.requireNonNull(sink);\n    }\n\n    public void send(String message) {\n        pool.execute(() -> sink.accept(message));\n    }\n\n    public void stop() throws InterruptedException {\n        pool.shutdown();\n        if (!pool.awaitTermination(1, TimeUnit.SECONDS)) {\n            throw new IllegalStateException(\"not stopped\");\n        }\n    }\n}\n```"
+        },
+        "logprobs": null,
+        "finish_reason": "stop"
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 1082,
+      "completion_tokens": 176,
+      "total_tokens": 1258,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      },
+      "prompt_cache_hit_tokens": 0,
+      "prompt_cache_miss_tokens": 1082
+    },
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6"
+  },
+  "applied_parameters": {
+    "temperature": 0,
+    "max_tokens": 8192,
+    "seed": null,
+    "thinking": {
+      "type": "disabled"
+    },
+    "endpoint": "https://api.deepseek.com/chat/completions",
+    "api_key_env": "EVAL_API_KEY"
+  }
+}

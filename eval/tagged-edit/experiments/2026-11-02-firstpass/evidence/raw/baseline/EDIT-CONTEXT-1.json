@@ -1,0 +1,53 @@
+{
+  "model": "deepseek-flash",
+  "code": "```java\nimport java.util.concurrent.*;\nimport java.util.function.Function;\npublic class TenantJob {\n    public static final ThreadLocal<String> TENANT=new ThreadLocal<>();\n    private final Function<String,String> work;\n    private final ThreadPoolExecutor pool=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(2));\n    public TenantJob(Function<String,String> work){this.work=java.util.Objects.requireNonNull(work);}\n    public String run(String tenant,String payload)throws Exception{\n        String callerTenant=TENANT.get();\n        TENANT.set(tenant);\n        try{\n            Future<String> result=pool.submit(()->{\n                String workerTenant=TENANT.get();\n                TENANT.set(tenant);\n                try{\n                    return TENANT.get()+\":\"+work.apply(payload);\n                }finally{\n                    if(workerTenant==null)TENANT.remove();else TENANT.set(workerTenant);\n                }\n            });\n            return result.get(2,TimeUnit.SECONDS);\n        }finally{\n            if(callerTenant==null)TENANT.remove();else TENANT.set(callerTenant);\n        }\n    }\n    public void stop()throws InterruptedException{pool.shutdown();if(!pool.awaitTermination(1,TimeUnit.SECONDS))throw new IllegalStateException(\"not stopped\");}\n}\n```",
+  "usage": {
+    "prompt_tokens": 414,
+    "completion_tokens": 293,
+    "total_tokens": 707,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 414
+  },
+  "finish_reason": "stop",
+  "raw_response": {
+    "id": "ad3d5555-be7f-4a20-918e-06d6db99a322",
+    "object": "chat.completion",
+    "created": 1793602027,
+    "model": "deepseek-flash",
+    "choices": [
+      {
+        "index": 0,
+        "message": {
+          "role": "assistant",
+          "content": "```java\nimport java.util.concurrent.*;\nimport java.util.function.Function;\npublic class TenantJob {\n    public static final ThreadLocal<String> TENANT=new ThreadLocal<>();\n    private final Function<String,String> work;\n    private final ThreadPoolExecutor pool=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(2));\n    public TenantJob(Function<String,String> work){this.work=java.util.Objects.requireNonNull(work);}\n    public String run(String tenant,String payload)throws Exception{\n        String callerTenant=TENANT.get();\n        TENANT.set(tenant);\n        try{\n            Future<String> result=pool.submit(()->{\n                String workerTenant=TENANT.get();\n                TENANT.set(tenant);\n                try{\n                    return TENANT.get()+\":\"+work.apply(payload);\n                }finally{\n                    if(workerTenant==null)TENANT.remove();else TENANT.set(workerTenant);\n                }\n            });\n            return result.get(2,TimeUnit.SECONDS);\n        }finally{\n            if(callerTenant==null)TENANT.remove();else TENANT.set(callerTenant);\n        }\n    }\n    public void stop()throws InterruptedException{pool.shutdown();if(!pool.awaitTermination(1,TimeUnit.SECONDS))throw new IllegalStateException(\"not stopped\");}\n}\n```"
+        },
+        "logprobs": null,
+        "finish_reason": "stop"
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 414,
+      "completion_tokens": 293,
+      "total_tokens": 707,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      },
+      "prompt_cache_hit_tokens": 0,
+      "prompt_cache_miss_tokens": 414
+    },
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6"
+  },
+  "applied_parameters": {
+    "temperature": 0,
+    "max_tokens": 8192,
+    "seed": null,
+    "thinking": {
+      "type": "disabled"
+    },
+    "endpoint": "https://api.deepseek.com/chat/completions",
+    "api_key_env": "EVAL_API_KEY"
+  }
+}

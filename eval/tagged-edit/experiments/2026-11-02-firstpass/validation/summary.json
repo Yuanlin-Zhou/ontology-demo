@@ -1,0 +1,23 @@
+{
+  "provider_requests": 9,
+  "additional_probe_provider_requests": 0,
+  "outputs": 9,
+  "controlled_recorded_comparison": true,
+  "total_tokens": 9679,
+  "original_reports_unmodified": true,
+  "model_sources_unmodified": true,
+  "probe_count": 15,
+  "probe_compiles_ok": 15,
+  "probe_tests_ok": 13,
+  "expected_failure_reproductions": 2,
+  "all_probe_outcomes_as_expected": true,
+  "typecheck": "passed",
+  "prior_implementation_regression": {
+    "revision": "9b145e7",
+    "passed": 174,
+    "failed": 0,
+    "skipped": 0,
+    "note": "No src/knowledge/executor implementation changes in this experiment; frozen implementation hashes matched before and after. New diagnostic script typecheck and actual JVM checks performed."
+  },
+  "task_scope_review": "Agent-authored; not human blind review or full production certification"
+}

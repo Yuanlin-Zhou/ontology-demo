@@ -1,0 +1,183 @@
+{
+  "additional_model_requests": 0,
+  "raw_error_instances": 15,
+  "findings": [
+    {
+      "strategy": "baseline",
+      "case_id": "EDIT-QUEUE",
+      "source_hash": "46f0c365f963cd6ca9662bced9467f15e818ffe078c3a632777ce62faaa31a71",
+      "rule_id": "TP-REJECT-003",
+      "line": 7,
+      "classification": "task_policy_review",
+      "evidence": "Literal rule requires local catch/compensation. QUEUE/ASYNC task explicitly requires propagating rejection; CONTEXT preserves the original submission policy. Do not treat as confirmed business defects or automatically erase raw findings."
+    },
+    {
+      "strategy": "rag",
+      "case_id": "EDIT-QUEUE",
+      "source_hash": "cb0a9149a6975df46f3306e836a43e24c2e41c427cca238436ddefb8b8bcb57c",
+      "rule_id": "TP-REJECT-003",
+      "line": 16,
+      "classification": "task_policy_review",
+      "evidence": "Literal rule requires local catch/compensation. QUEUE/ASYNC task explicitly requires propagating rejection; CONTEXT preserves the original submission policy. Do not treat as confirmed business defects or automatically erase raw findings."
+    },
+    {
+      "strategy": "tagged",
+      "case_id": "EDIT-QUEUE",
+      "source_hash": "05d341a73b884ccf8e606fd65b9b5481b85c332e557adb26306f497010b63a09",
+      "rule_id": "TP-REJECT-003",
+      "line": 7,
+      "classification": "task_policy_review",
+      "evidence": "Literal rule requires local catch/compensation. QUEUE/ASYNC task explicitly requires propagating rejection; CONTEXT preserves the original submission policy. Do not treat as confirmed business defects or automatically erase raw findings."
+    },
+    {
+      "strategy": "baseline",
+      "case_id": "EDIT-ASYNC",
+      "source_hash": "18f91b748201ea80ea876a2971448026e3ec1e01ce41a299b16ad3cc177a95f7",
+      "rule_id": "TP-REJECT-003",
+      "line": 30,
+      "classification": "task_policy_review",
+      "evidence": "Literal rule requires local catch/compensation. QUEUE/ASYNC task explicitly requires propagating rejection; CONTEXT preserves the original submission policy. Do not treat as confirmed business defects or automatically erase raw findings."
+    },
+    {
+      "strategy": "baseline",
+      "case_id": "EDIT-ASYNC",
+      "source_hash": "18f91b748201ea80ea876a2971448026e3ec1e01ce41a299b16ad3cc177a95f7",
+      "rule_id": "TP-SHUTDOWN-003",
+      "line": 47,
+      "classification": "confirmed_false_positive",
+      "evidence": "InterruptProbe passed for this exact source hash; local flag is restored after the while retry loop."
+    },
+    {
+      "strategy": "rag",
+      "case_id": "EDIT-ASYNC",
+      "source_hash": "18f91b748201ea80ea876a2971448026e3ec1e01ce41a299b16ad3cc177a95f7",
+      "rule_id": "TP-REJECT-003",
+      "line": 30,
+      "classification": "task_policy_review",
+      "evidence": "Literal rule requires local catch/compensation. QUEUE/ASYNC task explicitly requires propagating rejection; CONTEXT preserves the original submission policy. Do not treat as confirmed business defects or automatically erase raw findings."
+    },
+    {
+      "strategy": "rag",
+      "case_id": "EDIT-ASYNC",
+      "source_hash": "18f91b748201ea80ea876a2971448026e3ec1e01ce41a299b16ad3cc177a95f7",
+      "rule_id": "TP-SHUTDOWN-003",
+      "line": 47,
+      "classification": "confirmed_false_positive",
+      "evidence": "InterruptProbe passed for this exact source hash; local flag is restored after the while retry loop."
+    },
+    {
+      "strategy": "tagged",
+      "case_id": "EDIT-ASYNC",
+      "source_hash": "91247ab8ff53ed2153dca3f95bdcb71a51664403aadd47088428eaa465b8cc76",
+      "rule_id": "TP-REJECT-003",
+      "line": 24,
+      "classification": "task_policy_review",
+      "evidence": "Literal rule requires local catch/compensation. QUEUE/ASYNC task explicitly requires propagating rejection; CONTEXT preserves the original submission policy. Do not treat as confirmed business defects or automatically erase raw findings."
+    },
+    {
+      "strategy": "tagged",
+      "case_id": "EDIT-ASYNC",
+      "source_hash": "91247ab8ff53ed2153dca3f95bdcb71a51664403aadd47088428eaa465b8cc76",
+      "rule_id": "TP-SHUTDOWN-003",
+      "line": 41,
+      "classification": "confirmed_false_positive",
+      "evidence": "InterruptProbe passed for this exact source hash; local flag is restored after the while retry loop."
+    },
+    {
+      "strategy": "baseline",
+      "case_id": "EDIT-CONTEXT",
+      "source_hash": "122a3594317a845128e7264081940a15087d91fa5179c11ee1bd43e0b2e887b5",
+      "rule_id": "TP-REJECT-001",
+      "line": 6,
+      "classification": "inherited_norm_finding",
+      "evidence": "Implicit AbortPolicy already exists in TenantJob input. Narrow task preserves this pool; not newly introduced."
+    },
+    {
+      "strategy": "baseline",
+      "case_id": "EDIT-CONTEXT",
+      "source_hash": "122a3594317a845128e7264081940a15087d91fa5179c11ee1bd43e0b2e887b5",
+      "rule_id": "TP-REJECT-003",
+      "line": 12,
+      "classification": "task_policy_review",
+      "evidence": "Literal rule requires local catch/compensation. QUEUE/ASYNC task explicitly requires propagating rejection; CONTEXT preserves the original submission policy. Do not treat as confirmed business defects or automatically erase raw findings."
+    },
+    {
+      "strategy": "rag",
+      "case_id": "EDIT-CONTEXT",
+      "source_hash": "96c4b898e6b383d91b667ba5a269b740ff83cfc3fd431cce331f60aeef9d80b3",
+      "rule_id": "TP-REJECT-001",
+      "line": 6,
+      "classification": "inherited_norm_finding",
+      "evidence": "Implicit AbortPolicy already exists in TenantJob input. Narrow task preserves this pool; not newly introduced."
+    },
+    {
+      "strategy": "rag",
+      "case_id": "EDIT-CONTEXT",
+      "source_hash": "96c4b898e6b383d91b667ba5a269b740ff83cfc3fd431cce331f60aeef9d80b3",
+      "rule_id": "TP-REJECT-003",
+      "line": 12,
+      "classification": "task_policy_review",
+      "evidence": "Literal rule requires local catch/compensation. QUEUE/ASYNC task explicitly requires propagating rejection; CONTEXT preserves the original submission policy. Do not treat as confirmed business defects or automatically erase raw findings."
+    },
+    {
+      "strategy": "tagged",
+      "case_id": "EDIT-CONTEXT",
+      "source_hash": "6b9c6ed129e1d0fb6ea83c1d6682ecf7b9f6163de4b3a7dff3098d18516bc654",
+      "rule_id": "TP-REJECT-001",
+      "line": 6,
+      "classification": "inherited_norm_finding",
+      "evidence": "Implicit AbortPolicy already exists in TenantJob input. Narrow task preserves this pool; not newly introduced."
+    },
+    {
+      "strategy": "tagged",
+      "case_id": "EDIT-CONTEXT",
+      "source_hash": "6b9c6ed129e1d0fb6ea83c1d6682ecf7b9f6163de4b3a7dff3098d18516bc654",
+      "rule_id": "TP-REJECT-003",
+      "line": 12,
+      "classification": "task_policy_review",
+      "evidence": "Literal rule requires local catch/compensation. QUEUE/ASYNC task explicitly requires propagating rejection; CONTEXT preserves the original submission policy. Do not treat as confirmed business defects or automatically erase raw findings."
+    }
+  ],
+  "note": "Raw findings not edited. No new checker version or adjusted quality score introduced.",
+  "missed_requirements": [
+    {
+      "strategy": "baseline",
+      "case_id": "EDIT-ASYNC",
+      "source_hash": "18f91b748201ea80ea876a2971448026e3ec1e01ce41a299b16ad3cc177a95f7",
+      "related_rule": "TP-SUBMIT-005",
+      "classification": "confirmed_checker_coverage_gap",
+      "evidence": "Empty catch(Throwable) silently suppresses callback failure. Original checker reports no TP-SUBMIT-005 finding; LoggingProbe fails the original explicit failure-recording requirement."
+    },
+    {
+      "strategy": "rag",
+      "case_id": "EDIT-ASYNC",
+      "source_hash": "18f91b748201ea80ea876a2971448026e3ec1e01ce41a299b16ad3cc177a95f7",
+      "related_rule": "TP-SUBMIT-005",
+      "classification": "confirmed_checker_coverage_gap",
+      "evidence": "Empty catch(Throwable) silently suppresses callback failure. Original checker reports no TP-SUBMIT-005 finding; LoggingProbe fails the original explicit failure-recording requirement."
+    }
+  ],
+  "advisory_risks": [
+    {
+      "strategy": "baseline",
+      "case_id": "EDIT-ASYNC",
+      "related_rule": "TP-SHUTDOWN-002",
+      "evidence": "stop uses Long.MAX_VALUE wait with repeated await and no bounded force-close fallback. Original task tests normal draining only; this does not prove bounded production shutdown.",
+      "classification": "unresolved_full_norm_coverage_not_new_task_failure"
+    },
+    {
+      "strategy": "rag",
+      "case_id": "EDIT-ASYNC",
+      "related_rule": "TP-SHUTDOWN-002",
+      "evidence": "stop uses Long.MAX_VALUE wait with repeated await and no bounded force-close fallback. Original task tests normal draining only; this does not prove bounded production shutdown.",
+      "classification": "unresolved_full_norm_coverage_not_new_task_failure"
+    },
+    {
+      "strategy": "tagged",
+      "case_id": "EDIT-ASYNC",
+      "related_rule": "TP-SHUTDOWN-002",
+      "evidence": "stop uses Long.MAX_VALUE wait with repeated await and no bounded force-close fallback. Original task tests normal draining only; this does not prove bounded production shutdown.",
+      "classification": "unresolved_full_norm_coverage_not_new_task_failure"
+    }
+  ]
+}

@@ -1,0 +1,233 @@
+{
+  "additional_model_requests": 0,
+  "note": "Post-run review of the frozen explicit edit requirements. Original report remains unchanged; review is agent-authored and not a complete domain compliance certification.",
+  "reviews": [
+    {
+      "strategy": "baseline",
+      "case_id": "EDIT-QUEUE",
+      "source_hash": "46f0c365f963cd6ca9662bced9467f15e818ffe078c3a632777ce62faaa31a71",
+      "reviewer": "Codex agent source review plus JVM probes; not human review",
+      "scope": "Explicit edit-task contract only, not all domain rules or production delivery",
+      "criteria": [
+        {
+          "criterion": "单工作线程、最多两项等待且拒绝向调用方传播",
+          "passed": true,
+          "evidence": "ThreadPoolExecutor(1,1) and capacity=2; AbortPolicy propagates. Original queue/overload behavior gate passed."
+        },
+        {
+          "criterion": "保留真实异步 sink、原公开接口和正常关闭排空",
+          "passed": true,
+          "evidence": "execute calls sink.accept; stop retains shutdown/awaitTermination; original behavior and existing-client compilation passed."
+        }
+      ],
+      "verdict": "passed",
+      "overall_delivery": "not_certified"
+    },
+    {
+      "strategy": "rag",
+      "case_id": "EDIT-QUEUE",
+      "source_hash": "cb0a9149a6975df46f3306e836a43e24c2e41c427cca238436ddefb8b8bcb57c",
+      "reviewer": "Codex agent source review plus JVM probes; not human review",
+      "scope": "Explicit edit-task contract only, not all domain rules or production delivery",
+      "criteria": [
+        {
+          "criterion": "单工作线程、最多两项等待且拒绝向调用方传播",
+          "passed": true,
+          "evidence": "ThreadPoolExecutor(1,1) and capacity=2; AbortPolicy propagates. Original queue/overload behavior gate passed."
+        },
+        {
+          "criterion": "保留真实异步 sink、原公开接口和正常关闭排空",
+          "passed": true,
+          "evidence": "execute calls sink.accept; stop retains shutdown/awaitTermination; original behavior and existing-client compilation passed."
+        }
+      ],
+      "verdict": "passed",
+      "overall_delivery": "not_certified"
+    },
+    {
+      "strategy": "tagged",
+      "case_id": "EDIT-QUEUE",
+      "source_hash": "05d341a73b884ccf8e606fd65b9b5481b85c332e557adb26306f497010b63a09",
+      "reviewer": "Codex agent source review plus JVM probes; not human review",
+      "scope": "Explicit edit-task contract only, not all domain rules or production delivery",
+      "criteria": [
+        {
+          "criterion": "单工作线程、最多两项等待且拒绝向调用方传播",
+          "passed": true,
+          "evidence": "ThreadPoolExecutor(1,1) and capacity=2; AbortPolicy propagates. Original queue/overload behavior gate passed."
+        },
+        {
+          "criterion": "保留真实异步 sink、原公开接口和正常关闭排空",
+          "passed": true,
+          "evidence": "execute calls sink.accept; stop retains shutdown/awaitTermination; original behavior and existing-client compilation passed."
+        }
+      ],
+      "verdict": "passed",
+      "overall_delivery": "not_certified"
+    },
+    {
+      "strategy": "baseline",
+      "case_id": "EDIT-ASYNC",
+      "source_hash": "18f91b748201ea80ea876a2971448026e3ec1e01ce41a299b16ad3cc177a95f7",
+      "reviewer": "Codex agent source review plus JVM probes; not human review",
+      "scope": "Explicit edit-task contract only, not all domain rules or production delivery",
+      "criteria": [
+        {
+          "criterion": "实例线程池异步执行、单worker两项等待及明确拒绝",
+          "passed": true,
+          "evidence": "Original saturation, callback-on-worker and closed rejection behavior checks passed; source shows one instance pool and AbortPolicy."
+        },
+        {
+          "criterion": "回调失败记录并隔离，不阻断后续事件",
+          "passed": false,
+          "evidence": "LoggingProbe failed: callback failure sentinel absent; source catches Throwable with an empty body/comment, suppressing error without recording."
+        },
+        {
+          "criterion": "保留公开接口、stop 等待正常排空",
+          "passed": true,
+          "evidence": "Original drain gate and existing-client compilation passed. stop waits for termination and restores interrupted flag after retry loop; InterruptProbe passed. This does not certify bounded/uncooperative shutdown."
+        }
+      ],
+      "verdict": "failed",
+      "overall_delivery": "not_certified"
+    },
+    {
+      "strategy": "rag",
+      "case_id": "EDIT-ASYNC",
+      "source_hash": "18f91b748201ea80ea876a2971448026e3ec1e01ce41a299b16ad3cc177a95f7",
+      "reviewer": "Codex agent source review plus JVM probes; not human review",
+      "scope": "Explicit edit-task contract only, not all domain rules or production delivery",
+      "criteria": [
+        {
+          "criterion": "实例线程池异步执行、单worker两项等待及明确拒绝",
+          "passed": true,
+          "evidence": "Original saturation, callback-on-worker and closed rejection behavior checks passed; source shows one instance pool and AbortPolicy."
+        },
+        {
+          "criterion": "回调失败记录并隔离，不阻断后续事件",
+          "passed": false,
+          "evidence": "LoggingProbe failed: callback failure sentinel absent; source catches Throwable with an empty body/comment, suppressing error without recording."
+        },
+        {
+          "criterion": "保留公开接口、stop 等待正常排空",
+          "passed": true,
+          "evidence": "Original drain gate and existing-client compilation passed. stop waits for termination and restores interrupted flag after retry loop; InterruptProbe passed. This does not certify bounded/uncooperative shutdown."
+        }
+      ],
+      "verdict": "failed",
+      "overall_delivery": "not_certified"
+    },
+    {
+      "strategy": "tagged",
+      "case_id": "EDIT-ASYNC",
+      "source_hash": "91247ab8ff53ed2153dca3f95bdcb71a51664403aadd47088428eaa465b8cc76",
+      "reviewer": "Codex agent source review plus JVM probes; not human review",
+      "scope": "Explicit edit-task contract only, not all domain rules or production delivery",
+      "criteria": [
+        {
+          "criterion": "实例线程池异步执行、单worker两项等待及明确拒绝",
+          "passed": true,
+          "evidence": "Original saturation, callback-on-worker and closed rejection behavior checks passed; source shows one instance pool and AbortPolicy."
+        },
+        {
+          "criterion": "回调失败记录并隔离，不阻断后续事件",
+          "passed": true,
+          "evidence": "LoggingProbe observed logging-probe-sentinel on stderr; catch(RuntimeException) records failure."
+        },
+        {
+          "criterion": "保留公开接口、stop 等待正常排空",
+          "passed": true,
+          "evidence": "Original drain gate and existing-client compilation passed. stop waits for termination and restores interrupted flag after retry loop; InterruptProbe passed. This does not certify bounded/uncooperative shutdown."
+        }
+      ],
+      "verdict": "passed",
+      "overall_delivery": "not_certified"
+    },
+    {
+      "strategy": "baseline",
+      "case_id": "EDIT-CONTEXT",
+      "source_hash": "122a3594317a845128e7264081940a15087d91fa5179c11ee1bd43e0b2e887b5",
+      "reviewer": "Codex agent source review plus JVM probes; not human review",
+      "scope": "Explicit edit-task contract only, not all domain rules or production delivery",
+      "criteria": [
+        {
+          "criterion": "调用方与工作线程恢复各自旧值，原无值时 remove",
+          "passed": true,
+          "evidence": "Both scopes capture get before set and restore/remove in their own finally. Original success/failure/caller-empty behavior checks passed; source has explicit worker-null remove branch."
+        },
+        {
+          "criterion": "保留 tenant:结果、线程池容量、2秒等待与公开接口",
+          "passed": true,
+          "evidence": "Original pool constructor and get(2, SECONDS) retained; callback result remains TENANT.get()+\":\"+work.apply(payload); original behavior and existing-client compilation passed."
+        }
+      ],
+      "verdict": "passed",
+      "overall_delivery": "not_certified"
+    },
+    {
+      "strategy": "rag",
+      "case_id": "EDIT-CONTEXT",
+      "source_hash": "96c4b898e6b383d91b667ba5a269b740ff83cfc3fd431cce331f60aeef9d80b3",
+      "reviewer": "Codex agent source review plus JVM probes; not human review",
+      "scope": "Explicit edit-task contract only, not all domain rules or production delivery",
+      "criteria": [
+        {
+          "criterion": "调用方与工作线程恢复各自旧值，原无值时 remove",
+          "passed": true,
+          "evidence": "Both scopes capture get before set and restore/remove in their own finally. Original success/failure/caller-empty behavior checks passed; source has explicit worker-null remove branch."
+        },
+        {
+          "criterion": "保留 tenant:结果、线程池容量、2秒等待与公开接口",
+          "passed": true,
+          "evidence": "Original pool constructor and get(2, SECONDS) retained; callback result remains TENANT.get()+\":\"+work.apply(payload); original behavior and existing-client compilation passed."
+        }
+      ],
+      "verdict": "passed",
+      "overall_delivery": "not_certified"
+    },
+    {
+      "strategy": "tagged",
+      "case_id": "EDIT-CONTEXT",
+      "source_hash": "6b9c6ed129e1d0fb6ea83c1d6682ecf7b9f6163de4b3a7dff3098d18516bc654",
+      "reviewer": "Codex agent source review plus JVM probes; not human review",
+      "scope": "Explicit edit-task contract only, not all domain rules or production delivery",
+      "criteria": [
+        {
+          "criterion": "调用方与工作线程恢复各自旧值，原无值时 remove",
+          "passed": true,
+          "evidence": "Both scopes capture get before set and restore/remove in their own finally. Original success/failure/caller-empty behavior checks passed; source has explicit worker-null remove branch."
+        },
+        {
+          "criterion": "保留 tenant:结果、线程池容量、2秒等待与公开接口",
+          "passed": true,
+          "evidence": "Original pool constructor and get(2, SECONDS) retained; callback result remains TENANT.get()+\":\"+work.apply(payload); original behavior and existing-client compilation passed."
+        }
+      ],
+      "verdict": "passed",
+      "overall_delivery": "not_certified"
+    }
+  ],
+  "summary": [
+    {
+      "strategy": "baseline",
+      "reviewed": 3,
+      "task_scope_passed": 2,
+      "task_scope_failed": 1,
+      "full_delivery_rate": null
+    },
+    {
+      "strategy": "rag",
+      "reviewed": 3,
+      "task_scope_passed": 2,
+      "task_scope_failed": 1,
+      "full_delivery_rate": null
+    },
+    {
+      "strategy": "tagged",
+      "reviewed": 3,
+      "task_scope_passed": 3,
+      "task_scope_failed": 0,
+      "full_delivery_rate": null
+    }
+  ]
+}

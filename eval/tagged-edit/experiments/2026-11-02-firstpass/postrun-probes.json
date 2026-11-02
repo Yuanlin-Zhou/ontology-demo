@@ -1,0 +1,261 @@
+{
+  "additional_model_requests": 0,
+  "note": "Supplemental diagnostics; original generation and acceptance reports remain unchanged.",
+  "results": [
+    {
+      "strategy": "baseline",
+      "case_id": "EDIT-QUEUE",
+      "source_hash": "46f0c365f963cd6ca9662bced9467f15e818ffe078c3a632777ce62faaa31a71",
+      "probe": "ClientCompileProbe",
+      "expected": "ok",
+      "result": {
+        "compile": {
+          "status": "ok",
+          "detail": ""
+        },
+        "tests": {
+          "status": "ok",
+          "detail": ""
+        }
+      }
+    },
+    {
+      "strategy": "rag",
+      "case_id": "EDIT-QUEUE",
+      "source_hash": "cb0a9149a6975df46f3306e836a43e24c2e41c427cca238436ddefb8b8bcb57c",
+      "probe": "ClientCompileProbe",
+      "expected": "ok",
+      "result": {
+        "compile": {
+          "status": "ok",
+          "detail": ""
+        },
+        "tests": {
+          "status": "ok",
+          "detail": ""
+        }
+      }
+    },
+    {
+      "strategy": "tagged",
+      "case_id": "EDIT-QUEUE",
+      "source_hash": "05d341a73b884ccf8e606fd65b9b5481b85c332e557adb26306f497010b63a09",
+      "probe": "ClientCompileProbe",
+      "expected": "ok",
+      "result": {
+        "compile": {
+          "status": "ok",
+          "detail": ""
+        },
+        "tests": {
+          "status": "ok",
+          "detail": ""
+        }
+      }
+    },
+    {
+      "strategy": "baseline",
+      "case_id": "EDIT-ASYNC",
+      "source_hash": "18f91b748201ea80ea876a2971448026e3ec1e01ce41a299b16ad3cc177a95f7",
+      "probe": "ClientCompileProbe",
+      "expected": "ok",
+      "result": {
+        "compile": {
+          "status": "ok",
+          "detail": ""
+        },
+        "tests": {
+          "status": "ok",
+          "detail": ""
+        }
+      }
+    },
+    {
+      "strategy": "baseline",
+      "case_id": "EDIT-ASYNC",
+      "source_hash": "18f91b748201ea80ea876a2971448026e3ec1e01ce41a299b16ad3cc177a95f7",
+      "probe": "LoggingProbe",
+      "expected": "failed",
+      "result": {
+        "compile": {
+          "status": "ok",
+          "detail": ""
+        },
+        "tests": {
+          "status": "failed",
+          "detail": "Exception in thread \"main\" java.lang.AssertionError: Callback failure was swallowed without a failure record\n\tat LoggingProbe.main(LoggingProbe.java:21)\n"
+        }
+      }
+    },
+    {
+      "strategy": "baseline",
+      "case_id": "EDIT-ASYNC",
+      "source_hash": "18f91b748201ea80ea876a2971448026e3ec1e01ce41a299b16ad3cc177a95f7",
+      "probe": "InterruptProbe",
+      "expected": "ok",
+      "result": {
+        "compile": {
+          "status": "ok",
+          "detail": ""
+        },
+        "tests": {
+          "status": "ok",
+          "detail": ""
+        }
+      }
+    },
+    {
+      "strategy": "rag",
+      "case_id": "EDIT-ASYNC",
+      "source_hash": "18f91b748201ea80ea876a2971448026e3ec1e01ce41a299b16ad3cc177a95f7",
+      "probe": "ClientCompileProbe",
+      "expected": "ok",
+      "result": {
+        "compile": {
+          "status": "ok",
+          "detail": ""
+        },
+        "tests": {
+          "status": "ok",
+          "detail": ""
+        }
+      }
+    },
+    {
+      "strategy": "rag",
+      "case_id": "EDIT-ASYNC",
+      "source_hash": "18f91b748201ea80ea876a2971448026e3ec1e01ce41a299b16ad3cc177a95f7",
+      "probe": "LoggingProbe",
+      "expected": "failed",
+      "result": {
+        "compile": {
+          "status": "ok",
+          "detail": ""
+        },
+        "tests": {
+          "status": "failed",
+          "detail": "Exception in thread \"main\" java.lang.AssertionError: Callback failure was swallowed without a failure record\n\tat LoggingProbe.main(LoggingProbe.java:21)\n"
+        }
+      }
+    },
+    {
+      "strategy": "rag",
+      "case_id": "EDIT-ASYNC",
+      "source_hash": "18f91b748201ea80ea876a2971448026e3ec1e01ce41a299b16ad3cc177a95f7",
+      "probe": "InterruptProbe",
+      "expected": "ok",
+      "result": {
+        "compile": {
+          "status": "ok",
+          "detail": ""
+        },
+        "tests": {
+          "status": "ok",
+          "detail": ""
+        }
+      }
+    },
+    {
+      "strategy": "tagged",
+      "case_id": "EDIT-ASYNC",
+      "source_hash": "91247ab8ff53ed2153dca3f95bdcb71a51664403aadd47088428eaa465b8cc76",
+      "probe": "ClientCompileProbe",
+      "expected": "ok",
+      "result": {
+        "compile": {
+          "status": "ok",
+          "detail": ""
+        },
+        "tests": {
+          "status": "ok",
+          "detail": ""
+        }
+      }
+    },
+    {
+      "strategy": "tagged",
+      "case_id": "EDIT-ASYNC",
+      "source_hash": "91247ab8ff53ed2153dca3f95bdcb71a51664403aadd47088428eaa465b8cc76",
+      "probe": "LoggingProbe",
+      "expected": "ok",
+      "result": {
+        "compile": {
+          "status": "ok",
+          "detail": ""
+        },
+        "tests": {
+          "status": "ok",
+          "detail": ""
+        }
+      }
+    },
+    {
+      "strategy": "tagged",
+      "case_id": "EDIT-ASYNC",
+      "source_hash": "91247ab8ff53ed2153dca3f95bdcb71a51664403aadd47088428eaa465b8cc76",
+      "probe": "InterruptProbe",
+      "expected": "ok",
+      "result": {
+        "compile": {
+          "status": "ok",
+          "detail": ""
+        },
+        "tests": {
+          "status": "ok",
+          "detail": ""
+        }
+      }
+    },
+    {
+      "strategy": "baseline",
+      "case_id": "EDIT-CONTEXT",
+      "source_hash": "122a3594317a845128e7264081940a15087d91fa5179c11ee1bd43e0b2e887b5",
+      "probe": "ClientCompileProbe",
+      "expected": "ok",
+      "result": {
+        "compile": {
+          "status": "ok",
+          "detail": ""
+        },
+        "tests": {
+          "status": "ok",
+          "detail": ""
+        }
+      }
+    },
+    {
+      "strategy": "rag",
+      "case_id": "EDIT-CONTEXT",
+      "source_hash": "96c4b898e6b383d91b667ba5a269b740ff83cfc3fd431cce331f60aeef9d80b3",
+      "probe": "ClientCompileProbe",
+      "expected": "ok",
+      "result": {
+        "compile": {
+          "status": "ok",
+          "detail": ""
+        },
+        "tests": {
+          "status": "ok",
+          "detail": ""
+        }
+      }
+    },
+    {
+      "strategy": "tagged",
+      "case_id": "EDIT-CONTEXT",
+      "source_hash": "6b9c6ed129e1d0fb6ea83c1d6682ecf7b9f6163de4b3a7dff3098d18516bc654",
+      "probe": "ClientCompileProbe",
+      "expected": "ok",
+      "result": {
+        "compile": {
+          "status": "ok",
+          "detail": ""
+        },
+        "tests": {
+          "status": "ok",
+          "detail": ""
+        }
+      }
+    }
+  ]
+}

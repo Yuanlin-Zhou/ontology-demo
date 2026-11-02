@@ -1,0 +1,1815 @@
+{
+  "protocol": "entity-tag-edit-v1",
+  "model_requests": 9,
+  "request_attempts": 9,
+  "controlled_model_comparison": true,
+  "provenance": {
+    "mode": "provider",
+    "issues": [],
+    "note": "Local traceability, not cryptographic supplier attestation. Task completion still requires independent review."
+  },
+  "planned": 9,
+  "present": 9,
+  "summary": [
+    {
+      "strategy": "baseline",
+      "planned": 3,
+      "present": 3,
+      "compile": {
+        "passed": 3,
+        "total": 3,
+        "rate": 1,
+        "evaluated": 3
+      },
+      "behavior": {
+        "passed": 3,
+        "total": 3,
+        "rate": 1,
+        "evaluated": 3
+      },
+      "mean_compliance": 0.8073333333333333,
+      "compliance_scored": 3,
+      "all_findings": 10,
+      "error_instances": 5,
+      "task_failed": 0,
+      "task_completion_rate": null,
+      "usage_coverage": 3,
+      "usage_unknown": 0,
+      "usage_known_subtotal": {
+        "prompt_tokens": 1092,
+        "completion_tokens": 772,
+        "total_tokens": 1864
+      },
+      "currency_cost": null
+    },
+    {
+      "strategy": "rag",
+      "planned": 3,
+      "present": 3,
+      "compile": {
+        "passed": 3,
+        "total": 3,
+        "rate": 1,
+        "evaluated": 3
+      },
+      "behavior": {
+        "passed": 3,
+        "total": 3,
+        "rate": 1,
+        "evaluated": 3
+      },
+      "mean_compliance": 0.8073333333333333,
+      "compliance_scored": 3,
+      "all_findings": 10,
+      "error_instances": 5,
+      "task_failed": 0,
+      "task_completion_rate": null,
+      "usage_coverage": 3,
+      "usage_unknown": 0,
+      "usage_known_subtotal": {
+        "prompt_tokens": 3216,
+        "completion_tokens": 780,
+        "total_tokens": 3996
+      },
+      "currency_cost": null
+    },
+    {
+      "strategy": "tagged",
+      "planned": 3,
+      "present": 3,
+      "compile": {
+        "passed": 3,
+        "total": 3,
+        "rate": 1,
+        "evaluated": 3
+      },
+      "behavior": {
+        "passed": 3,
+        "total": 3,
+        "rate": 1,
+        "evaluated": 3
+      },
+      "mean_compliance": 0.7846666666666667,
+      "compliance_scored": 3,
+      "all_findings": 11,
+      "error_instances": 5,
+      "task_failed": 0,
+      "task_completion_rate": null,
+      "usage_coverage": 3,
+      "usage_unknown": 0,
+      "usage_known_subtotal": {
+        "prompt_tokens": 3085,
+        "completion_tokens": 734,
+        "total_tokens": 3819
+      },
+      "currency_cost": null
+    }
+  ],
+  "records": [
+    {
+      "case_id": "EDIT-QUEUE",
+      "strategy": "baseline",
+      "repetition": 1,
+      "output": "present",
+      "call_status": "ok",
+      "source_hash": "46f0c365f963cd6ca9662bced9467f15e818ffe078c3a632777ce62faaa31a71",
+      "public_api": {
+        "status": "ok",
+        "detail": ""
+      },
+      "validation": {
+        "file_path": "/workspace/ontology-demo/.eval-cache/tagged-supplier-20261102/results/baseline/EDIT-QUEUE-1.java",
+        "language": "java",
+        "features": [
+          "THREAD_POOL.CREATE",
+          "THREAD_POOL.CONFIG.CORE_SIZE",
+          "THREAD_POOL.CONFIG.MAX_SIZE",
+          "THREAD_POOL.CONFIG.KEEP_ALIVE",
+          "THREAD_POOL.CONFIG.QUEUE",
+          "THREAD_POOL.CONFIG.REJECTION",
+          "THREAD_POOL.SUBMIT",
+          "THREAD_POOL.EXECUTE",
+          "THREAD_POOL.SHUTDOWN",
+          "THREAD_POOL.AWAIT_TERMINATION"
+        ],
+        "checked_rules": [
+          "TP-CONFIG-001",
+          "TP-CONFIG-002",
+          "TP-CONFIG-003",
+          "TP-CONFIG-004",
+          "TP-CONFIG-005",
+          "TP-CONFIG-006",
+          "TP-CREATE-001",
+          "TP-CREATE-003",
+          "TP-MONITOR-001",
+          "TP-REJECT-001",
+          "TP-REJECT-002",
+          "TP-REJECT-003",
+          "TP-REJECT-004",
+          "TP-SHUTDOWN-001",
+          "TP-SHUTDOWN-002",
+          "TP-SHUTDOWN-003",
+          "TP-SUBMIT-001",
+          "TP-SUBMIT-005"
+        ],
+        "checks": [
+          {
+            "rule_id": "TP-CONFIG-001",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CONFIG-002",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CONFIG-003",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CONFIG-004",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CONFIG-005",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CONFIG-006",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CREATE-001",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CREATE-003",
+            "status": "violated"
+          },
+          {
+            "rule_id": "TP-MONITOR-001",
+            "status": "violated"
+          },
+          {
+            "rule_id": "TP-REJECT-001",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-REJECT-002",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-REJECT-003",
+            "status": "violated"
+          },
+          {
+            "rule_id": "TP-REJECT-004",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-SHUTDOWN-001",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-SHUTDOWN-002",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-SHUTDOWN-003",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-SUBMIT-001",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-SUBMIT-005",
+            "status": "passed"
+          }
+        ],
+        "status": "complete",
+        "violations": [
+          {
+            "rule_id": "TP-CREATE-003",
+            "rule_name": "线程池必须配置线程工厂",
+            "message": "pool (thread_pool_executor) 没有指定 ThreadFactory，工作线程会使用 pool-N-thread-M 这类默认名称。",
+            "severity": "warning",
+            "line": 5,
+            "column": 45,
+            "snippet": "private final ThreadPoolExecutor pool = new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new LinkedBlockingQueue<>(2),new ThreadPoolExecutor.AbortPolicy());",
+            "suggestion": "传入命名线程工厂（如 namedFactory(\"order-notify\")），或使用 ThreadPoolTaskExecutor#setThreadNamePrefix。"
+          },
+          {
+            "rule_id": "TP-MONITOR-001",
+            "rule_name": "线程池必须可观测",
+            "message": "线程池 pool 没有关联到可观察的运行指标。",
+            "severity": "warning",
+            "line": 5,
+            "column": 45,
+            "snippet": "private final ThreadPoolExecutor pool = new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new LinkedBlockingQueue<>(2),new ThreadPoolExecutor.AbortPolicy());",
+            "suggestion": "为这个线程池暴露 getQueue().size()、getActiveCount()、getCompletedTaskCount() 等运行指标，并单独统计拒绝次数。"
+          },
+          {
+            "rule_id": "TP-REJECT-003",
+            "rule_name": "必须处理 RejectedExecutionException",
+            "message": "pool.execute(...) 在 AbortPolicy（或默认策略）下可能抛出 RejectedExecutionException，但调用处没有捕获处理。",
+            "severity": "error",
+            "line": 7,
+            "column": 38,
+            "snippet": "public void send(String message){pool.execute(()->sink.accept(message));}",
+            "suggestion": "用 try/catch 包住提交调用并做补偿：重试、持久化后补偿、降级返回业务错误码，并记录拒绝日志与监控计数。"
+          }
+        ],
+        "stats": {
+          "checked_rules": 18,
+          "violations": 3,
+          "parse_errors": 0
+        },
+        "warnings": []
+      },
+      "compliance": 0.824,
+      "compile": "ok",
+      "behavior": "ok",
+      "java": {
+        "compile": {
+          "status": "ok",
+          "detail": ""
+        },
+        "tests": {
+          "status": "ok",
+          "detail": "Exception in thread \"pool-1-thread-1\" java.lang.IllegalStateException: Injected downstream failure\n\tat AcceptanceTest.lambda$main$0(AcceptanceTest.java:26)\n\tat BufferedNotifier.lambda$send$0(BufferedNotifier.java:7)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n"
+        }
+      },
+      "task": "review_required",
+      "usage": {
+        "prompt_tokens": 360,
+        "completion_tokens": 159,
+        "total_tokens": 519,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 360
+      }
+    },
+    {
+      "case_id": "EDIT-QUEUE",
+      "strategy": "rag",
+      "repetition": 1,
+      "output": "present",
+      "call_status": "ok",
+      "source_hash": "cb0a9149a6975df46f3306e836a43e24c2e41c427cca238436ddefb8b8bcb57c",
+      "public_api": {
+        "status": "ok",
+        "detail": ""
+      },
+      "validation": {
+        "file_path": "/workspace/ontology-demo/.eval-cache/tagged-supplier-20261102/results/rag/EDIT-QUEUE-1.java",
+        "language": "java",
+        "features": [
+          "THREAD_POOL.CREATE",
+          "THREAD_POOL.CONFIG.CORE_SIZE",
+          "THREAD_POOL.CONFIG.MAX_SIZE",
+          "THREAD_POOL.CONFIG.KEEP_ALIVE",
+          "THREAD_POOL.CONFIG.QUEUE",
+          "THREAD_POOL.CONFIG.REJECTION",
+          "THREAD_POOL.SUBMIT",
+          "THREAD_POOL.EXECUTE",
+          "THREAD_POOL.SHUTDOWN",
+          "THREAD_POOL.AWAIT_TERMINATION"
+        ],
+        "checked_rules": [
+          "TP-CONFIG-001",
+          "TP-CONFIG-002",
+          "TP-CONFIG-003",
+          "TP-CONFIG-004",
+          "TP-CONFIG-005",
+          "TP-CONFIG-006",
+          "TP-CREATE-001",
+          "TP-CREATE-003",
+          "TP-MONITOR-001",
+          "TP-REJECT-001",
+          "TP-REJECT-002",
+          "TP-REJECT-003",
+          "TP-REJECT-004",
+          "TP-SHUTDOWN-001",
+          "TP-SHUTDOWN-002",
+          "TP-SHUTDOWN-003",
+          "TP-SUBMIT-001",
+          "TP-SUBMIT-005"
+        ],
+        "checks": [
+          {
+            "rule_id": "TP-CONFIG-001",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CONFIG-002",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CONFIG-003",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CONFIG-004",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CONFIG-005",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CONFIG-006",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CREATE-001",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CREATE-003",
+            "status": "violated"
+          },
+          {
+            "rule_id": "TP-MONITOR-001",
+            "status": "violated"
+          },
+          {
+            "rule_id": "TP-REJECT-001",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-REJECT-002",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-REJECT-003",
+            "status": "violated"
+          },
+          {
+            "rule_id": "TP-REJECT-004",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-SHUTDOWN-001",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-SHUTDOWN-002",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-SHUTDOWN-003",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-SUBMIT-001",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-SUBMIT-005",
+            "status": "passed"
+          }
+        ],
+        "status": "complete",
+        "violations": [
+          {
+            "rule_id": "TP-CREATE-003",
+            "rule_name": "线程池必须配置线程工厂",
+            "message": "pool (thread_pool_executor) 没有指定 ThreadFactory，工作线程会使用 pool-N-thread-M 这类默认名称。",
+            "severity": "warning",
+            "line": 6,
+            "column": 45,
+            "snippet": "private final ThreadPoolExecutor pool = new ThreadPoolExecutor(",
+            "suggestion": "传入命名线程工厂（如 namedFactory(\"order-notify\")），或使用 ThreadPoolTaskExecutor#setThreadNamePrefix。"
+          },
+          {
+            "rule_id": "TP-MONITOR-001",
+            "rule_name": "线程池必须可观测",
+            "message": "线程池 pool 没有关联到可观察的运行指标。",
+            "severity": "warning",
+            "line": 6,
+            "column": 45,
+            "snippet": "private final ThreadPoolExecutor pool = new ThreadPoolExecutor(",
+            "suggestion": "为这个线程池暴露 getQueue().size()、getActiveCount()、getCompletedTaskCount() 等运行指标，并单独统计拒绝次数。"
+          },
+          {
+            "rule_id": "TP-REJECT-003",
+            "rule_name": "必须处理 RejectedExecutionException",
+            "message": "pool.execute(...) 在 AbortPolicy（或默认策略）下可能抛出 RejectedExecutionException，但调用处没有捕获处理。",
+            "severity": "error",
+            "line": 16,
+            "column": 9,
+            "snippet": "pool.execute(() -> sink.accept(message));",
+            "suggestion": "用 try/catch 包住提交调用并做补偿：重试、持久化后补偿、降级返回业务错误码，并记录拒绝日志与监控计数。"
+          }
+        ],
+        "stats": {
+          "checked_rules": 18,
+          "violations": 3,
+          "parse_errors": 0
+        },
+        "warnings": []
+      },
+      "compliance": 0.824,
+      "compile": "ok",
+      "behavior": "ok",
+      "java": {
+        "compile": {
+          "status": "ok",
+          "detail": ""
+        },
+        "tests": {
+          "status": "ok",
+          "detail": "Exception in thread \"pool-1-thread-1\" java.lang.IllegalStateException: Injected downstream failure\n\tat AcceptanceTest.lambda$main$0(AcceptanceTest.java:26)\n\tat BufferedNotifier.lambda$send$0(BufferedNotifier.java:16)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n"
+        }
+      },
+      "task": "review_required",
+      "usage": {
+        "prompt_tokens": 1082,
+        "completion_tokens": 176,
+        "total_tokens": 1258,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 1082
+      }
+    },
+    {
+      "case_id": "EDIT-QUEUE",
+      "strategy": "tagged",
+      "repetition": 1,
+      "output": "present",
+      "call_status": "ok",
+      "source_hash": "05d341a73b884ccf8e606fd65b9b5481b85c332e557adb26306f497010b63a09",
+      "public_api": {
+        "status": "ok",
+        "detail": ""
+      },
+      "validation": {
+        "file_path": "/workspace/ontology-demo/.eval-cache/tagged-supplier-20261102/results/tagged/EDIT-QUEUE-1.java",
+        "language": "java",
+        "features": [
+          "THREAD_POOL.CREATE",
+          "THREAD_POOL.CONFIG.CORE_SIZE",
+          "THREAD_POOL.CONFIG.MAX_SIZE",
+          "THREAD_POOL.CONFIG.KEEP_ALIVE",
+          "THREAD_POOL.CONFIG.QUEUE",
+          "THREAD_POOL.CONFIG.REJECTION",
+          "THREAD_POOL.SUBMIT",
+          "THREAD_POOL.EXECUTE",
+          "THREAD_POOL.SHUTDOWN",
+          "THREAD_POOL.AWAIT_TERMINATION"
+        ],
+        "checked_rules": [
+          "TP-CONFIG-001",
+          "TP-CONFIG-002",
+          "TP-CONFIG-003",
+          "TP-CONFIG-004",
+          "TP-CONFIG-005",
+          "TP-CONFIG-006",
+          "TP-CREATE-001",
+          "TP-CREATE-003",
+          "TP-MONITOR-001",
+          "TP-REJECT-001",
+          "TP-REJECT-002",
+          "TP-REJECT-003",
+          "TP-REJECT-004",
+          "TP-SHUTDOWN-001",
+          "TP-SHUTDOWN-002",
+          "TP-SHUTDOWN-003",
+          "TP-SUBMIT-001",
+          "TP-SUBMIT-005"
+        ],
+        "checks": [
+          {
+            "rule_id": "TP-CONFIG-001",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CONFIG-002",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CONFIG-003",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CONFIG-004",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CONFIG-005",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CONFIG-006",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CREATE-001",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CREATE-003",
+            "status": "violated"
+          },
+          {
+            "rule_id": "TP-MONITOR-001",
+            "status": "violated"
+          },
+          {
+            "rule_id": "TP-REJECT-001",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-REJECT-002",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-REJECT-003",
+            "status": "violated"
+          },
+          {
+            "rule_id": "TP-REJECT-004",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-SHUTDOWN-001",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-SHUTDOWN-002",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-SHUTDOWN-003",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-SUBMIT-001",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-SUBMIT-005",
+            "status": "passed"
+          }
+        ],
+        "status": "complete",
+        "violations": [
+          {
+            "rule_id": "TP-CREATE-003",
+            "rule_name": "线程池必须配置线程工厂",
+            "message": "pool (thread_pool_executor) 没有指定 ThreadFactory，工作线程会使用 pool-N-thread-M 这类默认名称。",
+            "severity": "warning",
+            "line": 5,
+            "column": 45,
+            "snippet": "private final ThreadPoolExecutor pool = new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(2),new ThreadPoolExecutor.AbortPolicy());",
+            "suggestion": "传入命名线程工厂（如 namedFactory(\"order-notify\")），或使用 ThreadPoolTaskExecutor#setThreadNamePrefix。"
+          },
+          {
+            "rule_id": "TP-MONITOR-001",
+            "rule_name": "线程池必须可观测",
+            "message": "线程池 pool 没有关联到可观察的运行指标。",
+            "severity": "warning",
+            "line": 5,
+            "column": 45,
+            "snippet": "private final ThreadPoolExecutor pool = new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(2),new ThreadPoolExecutor.AbortPolicy());",
+            "suggestion": "为这个线程池暴露 getQueue().size()、getActiveCount()、getCompletedTaskCount() 等运行指标，并单独统计拒绝次数。"
+          },
+          {
+            "rule_id": "TP-REJECT-003",
+            "rule_name": "必须处理 RejectedExecutionException",
+            "message": "pool.execute(...) 在 AbortPolicy（或默认策略）下可能抛出 RejectedExecutionException，但调用处没有捕获处理。",
+            "severity": "error",
+            "line": 7,
+            "column": 38,
+            "snippet": "public void send(String message){pool.execute(()->sink.accept(message));}",
+            "suggestion": "用 try/catch 包住提交调用并做补偿：重试、持久化后补偿、降级返回业务错误码，并记录拒绝日志与监控计数。"
+          }
+        ],
+        "stats": {
+          "checked_rules": 18,
+          "violations": 3,
+          "parse_errors": 0
+        },
+        "warnings": []
+      },
+      "compliance": 0.824,
+      "compile": "ok",
+      "behavior": "ok",
+      "java": {
+        "compile": {
+          "status": "ok",
+          "detail": ""
+        },
+        "tests": {
+          "status": "ok",
+          "detail": "Exception in thread \"pool-1-thread-1\" java.lang.IllegalStateException: Injected downstream failure\n\tat AcceptanceTest.lambda$main$0(AcceptanceTest.java:26)\n\tat BufferedNotifier.lambda$send$0(BufferedNotifier.java:7)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)\n\tat java.base/java.lang.Thread.run(Thread.java:1583)\n"
+        }
+      },
+      "task": "review_required",
+      "usage": {
+        "prompt_tokens": 1040,
+        "completion_tokens": 159,
+        "total_tokens": 1199,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 1040
+      }
+    },
+    {
+      "case_id": "EDIT-ASYNC",
+      "strategy": "baseline",
+      "repetition": 1,
+      "output": "present",
+      "call_status": "ok",
+      "source_hash": "18f91b748201ea80ea876a2971448026e3ec1e01ce41a299b16ad3cc177a95f7",
+      "public_api": {
+        "status": "ok",
+        "detail": ""
+      },
+      "validation": {
+        "file_path": "/workspace/ontology-demo/.eval-cache/tagged-supplier-20261102/results/baseline/EDIT-ASYNC-1.java",
+        "language": "java",
+        "features": [
+          "THREAD_POOL.CREATE",
+          "THREAD_POOL.CONFIG.CORE_SIZE",
+          "THREAD_POOL.CONFIG.MAX_SIZE",
+          "THREAD_POOL.CONFIG.KEEP_ALIVE",
+          "THREAD_POOL.CONFIG.QUEUE",
+          "THREAD_POOL.CONFIG.REJECTION",
+          "THREAD_POOL.CONFIG.THREAD_FACTORY",
+          "THREAD_POOL.SUBMIT",
+          "THREAD_POOL.EXECUTE",
+          "THREAD_POOL.SHUTDOWN",
+          "THREAD_POOL.AWAIT_TERMINATION"
+        ],
+        "checked_rules": [
+          "TP-CONFIG-001",
+          "TP-CONFIG-002",
+          "TP-CONFIG-003",
+          "TP-CONFIG-004",
+          "TP-CONFIG-005",
+          "TP-CONFIG-006",
+          "TP-CREATE-001",
+          "TP-CREATE-003",
+          "TP-CREATE-004",
+          "TP-MONITOR-001",
+          "TP-REJECT-001",
+          "TP-REJECT-002",
+          "TP-REJECT-003",
+          "TP-REJECT-004",
+          "TP-SHUTDOWN-001",
+          "TP-SHUTDOWN-002",
+          "TP-SHUTDOWN-003",
+          "TP-SUBMIT-001",
+          "TP-SUBMIT-005"
+        ],
+        "checks": [
+          {
+            "rule_id": "TP-CONFIG-001",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CONFIG-002",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CONFIG-003",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CONFIG-004",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CONFIG-005",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CONFIG-006",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CREATE-001",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CREATE-003",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CREATE-004",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-MONITOR-001",
+            "status": "violated"
+          },
+          {
+            "rule_id": "TP-REJECT-001",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-REJECT-002",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-REJECT-003",
+            "status": "violated"
+          },
+          {
+            "rule_id": "TP-REJECT-004",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-SHUTDOWN-001",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-SHUTDOWN-002",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-SHUTDOWN-003",
+            "status": "violated"
+          },
+          {
+            "rule_id": "TP-SUBMIT-001",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-SUBMIT-005",
+            "status": "passed"
+          }
+        ],
+        "status": "complete",
+        "violations": [
+          {
+            "rule_id": "TP-MONITOR-001",
+            "rule_name": "线程池必须可观测",
+            "message": "线程池 executor 没有关联到可观察的运行指标。",
+            "severity": "warning",
+            "line": 14,
+            "column": 25,
+            "snippet": "this.executor = new ThreadPoolExecutor(",
+            "suggestion": "为这个线程池暴露 getQueue().size()、getActiveCount()、getCompletedTaskCount() 等运行指标，并单独统计拒绝次数。"
+          },
+          {
+            "rule_id": "TP-REJECT-003",
+            "rule_name": "必须处理 RejectedExecutionException",
+            "message": "executor.execute(...) 在 AbortPolicy（或默认策略）下可能抛出 RejectedExecutionException，但调用处没有捕获处理。",
+            "severity": "error",
+            "line": 30,
+            "column": 9,
+            "snippet": "executor.execute(() -> {",
+            "suggestion": "用 try/catch 包住提交调用并做补偿：重试、持久化后补偿、降级返回业务错误码，并记录拒绝日志与监控计数。"
+          },
+          {
+            "rule_id": "TP-SHUTDOWN-003",
+            "rule_name": "捕获 InterruptedException 后必须恢复中断状态",
+            "message": "未确认 catch (InterruptedException) 的所有已分析路径恢复当前线程中断状态或重抛原异常，取消语义可能丢失。",
+            "severity": "error",
+            "line": 47,
+            "column": 15,
+            "snippet": "} catch (InterruptedException e) {",
+            "suggestion": "在当前执行路径或对应 finally 中调用 Thread.currentThread().interrupt()，或继续抛出原 InterruptedException；不要只在延迟 lambda、其他线程或部分条件分支中恢复。复杂循环、嵌套 try 和跨方法恢复需另行审查。"
+          }
+        ],
+        "stats": {
+          "checked_rules": 19,
+          "violations": 3,
+          "parse_errors": 0
+        },
+        "warnings": []
+      },
+      "compliance": 0.833,
+      "compile": "ok",
+      "behavior": "ok",
+      "java": {
+        "compile": {
+          "status": "ok",
+          "detail": ""
+        },
+        "tests": {
+          "status": "ok",
+          "detail": ""
+        }
+      },
+      "task": "review_required",
+      "usage": {
+        "prompt_tokens": 318,
+        "completion_tokens": 320,
+        "total_tokens": 638,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 318
+      }
+    },
+    {
+      "case_id": "EDIT-ASYNC",
+      "strategy": "rag",
+      "repetition": 1,
+      "output": "present",
+      "call_status": "ok",
+      "source_hash": "18f91b748201ea80ea876a2971448026e3ec1e01ce41a299b16ad3cc177a95f7",
+      "public_api": {
+        "status": "ok",
+        "detail": ""
+      },
+      "validation": {
+        "file_path": "/workspace/ontology-demo/.eval-cache/tagged-supplier-20261102/results/rag/EDIT-ASYNC-1.java",
+        "language": "java",
+        "features": [
+          "THREAD_POOL.CREATE",
+          "THREAD_POOL.CONFIG.CORE_SIZE",
+          "THREAD_POOL.CONFIG.MAX_SIZE",
+          "THREAD_POOL.CONFIG.KEEP_ALIVE",
+          "THREAD_POOL.CONFIG.QUEUE",
+          "THREAD_POOL.CONFIG.REJECTION",
+          "THREAD_POOL.CONFIG.THREAD_FACTORY",
+          "THREAD_POOL.SUBMIT",
+          "THREAD_POOL.EXECUTE",
+          "THREAD_POOL.SHUTDOWN",
+          "THREAD_POOL.AWAIT_TERMINATION"
+        ],
+        "checked_rules": [
+          "TP-CONFIG-001",
+          "TP-CONFIG-002",
+          "TP-CONFIG-003",
+          "TP-CONFIG-004",
+          "TP-CONFIG-005",
+          "TP-CONFIG-006",
+          "TP-CREATE-001",
+          "TP-CREATE-003",
+          "TP-CREATE-004",
+          "TP-MONITOR-001",
+          "TP-REJECT-001",
+          "TP-REJECT-002",
+          "TP-REJECT-003",
+          "TP-REJECT-004",
+          "TP-SHUTDOWN-001",
+          "TP-SHUTDOWN-002",
+          "TP-SHUTDOWN-003",
+          "TP-SUBMIT-001",
+          "TP-SUBMIT-005"
+        ],
+        "checks": [
+          {
+            "rule_id": "TP-CONFIG-001",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CONFIG-002",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CONFIG-003",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CONFIG-004",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CONFIG-005",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CONFIG-006",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CREATE-001",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CREATE-003",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CREATE-004",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-MONITOR-001",
+            "status": "violated"
+          },
+          {
+            "rule_id": "TP-REJECT-001",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-REJECT-002",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-REJECT-003",
+            "status": "violated"
+          },
+          {
+            "rule_id": "TP-REJECT-004",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-SHUTDOWN-001",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-SHUTDOWN-002",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-SHUTDOWN-003",
+            "status": "violated"
+          },
+          {
+            "rule_id": "TP-SUBMIT-001",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-SUBMIT-005",
+            "status": "passed"
+          }
+        ],
+        "status": "complete",
+        "violations": [
+          {
+            "rule_id": "TP-MONITOR-001",
+            "rule_name": "线程池必须可观测",
+            "message": "线程池 executor 没有关联到可观察的运行指标。",
+            "severity": "warning",
+            "line": 14,
+            "column": 25,
+            "snippet": "this.executor = new ThreadPoolExecutor(",
+            "suggestion": "为这个线程池暴露 getQueue().size()、getActiveCount()、getCompletedTaskCount() 等运行指标，并单独统计拒绝次数。"
+          },
+          {
+            "rule_id": "TP-REJECT-003",
+            "rule_name": "必须处理 RejectedExecutionException",
+            "message": "executor.execute(...) 在 AbortPolicy（或默认策略）下可能抛出 RejectedExecutionException，但调用处没有捕获处理。",
+            "severity": "error",
+            "line": 30,
+            "column": 9,
+            "snippet": "executor.execute(() -> {",
+            "suggestion": "用 try/catch 包住提交调用并做补偿：重试、持久化后补偿、降级返回业务错误码，并记录拒绝日志与监控计数。"
+          },
+          {
+            "rule_id": "TP-SHUTDOWN-003",
+            "rule_name": "捕获 InterruptedException 后必须恢复中断状态",
+            "message": "未确认 catch (InterruptedException) 的所有已分析路径恢复当前线程中断状态或重抛原异常，取消语义可能丢失。",
+            "severity": "error",
+            "line": 47,
+            "column": 15,
+            "snippet": "} catch (InterruptedException e) {",
+            "suggestion": "在当前执行路径或对应 finally 中调用 Thread.currentThread().interrupt()，或继续抛出原 InterruptedException；不要只在延迟 lambda、其他线程或部分条件分支中恢复。复杂循环、嵌套 try 和跨方法恢复需另行审查。"
+          }
+        ],
+        "stats": {
+          "checked_rules": 19,
+          "violations": 3,
+          "parse_errors": 0
+        },
+        "warnings": []
+      },
+      "compliance": 0.833,
+      "compile": "ok",
+      "behavior": "ok",
+      "java": {
+        "compile": {
+          "status": "ok",
+          "detail": ""
+        },
+        "tests": {
+          "status": "ok",
+          "detail": ""
+        }
+      },
+      "task": "review_required",
+      "usage": {
+        "prompt_tokens": 998,
+        "completion_tokens": 320,
+        "total_tokens": 1318,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 998
+      }
+    },
+    {
+      "case_id": "EDIT-ASYNC",
+      "strategy": "tagged",
+      "repetition": 1,
+      "output": "present",
+      "call_status": "ok",
+      "source_hash": "91247ab8ff53ed2153dca3f95bdcb71a51664403aadd47088428eaa465b8cc76",
+      "public_api": {
+        "status": "ok",
+        "detail": ""
+      },
+      "validation": {
+        "file_path": "/workspace/ontology-demo/.eval-cache/tagged-supplier-20261102/results/tagged/EDIT-ASYNC-1.java",
+        "language": "java",
+        "features": [
+          "THREAD_POOL.CREATE",
+          "THREAD_POOL.CONFIG.CORE_SIZE",
+          "THREAD_POOL.CONFIG.MAX_SIZE",
+          "THREAD_POOL.CONFIG.KEEP_ALIVE",
+          "THREAD_POOL.CONFIG.QUEUE",
+          "THREAD_POOL.CONFIG.REJECTION",
+          "THREAD_POOL.SUBMIT",
+          "THREAD_POOL.EXECUTE",
+          "THREAD_POOL.SHUTDOWN",
+          "THREAD_POOL.AWAIT_TERMINATION"
+        ],
+        "checked_rules": [
+          "TP-CONFIG-001",
+          "TP-CONFIG-002",
+          "TP-CONFIG-003",
+          "TP-CONFIG-004",
+          "TP-CONFIG-005",
+          "TP-CONFIG-006",
+          "TP-CREATE-001",
+          "TP-CREATE-003",
+          "TP-MONITOR-001",
+          "TP-REJECT-001",
+          "TP-REJECT-002",
+          "TP-REJECT-003",
+          "TP-REJECT-004",
+          "TP-SHUTDOWN-001",
+          "TP-SHUTDOWN-002",
+          "TP-SHUTDOWN-003",
+          "TP-SUBMIT-001",
+          "TP-SUBMIT-005"
+        ],
+        "checks": [
+          {
+            "rule_id": "TP-CONFIG-001",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CONFIG-002",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CONFIG-003",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CONFIG-004",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CONFIG-005",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CONFIG-006",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CREATE-001",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CREATE-003",
+            "status": "violated"
+          },
+          {
+            "rule_id": "TP-MONITOR-001",
+            "status": "violated"
+          },
+          {
+            "rule_id": "TP-REJECT-001",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-REJECT-002",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-REJECT-003",
+            "status": "violated"
+          },
+          {
+            "rule_id": "TP-REJECT-004",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-SHUTDOWN-001",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-SHUTDOWN-002",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-SHUTDOWN-003",
+            "status": "violated"
+          },
+          {
+            "rule_id": "TP-SUBMIT-001",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-SUBMIT-005",
+            "status": "passed"
+          }
+        ],
+        "status": "complete",
+        "violations": [
+          {
+            "rule_id": "TP-CREATE-003",
+            "rule_name": "线程池必须配置线程工厂",
+            "message": "executor (thread_pool_executor) 没有指定 ThreadFactory，工作线程会使用 pool-N-thread-M 这类默认名称。",
+            "severity": "warning",
+            "line": 14,
+            "column": 25,
+            "snippet": "this.executor = new ThreadPoolExecutor(",
+            "suggestion": "传入命名线程工厂（如 namedFactory(\"order-notify\")），或使用 ThreadPoolTaskExecutor#setThreadNamePrefix。"
+          },
+          {
+            "rule_id": "TP-MONITOR-001",
+            "rule_name": "线程池必须可观测",
+            "message": "线程池 executor 没有关联到可观察的运行指标。",
+            "severity": "warning",
+            "line": 14,
+            "column": 25,
+            "snippet": "this.executor = new ThreadPoolExecutor(",
+            "suggestion": "为这个线程池暴露 getQueue().size()、getActiveCount()、getCompletedTaskCount() 等运行指标，并单独统计拒绝次数。"
+          },
+          {
+            "rule_id": "TP-REJECT-003",
+            "rule_name": "必须处理 RejectedExecutionException",
+            "message": "executor.execute(...) 在 AbortPolicy（或默认策略）下可能抛出 RejectedExecutionException，但调用处没有捕获处理。",
+            "severity": "error",
+            "line": 24,
+            "column": 9,
+            "snippet": "executor.execute(() -> {",
+            "suggestion": "用 try/catch 包住提交调用并做补偿：重试、持久化后补偿、降级返回业务错误码，并记录拒绝日志与监控计数。"
+          },
+          {
+            "rule_id": "TP-SHUTDOWN-003",
+            "rule_name": "捕获 InterruptedException 后必须恢复中断状态",
+            "message": "未确认 catch (InterruptedException) 的所有已分析路径恢复当前线程中断状态或重抛原异常，取消语义可能丢失。",
+            "severity": "error",
+            "line": 41,
+            "column": 15,
+            "snippet": "} catch (InterruptedException ex) {",
+            "suggestion": "在当前执行路径或对应 finally 中调用 Thread.currentThread().interrupt()，或继续抛出原 InterruptedException；不要只在延迟 lambda、其他线程或部分条件分支中恢复。复杂循环、嵌套 try 和跨方法恢复需另行审查。"
+          }
+        ],
+        "stats": {
+          "checked_rules": 18,
+          "violations": 4,
+          "parse_errors": 0
+        },
+        "warnings": []
+      },
+      "compliance": 0.765,
+      "compile": "ok",
+      "behavior": "ok",
+      "java": {
+        "compile": {
+          "status": "ok",
+          "detail": ""
+        },
+        "tests": {
+          "status": "ok",
+          "detail": "Event callback failed: java.lang.IllegalStateException: Injected downstream failure\n"
+        }
+      },
+      "task": "review_required",
+      "usage": {
+        "prompt_tokens": 835,
+        "completion_tokens": 288,
+        "total_tokens": 1123,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 835
+      }
+    },
+    {
+      "case_id": "EDIT-CONTEXT",
+      "strategy": "baseline",
+      "repetition": 1,
+      "output": "present",
+      "call_status": "ok",
+      "source_hash": "122a3594317a845128e7264081940a15087d91fa5179c11ee1bd43e0b2e887b5",
+      "public_api": {
+        "status": "ok",
+        "detail": ""
+      },
+      "validation": {
+        "file_path": "/workspace/ontology-demo/.eval-cache/tagged-supplier-20261102/results/baseline/EDIT-CONTEXT-1.java",
+        "language": "java",
+        "features": [
+          "THREAD_POOL.CREATE",
+          "THREAD_POOL.CONFIG.CORE_SIZE",
+          "THREAD_POOL.CONFIG.MAX_SIZE",
+          "THREAD_POOL.CONFIG.KEEP_ALIVE",
+          "THREAD_POOL.CONFIG.QUEUE",
+          "THREAD_POOL.SUBMIT",
+          "THREAD_POOL.EXCEPTION",
+          "THREAD_POOL.SHUTDOWN",
+          "THREAD_POOL.AWAIT_TERMINATION",
+          "THREAD_POOL.FUTURE.GET",
+          "THREAD_POOL.THREAD_LOCAL"
+        ],
+        "checked_rules": [
+          "TP-CONFIG-001",
+          "TP-CONFIG-002",
+          "TP-CONFIG-003",
+          "TP-CONFIG-004",
+          "TP-CONFIG-005",
+          "TP-CREATE-001",
+          "TP-CREATE-003",
+          "TP-MONITOR-001",
+          "TP-REJECT-001",
+          "TP-REJECT-003",
+          "TP-SHUTDOWN-001",
+          "TP-SHUTDOWN-002",
+          "TP-SHUTDOWN-003",
+          "TP-SUBMIT-001",
+          "TP-SUBMIT-002",
+          "TP-SUBMIT-004",
+          "TP-SUBMIT-005"
+        ],
+        "checks": [
+          {
+            "rule_id": "TP-CONFIG-001",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CONFIG-002",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CONFIG-003",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CONFIG-004",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CONFIG-005",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CREATE-001",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CREATE-003",
+            "status": "violated"
+          },
+          {
+            "rule_id": "TP-MONITOR-001",
+            "status": "violated"
+          },
+          {
+            "rule_id": "TP-REJECT-001",
+            "status": "violated"
+          },
+          {
+            "rule_id": "TP-REJECT-003",
+            "status": "violated"
+          },
+          {
+            "rule_id": "TP-SHUTDOWN-001",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-SHUTDOWN-002",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-SHUTDOWN-003",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-SUBMIT-001",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-SUBMIT-002",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-SUBMIT-004",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-SUBMIT-005",
+            "status": "passed"
+          }
+        ],
+        "status": "complete",
+        "violations": [
+          {
+            "rule_id": "TP-CREATE-003",
+            "rule_name": "线程池必须配置线程工厂",
+            "message": "pool (thread_pool_executor) 没有指定 ThreadFactory，工作线程会使用 pool-N-thread-M 这类默认名称。",
+            "severity": "warning",
+            "line": 6,
+            "column": 43,
+            "snippet": "private final ThreadPoolExecutor pool=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(2));",
+            "suggestion": "传入命名线程工厂（如 namedFactory(\"order-notify\")），或使用 ThreadPoolTaskExecutor#setThreadNamePrefix。"
+          },
+          {
+            "rule_id": "TP-MONITOR-001",
+            "rule_name": "线程池必须可观测",
+            "message": "线程池 pool 没有关联到可观察的运行指标。",
+            "severity": "warning",
+            "line": 6,
+            "column": 43,
+            "snippet": "private final ThreadPoolExecutor pool=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(2));",
+            "suggestion": "为这个线程池暴露 getQueue().size()、getActiveCount()、getCompletedTaskCount() 等运行指标，并单独统计拒绝次数。"
+          },
+          {
+            "rule_id": "TP-REJECT-001",
+            "rule_name": "必须显式配置拒绝策略",
+            "message": "pool (thread_pool_executor) 没有显式配置拒绝策略，队列满时会使用默认 AbortPolicy 直接抛 RejectedExecutionException。",
+            "severity": "error",
+            "line": 6,
+            "column": 43,
+            "snippet": "private final ThreadPoolExecutor pool=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(2));",
+            "suggestion": "显式传入第 7 个参数或调用 setRejectedExecutionHandler：核心业务用 AbortPolicy 并做调用侧补偿，允许反压的场景用 CallerRunsPolicy。"
+          },
+          {
+            "rule_id": "TP-REJECT-003",
+            "rule_name": "必须处理 RejectedExecutionException",
+            "message": "pool.submit(...) 在 AbortPolicy（或默认策略）下可能抛出 RejectedExecutionException，但调用处没有捕获处理。",
+            "severity": "error",
+            "line": 12,
+            "column": 35,
+            "snippet": "Future<String> result=pool.submit(()->{",
+            "suggestion": "用 try/catch 包住提交调用并做补偿：重试、持久化后补偿、降级返回业务错误码，并记录拒绝日志与监控计数。"
+          }
+        ],
+        "stats": {
+          "checked_rules": 17,
+          "violations": 4,
+          "parse_errors": 0
+        },
+        "warnings": []
+      },
+      "compliance": 0.765,
+      "compile": "ok",
+      "behavior": "ok",
+      "java": {
+        "compile": {
+          "status": "ok",
+          "detail": ""
+        },
+        "tests": {
+          "status": "ok",
+          "detail": ""
+        }
+      },
+      "task": "review_required",
+      "usage": {
+        "prompt_tokens": 414,
+        "completion_tokens": 293,
+        "total_tokens": 707,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 414
+      }
+    },
+    {
+      "case_id": "EDIT-CONTEXT",
+      "strategy": "rag",
+      "repetition": 1,
+      "output": "present",
+      "call_status": "ok",
+      "source_hash": "96c4b898e6b383d91b667ba5a269b740ff83cfc3fd431cce331f60aeef9d80b3",
+      "public_api": {
+        "status": "ok",
+        "detail": ""
+      },
+      "validation": {
+        "file_path": "/workspace/ontology-demo/.eval-cache/tagged-supplier-20261102/results/rag/EDIT-CONTEXT-1.java",
+        "language": "java",
+        "features": [
+          "THREAD_POOL.CREATE",
+          "THREAD_POOL.CONFIG.CORE_SIZE",
+          "THREAD_POOL.CONFIG.MAX_SIZE",
+          "THREAD_POOL.CONFIG.KEEP_ALIVE",
+          "THREAD_POOL.CONFIG.QUEUE",
+          "THREAD_POOL.SUBMIT",
+          "THREAD_POOL.EXCEPTION",
+          "THREAD_POOL.SHUTDOWN",
+          "THREAD_POOL.AWAIT_TERMINATION",
+          "THREAD_POOL.FUTURE.GET",
+          "THREAD_POOL.THREAD_LOCAL"
+        ],
+        "checked_rules": [
+          "TP-CONFIG-001",
+          "TP-CONFIG-002",
+          "TP-CONFIG-003",
+          "TP-CONFIG-004",
+          "TP-CONFIG-005",
+          "TP-CREATE-001",
+          "TP-CREATE-003",
+          "TP-MONITOR-001",
+          "TP-REJECT-001",
+          "TP-REJECT-003",
+          "TP-SHUTDOWN-001",
+          "TP-SHUTDOWN-002",
+          "TP-SHUTDOWN-003",
+          "TP-SUBMIT-001",
+          "TP-SUBMIT-002",
+          "TP-SUBMIT-004",
+          "TP-SUBMIT-005"
+        ],
+        "checks": [
+          {
+            "rule_id": "TP-CONFIG-001",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CONFIG-002",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CONFIG-003",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CONFIG-004",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CONFIG-005",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CREATE-001",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CREATE-003",
+            "status": "violated"
+          },
+          {
+            "rule_id": "TP-MONITOR-001",
+            "status": "violated"
+          },
+          {
+            "rule_id": "TP-REJECT-001",
+            "status": "violated"
+          },
+          {
+            "rule_id": "TP-REJECT-003",
+            "status": "violated"
+          },
+          {
+            "rule_id": "TP-SHUTDOWN-001",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-SHUTDOWN-002",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-SHUTDOWN-003",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-SUBMIT-001",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-SUBMIT-002",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-SUBMIT-004",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-SUBMIT-005",
+            "status": "passed"
+          }
+        ],
+        "status": "complete",
+        "violations": [
+          {
+            "rule_id": "TP-CREATE-003",
+            "rule_name": "线程池必须配置线程工厂",
+            "message": "pool (thread_pool_executor) 没有指定 ThreadFactory，工作线程会使用 pool-N-thread-M 这类默认名称。",
+            "severity": "warning",
+            "line": 6,
+            "column": 43,
+            "snippet": "private final ThreadPoolExecutor pool=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(2));",
+            "suggestion": "传入命名线程工厂（如 namedFactory(\"order-notify\")），或使用 ThreadPoolTaskExecutor#setThreadNamePrefix。"
+          },
+          {
+            "rule_id": "TP-MONITOR-001",
+            "rule_name": "线程池必须可观测",
+            "message": "线程池 pool 没有关联到可观察的运行指标。",
+            "severity": "warning",
+            "line": 6,
+            "column": 43,
+            "snippet": "private final ThreadPoolExecutor pool=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(2));",
+            "suggestion": "为这个线程池暴露 getQueue().size()、getActiveCount()、getCompletedTaskCount() 等运行指标，并单独统计拒绝次数。"
+          },
+          {
+            "rule_id": "TP-REJECT-001",
+            "rule_name": "必须显式配置拒绝策略",
+            "message": "pool (thread_pool_executor) 没有显式配置拒绝策略，队列满时会使用默认 AbortPolicy 直接抛 RejectedExecutionException。",
+            "severity": "error",
+            "line": 6,
+            "column": 43,
+            "snippet": "private final ThreadPoolExecutor pool=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(2));",
+            "suggestion": "显式传入第 7 个参数或调用 setRejectedExecutionHandler：核心业务用 AbortPolicy 并做调用侧补偿，允许反压的场景用 CallerRunsPolicy。"
+          },
+          {
+            "rule_id": "TP-REJECT-003",
+            "rule_name": "必须处理 RejectedExecutionException",
+            "message": "pool.submit(...) 在 AbortPolicy（或默认策略）下可能抛出 RejectedExecutionException，但调用处没有捕获处理。",
+            "severity": "error",
+            "line": 12,
+            "column": 35,
+            "snippet": "Future<String> result=pool.submit(()->{",
+            "suggestion": "用 try/catch 包住提交调用并做补偿：重试、持久化后补偿、降级返回业务错误码，并记录拒绝日志与监控计数。"
+          }
+        ],
+        "stats": {
+          "checked_rules": 17,
+          "violations": 4,
+          "parse_errors": 0
+        },
+        "warnings": []
+      },
+      "compliance": 0.765,
+      "compile": "ok",
+      "behavior": "ok",
+      "java": {
+        "compile": {
+          "status": "ok",
+          "detail": ""
+        },
+        "tests": {
+          "status": "ok",
+          "detail": ""
+        }
+      },
+      "task": "review_required",
+      "usage": {
+        "prompt_tokens": 1136,
+        "completion_tokens": 284,
+        "total_tokens": 1420,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 1136
+      }
+    },
+    {
+      "case_id": "EDIT-CONTEXT",
+      "strategy": "tagged",
+      "repetition": 1,
+      "output": "present",
+      "call_status": "ok",
+      "source_hash": "6b9c6ed129e1d0fb6ea83c1d6682ecf7b9f6163de4b3a7dff3098d18516bc654",
+      "public_api": {
+        "status": "ok",
+        "detail": ""
+      },
+      "validation": {
+        "file_path": "/workspace/ontology-demo/.eval-cache/tagged-supplier-20261102/results/tagged/EDIT-CONTEXT-1.java",
+        "language": "java",
+        "features": [
+          "THREAD_POOL.CREATE",
+          "THREAD_POOL.CONFIG.CORE_SIZE",
+          "THREAD_POOL.CONFIG.MAX_SIZE",
+          "THREAD_POOL.CONFIG.KEEP_ALIVE",
+          "THREAD_POOL.CONFIG.QUEUE",
+          "THREAD_POOL.SUBMIT",
+          "THREAD_POOL.EXCEPTION",
+          "THREAD_POOL.SHUTDOWN",
+          "THREAD_POOL.AWAIT_TERMINATION",
+          "THREAD_POOL.FUTURE.GET",
+          "THREAD_POOL.THREAD_LOCAL"
+        ],
+        "checked_rules": [
+          "TP-CONFIG-001",
+          "TP-CONFIG-002",
+          "TP-CONFIG-003",
+          "TP-CONFIG-004",
+          "TP-CONFIG-005",
+          "TP-CREATE-001",
+          "TP-CREATE-003",
+          "TP-MONITOR-001",
+          "TP-REJECT-001",
+          "TP-REJECT-003",
+          "TP-SHUTDOWN-001",
+          "TP-SHUTDOWN-002",
+          "TP-SHUTDOWN-003",
+          "TP-SUBMIT-001",
+          "TP-SUBMIT-002",
+          "TP-SUBMIT-004",
+          "TP-SUBMIT-005"
+        ],
+        "checks": [
+          {
+            "rule_id": "TP-CONFIG-001",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CONFIG-002",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CONFIG-003",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CONFIG-004",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CONFIG-005",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CREATE-001",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-CREATE-003",
+            "status": "violated"
+          },
+          {
+            "rule_id": "TP-MONITOR-001",
+            "status": "violated"
+          },
+          {
+            "rule_id": "TP-REJECT-001",
+            "status": "violated"
+          },
+          {
+            "rule_id": "TP-REJECT-003",
+            "status": "violated"
+          },
+          {
+            "rule_id": "TP-SHUTDOWN-001",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-SHUTDOWN-002",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-SHUTDOWN-003",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-SUBMIT-001",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-SUBMIT-002",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-SUBMIT-004",
+            "status": "passed"
+          },
+          {
+            "rule_id": "TP-SUBMIT-005",
+            "status": "passed"
+          }
+        ],
+        "status": "complete",
+        "violations": [
+          {
+            "rule_id": "TP-CREATE-003",
+            "rule_name": "线程池必须配置线程工厂",
+            "message": "pool (thread_pool_executor) 没有指定 ThreadFactory，工作线程会使用 pool-N-thread-M 这类默认名称。",
+            "severity": "warning",
+            "line": 6,
+            "column": 43,
+            "snippet": "private final ThreadPoolExecutor pool=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(2));",
+            "suggestion": "传入命名线程工厂（如 namedFactory(\"order-notify\")），或使用 ThreadPoolTaskExecutor#setThreadNamePrefix。"
+          },
+          {
+            "rule_id": "TP-MONITOR-001",
+            "rule_name": "线程池必须可观测",
+            "message": "线程池 pool 没有关联到可观察的运行指标。",
+            "severity": "warning",
+            "line": 6,
+            "column": 43,
+            "snippet": "private final ThreadPoolExecutor pool=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(2));",
+            "suggestion": "为这个线程池暴露 getQueue().size()、getActiveCount()、getCompletedTaskCount() 等运行指标，并单独统计拒绝次数。"
+          },
+          {
+            "rule_id": "TP-REJECT-001",
+            "rule_name": "必须显式配置拒绝策略",
+            "message": "pool (thread_pool_executor) 没有显式配置拒绝策略，队列满时会使用默认 AbortPolicy 直接抛 RejectedExecutionException。",
+            "severity": "error",
+            "line": 6,
+            "column": 43,
+            "snippet": "private final ThreadPoolExecutor pool=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(2));",
+            "suggestion": "显式传入第 7 个参数或调用 setRejectedExecutionHandler：核心业务用 AbortPolicy 并做调用侧补偿，允许反压的场景用 CallerRunsPolicy。"
+          },
+          {
+            "rule_id": "TP-REJECT-003",
+            "rule_name": "必须处理 RejectedExecutionException",
+            "message": "pool.submit(...) 在 AbortPolicy（或默认策略）下可能抛出 RejectedExecutionException，但调用处没有捕获处理。",
+            "severity": "error",
+            "line": 12,
+            "column": 35,
+            "snippet": "Future<String> result=pool.submit(()->{",
+            "suggestion": "用 try/catch 包住提交调用并做补偿：重试、持久化后补偿、降级返回业务错误码，并记录拒绝日志与监控计数。"
+          }
+        ],
+        "stats": {
+          "checked_rules": 17,
+          "violations": 4,
+          "parse_errors": 0
+        },
+        "warnings": []
+      },
+      "compliance": 0.765,
+      "compile": "ok",
+      "behavior": "ok",
+      "java": {
+        "compile": {
+          "status": "ok",
+          "detail": ""
+        },
+        "tests": {
+          "status": "ok",
+          "detail": ""
+        }
+      },
+      "task": "review_required",
+      "usage": {
+        "prompt_tokens": 1210,
+        "completion_tokens": 287,
+        "total_tokens": 1497,
+        "prompt_tokens_details": {
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 1210
+      }
+    }
+  ]
+}

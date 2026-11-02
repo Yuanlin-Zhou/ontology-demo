@@ -1,0 +1,121 @@
+{
+  "date": "2026-11-02",
+  "frozen_revision": "9b145e7",
+  "provider_model": "deepseek-flash",
+  "provider_request_attempts": 9,
+  "successful_outputs": 9,
+  "repair_calls": 0,
+  "additional_probe_model_requests": 0,
+  "total_tokens": 9679,
+  "controlled_recorded_comparison": true,
+  "single_generation_per_case_strategy": true,
+  "case_count": 3,
+  "independent_holdout": false,
+  "strategies": [
+    {
+      "strategy": "baseline",
+      "planned": 3,
+      "present": 3,
+      "compile": {
+        "passed": 3,
+        "total": 3,
+        "rate": 1,
+        "evaluated": 3
+      },
+      "behavior": {
+        "passed": 3,
+        "total": 3,
+        "rate": 1,
+        "evaluated": 3
+      },
+      "mean_compliance": 0.8073333333333333,
+      "compliance_scored": 3,
+      "all_findings": 10,
+      "error_instances": 5,
+      "task_failed": 0,
+      "task_completion_rate": null,
+      "usage_coverage": 3,
+      "usage_unknown": 0,
+      "usage_known_subtotal": {
+        "prompt_tokens": 1092,
+        "completion_tokens": 772,
+        "total_tokens": 1864
+      },
+      "currency_cost": null
+    },
+    {
+      "strategy": "rag",
+      "planned": 3,
+      "present": 3,
+      "compile": {
+        "passed": 3,
+        "total": 3,
+        "rate": 1,
+        "evaluated": 3
+      },
+      "behavior": {
+        "passed": 3,
+        "total": 3,
+        "rate": 1,
+        "evaluated": 3
+      },
+      "mean_compliance": 0.8073333333333333,
+      "compliance_scored": 3,
+      "all_findings": 10,
+      "error_instances": 5,
+      "task_failed": 0,
+      "task_completion_rate": null,
+      "usage_coverage": 3,
+      "usage_unknown": 0,
+      "usage_known_subtotal": {
+        "prompt_tokens": 3216,
+        "completion_tokens": 780,
+        "total_tokens": 3996
+      },
+      "currency_cost": null
+    },
+    {
+      "strategy": "tagged",
+      "planned": 3,
+      "present": 3,
+      "compile": {
+        "passed": 3,
+        "total": 3,
+        "rate": 1,
+        "evaluated": 3
+      },
+      "behavior": {
+        "passed": 3,
+        "total": 3,
+        "rate": 1,
+        "evaluated": 3
+      },
+      "mean_compliance": 0.7846666666666667,
+      "compliance_scored": 3,
+      "all_findings": 11,
+      "error_instances": 5,
+      "task_failed": 0,
+      "task_completion_rate": null,
+      "usage_coverage": 3,
+      "usage_unknown": 0,
+      "usage_known_subtotal": {
+        "prompt_tokens": 3085,
+        "completion_tokens": 734,
+        "total_tokens": 3819
+      },
+      "currency_cost": null
+    }
+  ],
+  "sole_task_scope_difference": {
+    "case_id": "EDIT-ASYNC",
+    "knowledge_origin": "explicit planned only, no existing AST entity tags",
+    "not_evidence_of_existing_entity_tag_superiority": true
+  },
+  "limitations": [
+    "Global static compliance includes inherited findings and policy mismatches.",
+    "Three interrupt-restoration false positives confirmed; original score unchanged.",
+    "Two missed failure-recording requirements confirmed; original behavioral score unchanged.",
+    "Task-scope review is agent-authored, not full domain compliance or production certification.",
+    "Tasks prescribe thread/queue parameters; no parameter-decision benefit established."
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "key": "rag/EDIT-ASYNC-1",
+  "prompt_hash": "12ef73e628979eb3f88da26197b0413e8aa7335075cb2b56e571352e6ae5e781",
+  "status": "ok",
+  "model_requested": "deepseek-flash",
+  "elapsed_ms": 2051,
+  "model_returned": "deepseek-flash",
+  "usage": {
+    "prompt_tokens": 998,
+    "completion_tokens": 320,
+    "total_tokens": 1318,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 998
+  },
+  "applied_parameters": {
+    "temperature": 0,
+    "max_tokens": 8192,
+    "seed": null,
+    "thinking": {
+      "type": "disabled"
+    },
+    "endpoint": "https://api.deepseek.com/chat/completions",
+    "api_key_env": "EVAL_API_KEY"
+  },
+  "raw_hash": "bb456ac3eeb3a41221560fd33813c58684c41ede97df6b3aa50a676e9ab01af7",
+  "source_hash": "18f91b748201ea80ea876a2971448026e3ec1e01ce41a299b16ad3cc177a95f7",
+  "extraction": "single_fenced_block"
+}

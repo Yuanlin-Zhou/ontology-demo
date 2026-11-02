@@ -2,6 +2,8 @@
 
 目标：对同一份已有代码执行同一项修改，比较无知识、普通 BM25 RAG、按实体标签召回分层知识的规范遵循、修改成功率和知识 / token 成本。已有 flat Rules 实验作为前期探索，不能算作本方案效果验证。
 
+首次真实试点已按本协议完成 9 次调用，无重试或 Repair，见 [结果和单独诊断](experiments/2026-11-02-firstpass/README.md)。准备与参考演练记录保留各自时点的请求 0，不改为执行记录。
+
 ## 已准备的开发试点
 
 | 任务 | 可编译初始代码 | 修改目标 | 标签与新增能力 |
@@ -17,7 +19,7 @@
 - 相同任务、负载 / 业务事实、修改目标实体、完整初始源码和公开交付约定。计划新增能力的理由也加入三组公共输入。
 - baseline：不注入知识；rag：现有两份文档 BM25，topK=5；tagged：实体标签 + 两跳文件内依赖 + 显式计划，召回知识树叶子。
 - RAG / tagged 的完整知识序列化估算预算均为 1200；实际取到多少单独记录，预算相同不代表实际 token 数相同。
-- 建议初始模型 deepseek-flash、temperature=0、输出上限 8192，三组保持一致。当前只是准备参数，未请求供应商；DeepSeek 不支持固定 seed，不宣称确定性。未来运行需记录实际返回模型和应用参数，不能默默改别名。
+- 首次试点模型 deepseek-flash、temperature=0、输出上限 8192，三组一致。DeepSeek 不支持固定 seed，不宣称确定性。记录实际返回模型和应用参数，不能默默改别名。
 - suite.json 的 repetitions 可在运行前冻结为多次；当前准备为 1 次 × 3 任务 × 3 策略，共 9 个槽位。不得看结果后只补跑不利或有利样本。
 - 首次修改独立统计，默认无 Repair；任何后续修复单独计划、预算和归档。
 
@@ -29,7 +31,7 @@
 2. **修改结果：**真实 javac 编译、AcceptanceTest 的实际回调 / 队列 / 拒绝 / 上下文 / 关闭验证，保留原始诊断及超时。编译失败和测试 unavailable 分开记录。
 3. **规范遵循：**复用现有 engine.validate，保留 rule ID、severity、实例数；排除 info 的遵循率只是 checker 覆盖口径，误报需独立裁定，不能代替业务完成度。
 4. **完整任务审查：**公开 API 和无关行为是否保持、是否实际处理回调、是否只做任务需要的改动。行为验收通过仍需审查，尤其异常日志、所有并发 / 关闭分支不能只靠有限测试宣称完整正确。
-5. **成本：**知识估算 token、供应商实际 prompt / completion / total usage、时延、建树和打标维护投入。没有 provider usage 时记 unknown，不记 0；当前 0 表示没有请求，不表示已生成代码没有成本。
+5. **成本：**知识估算 token、供应商实际 prompt / completion / total usage、时延、建树和打标维护投入。没有 provider usage 时记 unknown，不记 0；准备 / 参考演练的请求 0 不表示生成代码有实测零 token 成本。
 
 对总样本、多次重复报告全部结果和波动；开发试点不用于宣称统计显著性或普遍收益。后续正式验证需另设未参与知识树和 checker 调优的真实修改任务，事先冻结任务、预期叶子、行为用例和继续 / 停止标准。
 
@@ -41,10 +43,10 @@ node eval/tagged-edit/prepare.ts eval/tagged-edit/suite.json .eval-cache/edit-ru
 
 产物包括 manifest、冻结的源码、图、验收器、suite 和 9 份提示词。manifest 明确 prepare_only=true、model_requests=0、quality_results=null；预备槽位不计作生成失败或成功。
 
-已实现独立的供应商执行器，但本轮没有执行付费生成。须显式指定完整矩阵调用上限和新的输出目录才执行：
+已实现独立供应商执行器，首次真实试点已按 9 次上限执行。任何新一轮仍须显式指定完整矩阵调用上限和新的输出目录：
 
 ```bash
-# 这是实际调用 DeepSeek 的命令，本轮仅记录用法，未执行。
+# 这是实际调用 DeepSeek 的命令示例；新目录意味着新一轮，不会自动续跑旧记录。
 EVAL_JAVAC="$PWD/.tools/jdk/bin/javac" EVAL_JAVA="$PWD/.tools/jdk/bin/java" \
   node --use-env-proxy eval/tagged-edit/run.ts \
   eval/tagged-edit/prepared/2026-11-02 .eval-cache/tagged-supplier-run-new \
@@ -73,7 +75,7 @@ EVAL_JAVAC="$PWD/.tools/jdk/bin/javac" EVAL_JAVA="$PWD/.tools/jdk/bin/java" \
   node eval/tagged-edit/dry-run.ts eval/tagged-edit/prepared/2026-11-02 .eval-cache/tagged-reference-new
 ```
 
-演练给三个策略返回相同的 Agent 编写参考源码，只测试记录、提取、编译、行为和报告。归档 `dry-runs/2026-11-02-recorder` 中 supplier 模式请求为 0、test_adapter 尝试 9、输出 9；usage 未知，不能计入任何策略的模型质量或 token 成本。其 controlled_model_comparison 永远为 false。本轮未向真实供应商发送新请求。
+演练给三个策略返回相同的 Agent 编写参考源码，只测试记录、提取、编译、行为和报告。归档 `dry-runs/2026-11-02-recorder` 中 supplier 模式请求为 0、test_adapter 尝试 9、输出 9；usage 未知，不能计入任何策略的模型质量或 token 成本。其 controlled_model_comparison 永远为 false。该演练与后续真实试点分开。
 
 本轮本地验证：类型检查通过，JDK 21 与固定依赖校验通过，定向 9/9、完整回归 167/167，均无失败、无跳过；日志见 `eval/tagged-edit/validation/`。这些是实现与验收器的本地验证，不是三组模型效果成绩。
 
