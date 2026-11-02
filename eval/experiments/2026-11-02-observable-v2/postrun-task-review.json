@@ -1,0 +1,151 @@
+{
+  "model_requests": 0,
+  "scope": "Original automatic failures remain failures; every automatic pass reviewed against explicit v2 shutdown contract.",
+  "reviews": [
+    {
+      "strategy": "baseline",
+      "case_id": "CASE-001",
+      "source_sha256": "06c1613222c282eb62c1b2f9112f32d349f0eef94fd5a96de04d82c80d1a38a9",
+      "reviewer": "Codex agent source review plus independent JVM diagnostic (not human review)",
+      "original_automatic_checks": "passed",
+      "mandatory_contract": "stop: 强制关闭时处理未执行任务，不能静默丢弃已接受任务",
+      "verdict": "failed",
+      "source_lines": [
+        117,
+        121
+      ],
+      "evidence": "All shutdownNow return values are discarded. ForcedQueueProbe submitted one blocking and two queued callbacks; stop returned normally after interrupting the running callback. Both queued callbacks were lost, and stats remained submitted=3 completed=1 failed=0 rejected=0. No queued-task processing or compensation exists in this path."
+    },
+    {
+      "strategy": "baseline",
+      "case_id": "CASE-011",
+      "source_sha256": "03022b7a6fbdd3da3fff80a7bc02f50dbdc4db3cc5e37872f634dcbc319b47d9",
+      "reviewer": "Codex agent source review plus independent JVM diagnostic (not human review)",
+      "original_automatic_checks": "passed",
+      "mandatory_contract": "stop: 强制关闭时处理未执行任务，不能静默丢弃已接受任务",
+      "verdict": "failed",
+      "source_lines": [
+        103,
+        110
+      ],
+      "evidence": "All shutdownNow return values are discarded. ForcedQueueProbe submitted one blocking and two queued callbacks; stop returned normally after interrupting the running callback. Both queued callbacks were lost, and stats remained submitted=3 completed=1 failed=0 rejected=0. No queued-task processing or compensation exists in this path."
+    },
+    {
+      "strategy": "rag",
+      "case_id": "CASE-001",
+      "source_sha256": "ce7010c049c8b5c8446e4a88ed17c1138bc1798103d89a95458609a0c0efac81",
+      "reviewer": "Codex agent source review plus independent JVM diagnostic (not human review)",
+      "original_automatic_checks": "passed",
+      "mandatory_contract": "stop: 强制关闭时处理未执行任务，不能静默丢弃已接受任务",
+      "verdict": "failed",
+      "source_lines": [
+        144,
+        151
+      ],
+      "evidence": "All shutdownNow return values are discarded. ForcedQueueProbe submitted one blocking and two queued callbacks; stop returned normally after interrupting the running callback. Both queued callbacks were lost, and stats remained submitted=3 completed=1 failed=0 rejected=0. No queued-task processing or compensation exists in this path."
+    },
+    {
+      "strategy": "rag",
+      "case_id": "CASE-003",
+      "source_sha256": "4887f5e783ded1cf54f24d275611c35737ee9cd5f427b0a90cc5617e050eb7dc",
+      "reviewer": "Codex agent source review plus independent JVM diagnostic (not human review)",
+      "original_automatic_checks": "passed",
+      "mandatory_contract": "stop: 强制关闭时处理未执行任务，不能静默丢弃已接受任务",
+      "verdict": "failed",
+      "source_lines": [
+        105,
+        109
+      ],
+      "evidence": "All shutdownNow return values are discarded. ForcedQueueProbe submitted one blocking and two queued callbacks; stop returned normally after interrupting the running callback. Both queued callbacks were lost, and stats remained submitted=3 completed=1 failed=0 rejected=0. No queued-task processing or compensation exists in this path."
+    },
+    {
+      "strategy": "rag",
+      "case_id": "CASE-011",
+      "source_sha256": "8b6943663c9ecf06c3a50aa37b9e650ec8778ae936afcc23dc1f010d001ec617",
+      "reviewer": "Codex agent source review plus independent JVM diagnostic (not human review)",
+      "original_automatic_checks": "passed",
+      "mandatory_contract": "stop: 强制关闭时处理未执行任务，不能静默丢弃已接受任务",
+      "verdict": "failed",
+      "source_lines": [
+        116
+      ],
+      "evidence": "All shutdownNow return values are discarded. ForcedQueueProbe submitted one blocking and two queued callbacks; stop returned normally after interrupting the running callback. Both queued callbacks were lost, and stats remained submitted=3 completed=1 failed=0 rejected=0. No queued-task processing or compensation exists in this path."
+    },
+    {
+      "strategy": "rules",
+      "case_id": "CASE-003",
+      "source_sha256": "3b7bea8d7eac97ed7d71900c66b9956064f7062bc74b701e47fc9aaa5dd890d3",
+      "reviewer": "Codex agent source review plus independent JVM diagnostic (not human review)",
+      "original_automatic_checks": "passed",
+      "mandatory_contract": "stop: 强制关闭时处理未执行任务，不能静默丢弃已接受任务",
+      "verdict": "failed",
+      "source_lines": [
+        109,
+        116
+      ],
+      "evidence": "All shutdownNow return values are discarded. ForcedQueueProbe submitted one blocking and two queued callbacks; stop returned normally after interrupting the running callback. Both queued callbacks were lost, and stats remained submitted=3 completed=1 failed=0 rejected=0. No queued-task processing or compensation exists in this path."
+    },
+    {
+      "strategy": "rules",
+      "case_id": "CASE-007",
+      "source_sha256": "9b8c0b763713695e3625aba94853d90797303477a842964365eebe04b6ea3491",
+      "reviewer": "Codex agent source review plus independent JVM diagnostic (not human review)",
+      "original_automatic_checks": "passed",
+      "mandatory_contract": "stop: 强制关闭时处理未执行任务，不能静默丢弃已接受任务",
+      "verdict": "failed",
+      "source_lines": [
+        97,
+        104
+      ],
+      "evidence": "All shutdownNow return values are discarded. ForcedQueueProbe submitted one blocking and two queued callbacks; stop returned normally after interrupting the running callback. Both queued callbacks were lost, and stats remained submitted=3 completed=1 failed=0 rejected=0. No queued-task processing or compensation exists in this path."
+    },
+    {
+      "strategy": "rules",
+      "case_id": "CASE-011",
+      "source_sha256": "c63986f89a21b657c4faf0af38bde6c68ce6f2a6b29c46901b09b0ef4b9c5a1c",
+      "reviewer": "Codex agent source review plus independent JVM diagnostic (not human review)",
+      "original_automatic_checks": "passed",
+      "mandatory_contract": "stop: 强制关闭时处理未执行任务，不能静默丢弃已接受任务",
+      "verdict": "failed",
+      "source_lines": [
+        131,
+        135
+      ],
+      "evidence": "All shutdownNow return values are discarded. ForcedQueueProbe submitted one blocking and two queued callbacks; stop returned normally after interrupting the running callback. Both queued callbacks were lost, and stats remained submitted=3 completed=1 failed=0 rejected=0. No queued-task processing or compensation exists in this path."
+    }
+  ],
+  "task_completion": [
+    {
+      "strategy": "baseline",
+      "planned": 9,
+      "completed": 0,
+      "failed": 9,
+      "unreviewed": 0,
+      "automatic_gate_failures": 7,
+      "additional_contract_failures": 2
+    },
+    {
+      "strategy": "rag",
+      "planned": 9,
+      "completed": 0,
+      "failed": 9,
+      "unreviewed": 0,
+      "automatic_gate_failures": 6,
+      "additional_contract_failures": 3
+    },
+    {
+      "strategy": "rules",
+      "planned": 9,
+      "completed": 0,
+      "failed": 9,
+      "unreviewed": 0,
+      "automatic_gate_failures": 6,
+      "additional_contract_failures": 3
+    }
+  ],
+  "limitations": [
+    "Development subset and single generation per strategy only.",
+    "Failure evidence establishes incompletion; not an exhaustive source audit.",
+    "Original report and model sources unchanged; stricter diagnostic is reported separately."
+  ]
+}

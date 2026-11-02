@@ -1,0 +1,126 @@
+{
+  "model_requests": 0,
+  "note": "ok means the probe confirmed loss; it is not a successful business acceptance.",
+  "results": [
+    {
+      "strategy": "baseline",
+      "case_id": "CASE-001",
+      "source_sha256": "06c1613222c282eb62c1b2f9112f32d349f0eef94fd5a96de04d82c80d1a38a9",
+      "diagnostic": {
+        "compile": {
+          "status": "ok",
+          "detail": ""
+        },
+        "tests": {
+          "status": "ok",
+          "detail": "CONFIRMED: stop returned normally; two accepted queued callbacks never ran; submitted=3 completed=1 failed=0 rejected=0\n"
+        }
+      }
+    },
+    {
+      "strategy": "baseline",
+      "case_id": "CASE-011",
+      "source_sha256": "03022b7a6fbdd3da3fff80a7bc02f50dbdc4db3cc5e37872f634dcbc319b47d9",
+      "diagnostic": {
+        "compile": {
+          "status": "ok",
+          "detail": ""
+        },
+        "tests": {
+          "status": "ok",
+          "detail": "CONFIRMED: stop returned normally; two accepted queued callbacks never ran; submitted=3 completed=1 failed=0 rejected=0\n"
+        }
+      }
+    },
+    {
+      "strategy": "rag",
+      "case_id": "CASE-001",
+      "source_sha256": "ce7010c049c8b5c8446e4a88ed17c1138bc1798103d89a95458609a0c0efac81",
+      "diagnostic": {
+        "compile": {
+          "status": "ok",
+          "detail": ""
+        },
+        "tests": {
+          "status": "ok",
+          "detail": "CONFIRMED: stop returned normally; two accepted queued callbacks never ran; submitted=3 completed=1 failed=0 rejected=0\n"
+        }
+      }
+    },
+    {
+      "strategy": "rag",
+      "case_id": "CASE-003",
+      "source_sha256": "4887f5e783ded1cf54f24d275611c35737ee9cd5f427b0a90cc5617e050eb7dc",
+      "diagnostic": {
+        "compile": {
+          "status": "ok",
+          "detail": ""
+        },
+        "tests": {
+          "status": "ok",
+          "detail": "CONFIRMED: stop returned normally; two accepted queued callbacks never ran; submitted=3 completed=1 failed=0 rejected=0\n"
+        }
+      }
+    },
+    {
+      "strategy": "rag",
+      "case_id": "CASE-011",
+      "source_sha256": "8b6943663c9ecf06c3a50aa37b9e650ec8778ae936afcc23dc1f010d001ec617",
+      "diagnostic": {
+        "compile": {
+          "status": "ok",
+          "detail": ""
+        },
+        "tests": {
+          "status": "ok",
+          "detail": "CONFIRMED: stop returned normally; two accepted queued callbacks never ran; submitted=3 completed=1 failed=0 rejected=0\n"
+        }
+      }
+    },
+    {
+      "strategy": "rules",
+      "case_id": "CASE-003",
+      "source_sha256": "3b7bea8d7eac97ed7d71900c66b9956064f7062bc74b701e47fc9aaa5dd890d3",
+      "diagnostic": {
+        "compile": {
+          "status": "ok",
+          "detail": ""
+        },
+        "tests": {
+          "status": "ok",
+          "detail": "CONFIRMED: stop returned normally; two accepted queued callbacks never ran; submitted=3 completed=1 failed=0 rejected=0\n"
+        }
+      }
+    },
+    {
+      "strategy": "rules",
+      "case_id": "CASE-007",
+      "source_sha256": "9b8c0b763713695e3625aba94853d90797303477a842964365eebe04b6ea3491",
+      "diagnostic": {
+        "compile": {
+          "status": "ok",
+          "detail": ""
+        },
+        "tests": {
+          "status": "ok",
+          "detail": "CONFIRMED: stop returned normally; two accepted queued callbacks never ran; submitted=3 completed=1 failed=0 rejected=0\n"
+        }
+      }
+    },
+    {
+      "strategy": "rules",
+      "case_id": "CASE-011",
+      "source_sha256": "c63986f89a21b657c4faf0af38bde6c68ce6f2a6b29c46901b09b0ef4b9c5a1c",
+      "diagnostic": {
+        "compile": {
+          "status": "ok",
+          "detail": ""
+        },
+        "tests": {
+          "status": "ok",
+          "detail": "CONFIRMED: stop returned normally; two accepted queued callbacks never ran; submitted=3 completed=1 failed=0 rejected=0\n"
+        }
+      }
+    }
+  ]
+}
