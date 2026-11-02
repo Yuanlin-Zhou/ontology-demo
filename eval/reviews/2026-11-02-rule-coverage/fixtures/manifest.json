@@ -1,0 +1,47 @@
+[
+  {
+    "file": "context-restore.java",
+    "rule": "TP-SUBMIT-004",
+    "expected_diagnostic": false
+  },
+  {
+    "file": "context-deferred.java",
+    "rule": "TP-SUBMIT-004",
+    "expected_diagnostic": true
+  },
+  {
+    "file": "context-conditional.java",
+    "rule": "TP-SUBMIT-004",
+    "expected_diagnostic": true
+  },
+  {
+    "file": "pending-unused.java",
+    "rule": "TP-SHUTDOWN-004",
+    "expected_diagnostic": true
+  },
+  {
+    "file": "pending-consumed.java",
+    "rule": "TP-SHUTDOWN-004",
+    "expected_diagnostic": false
+  },
+  {
+    "file": "cancel-missing.java",
+    "rule": "TP-SUBMIT-002",
+    "expected_diagnostic": true
+  },
+  {
+    "file": "cancel-wrapper-wrong.java",
+    "rule": "TP-SUBMIT-002",
+    "expected_diagnostic": true
+  },
+  {
+    "file": "cancel-direct-clean.java",
+    "rule": "TP-SUBMIT-002",
+    "expected_diagnostic": false
+  },
+  {
+    "file": "cancel-wrapper-clean.java",
+    "rule": "TP-SUBMIT-002",
+    "expected_diagnostic": false
+  }
+]

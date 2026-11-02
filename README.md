@@ -3,6 +3,8 @@
 把研发规范从"文档"转成**可计算的原子规则**，再根据当前代码的**语义特征**精准召回少量真正适用的规则，
 并在代码生成后做**确定性校验**。对应 `00-overview.md` 的 Phase 1 与 `01-phase1-rule-engine-poc.md`。
 
+实际可检查范围及人工边界见 [26 条规则能力清单](docs/CAPABILITIES.md)，已有缺陷、误报漏报和本次零模型调用修复见 [规则覆盖复盘](docs/RULE-COVERAGE-REVIEW.md)。当前定位为规范与风险诊断辅助工具，暂不接入 Cline 自动修改或作为独立交付门控。
+
 ```text
 Java Code → tree-sitter AST → Semantic Feature → Rule Matcher → Applicable Rules → (Agent) → Validator → Violations
 ```

@@ -1,0 +1,27 @@
+{
+  "model_requests": 0,
+  "baseline_revision": "53a46ea",
+  "source_files_rechecked": 90,
+  "original_experiments_unchanged": true,
+  "typecheck": "passed",
+  "diff_check": "passed",
+  "final_targeted": {
+    "tests": 20,
+    "passed": 20,
+    "failed": 0,
+    "skipped": 0
+  },
+  "final_full": {
+    "tests": 158,
+    "passed": 158,
+    "failed": 0,
+    "skipped": 0
+  },
+  "java": "21.0.12.1; pinned dependencies verified",
+  "decision": "CLI/API diagnostics only; defer Cline automatic modification and autonomous delivery approval",
+  "notes": [
+    "Intermediate failures retained and corrected without changing archived model sources or existing case expectations.",
+    "New context JVM probe initialization was itself placed inside try/finally; expected safe/unsafe context states unchanged.",
+    "Final snapshots: after-verified.json contains source/knowledge implementation hashes and identical diagnostics to after-final.json."
+  ]
+}

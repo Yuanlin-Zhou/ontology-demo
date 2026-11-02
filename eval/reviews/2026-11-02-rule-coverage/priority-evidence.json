@@ -1,0 +1,281 @@
+{
+  "model_requests": 0,
+  "groups": [
+    {
+      "defect": "Forced shutdown drops queued callbacks",
+      "related_rule": "TP-SHUTDOWN-004",
+      "classification": "already_detected_warning_not_new_false_negative",
+      "evidence": [
+        {
+          "source": "eval/experiments/2026-11-02-observable-v2/evidence/results/baseline/CASE-001.java",
+          "source_sha256": "06c1613222c282eb62c1b2f9112f32d349f0eef94fd5a96de04d82c80d1a38a9",
+          "findings": [
+            {
+              "rule_id": "TP-SHUTDOWN-004",
+              "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+              "message": "notifier.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+              "severity": "warning",
+              "line": 117,
+              "column": 17,
+              "snippet": "notifier.shutdownNow();",
+              "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+            },
+            {
+              "rule_id": "TP-SHUTDOWN-004",
+              "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+              "message": "notifier.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+              "severity": "warning",
+              "line": 121,
+              "column": 13,
+              "snippet": "notifier.shutdownNow();",
+              "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+            }
+          ]
+        },
+        {
+          "source": "eval/experiments/2026-11-02-observable-v2/evidence/results/baseline/CASE-011.java",
+          "source_sha256": "03022b7a6fbdd3da3fff80a7bc02f50dbdc4db3cc5e37872f634dcbc319b47d9",
+          "findings": [
+            {
+              "rule_id": "TP-SHUTDOWN-004",
+              "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+              "message": "executor.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+              "severity": "warning",
+              "line": 103,
+              "column": 17,
+              "snippet": "executor.shutdownNow();",
+              "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+            },
+            {
+              "rule_id": "TP-SHUTDOWN-004",
+              "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+              "message": "executor.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+              "severity": "warning",
+              "line": 110,
+              "column": 13,
+              "snippet": "executor.shutdownNow();",
+              "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+            }
+          ]
+        },
+        {
+          "source": "eval/experiments/2026-11-02-observable-v2/evidence/results/rag/CASE-001.java",
+          "source_sha256": "ce7010c049c8b5c8446e4a88ed17c1138bc1798103d89a95458609a0c0efac81",
+          "findings": [
+            {
+              "rule_id": "TP-SHUTDOWN-004",
+              "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+              "message": "notifier.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+              "severity": "warning",
+              "line": 144,
+              "column": 17,
+              "snippet": "notifier.shutdownNow();",
+              "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+            },
+            {
+              "rule_id": "TP-SHUTDOWN-004",
+              "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+              "message": "notifier.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+              "severity": "warning",
+              "line": 151,
+              "column": 13,
+              "snippet": "notifier.shutdownNow();",
+              "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+            }
+          ]
+        },
+        {
+          "source": "eval/experiments/2026-11-02-observable-v2/evidence/results/rag/CASE-003.java",
+          "source_sha256": "4887f5e783ded1cf54f24d275611c35737ee9cd5f427b0a90cc5617e050eb7dc",
+          "findings": [
+            {
+              "rule_id": "TP-SHUTDOWN-004",
+              "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+              "message": "exporter.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+              "severity": "warning",
+              "line": 105,
+              "column": 17,
+              "snippet": "exporter.shutdownNow();",
+              "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+            },
+            {
+              "rule_id": "TP-SHUTDOWN-004",
+              "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+              "message": "exporter.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+              "severity": "warning",
+              "line": 109,
+              "column": 13,
+              "snippet": "exporter.shutdownNow();",
+              "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+            }
+          ]
+        },
+        {
+          "source": "eval/experiments/2026-11-02-observable-v2/evidence/results/rag/CASE-011.java",
+          "source_sha256": "8b6943663c9ecf06c3a50aa37b9e650ec8778ae936afcc23dc1f010d001ec617",
+          "findings": [
+            {
+              "rule_id": "TP-SHUTDOWN-004",
+              "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+              "message": "executor.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+              "severity": "warning",
+              "line": 116,
+              "column": 13,
+              "snippet": "executor.shutdownNow();",
+              "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+            }
+          ]
+        },
+        {
+          "source": "eval/experiments/2026-11-02-observable-v2/evidence/results/rules/CASE-003.java",
+          "source_sha256": "3b7bea8d7eac97ed7d71900c66b9956064f7062bc74b701e47fc9aaa5dd890d3",
+          "findings": [
+            {
+              "rule_id": "TP-SHUTDOWN-004",
+              "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+              "message": "exporter.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+              "severity": "warning",
+              "line": 109,
+              "column": 17,
+              "snippet": "exporter.shutdownNow();",
+              "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+            },
+            {
+              "rule_id": "TP-SHUTDOWN-004",
+              "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+              "message": "exporter.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+              "severity": "warning",
+              "line": 116,
+              "column": 13,
+              "snippet": "exporter.shutdownNow();",
+              "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+            }
+          ]
+        },
+        {
+          "source": "eval/experiments/2026-11-02-observable-v2/evidence/results/rules/CASE-007.java",
+          "source_sha256": "9b8c0b763713695e3625aba94853d90797303477a842964365eebe04b6ea3491",
+          "findings": [
+            {
+              "rule_id": "TP-SHUTDOWN-004",
+              "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+              "message": "writer.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+              "severity": "warning",
+              "line": 97,
+              "column": 17,
+              "snippet": "writer.shutdownNow();",
+              "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+            },
+            {
+              "rule_id": "TP-SHUTDOWN-004",
+              "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+              "message": "writer.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+              "severity": "warning",
+              "line": 104,
+              "column": 13,
+              "snippet": "writer.shutdownNow();",
+              "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+            }
+          ]
+        },
+        {
+          "source": "eval/experiments/2026-11-02-observable-v2/evidence/results/rules/CASE-011.java",
+          "source_sha256": "c63986f89a21b657c4faf0af38bde6c68ce6f2a6b29c46901b09b0ef4b9c5a1c",
+          "findings": [
+            {
+              "rule_id": "TP-SHUTDOWN-004",
+              "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+              "message": "executor.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+              "severity": "warning",
+              "line": 131,
+              "column": 21,
+              "snippet": "executor.shutdownNow();",
+              "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+            },
+            {
+              "rule_id": "TP-SHUTDOWN-004",
+              "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+              "message": "executor.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。",
+              "severity": "warning",
+              "line": 135,
+              "column": 17,
+              "snippet": "executor.shutdownNow();",
+              "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "defect": "Caller ThreadLocal leaks",
+      "related_rule": "TP-SUBMIT-004",
+      "classification": "already_detected",
+      "evidence": [
+        {
+          "source": "eval/experiments/2026-10-27-63calls/evidence/results/baseline/CASE-020.java",
+          "source_sha256": "401a20b9ffa9888f4efefaf910e6c3f59955caeec2f92d63dab13d93551864c2",
+          "findings": [
+            {
+              "rule_id": "TP-SUBMIT-004",
+              "rule_name": "ThreadLocal 必须在 finally 中清理",
+              "message": "TENANT 的本次写入没有对应的 finally 清理路径，复用线程可能残留上下文。 私有方法 validateTenant 的调用 L70 未位于对应 try/finally 的 try 内。",
+              "severity": "error",
+              "line": 189,
+              "column": 13,
+              "snippet": "TENANT.set(tenantOf(reportId));",
+              "suggestion": "将 validateTenant(...) 的调用移入对应 try/finally 的 try 体内，并在 finally 内清理或恢复 TENANT；只在调用之后加 finally，不能保护 helper 本身抛异常的路径。"
+            }
+          ]
+        },
+        {
+          "source": "eval/experiments/2026-10-27-63calls/evidence/results/rules/CASE-020.java",
+          "source_sha256": "fc43fb9fc1e36679436c62352beaa23d2d48bdfa37a260a1e9efa3d9f72c1b7c",
+          "findings": [
+            {
+              "rule_id": "TP-SUBMIT-004",
+              "rule_name": "ThreadLocal 必须在 finally 中清理",
+              "message": "TENANT 的本次写入没有对应的 finally 清理路径，复用线程可能残留上下文。 私有方法 validateTenant 的调用 L74 未位于对应 try/finally 的 try 内。",
+              "severity": "error",
+              "line": 193,
+              "column": 13,
+              "snippet": "TENANT.set(tenantOf(reportId));",
+              "suggestion": "将 validateTenant(...) 的调用移入对应 try/finally 的 try 体内，并在 finally 内清理或恢复 TENANT；只在调用之后加 finally，不能保护 helper 本身抛异常的路径。"
+            }
+          ]
+        },
+        {
+          "source": "eval/experiments/2026-11-02-observable-v2/evidence/results/baseline/CASE-020.java",
+          "source_sha256": "5e011711f9a15beb7b323fdf998625e7600eefd483e9a2572260c4bb69558287",
+          "findings": [
+            {
+              "rule_id": "TP-SUBMIT-004",
+              "rule_name": "ThreadLocal 必须在 finally 中清理",
+              "message": "TENANT 的本次写入没有对应的 finally 清理路径，复用线程可能残留上下文。 私有方法 validateTenant 的调用 L74 未位于对应 try/finally 的 try 内。",
+              "severity": "error",
+              "line": 192,
+              "column": 13,
+              "snippet": "TENANT.set(tenantOf(reportId));",
+              "suggestion": "将 validateTenant(...) 的调用移入对应 try/finally 的 try 体内，并在 finally 内清理或恢复 TENANT；只在调用之后加 finally，不能保护 helper 本身抛异常的路径。"
+            }
+          ]
+        },
+        {
+          "source": "eval/experiments/2026-11-02-observable-v2/evidence/results/rag/CASE-020.java",
+          "source_sha256": "ebd6573de1d7d5ec30808a88d7dc75bbedea3ee6e0b792b953d7b385eafb7434",
+          "findings": [
+            {
+              "rule_id": "TP-SUBMIT-004",
+              "rule_name": "ThreadLocal 必须在 finally 中清理",
+              "message": "TENANT 的本次写入没有对应的 finally 清理路径，复用线程可能残留上下文。 私有方法 validateTenant 的调用 L69 未位于对应 try/finally 的 try 内。",
+              "severity": "error",
+              "line": 188,
+              "column": 13,
+              "snippet": "TENANT.set(tenantOf(reportId));",
+              "suggestion": "将 validateTenant(...) 的调用移入对应 try/finally 的 try 体内，并在 finally 内清理或恢复 TENANT；只在调用之后加 finally，不能保护 helper 本身抛异常的路径。"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

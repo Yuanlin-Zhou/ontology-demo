@@ -1,0 +1,36 @@
+▶ evaluation dataset
+  ✔ contains 21 documented cases with unique ids (0.682458ms)
+  ✔ references only existing rules and known features (0.46512ms)
+  ✔ every case declares a retrieval target (0.12612ms)
+  ✔ retrieves exactly the expected rules for every case (140.650625ms)
+  ✔ extracts exactly the expected semantic features for every case (84.687848ms)
+  ✔ reports exactly the expected violations for every bad.java (83.522925ms)
+  ✔ reports no error-severity violation for any good.java (405.304156ms)
+  ✔ documents a violated fixture for every rule that can be checked (0.348485ms)
+  ✔ keeps the prompt artifacts small (0.756399ms)
+✔ evaluation dataset (717.816881ms)
+▶ coverage review: cancellation queue identity
+  ✔ detects the archived wrapper mismatch and cancelled queued task without removal (278.912001ms)
+  ✔ accepts direct remove and purge; does not accept another task or another pool (27.609493ms)
+  ✔ tracks a stable wrapper alias; purge and removing the inner task do not remove a lambda (9.193883ms)
+  ✔ accepts corresponding finally cleanup and stays within its documented executor/type scope (5.151978ms)
+  ✔ does not report queue retention for an AbortPolicy-rejected submission that was never queued (1.924568ms)
+✔ coverage review: cancellation queue identity (323.743386ms)
+▶ coverage review: shutdown pending tasks
+  ✔ does not mistake an unread local assignment for processing pending work (3.269233ms)
+  ✔ does not confuse local shadowing with consumption of the pending list (2.126613ms)
+✔ coverage review: shutdown pending tasks (5.635065ms)
+▶ coverage review: context explicit cleanup paths
+  ✔ recognizes restoring a stable captured value even without remove (7.059028ms)
+  ✔ rejects deferred, conditional, early-return and overwritten cleanup (9.68312ms)
+  ✔ checks a private restore helper and does not accept deferred cleanup inside the helper (4.621318ms)
+  ✔ compares safe restoration and missed deferred/conditional cleanup with real JVM state (3201.000504ms)
+✔ coverage review: context explicit cleanup paths (3222.715841ms)
+ℹ tests 20
+ℹ suites 4
+ℹ pass 20
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4661.576007

@@ -2,10 +2,13 @@
  * Deterministic checkers for the thread pool rule set.
  *
  * Each checker is registered by name and referenced from the rule YAML via
- * `check.validator`. Checkers are intentionally simple and conservative: they
- * only report what can be proven from the AST model (no data-flow analysis).
+ * `check.validator`. Uses bounded, file-local patterns and explicit-path analysis.
+ * Findings may describe an unconfirmed obligation; absence of a finding is not
+ * proof of full control flow, resource termination or business correctness.
  */
 import type { JavaSyntaxNode } from '../../analyzer/java-parser.ts';
+import { cancelledQueueFindings } from './cancellation.ts';
+import { guaranteedContextCleanup, previousContextSymbols } from './context-cleanup.ts';
 import { JavaSymbols, enclosing, isWithin } from '../../analyzer/java-symbols.ts';
 import { childForField, isInFinally, methodNameOf, receiverName, receiverOf, walk } from '../../analyzer/ast-utils.ts';
 import {
@@ -269,7 +272,7 @@ registerValidator('thread_pool.future_result_handled', (ctx: CheckContext): Chec
 
 /** TP-SUBMIT-002: Future.get 必须带超时。 */
 registerValidator('thread_pool.future_get_with_timeout', (ctx: CheckContext): CheckFinding[] => {
-  const findings: CheckFinding[] = [];
+  const findings: CheckFinding[] = cancelledQueueFindings(ctx);
   for (const get of ctx.model.futureGets) {
     if (get.hasTimeout) continue;
     findings.push({
@@ -308,13 +311,6 @@ registerValidator('thread_pool.thread_local_cleanup', (ctx: CheckContext): Check
     const owner = enclosing(write.node, callables);
     const matches = (expression: JavaSyntaxNode | null): boolean => write.name === 'MDC'
       ? receiverName(expression) === 'MDC' : expression !== null && symbols.lookup(expression)?.id === write.symbolId;
-    const removes = (body: JavaSyntaxNode): boolean => {
-      let found = false;
-      walk(body, n => {
-        if (n.type === 'method_invocation' && (methodNameOf(n) === 'remove' || (write.name === 'MDC' && methodNameOf(n) === 'clear')) && matches(receiverOf(n))) found = true;
-      });
-      return found;
-    };
     const protectedAt = (site: JavaSyntaxNode, allowAdjacentWrite: boolean): boolean => {
       const execution = enclosing(site, callables);
       return symbols.nodes.filter(n => ['try_statement', 'try_with_resources_statement'].includes(n.type) &&
@@ -325,19 +321,17 @@ registerValidator('thread_pool.thread_local_cleanup', (ctx: CheckContext): Check
         .some(attempt => {
           const final = attempt.namedChildren.find(n => n.type === 'finally_clause');
           if (!final) return false;
-          if (removes(final)) return true;
-          let cleaned = false;
-          walk(final, n => {
-            if (n.type !== 'method_invocation') return;
-            const helper = symbols.method(n);
-            if (helper && removes(helper)) cleaned = true;
-          });
-          return cleaned;
+          return guaranteedContextCleanup(final, symbols, matches, previousContextSymbols(site, symbols, matches));
         });
     };
     const callers = owner?.type === 'method_declaration' ? symbols.nodes.filter(n => n.type === 'method_invocation' && symbols.method(n)?.id === owner.id) : [];
     // A restore helper used exclusively by finally is itself cleanup.
-    if (callers.length && callers.every(isInFinally) && owner && removes(owner)) continue;
+    if (callers.length && callers.every(isInFinally) && owner) {
+      const body = childForField(owner, 'body');
+      // This write is a restore-helper branch. Its callers are checked at the original write.
+      if (body && symbols.nodes.some(n => n.type === 'method_invocation' && isWithin(n, body) &&
+        methodNameOf(n) === 'remove' && matches(receiverOf(n)))) continue;
+    }
     if (protectedAt(write.node, true)) continue;
     const privateHelper = owner?.type === 'method_declaration' && /\bprivate\b/.test(owner.namedChildren.find(n => n.type === 'modifiers')?.text ?? '');
     if (privateHelper && callers.length && callers.every(c => protectedAt(c, false))) continue;
@@ -546,10 +540,22 @@ registerValidator('thread_pool.interrupt_restored', (ctx: CheckContext): CheckFi
 /** TP-SHUTDOWN-004: shutdownNow 返回的未执行任务必须被处理。 */
 registerValidator('thread_pool.shutdown_now_pending_tasks', (ctx: CheckContext): CheckFinding[] => {
   const findings: CheckFinding[] = [];
+  const symbols = new JavaSymbols(ctx.parsed.rootNode);
   for (const shutdown of ctx.model.shutdowns) {
-    if (shutdown.method !== 'shutdownNow' || shutdown.resultUsed) continue;
+    if (shutdown.method !== 'shutdownNow') continue;
+    let value = shutdown.node;
+    while (value.parent?.type === 'parenthesized_expression') value = value.parent;
+    const declaration = value.parent?.type === 'variable_declarator' ? value.parent : undefined;
+    const symbol = declaration && symbols.symbols.find(s => s.id === declaration.id);
+    // A local assignment alone is not handling. Do not claim to prove downstream compensation.
+    const unusedLocal = symbol && !symbol.field && !symbols.nodes.some(n =>
+      n.type === 'identifier' && n.startIndex > declaration!.endIndex && symbols.lookup(n)?.id === symbol.id &&
+      !(n.parent?.type === 'assignment_expression' && childForField(n.parent, 'left')?.id === n.id));
+    if (shutdown.resultUsed && value.parent?.type !== 'expression_statement' && !unusedLocal) continue;
     findings.push({
-      message: `${shutdown.receiver}.shutdownNow() 返回的未执行任务列表被丢弃，队列中的任务会静默丢失。`,
+      message: unusedLocal
+        ? `${shutdown.receiver}.shutdownNow() 返回的未执行任务列表仅保存在未读取的局部变量中，未发现任务处置。`
+        : `${shutdown.receiver}.shutdownNow() 返回的未执行任务列表被丢弃，存在静默丢失排队任务的风险。`,
       suggestion: '接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。',
       line: shutdown.evidence.startLine,
       column: shutdown.evidence.startColumn,

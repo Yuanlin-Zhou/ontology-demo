@@ -1,0 +1,145 @@
+{
+  "model_requests": 0,
+  "baseline_revision": "53a46ea",
+  "note": "Named regression examples, not an independent accuracy benchmark. Syntax fixtures; see tests/rule-coverage.test.ts for real JVM context checks.",
+  "records": [
+    {
+      "file": "context-restore.java",
+      "rule": "TP-SUBMIT-004",
+      "expected_diagnostic": false,
+      "source_sha256": "00efdb4c9b473f18f2f163bf7df905cf5401cc963d7384926ce4629361f9c20c",
+      "before": [
+        {
+          "rule_id": "TP-SUBMIT-004",
+          "rule_name": "ThreadLocal 必须在 finally 中清理",
+          "message": "T 的本次写入没有对应的 finally 清理路径，复用线程可能残留上下文。",
+          "severity": "error",
+          "line": 2,
+          "column": 85,
+          "snippet": "class A {ThreadLocal<String> T=new ThreadLocal<>();void f(){String previous=T.get();T.set(\"new\");try{}finally{T.set(previous);}}}",
+          "suggestion": "把本次任务包装在 try/finally 中，在对应 finally 内 remove() 或调用当前类的上下文恢复方法。"
+        }
+      ],
+      "after": []
+    },
+    {
+      "file": "context-deferred.java",
+      "rule": "TP-SUBMIT-004",
+      "expected_diagnostic": true,
+      "source_sha256": "09056562af5ed32d29078e71e80ad736d4ed51e334055a92a8639d4d5d44770e",
+      "before": [],
+      "after": [
+        {
+          "rule_id": "TP-SUBMIT-004",
+          "rule_name": "ThreadLocal 必须在 finally 中清理",
+          "message": "T 的本次写入没有对应的 finally 清理路径，复用线程可能残留上下文。",
+          "severity": "error",
+          "line": 2,
+          "column": 61,
+          "snippet": "class A {ThreadLocal<String> T=new ThreadLocal<>();void f(){T.set(\"new\");try{}finally{Runnable later=()->T.remove();}}}",
+          "suggestion": "把本次任务包装在 try/finally 中，在对应 finally 内 remove() 或调用当前类的上下文恢复方法。"
+        }
+      ]
+    },
+    {
+      "file": "context-conditional.java",
+      "rule": "TP-SUBMIT-004",
+      "expected_diagnostic": true,
+      "source_sha256": "af46028272d08040ca7e67a6de4ba85eac431db56ec9f950da000a82e5d937e1",
+      "before": [],
+      "after": [
+        {
+          "rule_id": "TP-SUBMIT-004",
+          "rule_name": "ThreadLocal 必须在 finally 中清理",
+          "message": "T 的本次写入没有对应的 finally 清理路径，复用线程可能残留上下文。",
+          "severity": "error",
+          "line": 2,
+          "column": 70,
+          "snippet": "class A {ThreadLocal<String> T=new ThreadLocal<>();void f(boolean c){T.set(\"new\");try{}finally{if(c)T.remove();}}}",
+          "suggestion": "把本次任务包装在 try/finally 中，在对应 finally 内 remove() 或调用当前类的上下文恢复方法。"
+        }
+      ]
+    },
+    {
+      "file": "pending-unused.java",
+      "rule": "TP-SHUTDOWN-004",
+      "expected_diagnostic": true,
+      "source_sha256": "4545714161daede9e568ad28d2d3bdaf549c3063cb80d1ecf7e6da55a876e330",
+      "before": [],
+      "after": [
+        {
+          "rule_id": "TP-SHUTDOWN-004",
+          "rule_name": "shutdownNow 返回的未执行任务必须被处理",
+          "message": "p.shutdownNow() 返回的未执行任务列表仅保存在未读取的局部变量中，未发现任务处置。",
+          "severity": "warning",
+          "line": 2,
+          "column": 59,
+          "snippet": "class A {void f(ExecutorService p){List<Runnable> pending=p.shutdownNow();}}",
+          "suggestion": "接收返回值并处理：记录数量、写入补偿表/消息队列供重启后消费，或转入其它执行通道。"
+        }
+      ]
+    },
+    {
+      "file": "pending-consumed.java",
+      "rule": "TP-SHUTDOWN-004",
+      "expected_diagnostic": false,
+      "source_sha256": "2a2ff7cd57c5d5cef230f5a9a12b5a4b9b7a845340fc772e1a3c09181dc077ea",
+      "before": [],
+      "after": []
+    },
+    {
+      "file": "cancel-missing.java",
+      "rule": "TP-SUBMIT-002",
+      "expected_diagnostic": true,
+      "source_sha256": "31f10adb45adcc9612e30345d102a2b08e5e90e6e423a1ee27f1e332171b00ce",
+      "before": [],
+      "after": [
+        {
+          "rule_id": "TP-SUBMIT-002",
+          "rule_name": "Future.get 必须带超时",
+          "message": "FutureTask.cancel() 不会自动移除 ThreadPoolExecutor 中的排队项；未确认该取消路径按实际入队对象 remove 或有效 purge，存在容量滞留风险。",
+          "severity": "warning",
+          "line": 2,
+          "column": 264,
+          "snippet": "task.cancel(true)",
+          "suggestion": "保留实际入队的 Runnable 身份，取消后在对应路径 remove(queuedRunnable)；直接 execute(task) 时可 remove(task) 或 purge()。跨方法清理、协作取消和运行中任务仍需源码审查及队列饱和测试。"
+        }
+      ]
+    },
+    {
+      "file": "cancel-wrapper-wrong.java",
+      "rule": "TP-SUBMIT-002",
+      "expected_diagnostic": true,
+      "source_sha256": "a00a531f49d768a757df928cdec93091b9556eb51e2ee16b09506e6ad1872fa2",
+      "before": [],
+      "after": [
+        {
+          "rule_id": "TP-SUBMIT-002",
+          "rule_name": "Future.get 必须带超时",
+          "message": "取消的是内部 FutureTask，但 execute 入队的是 lambda 包装器；remove(task) 与实际入队对象不同，不能释放该排队项。",
+          "severity": "warning",
+          "line": 2,
+          "column": 274,
+          "snippet": "task.cancel(true)",
+          "suggestion": "保留实际入队的 Runnable 身份，取消后在对应路径 remove(queuedRunnable)；直接 execute(task) 时可 remove(task) 或 purge()。跨方法清理、协作取消和运行中任务仍需源码审查及队列饱和测试。"
+        }
+      ]
+    },
+    {
+      "file": "cancel-direct-clean.java",
+      "rule": "TP-SUBMIT-002",
+      "expected_diagnostic": false,
+      "source_sha256": "91e7775df3a488e5c2cc66a6d9ec04808061bb52f0cf68f52716b4fc1cc4b26c",
+      "before": [],
+      "after": []
+    },
+    {
+      "file": "cancel-wrapper-clean.java",
+      "rule": "TP-SUBMIT-002",
+      "expected_diagnostic": false,
+      "source_sha256": "35f8f295dd0da546bc88b232ac13c31d625e8a5e0f8f062cbd047e09e5fb59c3",
+      "before": [],
+      "after": []
+    }
+  ]
+}

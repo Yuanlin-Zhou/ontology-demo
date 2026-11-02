@@ -1,0 +1,102 @@
+{
+  "model_requests": 0,
+  "source_files_verified": 90,
+  "added_diagnostic_instances": 12,
+  "removed_diagnostic_instances": 0,
+  "changes": [
+    {
+      "source": "eval/experiments/2026-10-27-63calls/evidence/results/baseline/CASE-020.java",
+      "source_sha256": "401a20b9ffa9888f4efefaf910e6c3f59955caeec2f92d63dab13d93551864c2",
+      "added": [
+        [
+          "TP-SUBMIT-002",
+          115
+        ],
+        [
+          "TP-SUBMIT-002",
+          119
+        ]
+      ],
+      "removed": []
+    },
+    {
+      "source": "eval/experiments/2026-10-27-63calls/evidence/results/rag/CASE-020.java",
+      "source_sha256": "05171c758f9e2a2190619f062290f1c45fc27763b967433c57037a5e852790df",
+      "added": [
+        [
+          "TP-SUBMIT-002",
+          105
+        ],
+        [
+          "TP-SUBMIT-002",
+          109
+        ]
+      ],
+      "removed": []
+    },
+    {
+      "source": "eval/experiments/2026-10-27-63calls/evidence/results/rules/CASE-020.java",
+      "source_sha256": "fc43fb9fc1e36679436c62352beaa23d2d48bdfa37a260a1e9efa3d9f72c1b7c",
+      "added": [
+        [
+          "TP-SUBMIT-002",
+          118
+        ],
+        [
+          "TP-SUBMIT-002",
+          123
+        ]
+      ],
+      "removed": []
+    },
+    {
+      "source": "eval/experiments/2026-11-02-observable-v2/evidence/results/baseline/CASE-020.java",
+      "source_sha256": "5e011711f9a15beb7b323fdf998625e7600eefd483e9a2572260c4bb69558287",
+      "added": [
+        [
+          "TP-SUBMIT-002",
+          118
+        ],
+        [
+          "TP-SUBMIT-002",
+          122
+        ]
+      ],
+      "removed": []
+    },
+    {
+      "source": "eval/experiments/2026-11-02-observable-v2/evidence/results/rag/CASE-020.java",
+      "source_sha256": "ebd6573de1d7d5ec30808a88d7dc75bbedea3ee6e0b792b953d7b385eafb7434",
+      "added": [
+        [
+          "TP-SUBMIT-002",
+          112
+        ],
+        [
+          "TP-SUBMIT-002",
+          116
+        ]
+      ],
+      "removed": []
+    },
+    {
+      "source": "eval/experiments/2026-11-02-observable-v2/evidence/results/rules/CASE-020.java",
+      "source_sha256": "766d29191be13651f55f9283b83268479dfb48186f536d02be24cdc5ebc53e73",
+      "added": [
+        [
+          "TP-SUBMIT-002",
+          114
+        ],
+        [
+          "TP-SUBMIT-002",
+          118
+        ]
+      ],
+      "removed": []
+    }
+  ],
+  "original_archive_manifests_verified": [
+    "eval/experiments/2026-11-02-observable-v2/sha256.json"
+  ],
+  "note": "Pattern risk findings only; no compile or business reranking. No claim all findings are confirmed defects."
+}

@@ -1,0 +1,256 @@
+
+> knowledge-rule-engine@0.1.0 test:eval
+> bash scripts/eval-env.sh test
+
+Pinned Java dependencies verified.
+
+> knowledge-rule-engine@0.1.0 test
+> node --test
+
+AGENT-003 #1 baseline: generation=ok, compile=ok, behavior=passed
+AGENT-003 #1 rag: generation=failed, compile=unavailable, behavior=unavailable
+AGENT-003 #1 rules: generation=ok, compile=ok, behavior=passed
+AGENT-003 #1 baseline: generation=ok, compile=ok, behavior=passed
+AGENT-003 #1 rag: generation=failed, compile=unavailable, behavior=unavailable
+AGENT-003 #1 rules: generation=ok, compile=ok, behavior=passed
+▶ agent experiment correctness
+  ✔ scores distinct violated rules and refuses empty or malformed code scores (1.060356ms)
+  ✔ keeps usage for truncated completions and sends identical sampling settings (17.111696ms)
+  ✔ distinguishes compilation success from task success (3460.297123ms)
+  ✔ records failures in denominators, resumes cached responses and rejects mixed configurations (4239.650384ms)
+  ✔ keeps independent cross-file mistakes visible in the metrics (39.36248ms)
+✔ agent experiment correctness (7758.611671ms)
+▶ analyzer: thread pool creation
+  ✔ detects an explicit ThreadPoolExecutor with all seven arguments (10.31406ms)
+  ✔ expands the documented semantics of the Executors factories (2.174735ms)
+  ✔ detects transient pools created inside a method (1.810937ms)
+  ✔ detects virtual thread executors (6.430383ms)
+  ✔ detects `Thread.startVirtualThread` without a pool (0.855949ms)
+  ✔ detects Spring task executors configured through setters (3.75901ms)
+  ▶ analyzer: task submission and lifecycle
+    ✔ records submit / execute with receiver resolution and result usage (2.944945ms)
+    ✔ flags submit tasks that throw and records the shutdown sequence (5.041571ms)
+    ✔ tracks monitoring accessors and thread local usage (3.18804ms)
+    ✔ detects CompletableFuture without an explicit executor (0.980346ms)
+  ✔ analyzer: task submission and lifecycle (12.484148ms)
+  ▶ analyzer: robustness
+    ✔ reports syntax errors without throwing (0.428315ms)
+    ✔ produces no features for plain business code (1.0291ms)
+  ✔ analyzer: robustness (1.60097ms)
+✔ analyzer: thread pool creation (40.530528ms)
+▶ evaluation dataset
+  ✔ contains 21 documented cases with unique ids (0.681657ms)
+  ✔ references only existing rules and known features (0.453913ms)
+  ✔ every case declares a retrieval target (0.130196ms)
+  ✔ retrieves exactly the expected rules for every case (145.544302ms)
+  ✔ extracts exactly the expected semantic features for every case (86.38345ms)
+  ✔ reports exactly the expected violations for every bad.java (78.41981ms)
+  ✔ reports no error-severity violation for any good.java (392.816818ms)
+  ✔ documents a violated fixture for every rule that can be checked (0.323287ms)
+  ✔ keeps the prompt artifacts small (0.793915ms)
+✔ evaluation dataset (706.805351ms)
+▶ engine pipeline: scoped semantic evidence
+  ✔ tracks synchronous interrupt restoration through catch and its own finally without accepting unprotected paths (36.398076ms)
+  ✔ requires direct catch restoration on all explicit paths and respects finally overriding rethrow (19.178117ms)
+  ✔ binds a final pool initialized by alternative constructors to the same private factory without borrowing another resource (16.520596ms)
+  ✔ requires a runtime exception guard inside recurring tasks, independent of submission catch or thread handlers (26.759051ms)
+  ✔ detects synchronous CompletableFuture composition without requiring an Async executor (4.155938ms)
+  ✔ recognises a private shutdown wait helper without borrowing another pool or deferred work (23.327424ms)
+  ✔ ignores unrelated submit/execute/shutdown APIs and executor-like variable names (2.275146ms)
+  ✔ does not invent thread semantics from same-named business APIs or classify every per-task executor as virtual (2.064749ms)
+  ✔ does not count configuration or isShutdown as runtime monitoring (1.763796ms)
+  ✔ registers every declarator and does not duplicate expression factories (1.346618ms)
+  ✔ does not treat a pool created later inside a Bean lambda as a container-owned pool (2.412082ms)
+  ✔ retains Spring factory setters after promoting the returned pool to its field (7.754537ms)
+  ✔ respects inferred lambda shadowing and does not mistake comments for rejection reporting (2.31112ms)
+  ✔ does not combine same-named Spring locals from different methods (1.310323ms)
+  ✔ resolves constant capacities and recognises symbolic bounded queue constructors (2.473284ms)
+  ✔ checks each pool for monitoring instead of allowing one pool to cover another (2.657141ms)
+  ✔ binds rejection policy to the submitted pool (3.836607ms)
+  ✔ does not accept awaiting without initiating shutdown, or awaiting in an unrelated method (2.901369ms)
+  ✔ recognises Java 21 close and Spring default destruction without forcing duplicate shutdown (3.103013ms)
+  ✔ does not confuse try around execute with a catch inside the asynchronous task (5.234001ms)
+  ✔ does not let a handler for another pool hide an uncaught task exception (3.718139ms)
+  ✔ does not treat storing an unused Future as consuming it or borrow a same-named Future from another method (3.410696ms)
+  ✔ handles binary CompletableFuture overloads and timeout-protected join (2.646104ms)
+  ✔ does not use cleanup in a different method to protect an unsafe ThreadLocal write (2.605904ms)
+  ✔ follows private helper writes through protected callers and explains unprotected call sites (4.76142ms)
+  ✔ requires restoring the current thread or rethrowing the actual interrupted exception (1.812099ms)
+✔ engine pipeline: scoped semantic evidence (188.504358ms)
+▶ engine pipeline: selection and validation contracts
+  ✔ counts the actual serialized context, enforces zero/tiny budgets and reports omissions (6.893419ms)
+  ✔ prioritises current violations over satisfied configuration within a small budget (3.401362ms)
+  ✔ supports explicit planned features for new code without inventing detected evidence (0.392241ms)
+  ✔ keeps RAG within the same serialized budget and excludes project/evaluation documents (15.18238ms)
+  ✔ does not count absent checkers, advisory rules, invalid syntax or an explicit empty rule list as checked (3.449474ms)
+  ✔ makes CLI syntax failures nonzero and preserves retrieval limits in prompt format (349.397139ms)
+  ✔ fails on missing/empty knowledge and malformed applicability instead of silently loading no constraints (1.264605ms)
+  ✔ makes rationale selection and conditional related advice explicit (0.509727ms)
+✔ engine pipeline: selection and validation contracts (380.835988ms)
+▶ engine pipeline: bounded repair
+  ✔ does not recommend ThreadPoolExecutor getters on a virtual-thread ExecutorService (0.912003ms)
+  ✔ repairs task rejection even when compilation, configured tests and rules pass (1.941593ms)
+  ✔ gates success on compiler/business checks and does not claim unavailable checks passed (0.284358ms)
+  ✔ stops within the configured budget and stops a repeated candidate (0.813735ms)
+  ✔ recomputes applicability after each edit and cannot stop at compilation alone (5.380572ms)
+  ✔ feeds real javac diagnostics back and validates the repaired source again (1599.808101ms)
+✔ engine pipeline: bounded repair (1609.484982ms)
+1/3 baseline CASE-012: ok
+2/3 rag CASE-012: failed
+1/3 baseline CASE-012: retained ok
+2/3 rag CASE-012: retained failed
+3/3 rules CASE-012: ok
+1/3 baseline CASE-012: failed
+2/3 rag CASE-012: failed
+3/3 rules CASE-012: failed
+1/3 baseline CASE-012: failed
+2/3 rag CASE-012: failed
+3/3 rules CASE-012: failed
+1/1 rules CASE-019: ok
+1/63 baseline CASE-001: failed
+1/63 baseline CASE-001: ok
+2/63 rag CASE-001: failed
+▶ evaluation metrics and reviews
+  ✔ extracts one fenced block without rewriting Java or losing raw provenance (1.942905ms)
+  ✔ deduplicates violated rules and leaves zero-rule compliance undefined (0.653775ms)
+  ✔ requires complete, evidence-backed reviews bound to the exact source (1.064613ms)
+  ✔ records all planned results, including missing and syntactically invalid outputs (1082.147396ms)
+  ✔ does not turn a passing review into task success when javac is unavailable (1060.28969ms)
+✔ evaluation metrics and reviews (2147.172917ms)
+▶ real Java checks
+  ✔ verifies actual scheduled retry effects, recovery after failure and stop semantics (25096.333797ms)
+  ✔ verifies actual export cancellation, context restoration and queued shutdown completion (31082.851745ms)
+  ✔ verifies real virtual-thread downstream admission, permit release, counters and draining (12577.410129ms)
+  ✔ retains the actual assertion after noisy output within bounded diagnostic feedback (862.672098ms)
+  ✔ checks priority dispatch, FIFO ties, bounded eviction, concurrent overflow and explicit rejection (7544.267201ms)
+  ✔ uses AST type names rather than names in comments (1.006986ms)
+  ✔ distinguishes missing javac from code compilation failure (5.129192ms)
+  ✔ compiles correct code, rejects invalid code and enforces functional assertions (2890.453126ms)
+  ✔ times out a non-terminating functional test (2934.849352ms)
+  ✔ distinguishes an unsupported test adapter from a failed implementation (929.845526ms)
+  ✔ detects real graceful-shutdown and interrupt regressions (5419.512585ms)
+  ✔ accepts counted rejections that propagate and rejects fresh statistics with unchanged counts (4169.283002ms)
+  ✔ compiles a real ThreadFactory exception handler and rejects that API on an executor (1067.617139ms)
+  ✔ starts a real Spring context and checks container-owned shutdown (3538.115209ms)
+  ✔ checks export caller context as well as worker context (2794.74147ms)
+  ✔ chooses a compatible Spring stats overload instead of an unrelated String adapter (1720.952917ms)
+  ✔ executes Micrometer counters and percentile timers with their runtime dependencies (1146.56233ms)
+  ✔ detects a real tenant-context leak through the public sync method (2925.940111ms)
+  ✔ rejects a quote implementation that waits synchronously before returning its future (2907.919923ms)
+✔ real Java checks (109616.985637ms)
+▶ experiment provenance
+  ✔ scopes test adapters to the selected task instead of inventing unrelated business interfaces (0.465871ms)
+  ✔ resumes recorded calls without generating them twice (366.419707ms)
+  ✔ retains invalid model output and continues the other strategy slots (190.406128ms)
+  ✔ preserves usage and raw responses when a model generation is truncated (177.002663ms)
+  ✔ accepts API roots, v1 bases and complete chat-completions endpoints (0.397969ms)
+  ✔ omits unsupported DeepSeek seed parameters while preserving request limits (0.201052ms)
+  ✔ validates limits and prepares 63 prompts without invoking a provider or overwriting a run (263.729238ms)
+  ✔ prepares exactly three pilot jobs and rejects unknown or duplicate case selections (99.393361ms)
+  ✔ runs only selected strategies in an explicitly scoped retest (100.773217ms)
+  ✔ stops after a provider failure and retains missing cases in the report (1252.798741ms)
+  ✔ retains raw model output and records extraction before evaluating a fenced response (1314.802601ms)
+✔ experiment provenance (3767.036902ms)
+✔ checks catch/finally restoration against the real current-thread interrupt flag (5647.900519ms)
+✔ checks retry-loop flags through enclosing finally against real JVM outcomes (6683.979017ms)
+▶ rule repository
+  ✔ loads the thread pool atomic rules (0.613637ms)
+  ✔ every rule has an id, applicability, content and references (0.387755ms)
+  ✔ every rule carries positive and negative examples (0.223438ms)
+  ✔ rejects rules with unknown features (1.088002ms)
+  ✔ rejects duplicate rule ids (0.858045ms)
+✔ rule repository (4.068915ms)
+▶ rule matcher
+  ✔ applies AND semantics for `features` (0.252752ms)
+  ✔ applies OR semantics for `any_features` (0.171019ms)
+  ✔ maps code semantics to the documented rule set (1.271591ms)
+  ✔ pulls in related rules when requested (0.409028ms)
+  ✔ trims the payload to the token budget (0.849683ms)
+  ✔ honours maxRules (0.266292ms)
+✔ rule matcher (3.553647ms)
+✔ makes observable contracts opt-in without changing v1 or unrelated tasks (920.878518ms)
+✔ verifies all seven callback references and rejects counter-only or caller-thread substitutes (22508.467855ms)
+✔ records a provider endpoint and credential selector without embedding credentials (1.300728ms)
+✔ uses only the selected runtime credential and keeps it out of normalized results (17.519346ms)
+✔ does not fall back to another provider key or echo failed response bodies (0.968218ms)
+1/1 rules CASE-019: ok
+CASE-019: passed, 1 extra call(s)
+CASE-019: passed, 0 extra call(s)
+CASE-019: stalled, 1 extra call(s)
+▶ public API and real repair experiment adapters
+  ✔ protects package, constructors, overloads and method types/static modifiers (11.920005ms)
+  ✔ retains first-pass failure and enforces a separate paid-call budget through the real engine repair API (5036.967197ms)
+✔ public API and real repair experiment adapters (5049.840978ms)
+▶ token estimator
+  ✔ counts CJK characters higher than ASCII (0.825843ms)
+✔ token estimator (1.658537ms)
+▶ tokenizer
+  ✔ emits ascii words and CJK n-grams (0.328525ms)
+✔ tokenizer (0.469236ms)
+▶ RAG baseline
+  ✔ indexes the two knowledge documents (9.859213ms)
+  ✔ ranks queue-related knowledge for a queue related query (1.888283ms)
+  ✔ returns chunks with token cost and score (0.661847ms)
+  ✔ respects the token budget (3.886401ms)
+✔ RAG baseline (16.627753ms)
+▶ prompt renderer
+  ✔ renders the rule context with feature evidence (34.055862ms)
+  ✔ renders nothing but the task for the baseline strategy (0.149475ms)
+  ✔ renders retrieved chunks for the rag strategy (19.607328ms)
+✔ prompt renderer (54.100128ms)
+▶ retrieve API contract
+  ✔ returns features, rules and statistics (4.095006ms)
+  ✔ keeps the context small compared to the whole knowledge base (1.204444ms)
+✔ retrieve API contract (5.447001ms)
+▶ coverage review: cancellation queue identity
+  ✔ detects the archived wrapper mismatch and cancelled queued task without removal (278.996766ms)
+  ✔ accepts direct remove and purge; does not accept another task or another pool (24.281438ms)
+  ✔ tracks a stable wrapper alias; purge and removing the inner task do not remove a lambda (9.048783ms)
+  ✔ accepts corresponding finally cleanup and stays within its documented executor/type scope (5.209633ms)
+  ✔ does not report queue retention for an AbortPolicy-rejected submission that was never queued (1.953421ms)
+✔ coverage review: cancellation queue identity (320.463136ms)
+▶ coverage review: shutdown pending tasks
+  ✔ does not mistake an unread local assignment for processing pending work (3.243573ms)
+  ✔ does not confuse local shadowing with consumption of the pending list (1.983255ms)
+✔ coverage review: shutdown pending tasks (5.434352ms)
+▶ coverage review: context explicit cleanup paths
+  ✔ recognizes restoring a stable captured value even without remove (6.959628ms)
+  ✔ rejects deferred, conditional, early-return and overwritten cleanup (9.518952ms)
+  ✔ checks a private restore helper and does not accept deferred cleanup inside the helper (4.606555ms)
+  ✔ compares safe restoration and missed deferred/conditional cleanup with real JVM state (3188.734514ms)
+✔ coverage review: context explicit cleanup paths (3210.118559ms)
+✔ measures real expansion and idle retirement instead of trusting max/core configuration alone (4040.593687ms)
+✔ keeps reviewed-but-unverifiable criteria unconfirmed and preserves definite failures (1.854752ms)
+▶ validator: violations
+  ✔ tracks a pool assigned to a field in the constructor and still checks shutdown (11.217979ms)
+  ✔ recognises a private factory used solely for constructor field initialization (9.331499ms)
+  ✔ retains per-request warnings when a private factory also runs from a normal method (2.202706ms)
+  ✔ does not confuse a shadowed constructor local with the field (2.59092ms)
+  ✔ recognises a constructor local that escapes only to its service field (1.372156ms)
+  ✔ does not treat deferred lambda assignments as constructor initialization (1.186316ms)
+  ✔ reports the documented violations for a violating file (2.972405ms)
+  ✔ attaches location, snippet and repair suggestion to every violation (3.057263ms)
+  ✔ does not report error-severity violations for compliant code (12.530835ms)
+  ✔ restricts the check to the requested rule ids (4.229407ms)
+  ✔ warns about unknown rule ids instead of failing (2.307143ms)
+  ✔ recognises the ThreadLocal cleanup delegated to a helper (3.971839ms)
+  ✔ still reports ThreadLocal usage without any cleanup (1.043591ms)
+✔ validator: violations (59.329312ms)
+ℹ tests 158
+ℹ suites 23
+ℹ pass 158
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 178254.598245
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.1
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.1
+npm notice To update run: npm install -g npm@12.2.1
+npm notice
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.1
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.1
+npm notice To update run: npm install -g npm@12.2.1
+npm notice
