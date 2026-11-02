@@ -1,0 +1,29 @@
+{
+  "real_supplier_requests": 0,
+  "reference_adapter_attempts": 9,
+  "reference_outputs": 9,
+  "reference_compile_passed": 9,
+  "reference_behavior_passed": 9,
+  "controlled_model_comparison": false,
+  "tagged_route_effectiveness": "not_evaluated",
+  "typecheck": "passed",
+  "jdk": "21.0.12.1; pinned dependencies verified",
+  "initial_targeted": {
+    "tests": 16,
+    "passed": 16,
+    "failed": 0,
+    "skipped": 0
+  },
+  "final_full": {
+    "tests": 174,
+    "passed": 174,
+    "failed": 0,
+    "skipped": 0
+  },
+  "notes": [
+    "Default provider recorder is tested with mocked fetch, not real HTTP.",
+    "Imported and injected-adapter outputs never become supplier model scores.",
+    "Usage unavailable in reference rehearsal; no token or monetary cost claim.",
+    "Prepared manifests and historical experiments unchanged."
+  ]
+}

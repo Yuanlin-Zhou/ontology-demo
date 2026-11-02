@@ -1,0 +1,21 @@
+{
+  "key": "baseline/EDIT-CONTEXT-1",
+  "prompt_hash": "c9331feb57100efea1d228469ffb3412d7eafda3f1049679bcd06dc7ee199b2d",
+  "status": "ok",
+  "model_requested": "deepseek-flash",
+  "elapsed_ms": 0,
+  "model_returned": "deepseek-flash",
+  "applied_parameters": {
+    "temperature": 0,
+    "max_tokens": 8192,
+    "seed": null,
+    "thinking": {
+      "type": "disabled"
+    },
+    "endpoint": "https://api.deepseek.com/chat/completions",
+    "api_key_env": "EVAL_API_KEY"
+  },
+  "raw_hash": "68761335709428dafe756d424357576c6318501691bb8dd4ad675398fce5e5e3",
+  "source_hash": "2be87229b437f5ec0c7533551ba4db03a77ec24113164856792c3add54c37c25",
+  "extraction": "plain"
+}

@@ -1,0 +1,436 @@
+{
+  "schema": 1,
+  "tagger": 1,
+  "tree_hash": "6500fa00cab4e2278f9d34dcac2d39825728c88948eabe207ba20ac78966449d",
+  "file": "eval/tagged-edit/cases/BufferedNotifier.java",
+  "source_hash": "456e62be8a55214d257d95a33744a8c84cda5095f18318f05ccc608d4248def6",
+  "entities": [
+    {
+      "id": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier",
+      "kind": "class",
+      "name": "BufferedNotifier",
+      "signature": "BufferedNotifier",
+      "start": 67,
+      "end": 640,
+      "line": 3,
+      "endLine": 9,
+      "tags": [
+        {
+          "leaf": "tp.use.result",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.SUBMIT",
+          "evidence": "public void send(String message){pool.execute(()->sink.accept(message));}",
+          "line": 7,
+          "column": 38,
+          "confidence": "high",
+          "attributes": {
+            "method": "execute",
+            "receiver": "pool",
+            "resolution": "initializer",
+            "result_used": false
+          },
+          "from_entity": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::send(String)"
+        },
+        {
+          "leaf": "tp.use.exception",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.EXECUTE",
+          "evidence": "public void send(String message){pool.execute(()->sink.accept(message));}",
+          "line": 7,
+          "column": 38,
+          "confidence": "high",
+          "attributes": {
+            "method": "execute",
+            "receiver": "pool",
+            "resolution": "initializer",
+            "result_used": false
+          },
+          "from_entity": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::send(String)"
+        },
+        {
+          "leaf": "tp.create.workload",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.CREATE",
+          "evidence": "private final ThreadPoolExecutor pool = new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new LinkedBlockingQueue<>(),new ThreadPoolExecutor.AbortPolicy());",
+          "line": 5,
+          "column": 45,
+          "confidence": "high",
+          "attributes": {
+            "kind": "thread_pool_executor",
+            "scope": "field"
+          },
+          "from_entity": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::field:pool"
+        },
+        {
+          "leaf": "tp.create.explicit",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.CREATE",
+          "evidence": "private final ThreadPoolExecutor pool = new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new LinkedBlockingQueue<>(),new ThreadPoolExecutor.AbortPolicy());",
+          "line": 5,
+          "column": 45,
+          "confidence": "high",
+          "attributes": {
+            "kind": "thread_pool_executor",
+            "scope": "field"
+          },
+          "from_entity": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::field:pool"
+        },
+        {
+          "leaf": "tp.create.sizing",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.CONFIG.CORE_SIZE",
+          "evidence": "private final ThreadPoolExecutor pool = new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new LinkedBlockingQueue<>(),new ThreadPoolExecutor.AbortPolicy());",
+          "line": 5,
+          "column": 45,
+          "confidence": "high",
+          "attributes": {
+            "value": "1"
+          },
+          "from_entity": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::field:pool"
+        },
+        {
+          "leaf": "tp.create.sizing",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.CONFIG.MAX_SIZE",
+          "evidence": "private final ThreadPoolExecutor pool = new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new LinkedBlockingQueue<>(),new ThreadPoolExecutor.AbortPolicy());",
+          "line": 5,
+          "column": 45,
+          "confidence": "high",
+          "attributes": {
+            "value": "1"
+          },
+          "from_entity": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::field:pool"
+        },
+        {
+          "leaf": "tp.create.sizing",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.CONFIG.KEEP_ALIVE",
+          "evidence": "private final ThreadPoolExecutor pool = new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new LinkedBlockingQueue<>(),new ThreadPoolExecutor.AbortPolicy());",
+          "line": 5,
+          "column": 45,
+          "confidence": "high",
+          "attributes": {
+            "value": "30",
+            "unit": "TimeUnit.SECONDS"
+          },
+          "from_entity": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::field:pool"
+        },
+        {
+          "leaf": "tp.create.queue",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.CONFIG.QUEUE",
+          "evidence": "private final ThreadPoolExecutor pool = new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new LinkedBlockingQueue<>(),new ThreadPoolExecutor.AbortPolicy());",
+          "line": 5,
+          "column": 92,
+          "confidence": "high",
+          "attributes": {
+            "queue": "LinkedBlockingQueue",
+            "bounded": false,
+            "capacity": "unset"
+          },
+          "from_entity": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::field:pool"
+        },
+        {
+          "leaf": "tp.create.rejection",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.CONFIG.REJECTION",
+          "evidence": "private final ThreadPoolExecutor pool = new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new LinkedBlockingQueue<>(),new ThreadPoolExecutor.AbortPolicy());",
+          "line": 5,
+          "column": 120,
+          "confidence": "high",
+          "attributes": {
+            "policy": "AbortPolicy",
+            "kind": "abort"
+          },
+          "from_entity": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::field:pool"
+        },
+        {
+          "leaf": "tp.use.shutdown",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.SHUTDOWN",
+          "evidence": "public void stop()throws InterruptedException{pool.shutdown();if(!pool.awaitTermination(1,TimeUnit.SECONDS))throw new IllegalStateException(\"not stopped\");}",
+          "line": 8,
+          "column": 51,
+          "confidence": "high",
+          "attributes": {
+            "method": "shutdown",
+            "receiver": "pool"
+          },
+          "from_entity": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::stop()"
+        },
+        {
+          "leaf": "tp.use.shutdown",
+          "origin": "aggregate",
+          "feature": "THREAD_POOL.AWAIT_TERMINATION",
+          "evidence": "public void stop()throws InterruptedException{pool.shutdown();if(!pool.awaitTermination(1,TimeUnit.SECONDS))throw new IllegalStateException(\"not stopped\");}",
+          "line": 8,
+          "column": 71,
+          "confidence": "high",
+          "attributes": {
+            "method": "awaitTermination",
+            "receiver": "pool",
+            "timeout_args": 2
+          },
+          "from_entity": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::stop()"
+        }
+      ]
+    },
+    {
+      "id": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::field:sink",
+      "kind": "field",
+      "name": "sink",
+      "signature": "field:sink",
+      "start": 134,
+      "end": 138,
+      "line": 4,
+      "endLine": 4,
+      "tags": [],
+      "parent": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier"
+    },
+    {
+      "id": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::field:pool",
+      "kind": "field",
+      "name": "pool",
+      "signature": "field:pool",
+      "start": 177,
+      "end": 296,
+      "line": 5,
+      "endLine": 5,
+      "tags": [
+        {
+          "leaf": "tp.create.workload",
+          "origin": "ast",
+          "feature": "THREAD_POOL.CREATE",
+          "evidence": "private final ThreadPoolExecutor pool = new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new LinkedBlockingQueue<>(),new ThreadPoolExecutor.AbortPolicy());",
+          "line": 5,
+          "column": 45,
+          "confidence": "high",
+          "attributes": {
+            "kind": "thread_pool_executor",
+            "scope": "field"
+          }
+        },
+        {
+          "leaf": "tp.create.explicit",
+          "origin": "ast",
+          "feature": "THREAD_POOL.CREATE",
+          "evidence": "private final ThreadPoolExecutor pool = new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new LinkedBlockingQueue<>(),new ThreadPoolExecutor.AbortPolicy());",
+          "line": 5,
+          "column": 45,
+          "confidence": "high",
+          "attributes": {
+            "kind": "thread_pool_executor",
+            "scope": "field"
+          }
+        },
+        {
+          "leaf": "tp.create.sizing",
+          "origin": "ast",
+          "feature": "THREAD_POOL.CONFIG.CORE_SIZE",
+          "evidence": "private final ThreadPoolExecutor pool = new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new LinkedBlockingQueue<>(),new ThreadPoolExecutor.AbortPolicy());",
+          "line": 5,
+          "column": 45,
+          "confidence": "high",
+          "attributes": {
+            "value": "1"
+          }
+        },
+        {
+          "leaf": "tp.create.sizing",
+          "origin": "ast",
+          "feature": "THREAD_POOL.CONFIG.MAX_SIZE",
+          "evidence": "private final ThreadPoolExecutor pool = new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new LinkedBlockingQueue<>(),new ThreadPoolExecutor.AbortPolicy());",
+          "line": 5,
+          "column": 45,
+          "confidence": "high",
+          "attributes": {
+            "value": "1"
+          }
+        },
+        {
+          "leaf": "tp.create.sizing",
+          "origin": "ast",
+          "feature": "THREAD_POOL.CONFIG.KEEP_ALIVE",
+          "evidence": "private final ThreadPoolExecutor pool = new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new LinkedBlockingQueue<>(),new ThreadPoolExecutor.AbortPolicy());",
+          "line": 5,
+          "column": 45,
+          "confidence": "high",
+          "attributes": {
+            "value": "30",
+            "unit": "TimeUnit.SECONDS"
+          }
+        },
+        {
+          "leaf": "tp.create.queue",
+          "origin": "ast",
+          "feature": "THREAD_POOL.CONFIG.QUEUE",
+          "evidence": "private final ThreadPoolExecutor pool = new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new LinkedBlockingQueue<>(),new ThreadPoolExecutor.AbortPolicy());",
+          "line": 5,
+          "column": 92,
+          "confidence": "high",
+          "attributes": {
+            "queue": "LinkedBlockingQueue",
+            "bounded": false,
+            "capacity": "unset"
+          }
+        },
+        {
+          "leaf": "tp.create.rejection",
+          "origin": "ast",
+          "feature": "THREAD_POOL.CONFIG.REJECTION",
+          "evidence": "private final ThreadPoolExecutor pool = new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new LinkedBlockingQueue<>(),new ThreadPoolExecutor.AbortPolicy());",
+          "line": 5,
+          "column": 120,
+          "confidence": "high",
+          "attributes": {
+            "policy": "AbortPolicy",
+            "kind": "abort"
+          }
+        }
+      ],
+      "parent": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier"
+    },
+    {
+      "id": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::<init>(Consumer<String>)",
+      "kind": "constructor",
+      "name": "BufferedNotifier",
+      "signature": "<init>(Consumer<String>)",
+      "start": 302,
+      "end": 399,
+      "line": 6,
+      "endLine": 6,
+      "tags": [],
+      "parent": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier"
+    },
+    {
+      "id": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::send(String)",
+      "kind": "method",
+      "name": "send",
+      "signature": "send(String)",
+      "start": 404,
+      "end": 477,
+      "line": 7,
+      "endLine": 7,
+      "tags": [
+        {
+          "leaf": "tp.use.result",
+          "origin": "ast",
+          "feature": "THREAD_POOL.SUBMIT",
+          "evidence": "public void send(String message){pool.execute(()->sink.accept(message));}",
+          "line": 7,
+          "column": 38,
+          "confidence": "high",
+          "attributes": {
+            "method": "execute",
+            "receiver": "pool",
+            "resolution": "initializer",
+            "result_used": false
+          }
+        },
+        {
+          "leaf": "tp.use.exception",
+          "origin": "ast",
+          "feature": "THREAD_POOL.EXECUTE",
+          "evidence": "public void send(String message){pool.execute(()->sink.accept(message));}",
+          "line": 7,
+          "column": 38,
+          "confidence": "high",
+          "attributes": {
+            "method": "execute",
+            "receiver": "pool",
+            "resolution": "initializer",
+            "result_used": false
+          }
+        }
+      ],
+      "parent": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier"
+    },
+    {
+      "id": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::stop()",
+      "kind": "method",
+      "name": "stop",
+      "signature": "stop()",
+      "start": 482,
+      "end": 638,
+      "line": 8,
+      "endLine": 8,
+      "tags": [
+        {
+          "leaf": "tp.use.shutdown",
+          "origin": "ast",
+          "feature": "THREAD_POOL.SHUTDOWN",
+          "evidence": "public void stop()throws InterruptedException{pool.shutdown();if(!pool.awaitTermination(1,TimeUnit.SECONDS))throw new IllegalStateException(\"not stopped\");}",
+          "line": 8,
+          "column": 51,
+          "confidence": "high",
+          "attributes": {
+            "method": "shutdown",
+            "receiver": "pool"
+          }
+        },
+        {
+          "leaf": "tp.use.shutdown",
+          "origin": "ast",
+          "feature": "THREAD_POOL.AWAIT_TERMINATION",
+          "evidence": "public void stop()throws InterruptedException{pool.shutdown();if(!pool.awaitTermination(1,TimeUnit.SECONDS))throw new IllegalStateException(\"not stopped\");}",
+          "line": 8,
+          "column": 71,
+          "confidence": "high",
+          "attributes": {
+            "method": "awaitTermination",
+            "receiver": "pool",
+            "timeout_args": 2
+          }
+        }
+      ],
+      "parent": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier"
+    }
+  ],
+  "edges": [
+    {
+      "from": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier",
+      "to": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::field:sink",
+      "kind": "contains"
+    },
+    {
+      "from": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier",
+      "to": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::field:pool",
+      "kind": "contains"
+    },
+    {
+      "from": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier",
+      "to": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::<init>(Consumer<String>)",
+      "kind": "contains"
+    },
+    {
+      "from": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::<init>(Consumer<String>)",
+      "to": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::field:sink",
+      "kind": "uses"
+    },
+    {
+      "from": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier",
+      "to": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::send(String)",
+      "kind": "contains"
+    },
+    {
+      "from": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::send(String)",
+      "to": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::field:pool",
+      "kind": "uses"
+    },
+    {
+      "from": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::send(String)",
+      "to": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::field:sink",
+      "kind": "uses"
+    },
+    {
+      "from": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier",
+      "to": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::stop()",
+      "kind": "contains"
+    },
+    {
+      "from": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::stop()",
+      "to": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::field:pool",
+      "kind": "uses"
+    }
+  ]
+}

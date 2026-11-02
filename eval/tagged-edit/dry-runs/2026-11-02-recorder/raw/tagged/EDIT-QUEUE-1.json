@@ -1,0 +1,20 @@
+{
+  "model": "deepseek-flash",
+  "code": "import java.util.concurrent.*;\nimport java.util.function.Consumer;\npublic class BufferedNotifier {\n    private final Consumer<String> sink;\n    private final ThreadPoolExecutor pool = new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new LinkedBlockingQueue<>(2),new ThreadPoolExecutor.AbortPolicy());\n    public BufferedNotifier(Consumer<String> sink){this.sink=java.util.Objects.requireNonNull(sink);}\n    public void send(String message){pool.execute(()->sink.accept(message));}\n    public void stop()throws InterruptedException{pool.shutdown();if(!pool.awaitTermination(1,TimeUnit.SECONDS))throw new IllegalStateException(\"not stopped\");}\n}\n",
+  "finish_reason": "stop",
+  "raw_response": {
+    "model": "deepseek-flash",
+    "fixture_kind": "Agent-authored reference, not supplier output",
+    "reference_class": "BufferedNotifier"
+  },
+  "applied_parameters": {
+    "temperature": 0,
+    "max_tokens": 8192,
+    "seed": null,
+    "thinking": {
+      "type": "disabled"
+    },
+    "endpoint": "https://api.deepseek.com/chat/completions",
+    "api_key_env": "EVAL_API_KEY"
+  }
+}

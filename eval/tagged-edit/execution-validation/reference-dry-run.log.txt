@@ -1,0 +1,1 @@
+Reference-only rehearsal: 9/9 outputs; supplier requests 0; not a model comparison.

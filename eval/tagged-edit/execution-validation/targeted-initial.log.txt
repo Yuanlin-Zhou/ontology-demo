@@ -1,0 +1,30 @@
+▶ recorded entity-tag edit execution
+  ✔ rejects incomplete/extra budgets and changed prompts even if their manifest hash is edited (214.903654ms)
+  ✔ exercises the default provider recorder through mocked fetch, preserves exact code, and detects tampering (4437.834303ms)
+  ✔ stops after access failure, retains incomplete coverage and omits provider error secrets (143.24705ms)
+  ✔ retains truncated raw output and usage without retrying or repairing it (2909.428694ms)
+  ✔ stops on model alias changes and keeps reported usage (146.952056ms)
+  ✔ halts before the next request when frozen inputs change during a call (124.766687ms)
+  ✔ keeps imported reference outputs separate from recorded model experiments (1486.169321ms)
+✔ recorded entity-tag edit execution (9464.598897ms)
+▶ hierarchical knowledge and persistent entity tagging
+  ✔ loads decision and norm leaves, maps all existing rules and rejects malformed trees (1.703405ms)
+  ✔ identifies overloads and fields; retrieves referenced field tags without unrelated method tags (14.537609ms)
+  ✔ distinguishes interfaces and nested types; abstract methods require explicit knowledge evidence (4.572656ms)
+  ✔ invalidates stale code and tree snapshots and replaces removed AST tags on re-index (9.241315ms)
+  ✔ retrieves planned new capabilities without pretending they already exist in code (3.412067ms)
+  ✔ persists tag evidence and enforces the full serialized knowledge budget (7.91661ms)
+✔ hierarchical knowledge and persistent entity tagging (42.363277ms)
+▶ tagged code edit experiment preparation
+  ✔ prepares paired prompts with identical edit inputs, budgets and facts, without model requests (120.656102ms)
+  ✔ starts from complete compilable Java code rather than generation scaffolds (1714.202134ms)
+  ✔ checks reference edits and detects unchanged code and broken worker restoration with real Java (9278.412367ms)
+✔ tagged code edit experiment preparation (11113.664416ms)
+ℹ tests 16
+ℹ suites 3
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 20990.19716

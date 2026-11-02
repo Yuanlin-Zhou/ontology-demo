@@ -41,7 +41,21 @@ node eval/tagged-edit/prepare.ts eval/tagged-edit/suite.json .eval-cache/edit-ru
 
 产物包括 manifest、冻结的源码、图、验收器、suite 和 9 份提示词。manifest 明确 prepare_only=true、model_requests=0、quality_results=null；预备槽位不计作生成失败或成功。
 
-当前没有启用付费模型执行器。未来受控执行前还需接通生成适配和可靠调用记录，保留实际参数、响应、usage、提取与源码哈希，先确定预算再执行；不能把手工 / 参考源码导入包装成受控模型结果。
+已实现独立的供应商执行器，但本轮没有执行付费生成。须显式指定完整矩阵调用上限和新的输出目录才执行：
+
+```bash
+# 这是实际调用 DeepSeek 的命令，本轮仅记录用法，未执行。
+EVAL_JAVAC="$PWD/.tools/jdk/bin/javac" EVAL_JAVA="$PWD/.tools/jdk/bin/java" \
+  node --use-env-proxy eval/tagged-edit/run.ts \
+  eval/tagged-edit/prepared/2026-11-02 .eval-cache/tagged-supplier-run-new \
+  --max-calls 9 --execute
+```
+
+执行器固定使用已配置的 EVAL_API_KEY 和 api.deepseek.com，不回退到其他提供商。原 prepared manifest 原样保留，实际状态另写 execution.json；不覆盖准备或历史结果，不支持自动续跑、重试或 Repair。访问失败、返回模型改变时停止；截断或不能唯一提取的 Java 保留原始输出及 usage，记 invalid_output，不修补源码，继续其他计划槽位。
+
+执行前重新构建图、标签召回和三组提示词，核对冻结矩阵、实体、源码和知识指纹。每次请求前及结束时检查输入、实现、已生成源码和原始响应，发现变化则保留已有尝试并使执行无效。successful 调用必须有匹配响应与源码哈希；测试适配器始终标记 test_adapter，不声称真实供应商成绩。这里是可信本地环境下的追溯和完整性校验，不是服务商签名认证。
+
+调用记录保留请求 / 返回模型、实际应用参数、时延、供应商 usage、原始响应及源码提取哈希；失败记录只保留必要状态，避免写入供应商错误体或密钥。未返回完整有效 usage 时只展示已知小计及覆盖，未知不记零，不推断货币费用。报告同时生成 JSON 和 Markdown。公开 API 结构检查覆盖类 / 包、构造器、方法类型及 static，不代替抛出异常兼容、公开字段和完整任务审查。
 
 如仅需本地核验导入代码，将源码放入 `results/<baseline|rag|tagged>/<CASE-ID>-<repetition>.java`，再执行：
 
@@ -50,6 +64,17 @@ EVAL_JAVAC="$PWD/.tools/jdk/bin/javac" EVAL_JAVA="$PWD/.tools/jdk/bin/java" \
   node eval/tagged-edit/evaluate.ts .eval-cache/edit-run-new .eval-cache/edit-import-report-new.json
 ```
 
-评估器拒绝被改动的冻结输入 / 提示词 / 验收器和知识版本，输出必须是新文件。所有导入结果始终标为 controlled_model_comparison=false、usage=null；不冒充受控生成或完整任务审查。缺失输出为 not_run，不计算成模型失败。初始代码在 behavior gate 中预期失败，参考修改预期通过；单独破坏工作线程恢复的变体也应失败，以验证验收器确实观察工作线程而不只检查返回值。
+评估器拒绝被改动的冻结输入 / 提示词 / 验收器和知识版本，输出必须是新文件。没有执行记录的导入结果始终标为 controlled_model_comparison=false、usage=null；有执行记录时另核对调用、响应、参数、源码和实现指纹，只有完整且一致的供应商执行才能标记受控。缺失输出为 not_run，不计算成模型失败。自动门控成功后仍为 review_required，完整任务完成率不擅自填成成功率；初始代码在 behavior gate 中预期失败，参考修改预期通过；单独破坏工作线程恢复的变体也应失败，以验证验收器确实观察工作线程而不只检查返回值。
+
+## 无供应商请求的完整链路演练
+
+```bash
+EVAL_JAVAC="$PWD/.tools/jdk/bin/javac" EVAL_JAVA="$PWD/.tools/jdk/bin/java" \
+  node eval/tagged-edit/dry-run.ts eval/tagged-edit/prepared/2026-11-02 .eval-cache/tagged-reference-new
+```
+
+演练给三个策略返回相同的 Agent 编写参考源码，只测试记录、提取、编译、行为和报告。归档 `dry-runs/2026-11-02-recorder` 中 supplier 模式请求为 0、test_adapter 尝试 9、输出 9；usage 未知，不能计入任何策略的模型质量或 token 成本。其 controlled_model_comparison 永远为 false。本轮未向真实供应商发送新请求。
 
 本轮本地验证：类型检查通过，JDK 21 与固定依赖校验通过，定向 9/9、完整回归 167/167，均无失败、无跳过；日志见 `eval/tagged-edit/validation/`。这些是实现与验收器的本地验证，不是三组模型效果成绩。
+
+执行器补充验证：完整回归 174/174，0 失败、0 跳过，类型检查通过；参考适配器 9/9 输出均通过编译及配置行为验收，真实供应商请求 0。新日志见 `eval/tagged-edit/execution-validation/`；不构成标签路线的模型效果结论。

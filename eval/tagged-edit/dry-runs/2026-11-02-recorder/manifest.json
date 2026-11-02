@@ -1,0 +1,685 @@
+{
+  "protocol": "entity-tag-edit-v1",
+  "prepare_only": true,
+  "model_requests": 0,
+  "quality_results": null,
+  "tree_hash": "6500fa00cab4e2278f9d34dcac2d39825728c88948eabe207ba20ac78966449d",
+  "acceptance_hash": "4ef96e878d110193754969e90154fe1f8287c204aebcbb6b0147f34067b74bad",
+  "suite_hash": "eee33a538d346172754b58f99c073fd24bc9e89ddaeab24189dd6716a39fa871",
+  "config": {
+    "version": 1,
+    "model": "deepseek-flash",
+    "temperature": 0,
+    "maxOutputTokens": 8192,
+    "tokenBudget": 1200,
+    "topK": 5,
+    "repetitions": 1,
+    "cases": [
+      {
+        "id": "EDIT-QUEUE",
+        "file": "eval/tagged-edit/cases/BufferedNotifier.java",
+        "target": "send(String)",
+        "task": "保持构造器、send 和 stop 公开接口，把通知服务的任务缓冲限制为最多 2 个排队任务；处理不过来时同步抛 RejectedExecutionException，不能在提交线程降级运行或静默丢弃。保留实际 sink 调用和正常关闭排空行为。",
+        "facts": "下游为阻塞 I/O；本次保持单工作线程，允许两项等待任务；调用方能处理显式拒绝。",
+        "planned": []
+      },
+      {
+        "id": "EDIT-ASYNC",
+        "file": "eval/tagged-edit/cases/EventPublisher.java",
+        "target": "publish(String)",
+        "task": "保持 Consumer 构造器、publish 和 stop 公开接口，把同步事件发布改为实例线程池异步发布。固定 1 个工作线程、最多 2 项排队；饱和或关闭后同步抛 RejectedExecutionException。回调失败记录并隔离，不阻止后续事件，stop 等待已接受任务完成，不能静默丢弃。",
+        "facts": "下游为阻塞 I/O，不允许在提交线程执行；期望继续复用同一实例线程池。",
+        "planned": [
+          {
+            "leaf": "tp.create.queue",
+            "reason": "本次新增有界异步缓冲，需要选择队列"
+          },
+          {
+            "leaf": "tp.create.rejection",
+            "reason": "本次新增异步提交，需明确过载拒绝"
+          },
+          {
+            "leaf": "tp.use.exception",
+            "reason": "本次新增后台回调，需隔离异常"
+          },
+          {
+            "leaf": "tp.use.shutdown",
+            "reason": "本次新增线程池，stop 必须等待排空"
+          }
+        ]
+      },
+      {
+        "id": "EDIT-CONTEXT",
+        "file": "eval/tagged-edit/cases/TenantJob.java",
+        "target": "run(String,String)",
+        "task": "保持构造器、run、stop 和 TENANT 公开接口及正常返回 tenant:工作结果，修复 run 调用方和复用工作线程的租户上下文泄漏；成功和回调异常后都在对应 finally 恢复原值，原无值时 remove。保留现有线程池容量、等待超时和正常关闭行为。",
+        "facts": "同一实例服务多个租户；调用方和工作线程均可能已有不同租户上下文。",
+        "planned": []
+      }
+    ]
+  },
+  "planned_calls": 9,
+  "jobs": [
+    {
+      "case_id": "EDIT-QUEUE",
+      "repetition": 1,
+      "strategy": "baseline",
+      "entity": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::send(String)",
+      "source_hash": "456e62be8a55214d257d95a33744a8c84cda5095f18318f05ccc608d4248def6",
+      "common_task_hash": "525630794dfbf4844e85b8f96b6037a3da479f4297f86865621df6e72b9aa639",
+      "prompt_hash": "9a46053281900ff29ed4179dd1c20d6846c241d7232799e4c9734d039617c130",
+      "prompt_file": "prompts/baseline/EDIT-QUEUE-1.md",
+      "knowledge_tokens_estimated": 0,
+      "retrieval": null,
+      "status": "prepared_not_requested"
+    },
+    {
+      "case_id": "EDIT-QUEUE",
+      "repetition": 1,
+      "strategy": "rag",
+      "entity": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::send(String)",
+      "source_hash": "456e62be8a55214d257d95a33744a8c84cda5095f18318f05ccc608d4248def6",
+      "common_task_hash": "525630794dfbf4844e85b8f96b6037a3da479f4297f86865621df6e72b9aa639",
+      "prompt_hash": "612548127f627829faf0120b68cf78adc9a3d71244eeadf1877f69e92f96eabb",
+      "prompt_file": "prompts/rag/EDIT-QUEUE-1.md",
+      "knowledge_tokens_estimated": 1194,
+      "retrieval": null,
+      "status": "prepared_not_requested"
+    },
+    {
+      "case_id": "EDIT-QUEUE",
+      "repetition": 1,
+      "strategy": "tagged",
+      "entity": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::send(String)",
+      "source_hash": "456e62be8a55214d257d95a33744a8c84cda5095f18318f05ccc608d4248def6",
+      "common_task_hash": "525630794dfbf4844e85b8f96b6037a3da479f4297f86865621df6e72b9aa639",
+      "prompt_hash": "979e43bd519531cfa63c1d0c105054c0bfa2ad6be42974b85be2560d994e5516",
+      "prompt_file": "prompts/tagged/EDIT-QUEUE-1.md",
+      "knowledge_tokens_estimated": 1001,
+      "retrieval": {
+        "context": "## 按代码实体标签召回的知识\n### tp.use.result 线程池 / 使用代码方式 / 提交方式与结果消费 [编码规范]\n无需结果时 execute 并处理任务异常；submit 会封装异常，必须消费结果或明确转交结果责任，局部赋值不等于结果被处理。\n关联规则：TP-SUBMIT-001\n来源：java-thread-pool-summary.md, java-thread-pool-best-practices.md\n\n### tp.use.exception 线程池 / 使用代码方式 / 任务异常与周期执行 [编码规范]\n异常必须可观察；周期回调需在整体任务内保护 RuntimeException，提交外层 catch 不会阻止后续周期被抑制。\n关联规则：TP-SUBMIT-005\n来源：java-thread-pool-summary.md, java-thread-pool-best-practices.md\n\n### tp.create.workload 线程池 / 创建与参数决策 / 任务类型与线程模型 [决策知识]\n先区分 CPU 密集、阻塞 I/O、周期任务与下游并发限制。CPU 工作从可用核数起步并压测；阻塞 I/O 根据等待比例及下游容量评估；虚拟线程仍要限制下游并发，不能把线程轻量等同无限资源。\n关联规则：需结合任务条件判断\n来源：java-thread-pool-summary.md, java-thread-pool-best-practices.md\n\n### tp.create.explicit 线程池 / 创建与参数决策 / 显式配置与生命周期归属 [编码规范]\n显式配置池、队列与拒绝行为，避免请求内重复建池。明确实例或容器的唯一生命周期责任方；标准快捷工厂可能隐藏无界资源。\n关联规则：TP-CREATE-001, TP-CREATE-002, TP-CREATE-005\n来源：java-thread-pool-summary.md, java-thread-pool-best-practices.md\n\n### tp.create.sizing 线程池 / 创建与参数决策 / 线程数与空闲回收决策 [决策知识]\n先确定吞吐、任务耗时、突发流量及下游并发上限，再选择核心数和最大数。队列未满时通常不会扩到最大线程数；空闲回收要结合 keepAlive 与核心线程超时配置，用实际负载观察而非套固定公式。\n关联规则：TP-CONFIG-001, TP-CONFIG-002, TP-CONFIG-003\n来源：java-thread-pool-summary.md, java-thread-pool-best-practices.md\n\n### tp.create.queue 线程池 / 创建与参数决策 / 任务队列选择决策 [决策知识]\n需要有限缓冲时考虑有界 ArrayBlockingQueue 或显式容量 LinkedBlockingQueue；不希望排队时评估 SynchronousQueue 与线程上限、拒绝联动；有优先级需求时评估排序及饥饿风险。PriorityBlockingQueue 的构造容量只是初始容量。根据可接受排队延迟、任务内存、突发量和拒绝行为选容量；未知工作负载先询问或测量，不臆造唯一最佳参数。\n关联规则：TP-CONFIG-004, TP-CONFIG-005\n来源：java-thread-pool-summary.md, java-thread-pool-best-practices.md",
+        "estimated_tokens": 1001,
+        "selected_leaf_ids": [
+          "tp.use.result",
+          "tp.use.exception",
+          "tp.create.workload",
+          "tp.create.explicit",
+          "tp.create.sizing",
+          "tp.create.queue"
+        ],
+        "dropped_leaf_ids": [
+          "tp.create.rejection"
+        ],
+        "entities": [
+          {
+            "id": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::send(String)",
+            "depth": 0,
+            "via": "selected"
+          },
+          {
+            "id": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::field:pool",
+            "depth": 1,
+            "via": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::send(String) --uses--> eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::field:pool"
+          },
+          {
+            "id": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::field:sink",
+            "depth": 1,
+            "via": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::send(String) --uses--> eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::field:sink"
+          }
+        ],
+        "provenance": {
+          "tp.use.result": [
+            {
+              "entity": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::send(String)",
+              "via": "selected",
+              "tag": {
+                "leaf": "tp.use.result",
+                "origin": "ast",
+                "feature": "THREAD_POOL.SUBMIT",
+                "evidence": "public void send(String message){pool.execute(()->sink.accept(message));}",
+                "line": 7,
+                "column": 38,
+                "confidence": "high",
+                "attributes": {
+                  "method": "execute",
+                  "receiver": "pool",
+                  "resolution": "initializer",
+                  "result_used": false
+                }
+              }
+            }
+          ],
+          "tp.use.exception": [
+            {
+              "entity": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::send(String)",
+              "via": "selected",
+              "tag": {
+                "leaf": "tp.use.exception",
+                "origin": "ast",
+                "feature": "THREAD_POOL.EXECUTE",
+                "evidence": "public void send(String message){pool.execute(()->sink.accept(message));}",
+                "line": 7,
+                "column": 38,
+                "confidence": "high",
+                "attributes": {
+                  "method": "execute",
+                  "receiver": "pool",
+                  "resolution": "initializer",
+                  "result_used": false
+                }
+              }
+            }
+          ],
+          "tp.create.workload": [
+            {
+              "entity": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::field:pool",
+              "via": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::send(String) --uses--> eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::field:pool",
+              "tag": {
+                "leaf": "tp.create.workload",
+                "origin": "ast",
+                "feature": "THREAD_POOL.CREATE",
+                "evidence": "private final ThreadPoolExecutor pool = new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new LinkedBlockingQueue<>(),new ThreadPoolExecutor.AbortPolicy());",
+                "line": 5,
+                "column": 45,
+                "confidence": "high",
+                "attributes": {
+                  "kind": "thread_pool_executor",
+                  "scope": "field"
+                }
+              }
+            }
+          ],
+          "tp.create.explicit": [
+            {
+              "entity": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::field:pool",
+              "via": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::send(String) --uses--> eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::field:pool",
+              "tag": {
+                "leaf": "tp.create.explicit",
+                "origin": "ast",
+                "feature": "THREAD_POOL.CREATE",
+                "evidence": "private final ThreadPoolExecutor pool = new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new LinkedBlockingQueue<>(),new ThreadPoolExecutor.AbortPolicy());",
+                "line": 5,
+                "column": 45,
+                "confidence": "high",
+                "attributes": {
+                  "kind": "thread_pool_executor",
+                  "scope": "field"
+                }
+              }
+            }
+          ],
+          "tp.create.sizing": [
+            {
+              "entity": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::field:pool",
+              "via": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::send(String) --uses--> eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::field:pool",
+              "tag": {
+                "leaf": "tp.create.sizing",
+                "origin": "ast",
+                "feature": "THREAD_POOL.CONFIG.CORE_SIZE",
+                "evidence": "private final ThreadPoolExecutor pool = new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new LinkedBlockingQueue<>(),new ThreadPoolExecutor.AbortPolicy());",
+                "line": 5,
+                "column": 45,
+                "confidence": "high",
+                "attributes": {
+                  "value": "1"
+                }
+              }
+            },
+            {
+              "entity": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::field:pool",
+              "via": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::send(String) --uses--> eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::field:pool",
+              "tag": {
+                "leaf": "tp.create.sizing",
+                "origin": "ast",
+                "feature": "THREAD_POOL.CONFIG.MAX_SIZE",
+                "evidence": "private final ThreadPoolExecutor pool = new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new LinkedBlockingQueue<>(),new ThreadPoolExecutor.AbortPolicy());",
+                "line": 5,
+                "column": 45,
+                "confidence": "high",
+                "attributes": {
+                  "value": "1"
+                }
+              }
+            },
+            {
+              "entity": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::field:pool",
+              "via": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::send(String) --uses--> eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::field:pool",
+              "tag": {
+                "leaf": "tp.create.sizing",
+                "origin": "ast",
+                "feature": "THREAD_POOL.CONFIG.KEEP_ALIVE",
+                "evidence": "private final ThreadPoolExecutor pool = new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new LinkedBlockingQueue<>(),new ThreadPoolExecutor.AbortPolicy());",
+                "line": 5,
+                "column": 45,
+                "confidence": "high",
+                "attributes": {
+                  "value": "30",
+                  "unit": "TimeUnit.SECONDS"
+                }
+              }
+            }
+          ],
+          "tp.create.queue": [
+            {
+              "entity": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::field:pool",
+              "via": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::send(String) --uses--> eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::field:pool",
+              "tag": {
+                "leaf": "tp.create.queue",
+                "origin": "ast",
+                "feature": "THREAD_POOL.CONFIG.QUEUE",
+                "evidence": "private final ThreadPoolExecutor pool = new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new LinkedBlockingQueue<>(),new ThreadPoolExecutor.AbortPolicy());",
+                "line": 5,
+                "column": 92,
+                "confidence": "high",
+                "attributes": {
+                  "queue": "LinkedBlockingQueue",
+                  "bounded": false,
+                  "capacity": "unset"
+                }
+              }
+            }
+          ],
+          "tp.create.rejection": [
+            {
+              "entity": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::field:pool",
+              "via": "eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::send(String) --uses--> eval/tagged-edit/cases/BufferedNotifier.java#BufferedNotifier::field:pool",
+              "tag": {
+                "leaf": "tp.create.rejection",
+                "origin": "ast",
+                "feature": "THREAD_POOL.CONFIG.REJECTION",
+                "evidence": "private final ThreadPoolExecutor pool = new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new LinkedBlockingQueue<>(),new ThreadPoolExecutor.AbortPolicy());",
+                "line": 5,
+                "column": 120,
+                "confidence": "high",
+                "attributes": {
+                  "policy": "AbortPolicy",
+                  "kind": "abort"
+                }
+              }
+            }
+          ]
+        },
+        "tree_hash": "6500fa00cab4e2278f9d34dcac2d39825728c88948eabe207ba20ac78966449d",
+        "source_hash": "456e62be8a55214d257d95a33744a8c84cda5095f18318f05ccc608d4248def6",
+        "warnings": [
+          "Knowledge budget omitted leaves; retrieval is not complete coverage."
+        ]
+      },
+      "status": "prepared_not_requested"
+    },
+    {
+      "case_id": "EDIT-ASYNC",
+      "repetition": 1,
+      "strategy": "baseline",
+      "entity": "eval/tagged-edit/cases/EventPublisher.java#EventPublisher::publish(String)",
+      "source_hash": "01633da2543f48fb14e2486410d3b5188453c16b236f924fc507392fd1cfcddf",
+      "common_task_hash": "3c186c728e4af796a0470a74bef9d573a774865b7ea56ccdd4c1abebf06086d9",
+      "prompt_hash": "9d8ea792dcf0e581bfc1e7c5ec887ef1bd4b01ba889a35a13a24765c73ff532a",
+      "prompt_file": "prompts/baseline/EDIT-ASYNC-1.md",
+      "knowledge_tokens_estimated": 0,
+      "retrieval": null,
+      "status": "prepared_not_requested"
+    },
+    {
+      "case_id": "EDIT-ASYNC",
+      "repetition": 1,
+      "strategy": "rag",
+      "entity": "eval/tagged-edit/cases/EventPublisher.java#EventPublisher::publish(String)",
+      "source_hash": "01633da2543f48fb14e2486410d3b5188453c16b236f924fc507392fd1cfcddf",
+      "common_task_hash": "3c186c728e4af796a0470a74bef9d573a774865b7ea56ccdd4c1abebf06086d9",
+      "prompt_hash": "12ef73e628979eb3f88da26197b0413e8aa7335075cb2b56e571352e6ae5e781",
+      "prompt_file": "prompts/rag/EDIT-ASYNC-1.md",
+      "knowledge_tokens_estimated": 1178,
+      "retrieval": null,
+      "status": "prepared_not_requested"
+    },
+    {
+      "case_id": "EDIT-ASYNC",
+      "repetition": 1,
+      "strategy": "tagged",
+      "entity": "eval/tagged-edit/cases/EventPublisher.java#EventPublisher::publish(String)",
+      "source_hash": "01633da2543f48fb14e2486410d3b5188453c16b236f924fc507392fd1cfcddf",
+      "common_task_hash": "3c186c728e4af796a0470a74bef9d573a774865b7ea56ccdd4c1abebf06086d9",
+      "prompt_hash": "26aaa786cbc533449cadc32d2ed85882482df4d3dcb0ab75f500e95ff02d5427",
+      "prompt_file": "prompts/tagged/EDIT-ASYNC-1.md",
+      "knowledge_tokens_estimated": 739,
+      "retrieval": {
+        "context": "## 按代码实体标签召回的知识\n### tp.create.queue 线程池 / 创建与参数决策 / 任务队列选择决策 [决策知识]\n需要有限缓冲时考虑有界 ArrayBlockingQueue 或显式容量 LinkedBlockingQueue；不希望排队时评估 SynchronousQueue 与线程上限、拒绝联动；有优先级需求时评估排序及饥饿风险。PriorityBlockingQueue 的构造容量只是初始容量。根据可接受排队延迟、任务内存、突发量和拒绝行为选容量；未知工作负载先询问或测量，不臆造唯一最佳参数。\n关联规则：TP-CONFIG-004, TP-CONFIG-005\n来源：java-thread-pool-summary.md, java-thread-pool-best-practices.md\n\n### tp.create.rejection 线程池 / 创建与参数决策 / 过载与拒绝策略决策 [决策知识]\n必须明确任务能否丢失、提交线程能否阻塞、是否需要补偿。AbortPolicy 显式失败并由调用方处理；CallerRunsPolicy 会占用提交线程，Web、锁和事务路径需评估；不能丢的任务应有可观察拒绝和持久补偿方案，禁止用静默丢弃掩盖过载。\n关联规则：TP-REJECT-001, TP-REJECT-002, TP-REJECT-003, TP-REJECT-004, TP-REJECT-005\n来源：java-thread-pool-summary.md, java-thread-pool-best-practices.md\n\n### tp.use.exception 线程池 / 使用代码方式 / 任务异常与周期执行 [编码规范]\n异常必须可观察；周期回调需在整体任务内保护 RuntimeException，提交外层 catch 不会阻止后续周期被抑制。\n关联规则：TP-SUBMIT-005\n来源：java-thread-pool-summary.md, java-thread-pool-best-practices.md\n\n### tp.use.shutdown 线程池 / 使用代码方式 / 关闭、重复关闭与等待终止 [编码规范]\n停止准入后等待已接受任务；超时强制关闭后再次有界等待，未终止须明确失败。重复或并发关闭也要等待同一结果；处理中断后恢复标志。Java 21 close 本身等待终止。\n关联规则：TP-SHUTDOWN-001, TP-SHUTDOWN-002, TP-SHUTDOWN-003\n来源：java-thread-pool-summary.md, java-thread-pool-best-practices.md",
+        "estimated_tokens": 739,
+        "selected_leaf_ids": [
+          "tp.create.queue",
+          "tp.create.rejection",
+          "tp.use.exception",
+          "tp.use.shutdown"
+        ],
+        "dropped_leaf_ids": [],
+        "entities": [
+          {
+            "id": "eval/tagged-edit/cases/EventPublisher.java#EventPublisher::publish(String)",
+            "depth": 0,
+            "via": "selected"
+          },
+          {
+            "id": "eval/tagged-edit/cases/EventPublisher.java#EventPublisher::field:receiver",
+            "depth": 1,
+            "via": "eval/tagged-edit/cases/EventPublisher.java#EventPublisher::publish(String) --uses--> eval/tagged-edit/cases/EventPublisher.java#EventPublisher::field:receiver"
+          }
+        ],
+        "provenance": {
+          "tp.create.queue": [
+            {
+              "via": "planned",
+              "reason": "本次新增有界异步缓冲，需要选择队列"
+            }
+          ],
+          "tp.create.rejection": [
+            {
+              "via": "planned",
+              "reason": "本次新增异步提交，需明确过载拒绝"
+            }
+          ],
+          "tp.use.exception": [
+            {
+              "via": "planned",
+              "reason": "本次新增后台回调，需隔离异常"
+            }
+          ],
+          "tp.use.shutdown": [
+            {
+              "via": "planned",
+              "reason": "本次新增线程池，stop 必须等待排空"
+            }
+          ]
+        },
+        "tree_hash": "6500fa00cab4e2278f9d34dcac2d39825728c88948eabe207ba20ac78966449d",
+        "source_hash": "01633da2543f48fb14e2486410d3b5188453c16b236f924fc507392fd1cfcddf",
+        "warnings": []
+      },
+      "status": "prepared_not_requested"
+    },
+    {
+      "case_id": "EDIT-CONTEXT",
+      "repetition": 1,
+      "strategy": "baseline",
+      "entity": "eval/tagged-edit/cases/TenantJob.java#TenantJob::run(String,String)",
+      "source_hash": "7696a9fb6d0063cc4f291fa5b28b9f219490eb6dc7efb89f61d37e4924d42c5c",
+      "common_task_hash": "08b1f50b8d9101da6b0a95379ef844714e2fca6e8a1a65ba0390df41787b4f38",
+      "prompt_hash": "c9331feb57100efea1d228469ffb3412d7eafda3f1049679bcd06dc7ee199b2d",
+      "prompt_file": "prompts/baseline/EDIT-CONTEXT-1.md",
+      "knowledge_tokens_estimated": 0,
+      "retrieval": null,
+      "status": "prepared_not_requested"
+    },
+    {
+      "case_id": "EDIT-CONTEXT",
+      "repetition": 1,
+      "strategy": "rag",
+      "entity": "eval/tagged-edit/cases/TenantJob.java#TenantJob::run(String,String)",
+      "source_hash": "7696a9fb6d0063cc4f291fa5b28b9f219490eb6dc7efb89f61d37e4924d42c5c",
+      "common_task_hash": "08b1f50b8d9101da6b0a95379ef844714e2fca6e8a1a65ba0390df41787b4f38",
+      "prompt_hash": "ab24b46f79b480554002ec790da48cc83b268706edcb8a64d76663787522cffa",
+      "prompt_file": "prompts/rag/EDIT-CONTEXT-1.md",
+      "knowledge_tokens_estimated": 1150,
+      "retrieval": null,
+      "status": "prepared_not_requested"
+    },
+    {
+      "case_id": "EDIT-CONTEXT",
+      "repetition": 1,
+      "strategy": "tagged",
+      "entity": "eval/tagged-edit/cases/TenantJob.java#TenantJob::run(String,String)",
+      "source_hash": "7696a9fb6d0063cc4f291fa5b28b9f219490eb6dc7efb89f61d37e4924d42c5c",
+      "common_task_hash": "08b1f50b8d9101da6b0a95379ef844714e2fca6e8a1a65ba0390df41787b4f38",
+      "prompt_hash": "875262e5919a17a74e5d02ae02ceb8e50100c135300eb6eaa10b715e43b55735",
+      "prompt_file": "prompts/tagged/EDIT-CONTEXT-1.md",
+      "knowledge_tokens_estimated": 1179,
+      "retrieval": {
+        "context": "## 按代码实体标签召回的知识\n### tp.use.context 线程池 / 使用代码方式 / 调用方与工作线程上下文恢复 [编码规范]\n捕获原上下文，在当前执行路径的 finally 中恢复旧值或 remove；同时检查调用方与工作线程，延迟 lambda 中的 remove 不是已经清理。\n关联规则：TP-SUBMIT-004\n来源：java-thread-pool-summary.md, java-thread-pool-best-practices.md\n\n### tp.use.result 线程池 / 使用代码方式 / 提交方式与结果消费 [编码规范]\n无需结果时 execute 并处理任务异常；submit 会封装异常，必须消费结果或明确转交结果责任，局部赋值不等于结果被处理。\n关联规则：TP-SUBMIT-001\n来源：java-thread-pool-summary.md, java-thread-pool-best-practices.md\n\n### tp.use.timeout 线程池 / 使用代码方式 / 等待超时与实际任务取消 [编码规范]\n等待应有超时。超时不代表任务停止，保留实际执行句柄并验证中断响应；取消排队任务时移除实际入队 Runnable，不能用内部 FutureTask 移除外层包装器；关闭还要完成等待结果。\n关联规则：TP-SUBMIT-002\n来源：java-thread-pool-summary.md, java-thread-pool-best-practices.md\n\n### tp.create.workload 线程池 / 创建与参数决策 / 任务类型与线程模型 [决策知识]\n先区分 CPU 密集、阻塞 I/O、周期任务与下游并发限制。CPU 工作从可用核数起步并压测；阻塞 I/O 根据等待比例及下游容量评估；虚拟线程仍要限制下游并发，不能把线程轻量等同无限资源。\n关联规则：需结合任务条件判断\n来源：java-thread-pool-summary.md, java-thread-pool-best-practices.md\n\n### tp.create.explicit 线程池 / 创建与参数决策 / 显式配置与生命周期归属 [编码规范]\n显式配置池、队列与拒绝行为，避免请求内重复建池。明确实例或容器的唯一生命周期责任方；标准快捷工厂可能隐藏无界资源。\n关联规则：TP-CREATE-001, TP-CREATE-002, TP-CREATE-005\n来源：java-thread-pool-summary.md, java-thread-pool-best-practices.md\n\n### tp.create.sizing 线程池 / 创建与参数决策 / 线程数与空闲回收决策 [决策知识]\n先确定吞吐、任务耗时、突发流量及下游并发上限，再选择核心数和最大数。队列未满时通常不会扩到最大线程数；空闲回收要结合 keepAlive 与核心线程超时配置，用实际负载观察而非套固定公式。\n关联规则：TP-CONFIG-001, TP-CONFIG-002, TP-CONFIG-003\n来源：java-thread-pool-summary.md, java-thread-pool-best-practices.md\n\n### tp.create.queue 线程池 / 创建与参数决策 / 任务队列选择决策 [决策知识]\n需要有限缓冲时考虑有界 ArrayBlockingQueue 或显式容量 LinkedBlockingQueue；不希望排队时评估 SynchronousQueue 与线程上限、拒绝联动；有优先级需求时评估排序及饥饿风险。PriorityBlockingQueue 的构造容量只是初始容量。根据可接受排队延迟、任务内存、突发量和拒绝行为选容量；未知工作负载先询问或测量，不臆造唯一最佳参数。\n关联规则：TP-CONFIG-004, TP-CONFIG-005\n来源：java-thread-pool-summary.md, java-thread-pool-best-practices.md",
+        "estimated_tokens": 1179,
+        "selected_leaf_ids": [
+          "tp.use.context",
+          "tp.use.result",
+          "tp.use.timeout",
+          "tp.create.workload",
+          "tp.create.explicit",
+          "tp.create.sizing",
+          "tp.create.queue"
+        ],
+        "dropped_leaf_ids": [],
+        "entities": [
+          {
+            "id": "eval/tagged-edit/cases/TenantJob.java#TenantJob::run(String,String)",
+            "depth": 0,
+            "via": "selected"
+          },
+          {
+            "id": "eval/tagged-edit/cases/TenantJob.java#TenantJob::field:TENANT",
+            "depth": 1,
+            "via": "eval/tagged-edit/cases/TenantJob.java#TenantJob::run(String,String) --uses--> eval/tagged-edit/cases/TenantJob.java#TenantJob::field:TENANT"
+          },
+          {
+            "id": "eval/tagged-edit/cases/TenantJob.java#TenantJob::field:pool",
+            "depth": 1,
+            "via": "eval/tagged-edit/cases/TenantJob.java#TenantJob::run(String,String) --uses--> eval/tagged-edit/cases/TenantJob.java#TenantJob::field:pool"
+          },
+          {
+            "id": "eval/tagged-edit/cases/TenantJob.java#TenantJob::field:work",
+            "depth": 1,
+            "via": "eval/tagged-edit/cases/TenantJob.java#TenantJob::run(String,String) --uses--> eval/tagged-edit/cases/TenantJob.java#TenantJob::field:work"
+          }
+        ],
+        "provenance": {
+          "tp.use.context": [
+            {
+              "entity": "eval/tagged-edit/cases/TenantJob.java#TenantJob::run(String,String)",
+              "via": "selected",
+              "tag": {
+                "leaf": "tp.use.context",
+                "origin": "ast",
+                "feature": "THREAD_POOL.THREAD_LOCAL",
+                "evidence": "TENANT.set(tenant);",
+                "line": 9,
+                "column": 9,
+                "confidence": "high",
+                "attributes": {
+                  "kind": "set",
+                  "name": "TENANT",
+                  "in_finally": false
+                }
+              }
+            },
+            {
+              "entity": "eval/tagged-edit/cases/TenantJob.java#TenantJob::run(String,String)",
+              "via": "selected",
+              "tag": {
+                "leaf": "tp.use.context",
+                "origin": "ast",
+                "feature": "THREAD_POOL.THREAD_LOCAL",
+                "evidence": "Future<String> result=pool.submit(()->{TENANT.set(tenant);return TENANT.get()+\":\"+work.apply(payload);});",
+                "line": 10,
+                "column": 48,
+                "confidence": "high",
+                "attributes": {
+                  "kind": "set",
+                  "name": "TENANT",
+                  "in_finally": false
+                }
+              }
+            },
+            {
+              "entity": "eval/tagged-edit/cases/TenantJob.java#TenantJob::run(String,String)",
+              "via": "selected",
+              "tag": {
+                "leaf": "tp.use.context",
+                "origin": "ast",
+                "feature": "THREAD_POOL.THREAD_LOCAL",
+                "evidence": "Future<String> result=pool.submit(()->{TENANT.set(tenant);return TENANT.get()+\":\"+work.apply(payload);});",
+                "line": 10,
+                "column": 74,
+                "confidence": "high",
+                "attributes": {
+                  "kind": "get",
+                  "name": "TENANT",
+                  "in_finally": false
+                }
+              }
+            }
+          ],
+          "tp.use.result": [
+            {
+              "entity": "eval/tagged-edit/cases/TenantJob.java#TenantJob::run(String,String)",
+              "via": "selected",
+              "tag": {
+                "leaf": "tp.use.result",
+                "origin": "ast",
+                "feature": "THREAD_POOL.SUBMIT",
+                "evidence": "Future<String> result=pool.submit(()->{TENANT.set(tenant);return TENANT.get()+\":\"+work.apply(payload);});",
+                "line": 10,
+                "column": 31,
+                "confidence": "high",
+                "attributes": {
+                  "method": "submit",
+                  "receiver": "pool",
+                  "resolution": "initializer",
+                  "result_used": true
+                }
+              }
+            }
+          ],
+          "tp.use.timeout": [
+            {
+              "entity": "eval/tagged-edit/cases/TenantJob.java#TenantJob::run(String,String)",
+              "via": "selected",
+              "tag": {
+                "leaf": "tp.use.timeout",
+                "origin": "ast",
+                "feature": "THREAD_POOL.FUTURE.GET",
+                "evidence": "return result.get(2,TimeUnit.SECONDS);",
+                "line": 11,
+                "column": 16,
+                "confidence": "high",
+                "attributes": {
+                  "receiver": "result",
+                  "timeout": true
+                }
+              }
+            }
+          ],
+          "tp.create.workload": [
+            {
+              "entity": "eval/tagged-edit/cases/TenantJob.java#TenantJob::field:pool",
+              "via": "eval/tagged-edit/cases/TenantJob.java#TenantJob::run(String,String) --uses--> eval/tagged-edit/cases/TenantJob.java#TenantJob::field:pool",
+              "tag": {
+                "leaf": "tp.create.workload",
+                "origin": "ast",
+                "feature": "THREAD_POOL.CREATE",
+                "evidence": "private final ThreadPoolExecutor pool=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(2));",
+                "line": 6,
+                "column": 43,
+                "confidence": "high",
+                "attributes": {
+                  "kind": "thread_pool_executor",
+                  "scope": "field"
+                }
+              }
+            }
+          ],
+          "tp.create.explicit": [
+            {
+              "entity": "eval/tagged-edit/cases/TenantJob.java#TenantJob::field:pool",
+              "via": "eval/tagged-edit/cases/TenantJob.java#TenantJob::run(String,String) --uses--> eval/tagged-edit/cases/TenantJob.java#TenantJob::field:pool",
+              "tag": {
+                "leaf": "tp.create.explicit",
+                "origin": "ast",
+                "feature": "THREAD_POOL.CREATE",
+                "evidence": "private final ThreadPoolExecutor pool=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(2));",
+                "line": 6,
+                "column": 43,
+                "confidence": "high",
+                "attributes": {
+                  "kind": "thread_pool_executor",
+                  "scope": "field"
+                }
+              }
+            }
+          ],
+          "tp.create.sizing": [
+            {
+              "entity": "eval/tagged-edit/cases/TenantJob.java#TenantJob::field:pool",
+              "via": "eval/tagged-edit/cases/TenantJob.java#TenantJob::run(String,String) --uses--> eval/tagged-edit/cases/TenantJob.java#TenantJob::field:pool",
+              "tag": {
+                "leaf": "tp.create.sizing",
+                "origin": "ast",
+                "feature": "THREAD_POOL.CONFIG.CORE_SIZE",
+                "evidence": "private final ThreadPoolExecutor pool=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(2));",
+                "line": 6,
+                "column": 43,
+                "confidence": "high",
+                "attributes": {
+                  "value": "1"
+                }
+              }
+            },
+            {
+              "entity": "eval/tagged-edit/cases/TenantJob.java#TenantJob::field:pool",
+              "via": "eval/tagged-edit/cases/TenantJob.java#TenantJob::run(String,String) --uses--> eval/tagged-edit/cases/TenantJob.java#TenantJob::field:pool",
+              "tag": {
+                "leaf": "tp.create.sizing",
+                "origin": "ast",
+                "feature": "THREAD_POOL.CONFIG.MAX_SIZE",
+                "evidence": "private final ThreadPoolExecutor pool=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(2));",
+                "line": 6,
+                "column": 43,
+                "confidence": "high",
+                "attributes": {
+                  "value": "1"
+                }
+              }
+            },
+            {
+              "entity": "eval/tagged-edit/cases/TenantJob.java#TenantJob::field:pool",
+              "via": "eval/tagged-edit/cases/TenantJob.java#TenantJob::run(String,String) --uses--> eval/tagged-edit/cases/TenantJob.java#TenantJob::field:pool",
+              "tag": {
+                "leaf": "tp.create.sizing",
+                "origin": "ast",
+                "feature": "THREAD_POOL.CONFIG.KEEP_ALIVE",
+                "evidence": "private final ThreadPoolExecutor pool=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(2));",
+                "line": 6,
+                "column": 43,
+                "confidence": "high",
+                "attributes": {
+                  "value": "30",
+                  "unit": "TimeUnit.SECONDS"
+                }
+              }
+            }
+          ],
+          "tp.create.queue": [
+            {
+              "entity": "eval/tagged-edit/cases/TenantJob.java#TenantJob::field:pool",
+              "via": "eval/tagged-edit/cases/TenantJob.java#TenantJob::run(String,String) --uses--> eval/tagged-edit/cases/TenantJob.java#TenantJob::field:pool",
+              "tag": {
+                "leaf": "tp.create.queue",
+                "origin": "ast",
+                "feature": "THREAD_POOL.CONFIG.QUEUE",
+                "evidence": "private final ThreadPoolExecutor pool=new ThreadPoolExecutor(1,1,30,TimeUnit.SECONDS,new ArrayBlockingQueue<>(2));",
+                "line": 6,
+                "column": 90,
+                "confidence": "high",
+                "attributes": {
+                  "queue": "ArrayBlockingQueue",
+                  "bounded": true,
+                  "capacity": "2"
+                }
+              }
+            }
+          ]
+        },
+        "tree_hash": "6500fa00cab4e2278f9d34dcac2d39825728c88948eabe207ba20ac78966449d",
+        "source_hash": "7696a9fb6d0063cc4f291fa5b28b9f219490eb6dc7efb89f61d37e4924d42c5c",
+        "warnings": []
+      },
+      "status": "prepared_not_requested"
+    }
+  ]
+}
