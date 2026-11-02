@@ -1,5 +1,7 @@
 # Knowledge Rule Engine (Phase 1 PoC)
 
+**进度与接续入口：** [当前进度 / 新对话交接](docs/PROJECT-PROGRESS.md) · [执行看板](docs/PROJECT-BOARD.md)。切换对话后先读取这两份文件，从第一项未完成任务继续。
+
 项目原始目标是“分层知识库 → 代码实体标签 → 修改时局部知识召回 → 验证 Agent 规范遵循”。已实现线程池知识树（15 个叶子）、文件内轻量 CodeGraph 标签与失效更新，并完成首次 3 任务 × 3 策略真实修改试点（9 次调用）。标签组未提高原始编译 / 行为通过数或静态遵循均值，补充审查观察到一例日志处理差异；尚不能证明整体收益。见 [试点结果](eval/tagged-edit/experiments/2026-11-02-firstpass/README.md)、[完整流程](docs/TAGGED-KNOWLEDGE.md)、[修改协议](eval/tagged-edit/PROTOCOL.md) 和 [汇报材料](docs/PROPOSAL-BRIEFING.md)。下文规则校验能力是该目标的组件。
 
 三组修改实验已补上显式预算执行器和可追溯报告：原准备清单不变，另记录实际调用、响应、源码、用量与失败状态。参考代码演练不计作真实模型实验；真实执行命令和证据边界见上述实验协议。
